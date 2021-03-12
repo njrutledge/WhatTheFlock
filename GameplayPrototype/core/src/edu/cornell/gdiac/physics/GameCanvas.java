@@ -32,6 +32,8 @@ import com.badlogic.gdx.physics.box2d.*;
  * that mode must be done in a separate begin/end pass.
  */
 public class GameCanvas {
+	//TODO: If we plan to do any interesting graphical effects, that will be done here.
+
 	/** Enumeration to track which pass we are in */
 	private enum DrawPass {
 		/** We are not drawing */

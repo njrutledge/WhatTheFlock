@@ -30,6 +30,8 @@ import edu.cornell.gdiac.physics.platform.*;
  * and you would draw it as a root class in an architecture specification.  
  */
 public class GDXRoot extends Game implements ScreenListener {
+	//TODO: If other scenes are necessary, it will be done here, otherwise not much should change
+
 	/** AssetManager to load game assets (textures, sounds, etc.) */
 	AssetDirectory directory;
 	/** Drawing context to display graphics (VIEW CLASS) */

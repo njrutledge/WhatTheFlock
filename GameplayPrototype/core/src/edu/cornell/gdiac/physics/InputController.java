@@ -27,6 +27,8 @@ import edu.cornell.gdiac.util.*;
  * a controller via the new XBox360Controller class.
  */
 public class InputController {
+	//TODO: Change the shooting input to follow the slapping controls that we want to use (i.e. arrow keys)
+
 	// Sensitivity for moving crosshair with gameplay
 	private static final float GP_ACCELERATE = 1.0f;
 	private static final float GP_MAX_SPEED  = 10.0f;

@@ -46,6 +46,8 @@ import edu.cornell.gdiac.physics.obstacle.*;
  * place nicely with the static assets.
  */
 public abstract class WorldController implements Screen {
+	//TODO: Change goal and failure starts to better fit our prototype
+
 	/** The texture for walls and platforms */
 	protected TextureRegion earthTile;
 	/** The texture for the exit condition */

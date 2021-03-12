@@ -25,6 +25,11 @@ import edu.cornell.gdiac.physics.obstacle.*;
  * no other subclasses that we might loop through.
  */
 public class DudeModel extends CapsuleObstacle {
+	///TODO: Any gameplay or design adjustments to the player will be altered here.
+	//////////// Nothing explicit is needed now but may be when altering other files. /////
+	//////////////////////////////////////////////////////////////////////////////////////
+
+
 	/** The initializing data (to avoid magic numbers) */
 	private final JsonValue data;
 
@@ -36,10 +41,6 @@ public class DudeModel extends CapsuleObstacle {
 	private final float maxspeed;
 	/** Identifier to allow us to track the sensor in ContactListener */
 	private final String sensorName;
-//	/** The impulse for the character jump */
-//	private final float jump_force;
-//	/** Cooldown (in animation frames) for jumping */
-//	private final int jumpLimit;
 	/** Cooldown (in animation frames) for shooting */
 	private final int shotLimit;
 
@@ -50,14 +51,8 @@ public class DudeModel extends CapsuleObstacle {
 
 	/** Which direction is the character facing */
 	private boolean faceRight;
-	/** How long until we can jump again */
-	private int jumpCooldown;
-	/** Whether we are actively jumping */
-	private boolean isJumping;
 	/** How long until we can shoot again */
 	private int shootCooldown;
-	/** Whether our feet are on the ground */
-	private boolean isGrounded;
 	/** Whether we are actively shooting */
 	private boolean isShooting;
 	/** The physics shape of this object */
@@ -117,42 +112,6 @@ public class DudeModel extends CapsuleObstacle {
 	 */
 	public void setShooting(boolean value) {
 		isShooting = value; 
-	}
-
-	/**
-	 * Returns true if the dude is actively jumping.
-	 *
-	 * @return true if the dude is actively jumping.
-	 */
-	public boolean isJumping() {
-		return isJumping && isGrounded && jumpCooldown <= 0;
-	}
-	
-	/**
-	 * Sets whether the dude is actively jumping.
-	 *
-	 * @param value whether the dude is actively jumping.
-	 */
-	public void setJumping(boolean value) {
-		isJumping = value; 
-	}
-
-	/**
-	 * Returns true if the dude is on the ground.
-	 *
-	 * @return true if the dude is on the ground.
-	 */
-	public boolean isGrounded() {
-		return isGrounded;
-	}
-	
-	/**
-	 * Sets whether the dude is on the ground.
-	 *
-	 * @param value whether the dude is on the ground.
-	 */
-	public void setGrounded(boolean value) {
-		isGrounded = value; 
 	}
 
 	/**
@@ -230,20 +189,15 @@ public class DudeModel extends CapsuleObstacle {
 		maxspeed = data.getFloat("maxspeed", 0);
 		damping = data.getFloat("damping", 0);
 		force = data.getFloat("force", 0);
-//		jump_force = data.getFloat( "jump_force", 0 );
-//		jumpLimit = data.getInt( "jump_cool", 0 );
 		shotLimit = data.getInt( "shot_cool", 0 );
 		sensorName = "DudeGroundSensor";
 		this.data = data;
 
 		// Gameplay attributes
-		isGrounded = false;
 		isShooting = false;
-		isJumping = false;
 		faceRight = true;
 		
 		shootCooldown = 0;
-		jumpCooldown = 0;
 		setName("dude");
 	}
 
@@ -261,28 +215,6 @@ public class DudeModel extends CapsuleObstacle {
 		if (!super.activatePhysics(world)) {
 			return false;
 		}
-
-		// Ground Sensor
-		// -------------
-		// We only allow the dude to jump when he's on the ground. 
-		// Double jumping is not allowed.
-		//
-		// To determine whether or not the dude is on the ground, 
-		// we create a thin sensor under his feet, which reports 
-		// collisions with the world but has no collision response.
-		Vector2 sensorCenter = new Vector2(0, -getHeight() / 2);
-		FixtureDef sensorDef = new FixtureDef();
-		sensorDef.density = data.getFloat("density",0);
-		sensorDef.isSensor = true;
-		sensorShape = new PolygonShape();
-		JsonValue sensorjv = data.get("sensor");
-		sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
-								 sensorjv.getFloat("height",0), sensorCenter, 0.0f);
-		sensorDef.shape = sensorShape;
-
-		// Ground sensor to represent our feet
-		Fixture sensorFixture = body.createFixture( sensorDef );
-		sensorFixture.setUserData(getSensorName());
 		
 		return true;
 	}
@@ -325,12 +257,6 @@ public class DudeModel extends CapsuleObstacle {
 			body.applyForce(forceCache,getPosition(),true);
 		}
 
-
-		// Jump!
-//		if (isJumping()) {
-//			forceCache.set(0, jump_force);
-//			body.applyLinearImpulse(forceCache,getPosition(),true);
-//		}
 	}
 	
 	/**
@@ -341,12 +267,6 @@ public class DudeModel extends CapsuleObstacle {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-		// Apply cooldowns
-//		if (isJumping()) {
-//			jumpCooldown = jumpLimit;
-//		} else {
-//			jumpCooldown = Math.max(0, jumpCooldown - 1);
-//		}
 
 		if (isShooting()) {
 			shootCooldown = shotLimit;
