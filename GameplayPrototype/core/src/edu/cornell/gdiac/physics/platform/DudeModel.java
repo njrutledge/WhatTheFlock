@@ -36,15 +36,15 @@ public class DudeModel extends CapsuleObstacle {
 	private final float maxspeed;
 	/** Identifier to allow us to track the sensor in ContactListener */
 	private final String sensorName;
-	/** The impulse for the character jump */
-	private final float jump_force;
-	/** Cooldown (in animation frames) for jumping */
-	private final int jumpLimit;
+//	/** The impulse for the character jump */
+//	private final float jump_force;
+//	/** Cooldown (in animation frames) for jumping */
+//	private final int jumpLimit;
 	/** Cooldown (in animation frames) for shooting */
 	private final int shotLimit;
 
 	/** The current horizontal movement of the character */
-	private float   movement;
+	private float movement;
 
 	private float vertmovement;
 
@@ -230,8 +230,8 @@ public class DudeModel extends CapsuleObstacle {
 		maxspeed = data.getFloat("maxspeed", 0);
 		damping = data.getFloat("damping", 0);
 		force = data.getFloat("force", 0);
-		jump_force = data.getFloat( "jump_force", 0 );
-		jumpLimit = data.getInt( "jump_cool", 0 );
+//		jump_force = data.getFloat( "jump_force", 0 );
+//		jumpLimit = data.getInt( "jump_cool", 0 );
 		shotLimit = data.getInt( "shot_cool", 0 );
 		sensorName = "DudeGroundSensor";
 		this.data = data;
