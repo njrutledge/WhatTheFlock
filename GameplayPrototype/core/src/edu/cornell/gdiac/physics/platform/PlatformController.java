@@ -234,7 +234,7 @@ public class PlatformController extends WorldController implements ContactListen
 		
 		// Add a bullet if we fire
 		if (avatar.isShooting()) {
-			createBullet();
+			createBullet(InputController.getInstance().getSlapDirection());
 		}
 		
 		avatar.applyForce();
@@ -245,15 +245,21 @@ public class PlatformController extends WorldController implements ContactListen
 	 * Add a new bullet to the world and send it in the right direction.
 	 *
 	 */
-	private void createBullet() {
+	private void createBullet(int direction) {
 		//TODO: Instead of creating a bullet, should create a slap which behaves similarly (though inputs will be different)
 		///////This will require work outside of this file and method, but this is primarily where the magic happens
 
 		JsonValue bulletjv = constants.get("bullet");
 		float offset = bulletjv.getFloat("offset",0);
-		offset *= (avatar.isFacingRight() ? 1 : -1);
-		float radius = bulletTexture.getRegionWidth()/(2.0f*scale.x);
-		WheelObstacle bullet = new WheelObstacle(avatar.getX()+offset, avatar.getY(), radius);
+		float radius = bulletTexture.getRegionWidth() / (2.0f * scale.x);
+		WheelObstacle bullet = new WheelObstacle(avatar.getX(), avatar.getY(), radius);
+		if (direction == 2 || direction == 4) {
+			offset *= (direction == 2 ? 1 : -1);
+			bullet.setX(avatar.getX() + offset);
+		} else {
+			offset *= (direction == 1 ? 1 : -1);
+			bullet.setY(avatar.getY() + offset);
+		}
 		
 	    bullet.setName("bullet");
 		bullet.setDensity(bulletjv.getFloat("density", 0));
@@ -264,8 +270,13 @@ public class PlatformController extends WorldController implements ContactListen
 		
 		// Compute position and velocity
 		float speed = bulletjv.getFloat( "speed", 0 );
-		speed  *= (avatar.isFacingRight() ? 1 : -1);
-		bullet.setVX(speed);
+		if (direction == 2 || direction == 4) {
+			speed *= (direction == 2 ? 1 : -1);
+			bullet.setVX(speed);
+		} else {
+			speed *= (direction == 1 ? 1 : -1);
+			bullet.setVY(speed);
+		}
 		addQueuedObject(bullet);
 
 		fireId = playSound( fireSound, fireId );
