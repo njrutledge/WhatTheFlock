@@ -62,7 +62,10 @@ public class DudeModel extends CapsuleObstacle {
 	private boolean isShooting;
 	/** The physics shape of this object */
 	private PolygonShape sensorShape;
-	
+
+	/** Whether the dude is alive */
+	private boolean isAlive;
+
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache = new Vector2();
 
