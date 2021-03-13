@@ -9,6 +9,10 @@ import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 
 public class ChickenModel extends CapsuleObstacle {
+    //TODO: Implement the Enemy Chicken and its methods, feel free to add or remove methods as needed
+    ///////// Currently only dude methods which I thought were important are included, they will likely need to be
+    ///////// altered or removed, but should provide a good base to start with.
+
     /** The initializing data (to avoid magic numbers) */
     private JsonValue data;
     /** The physics shape of this object */
@@ -64,29 +68,6 @@ public class ChickenModel extends CapsuleObstacle {
         if (!super.activatePhysics(world)) {
             return false;
         }
-
-        // Ground Sensor
-        // -------------
-        // We only allow the dude to jump when he's on the ground.
-        // Double jumping is not allowed.
-        //
-        // To determine whether or not the dude is on the ground,
-        // we create a thin sensor under his feet, which reports
-        // collisions with the world but has no collision response.
-        Vector2 sensorCenter = new Vector2(0, -getHeight() / 2);
-        FixtureDef sensorDef = new FixtureDef();
-        sensorDef.density = data.getFloat("density",0);
-        sensorDef.isSensor = true;
-        sensorShape = new PolygonShape();
-        JsonValue sensorjv = data.get("sensor");
-        sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
-                sensorjv.getFloat("height",0), sensorCenter, 0.0f);
-        sensorDef.shape = sensorShape;
-
-        // Ground sensor to represent our feet
-        Fixture sensorFixture = body.createFixture( sensorDef );
-        sensorFixture.setUserData(getSensorName());
-
         return true;
     }
 
@@ -110,7 +91,6 @@ public class ChickenModel extends CapsuleObstacle {
      * @param dt	Number of seconds since last animation frame
      */
     public void update(float dt) {
-        // Apply cooldowns
         super.update(dt);
     }
 

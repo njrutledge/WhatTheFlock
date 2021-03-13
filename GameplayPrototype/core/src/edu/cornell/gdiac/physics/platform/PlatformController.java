@@ -35,14 +35,15 @@ import edu.cornell.gdiac.physics.obstacle.*;
  * place nicely with the static assets.
  */
 public class PlatformController extends WorldController implements ContactListener {
+	///TODO: Implement a proper board and interactions between the player and chickens, slap may also be implemented here
+	////////////// This file puts together a lot of data, be sure that you do not modify something without knowing fully
+	////////////// its purpose or you may break someone else's work, further comments are below ////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	/** Texture asset for character avatar */
 	private TextureRegion avatarTexture;
-	/** Texture asset for the spinning barrier */
-	private TextureRegion barrierTexture;
 	/** Texture asset for the bullet */
 	private TextureRegion bulletTexture;
-	/** Texture asset for the bridge plank */
-	private TextureRegion bridgeTexture;
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -91,9 +92,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void gatherAssets(AssetDirectory directory) {
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
-		barrierTexture = new TextureRegion(directory.getEntry("platform:barrier",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
-		bridgeTexture = new TextureRegion(directory.getEntry("platform:rope",Texture.class));
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
@@ -129,6 +128,8 @@ public class PlatformController extends WorldController implements ContactListen
 	 * Lays out the game geography.
 	 */
 	private void populateLevel() {
+		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)
+
 		// Add level goal
 		float dwidth  = goalTile.getRegionWidth()/scale.x;
 		float dheight = goalTile.getRegionHeight()/scale.y;
@@ -188,22 +189,6 @@ public class PlatformController extends WorldController implements ContactListen
 		avatar.setTexture(avatarTexture);
 		addObject(avatar);
 
-		// Create rope bridge
-//		dwidth  = bridgeTexture.getRegionWidth()/scale.x;
-//		dheight = bridgeTexture.getRegionHeight()/scale.y;
-//		RopeBridge bridge = new RopeBridge(constants.get("bridge"), dwidth, dheight);
-//		bridge.setTexture(bridgeTexture);
-//		bridge.setDrawScale(scale);
-//		addObject(bridge);
-//
-//		// Create spinning platform
-//		dwidth  = barrierTexture.getRegionWidth()/scale.x;
-//		dheight = barrierTexture.getRegionHeight()/scale.y;
-//		Spinner spinPlatform = new Spinner(constants.get("spinner"),dwidth,dheight);
-//		spinPlatform.setDrawScale(scale);
-//		spinPlatform.setTexture(barrierTexture);
-//		addObject(spinPlatform);
-
 		volume = constants.getFloat("volume", 1.0f);
 	}
 	
@@ -245,29 +230,36 @@ public class PlatformController extends WorldController implements ContactListen
 		// Process actions in object model
 		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
 		avatar.setVertmovement(InputController.getInstance().getVertical()*avatar.getForce());
-//		avatar.setJumping(InputController.getInstance().didPrimary());
 		avatar.setShooting(InputController.getInstance().didSecondary());
 		
 		// Add a bullet if we fire
 		if (avatar.isShooting()) {
-			createBullet();
+			createBullet(InputController.getInstance().getSlapDirection());
 		}
 		
 		avatar.applyForce();
-//	    if (avatar.isJumping()) {
-//	    	jumpId = playSound( jumpSound, jumpId, volume );
-//	    }
+
 	}
 
 	/**
 	 * Add a new bullet to the world and send it in the right direction.
+	 *
 	 */
-	private void createBullet() {
+	private void createBullet(int direction) {
+		//TODO: Instead of creating a bullet, should create a slap which behaves similarly (though inputs will be different)
+		///////This will require work outside of this file and method, but this is primarily where the magic happens
+
 		JsonValue bulletjv = constants.get("bullet");
 		float offset = bulletjv.getFloat("offset",0);
-		offset *= (avatar.isFacingRight() ? 1 : -1);
-		float radius = bulletTexture.getRegionWidth()/(2.0f*scale.x);
-		WheelObstacle bullet = new WheelObstacle(avatar.getX()+offset, avatar.getY(), radius);
+		float radius = bulletTexture.getRegionWidth() / (2.0f * scale.x);
+		WheelObstacle bullet = new WheelObstacle(avatar.getX(), avatar.getY(), radius);
+		if (direction == 2 || direction == 4) {
+			offset *= (direction == 2 ? 1 : -1);
+			bullet.setX(avatar.getX() + offset);
+		} else {
+			offset *= (direction == 1 ? 1 : -1);
+			bullet.setY(avatar.getY() + offset);
+		}
 		
 	    bullet.setName("bullet");
 		bullet.setDensity(bulletjv.getFloat("density", 0));
@@ -278,8 +270,13 @@ public class PlatformController extends WorldController implements ContactListen
 		
 		// Compute position and velocity
 		float speed = bulletjv.getFloat( "speed", 0 );
-		speed  *= (avatar.isFacingRight() ? 1 : -1);
-		bullet.setVX(speed);
+		if (direction == 2 || direction == 4) {
+			speed *= (direction == 2 ? 1 : -1);
+			bullet.setVX(speed);
+		} else {
+			speed *= (direction == 1 ? 1 : -1);
+			bullet.setVY(speed);
+		}
 		addQueuedObject(bullet);
 
 		fireId = playSound( fireSound, fireId );
@@ -291,6 +288,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param  bullet   the bullet to remove
 	 */
 	public void removeBullet(Obstacle bullet) {
+		//TODO: may need to alter similar to createBullet()
 	    bullet.markRemoved(true);
 	    plopId = playSound( plopSound, plopId );
 	}
@@ -306,6 +304,8 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param contact The two bodies that collided
 	 */
 	public void beginContact(Contact contact) {
+		//TODO: Detect if a collision is with an enemy and have an appropriate interaction
+
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
@@ -327,13 +327,6 @@ public class PlatformController extends WorldController implements ContactListen
 			if (bd2.getName().equals("bullet") && bd1 != avatar) {
 		        removeBullet(bd2);
 			}
-
-			// See if we have landed on the ground.
-			if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-				avatar.setGrounded(true);
-				sensorFixtures.add(avatar == bd1 ? fix2 : fix1); // Could have more than one ground
-			}
 			
 			// Check for win condition
 			if ((bd1 == avatar   && bd2 == goalDoor) ||
@@ -354,6 +347,7 @@ public class PlatformController extends WorldController implements ContactListen
 	 * double jumping.
 	 */ 
 	public void endContact(Contact contact) {
+		//TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
@@ -369,9 +363,6 @@ public class PlatformController extends WorldController implements ContactListen
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 			(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 			sensorFixtures.remove(avatar == bd1 ? fix2 : fix1);
-			if (sensorFixtures.size == 0) {
-				avatar.setGrounded(false);
-			}
 		}
 	}
 	

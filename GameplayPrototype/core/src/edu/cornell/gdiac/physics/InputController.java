@@ -27,6 +27,8 @@ import edu.cornell.gdiac.util.*;
  * a controller via the new XBox360Controller class.
  */
 public class InputController {
+	//TODO: Change the shooting input to follow the slapping controls that we want to use (i.e. arrow keys)
+
 	// Sensitivity for moving crosshair with gameplay
 	private static final float GP_ACCELERATE = 1.0f;
 	private static final float GP_MAX_SPEED  = 10.0f;
@@ -82,6 +84,8 @@ public class InputController {
 	private Vector2 crosscache;
 	/** For the gamepad crosshair control */
 	private float momentum;
+	/**Slap direction (1: N, 2: E, 3: S, 4: W) */
+	private int slapDirection;
 	
 	/** An X-Box controller (if it is connected) */
 	XBoxController xbox;
@@ -107,6 +111,14 @@ public class InputController {
 	public float getVertical() {
 		return vertical;
 	}
+
+	/**
+	 * Returns the slap direction
+	 * 1: North, 2: East, 3: South, 4: West
+	 *
+	 * @return an integer between 1-4
+	 */
+	public int getSlapDirection() { return slapDirection; }
 	
 	/**
 	 * Returns the current position of the crosshairs on the screen.
@@ -302,28 +314,44 @@ public class InputController {
 	private void readKeyboard(Rectangle bounds, Vector2 scale, boolean secondary) {
 		// Give priority to gamepad results
 		resetPressed = (secondary && resetPressed) || (Gdx.input.isKeyPressed(Input.Keys.R));
-		debugPressed = (secondary && debugPressed) || (Gdx.input.isKeyPressed(Input.Keys.D));
+		debugPressed = (secondary && debugPressed) || (Gdx.input.isKeyPressed(Input.Keys.X));
 		primePressed = (secondary && primePressed) || (Gdx.input.isKeyPressed(Input.Keys.UP));
-		secondPressed = (secondary && secondPressed) || (Gdx.input.isKeyPressed(Input.Keys.SPACE));
+		secondPressed = (secondary && secondPressed) || (Gdx.input.isKeyPressed(Input.Keys.UP)) ||
+				(Gdx.input.isKeyPressed(Input.Keys.LEFT)) || (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) ||
+						(Gdx.input.isKeyPressed(Input.Keys.DOWN));
 		prevPressed = (secondary && prevPressed) || (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
 		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		
 		// Directional controls
 		horizontal = (secondary ? horizontal : 0.0f);
-		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
 			horizontal += 1.0f;
 		}
-		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
 			horizontal -= 1.0f;
 		}
 		
 		vertical = (secondary ? vertical : 0.0f);
-		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			vertical += 1.0f;
 		}
-		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
 			vertical -= 1.0f;
+		}
+
+		// Directional slap
+		if (Gdx.input.isKeyPressed(Input.Keys.UP)){
+			slapDirection = 1;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+			slapDirection = 2;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+			slapDirection = 3;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+			slapDirection = 4;
 		}
 		
 		// Mouse results
