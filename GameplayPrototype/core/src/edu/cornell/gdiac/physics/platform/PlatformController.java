@@ -44,6 +44,8 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion avatarTexture;
 	/** Texture asset for the bullet */
 	private TextureRegion bulletTexture;
+	/** Texture asset for the chicken */
+	private TextureRegion chickenTexture;
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -56,6 +58,13 @@ public class PlatformController extends WorldController implements ContactListen
 	private long plopId = -1;
 	/** The default sound volume */
 	private float volume;
+
+	/** The current number of chickens */
+	private int chickens;
+	/** The number of chickens to initially spawn*/
+	private int INITIAL_SPAWN = 10;
+	/** The chicken spawn chance*/
+	private static final int SPAWN_CHANCE = 4; //1 in 4 update calls
 
 	// Physics objects for the game
 	/** Physics constants for initialization */
@@ -80,6 +89,7 @@ public class PlatformController extends WorldController implements ContactListen
 		setFailure(false);
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
+		chickens = 0;
 	}
 
 	/**
@@ -93,6 +103,7 @@ public class PlatformController extends WorldController implements ContactListen
 	public void gatherAssets(AssetDirectory directory) {
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
+		//TODO set a chickenTexture
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
@@ -162,7 +173,8 @@ public class PlatformController extends WorldController implements ContactListen
 			obj.setName(wname+ii);
 			addObject(obj);
 	    }
-	    
+
+	    //put some other platforms in the world
 	    String pname = "platform";
 		JsonValue platjv = constants.get("platforms");
 	    for (int ii = 0; ii < platjv.size; ii++) {
@@ -190,6 +202,11 @@ public class PlatformController extends WorldController implements ContactListen
 		addObject(avatar);
 
 		volume = constants.getFloat("volume", 1.0f);
+
+		// Create some chickens
+		for (int i = 0; i < INITIAL_SPAWN; i++){
+			spawnChicken();
+		}
 	}
 	
 	/**
@@ -207,12 +224,15 @@ public class PlatformController extends WorldController implements ContactListen
 		if (!super.preUpdate(dt)) {
 			return false;
 		}
-		
-		if (!isFailure() && avatar.getY() < -1) {
+
+		//set failure if avatar's health is 0
+		if (!isFailure() && !avatar.isAlive()) {
 			setFailure(true);
 			return false;
 		}
-		
+
+		//TODO check for win condition, when chickens = 0 (see var)
+
 		return true;
 	}
 
@@ -236,17 +256,45 @@ public class PlatformController extends WorldController implements ContactListen
 		if (avatar.isShooting()) {
 			createBullet(InputController.getInstance().getSlapDirection());
 		}
-		
+		//random chance of spawning a chicken
+		if ((int)(Math.random() * (SPAWN_CHANCE + 1)) == 0) {
+			spawnChicken();
+		}
 		avatar.applyForce();
 
 	}
 
+	/**
+	 * Spawn a chicken somewhere in the world, then increments the number of chickens
+	 */
+	private void spawnChicken(){
+		//TODO spawn a chicken somewhere, use constants.get("chicken")
+		/*dwidth  = avatarTexture.getRegionWidth()/scale.x;
+		dheight = avatarTexture.getRegionHeight()/scale.y;
+		avatar = new DudeModel(constants.get("dude"), dwidth, dheight);
+		avatar.setDrawScale(scale);
+		avatar.setTexture(avatarTexture);
+		addObject(avatar);
+
+		volume = constants.getFloat("volume", 1.0f);*/
+		chickens ++;
+	}
+
+	/**
+	 * Removes the given chicken from the world, then decrements the number of chickens
+	 * @param chicken	 the chicken to remove
+	 */
+	private void removeChicken(Obstacle chicken){
+		chicken.markRemoved(true);
+		chickens --;
+	}
 	/**
 	 * Add a new bullet to the world and send it in the right direction.
 	 *
 	 */
 	private void createBullet(int direction) {
 		//TODO: Instead of creating a bullet, should create a slap which behaves similarly (though inputs will be different)
+
 		///////This will require work outside of this file and method, but this is primarily where the magic happens
 
 		JsonValue bulletjv = constants.get("bullet");
@@ -292,7 +340,6 @@ public class PlatformController extends WorldController implements ContactListen
 	    bullet.markRemoved(true);
 	    plopId = playSound( plopSound, plopId );
 	}
-
 	
 	/**
 	 * Callback method for the start of a collision
@@ -327,12 +374,25 @@ public class PlatformController extends WorldController implements ContactListen
 			if (bd2.getName().equals("bullet") && bd1 != avatar) {
 		        removeBullet(bd2);
 			}
-			
-			// Check for win condition
-			if ((bd1 == avatar   && bd2 == goalDoor) ||
-				(bd1 == goalDoor && bd2 == avatar)) {
-				setComplete(true);
+			//reduce health if chicken collides with avatar
+			if ((bd1 == avatar && bd2.getName().equals("chicken"))
+					|| (bd2 == avatar && bd1.getName().equals("chicken"))){
+				avatar.decrementHealth();
 			}
+
+			//bullet collision with chicken eliminates chicken and bullet
+			if (bd1.getName().equals("bullet") && bd2.getName().equals("chicken")) {
+				removeBullet(bd1);
+				removeChicken(bd2);
+			}
+			if (bd2.getName().equals("bullet") && bd1.getName().equals("chicken")) {
+				removeBullet(bd2);
+				removeChicken(bd1);
+			}
+			//removeChicken()
+
+			//chicken to chicken collision does nothing
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

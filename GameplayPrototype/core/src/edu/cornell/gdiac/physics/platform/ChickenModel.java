@@ -39,19 +39,22 @@ public class ChickenModel extends CapsuleObstacle {
      * converts the physics units to pixels.
      *
      * @param data  	The physics constants for this dude
+     * @param x         The x axis location of this chicken
+     * @param y         The y axis location of this chicken
      * @param width		The object width in physics units
      * @param height	The object width in physics units
      */
-    public ChickenModel(JsonValue data, float width, float height) {
+    public ChickenModel(JsonValue data, float x, float y, float width, float height) {
         // The shrink factors fit the image to a tigher hitbox
-        super(data.get("pos").getFloat(0),
-                data.get("pos").getFloat(1),
+        super(/*data.get("pos").getFloat(0),
+                data.get("pos").getFloat(1),*/
+                x, y,
                 width * data.get("shrink").getFloat(0),
                 height * data.get("shrink").getFloat(1));
         setDensity(data.getFloat("density", 0));
-        setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
+        setFriction(data.getFloat("friction", 0));  /// IT WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true);
-
+        setName("chicken");
     }
 
     /**

@@ -58,12 +58,13 @@ public class DudeModel extends CapsuleObstacle {
 	/** The physics shape of this object */
 	private PolygonShape sensorShape;
 
-	/** Whether the dude is alive */
-	private boolean isAlive;
+	/**The maximum health a player can have */
+	private static final int MAX_HEALTH = 3;
+	/**The current health of the player, >= 0*/
+	private int health;
 
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache = new Vector2();
-
 
 	/**
 	 * Returns left/right movement of this character.
@@ -116,6 +117,16 @@ public class DudeModel extends CapsuleObstacle {
 	public void setShooting(boolean value) {
 		isShooting = value; 
 	}
+
+	/**
+	 * Returns if the character is alive.
+	 *
+	 * @return	 if the character is alive
+	 */
+	public boolean isAlive(){ return health > 0; }
+
+	/** Reduces the dude's health by one. */
+	public void decrementHealth() { health --; }
 
 	/**
 	 * Returns how much force to apply to get the dude moving
@@ -199,7 +210,7 @@ public class DudeModel extends CapsuleObstacle {
 		// Gameplay attributes
 		isShooting = false;
 		faceRight = true;
-		
+		health = MAX_HEALTH;
 		shootCooldown = 0;
 		setName("dude");
 	}
