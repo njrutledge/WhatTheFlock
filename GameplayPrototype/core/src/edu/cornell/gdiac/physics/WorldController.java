@@ -338,6 +338,10 @@ public abstract class WorldController implements Screen {
 	 * This method disposes of the world and creates a new one.
 	 */
 	public abstract void reset();
+
+	public abstract void decrementHealth();
+
+	public abstract void killChickens();
 	
 	/**
 	 * Returns whether to process the update loop
@@ -366,19 +370,17 @@ public abstract class WorldController implements Screen {
 		if (input.didReset()) {
 			reset();
 		}
+		if(input.didAdvance()) {
+			decrementHealth();
+		}
+		if(input.didRetreat()) {
+			killChickens();
+		}
 		
 		// Now it is time to maybe switch screens.
 		if (input.didExit()) {
 			pause();
 			listener.exitScreen(this, EXIT_QUIT);
-			return false;
-		} else if (input.didAdvance()) {
-			pause();
-			listener.exitScreen(this, EXIT_NEXT);
-			return false;
-		} else if (input.didRetreat()) {
-			pause();
-			listener.exitScreen(this, EXIT_PREV);
 			return false;
 		} else if (countdown > 0) {
 			countdown--;

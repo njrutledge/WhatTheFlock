@@ -70,6 +70,15 @@ public class RagdollController extends WorldController {
 		setFailure(false);
 	}
 
+	@Override
+	public void decrementHealth() {
+
+	}
+
+	public void killChickens(){
+
+	}
+
 	/**
 	 * Gather the assets for this controller.
 	 *
