@@ -307,11 +307,6 @@ public class PlatformController extends WorldController implements ContactListen
 
 	}
 
-	public void draw(float dt) {
-		super.draw(dt);
-		System.out.println(chickens);
-	}
-
 	/**
 	 * Returns the current avatar health
 	 *
