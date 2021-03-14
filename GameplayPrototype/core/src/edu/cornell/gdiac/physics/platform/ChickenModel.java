@@ -19,7 +19,18 @@ public class ChickenModel extends CapsuleObstacle {
     private PolygonShape sensorShape;
     /** Identifier to allow us to track the sensor in ContactListener */
     private String sensorName;
-
+    /** The player character that the enemy will follow
+     * We would probably want an AI Controller to handle this, but enemy movement is
+     * pretty simple for the prototype */
+    private DudeModel player;
+    /** The maximum enemy speed */
+    private final float maxspeed;
+    /** The speed that the enemy chases the player */
+    private final float chaseSpeed;
+    /** The amount to slow the character down */
+    private final float damping;
+    /** Cache for internal force calculations */
+    private final Vector2 forceCache = new Vector2();
     /**
      * Returns the name of the ground sensor
      *
@@ -44,7 +55,7 @@ public class ChickenModel extends CapsuleObstacle {
      * @param width		The object width in physics units
      * @param height	The object width in physics units
      */
-    public ChickenModel(JsonValue data, float x, float y, float width, float height) {
+    public ChickenModel(JsonValue data, float x, float y, float width, float height, DudeModel player) {
         // The shrink factors fit the image to a tigher hitbox
         super(/*data.get("pos").getFloat(0),
                 data.get("pos").getFloat(1),*/
@@ -55,6 +66,11 @@ public class ChickenModel extends CapsuleObstacle {
         setFriction(data.getFloat("friction", 0));  /// IT WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true);
         setName("chicken");
+
+        this.player = player;
+        maxspeed = data.getFloat("maxspeed", 0);
+        damping = data.getFloat("damping", 0);
+        chaseSpeed = data.getFloat("chasespeed", 0);
     }
 
     /**
@@ -83,7 +99,14 @@ public class ChickenModel extends CapsuleObstacle {
         if (!isActive()) {
             return;
         }
-
+        // Velocity too high, clamp it
+        if (Math.abs(getVX()) >= maxspeed) {
+            setVX(Math.signum(getVX())*maxspeed);
+        }
+        // Velocity too high, clamp it
+        if (Math.abs(getVY()) >= maxspeed) {
+            setVY(Math.signum(getVY())*maxspeed);
+        }
     }
 
     /**
@@ -95,6 +118,14 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void update(float dt) {
         super.update(dt);
+        if (player.isActive()) {
+            forceCache.set(player.getPosition().sub(getPosition()));
+            forceCache.nor();
+            forceCache.scl(chaseSpeed);
+            setVX(forceCache.x);
+            setVY(forceCache.y);
+            //applyForce();
+        }
     }
 
 
