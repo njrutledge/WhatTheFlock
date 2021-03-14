@@ -26,7 +26,9 @@ public class WheelObstacle extends SimpleObstacle {
 	protected CircleShape shape;
 	/** A cache value for the fixture (for resizing) */
 	private Fixture geometry;
-	
+	/** Filter for the fixture */
+	private Filter filter;
+
 	/**
 	 * Returns the radius of this circle
 	 *
@@ -75,7 +77,7 @@ public class WheelObstacle extends SimpleObstacle {
 		shape = new CircleShape();
 		shape.setRadius(radius);
 	}
-	
+
 	/**
 	 * Create new fixtures for this body, defining the shape
 	 *
@@ -91,6 +93,7 @@ public class WheelObstacle extends SimpleObstacle {
 		// Create the fixture
 		fixture.shape = shape;
 		geometry = body.createFixture(fixture);
+		if (filter != null) { geometry.setFilterData(filter); }
 		markDirty(false);
 	}
 	

@@ -365,8 +365,8 @@ public class PlatformController extends WorldController implements ContactListen
 		///////This will require work outside of this file and method, but this is primarily where the magic happens
 
 		JsonValue bulletjv = constants.get("bullet");
-		float offset = bulletjv.getFloat("offset",0);
 		float radius = 6*bulletTexture.getRegionWidth() / (2.0f * scale.x);
+		float offset = radius;
 		WheelObstacle bullet = new WheelObstacle(avatar.getX(), avatar.getY(), radius);
 		if (direction == 2 || direction == 4) {
 			offset *= (direction == 2 ? 1 : -1);
@@ -375,7 +375,6 @@ public class PlatformController extends WorldController implements ContactListen
 			offset *= (direction == 1 ? 1 : -1);
 			bullet.setY(avatar.getY() + offset*1.4f);
 		}
-		
 	    bullet.setName("bullet");
 		bullet.setDensity(0);
 	    bullet.setDrawScale(scale);
@@ -423,7 +422,6 @@ public class PlatformController extends WorldController implements ContactListen
 	 */
 	public void beginContact(Contact contact) {
 		//TODO: Detect if a collision is with an enemy and have an appropriate interaction
-
 		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
@@ -445,6 +443,7 @@ public class PlatformController extends WorldController implements ContactListen
 			if (bd2.getName().equals("bullet") && bd1 != avatar) {
 		        removeBullet(bd2);
 			}
+
 			//reduce health if chicken collides with avatar
 			if ((bd1 == avatar && bd2.getName().equals("chicken"))
 					|| (bd2 == avatar && bd1.getName().equals("chicken"))){

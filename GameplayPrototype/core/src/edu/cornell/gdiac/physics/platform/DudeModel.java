@@ -262,7 +262,7 @@ public class DudeModel extends CapsuleObstacle {
 		// Ground sensor to represent our feet
 		Fixture sensorFixture = body.createFixture( sensorDef );
 		sensorFixture.setUserData(getSensorName());
-		
+
 		return true;
 	}
 	
