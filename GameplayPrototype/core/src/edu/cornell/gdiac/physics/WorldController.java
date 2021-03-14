@@ -342,6 +342,8 @@ public abstract class WorldController implements Screen {
 	public abstract void decrementHealth();
 
 	public abstract void killChickens();
+
+	public abstract int getHealth();
 	
 	/**
 	 * Returns whether to process the update loop

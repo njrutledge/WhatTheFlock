@@ -137,6 +137,13 @@ public class DudeModel extends CapsuleObstacle {
 	public void decrementHealth() { health --; }
 
 	/**
+	 * Returns current character health.
+	 *
+	 * @return the current character health.
+	 */
+	public int getHealth(){ return health;}
+
+	/**
 	 * Returns how much force to apply to get the dude moving
 	 *
 	 * Multiply this by the input to get the movement value.
@@ -177,9 +184,6 @@ public class DudeModel extends CapsuleObstacle {
 	public String getSensorName() { 
 		return sensorName;
 	}
-
-    /** Returns the health of the dude */
-	public int getHealth(){return health;}
 
 	/**
 	 * Returns true if this character is facing right

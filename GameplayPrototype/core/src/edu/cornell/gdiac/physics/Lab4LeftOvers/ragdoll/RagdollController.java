@@ -79,6 +79,8 @@ public class RagdollController extends WorldController {
 
 	}
 
+	public int getHealth(){return -1;}
+
 	/**
 	 * Gather the assets for this controller.
 	 *
