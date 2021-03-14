@@ -73,6 +73,10 @@
         "shared:retro": {
             "file": "shared/RetroGame.ttf",
             "size": 64
+        },
+        "shared:minecraft": {
+            "file": "shared/Minecraft.ttf",
+            "size": 16
         }
     }
 }

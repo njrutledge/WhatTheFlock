@@ -129,6 +129,13 @@ public class DudeModel extends CapsuleObstacle {
 	public void decrementHealth() { health --; }
 
 	/**
+	 * Returns current character health.
+	 *
+	 * @return the current character health.
+	 */
+	public int getHealth(){ return health;}
+
+	/**
 	 * Returns how much force to apply to get the dude moving
 	 *
 	 * Multiply this by the input to get the movement value.

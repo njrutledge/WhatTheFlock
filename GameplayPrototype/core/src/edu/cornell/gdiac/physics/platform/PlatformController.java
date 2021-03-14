@@ -209,12 +209,19 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 	}
 
+	/**
+	 * decrements the avatar health by 1
+	 */
 	public void decrementHealth(){
 		avatar.decrementHealth();
 	}
 
+	/**
+	 * kill all chickens
+	 */
 	public void killChickens(){
 		chickens = 0;
+		//TODO: delete all chicken objects from where they are being stored
 	}
 	
 	/**
@@ -276,6 +283,15 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 		avatar.applyForce();
 
+	}
+
+	/**
+	 * Returns the current avatar health
+	 *
+	 * @return the current avatar health
+	 */
+	public int getHealth() {
+		return avatar.getHealth();
 	}
 
 	/**
