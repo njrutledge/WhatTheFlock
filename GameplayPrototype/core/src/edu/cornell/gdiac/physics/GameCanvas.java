@@ -1070,14 +1070,16 @@ public class GameCanvas {
     	float x0, y0, x1, y1;
     	debugRender.setColor(color);
     	for(int ii = 0; ii < shape.getVertexCount()-1; ii++) {
-    		shape.getVertex(ii  ,vertex);
-    		local.applyTo(vertex);
-    		x0 = vertex.x; y0 = vertex.y;
-    		shape.getVertex(ii+1,vertex);
-    		local.applyTo(vertex);
-    		x1 = vertex.x; y1 = vertex.y;
-    		debugRender.line(x0, y0, x1, y1);
-    	}
+			shape.getVertex(ii, vertex);
+			local.applyTo(vertex);
+			x0 = vertex.x;
+			y0 = vertex.y;
+			shape.getVertex(ii + 1, vertex);
+			local.applyTo(vertex);
+			x1 = vertex.x;
+			y1 = vertex.y;
+			debugRender.line(x0, y0, x1, y1);
+		}
     	// Close the loop
 		shape.getVertex(shape.getVertexCount()-1,vertex);
 		local.applyTo(vertex);

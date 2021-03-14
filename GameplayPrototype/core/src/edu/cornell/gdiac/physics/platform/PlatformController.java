@@ -361,7 +361,7 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 		
 	    bullet.setName("bullet");
-		bullet.setDensity(bulletjv.getFloat("density", 0));
+		bullet.setDensity(0);
 	    bullet.setDrawScale(scale);
 	    bullet.setTexture(bulletTexture);
 	    bullet.setBullet(true);
