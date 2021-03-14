@@ -141,6 +141,7 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
+		chickens = 0;
 		populateLevel();
 	}
 
@@ -255,7 +256,7 @@ public class PlatformController extends WorldController implements ContactListen
 		//TODO check for win condition, when chickens = 0 (see var)
 
 
-		if (chickens==0){
+		if (chickens<=0){
 			setComplete(true);
 			return false;
 		}
@@ -288,7 +289,6 @@ public class PlatformController extends WorldController implements ContactListen
 			spawnChicken();
 		}
 		avatar.applyForce();
-
 
 
 	}
