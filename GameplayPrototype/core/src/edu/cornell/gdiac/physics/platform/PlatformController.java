@@ -352,14 +352,14 @@ public class PlatformController extends WorldController implements ContactListen
 
 		JsonValue bulletjv = constants.get("bullet");
 		float radius = 6*bulletTexture.getRegionWidth() / (2.0f * scale.x);
-		float offset = radius;
+		float offset = radius+1;
 		WheelObstacle bullet = new WheelObstacle(avatar.getX(), avatar.getY(), radius);
 		if (direction == 2 || direction == 4) {
 			offset *= (direction == 2 ? 1 : -1);
 			bullet.setX(avatar.getX() + offset);
 		} else {
 			offset *= (direction == 1 ? 1 : -1);
-			bullet.setY(avatar.getY() + offset*1.4f);
+			bullet.setY(avatar.getY() + offset);
 		}
 	    bullet.setName("bullet");
 		bullet.setDensity(0);
