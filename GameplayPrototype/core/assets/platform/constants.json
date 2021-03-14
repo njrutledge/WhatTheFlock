@@ -39,7 +39,13 @@
 		},
 		"spawn_range": [[1, 31], [1, 17]]
 	},
-	"bridge" : {
+	"stove" : {
+		"shrink": [0.7,0.7],
+		"sensor": {
+			"shrink" : 1.2,
+			"height" : 0.1
+		}
+	}, "bridge" : {
 		"pos": [9.0, 3.8],
 	    "width": 14.0,
 		"density": 1.0,
