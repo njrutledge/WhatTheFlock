@@ -81,6 +81,14 @@ public class StoveModel extends CapsuleObstacle {
         return true;
     }
 
+
+    public void cookChick(){
+        if (temperature_counter >= TEMPERATURE_TIMER){
+            temperature ++;
+            temperature_counter = 0f;
+        }
+    }
+
     /**
      * Draws the physics object.
      *
