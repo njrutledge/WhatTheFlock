@@ -10,6 +10,7 @@
  */
 package edu.cornell.gdiac.physics.platform;
 
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -49,6 +50,7 @@ public class DudeModel extends CapsuleObstacle {
 
 	private float vertmovement;
 
+
 	/** Which direction is the character facing */
 	private boolean faceRight;
 	/** How long until we can shoot again */
@@ -62,6 +64,12 @@ public class DudeModel extends CapsuleObstacle {
 	private static final int MAX_HEALTH = 3;
 	/**The current health of the player, >= 0*/
 	private int health;
+	/** The font used to draw text on the screen*/
+	private static final BitmapFont font = new BitmapFont();
+	/** X offset for health display */
+	private final float XOFFSET = 450;
+	/** Y offset for health display */
+	private final float YOFFSET = 565;
 
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache = new Vector2();
@@ -176,6 +184,9 @@ public class DudeModel extends CapsuleObstacle {
 	public String getSensorName() { 
 		return sensorName;
 	}
+
+    /** Returns the health of the dude */
+	public int getHealth(){return health;}
 
 	/**
 	 * Returns true if this character is facing right
@@ -311,7 +322,6 @@ public class DudeModel extends CapsuleObstacle {
 		} else {
 			shootCooldown = Math.max(0, shootCooldown - 1);
 		}
-		
 		super.update(dt);
 	}
 
@@ -323,6 +333,8 @@ public class DudeModel extends CapsuleObstacle {
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
 		canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),effect,1.0f);
+		canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
+
 	}
 	
 	/**
