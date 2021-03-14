@@ -42,6 +42,8 @@ public class PlatformController extends WorldController implements ContactListen
 	private TextureRegion bulletTexture;
 	/** Texture asset for the chicken */
 	private TextureRegion chickenTexture;
+	/** Texture asset for the stove */
+	private TextureRegion stoveTexture;
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -79,6 +81,8 @@ public class PlatformController extends WorldController implements ContactListen
 	private static float spawn_ymin;
 	/** The maximum y position of a spawned chicken */
 	private static float spawn_ymax;
+	/** Reference to the stove object */
+	private StoveModel stove;
 
 
 
@@ -434,6 +438,16 @@ public class PlatformController extends WorldController implements ContactListen
 			if ((bd1 == avatar && bd2.getName().equals("chicken"))
 					|| (bd2 == avatar && bd1.getName().equals("chicken"))){
 				avatar.decrementHealth();
+			}
+
+			//cook if player is near stove and not doing anything
+			if ((bd1 == avatar && bd2.getName().equals("stove"))
+					|| (bd2 == avatar && bd1.getName().equals("stove"))){
+				if (avatar.getMovement() == 0f
+						&& avatar.getVertMovement() == 0f
+						&& !avatar.isShooting()) {
+					stove.cookChick();
+				}
 			}
 
 			//bullet collision with chicken eliminates chicken and bullet
