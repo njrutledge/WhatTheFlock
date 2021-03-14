@@ -208,6 +208,14 @@ public class PlatformController extends WorldController implements ContactListen
 			spawnChicken();
 		}
 	}
+
+	public void decrementHealth(){
+		avatar.decrementHealth();
+	}
+
+	public void killChickens(){
+		chickens = 0;
+	}
 	
 	/**
 	 * Returns whether to process the update loop
@@ -232,6 +240,12 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 
 		//TODO check for win condition, when chickens = 0 (see var)
+
+
+		if (chickens==0){
+			setComplete(true);
+			return false;
+		}
 
 		return true;
 	}
