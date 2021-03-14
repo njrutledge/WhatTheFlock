@@ -274,9 +274,12 @@ public class PlatformController extends WorldController implements ContactListen
 		if ((int)(Math.random() * (SPAWN_CHANCE + 1)) == 0) {
 			spawnChicken();
 		}
-
-		//Remove a bullet if too much time passes (really fast cause its a slap)
-		
+		for (Obstacle obj : objects) {
+			//Remove a bullet if too much time passes (really fast cause its a slap)
+			if (obj.isBullet()) {
+				removeBullet(obj);
+			}
+		}
 
 		avatar.applyForce();
 
@@ -324,7 +327,7 @@ public class PlatformController extends WorldController implements ContactListen
 			bullet.setX(avatar.getX() + offset);
 		} else {
 			offset *= (direction == 1 ? 1 : -1);
-			bullet.setY(avatar.getY() + offset);
+			bullet.setY(avatar.getY() + offset*1.4f);
 		}
 		
 	    bullet.setName("bullet");
@@ -335,14 +338,14 @@ public class PlatformController extends WorldController implements ContactListen
 	    bullet.setGravityScale(0);
 		
 		// Compute position and velocity
-		float speed = bulletjv.getFloat( "speed", 0 );
-		if (direction == 2 || direction == 4) {
-			speed *= (direction == 2 ? 1 : -1);
-			bullet.setVX(speed);
-		} else {
-			speed *= (direction == 1 ? 1 : -1);
-			bullet.setVY(speed);
-		}
+//		float speed = bulletjv.getFloat( "speed", 0 );
+//		if (direction == 2 || direction == 4) {
+//			speed *= (direction == 2 ? 1 : -1);
+//			bullet.setVX(speed);
+//		} else {
+//			speed *= (direction == 1 ? 1 : -1);
+//			bullet.setVY(speed);
+//		}
 		addQueuedObject(bullet);
 
 		fireId = playSound( fireSound, fireId );
