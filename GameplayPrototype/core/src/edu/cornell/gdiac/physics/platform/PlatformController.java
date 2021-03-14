@@ -260,6 +260,10 @@ public class PlatformController extends WorldController implements ContactListen
 		if ((int)(Math.random() * (SPAWN_CHANCE + 1)) == 0) {
 			spawnChicken();
 		}
+
+		//Remove a bullet if too much time passes (really fast cause its a slap)
+		
+
 		avatar.applyForce();
 
 	}
@@ -299,7 +303,7 @@ public class PlatformController extends WorldController implements ContactListen
 
 		JsonValue bulletjv = constants.get("bullet");
 		float offset = bulletjv.getFloat("offset",0);
-		float radius = bulletTexture.getRegionWidth() / (2.0f * scale.x);
+		float radius = 6*bulletTexture.getRegionWidth() / (2.0f * scale.x);
 		WheelObstacle bullet = new WheelObstacle(avatar.getX(), avatar.getY(), radius);
 		if (direction == 2 || direction == 4) {
 			offset *= (direction == 2 ? 1 : -1);
