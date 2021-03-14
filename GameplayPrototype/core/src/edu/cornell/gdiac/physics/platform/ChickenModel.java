@@ -71,6 +71,8 @@ public class ChickenModel extends CapsuleObstacle {
         maxspeed = data.getFloat("maxspeed", 0);
         damping = data.getFloat("damping", 0);
         chaseSpeed = data.getFloat("chasespeed", 0);
+        this.data = data;
+
     }
 
     /**
@@ -87,6 +89,22 @@ public class ChickenModel extends CapsuleObstacle {
         if (!super.activatePhysics(world)) {
             return false;
         }
+        // Ground Sensor
+        // -------------
+        // Previously used to detect double-jumps, but also allows us to see hitboxes
+        Vector2 sensorCenter = new Vector2(0, -getHeight() / 2);
+        FixtureDef sensorDef = new FixtureDef();
+        sensorDef.density = data.getFloat("density",0);
+        sensorDef.isSensor = true;
+        sensorShape = new PolygonShape();
+        JsonValue sensorjv = data.get("sensor");
+        sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
+                sensorjv.getFloat("height",0), sensorCenter, 0.0f);
+        sensorDef.shape = sensorShape;
+
+        // Ground sensor to represent our feet
+        Fixture sensorFixture = body.createFixture( sensorDef );
+        sensorFixture.setUserData(getSensorName());
         return true;
     }
 
