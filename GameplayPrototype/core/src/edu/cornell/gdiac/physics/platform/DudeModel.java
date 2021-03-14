@@ -70,6 +70,11 @@ public class DudeModel extends CapsuleObstacle {
 	private final float XOFFSET = 450;
 	/** Y offset for health display */
 	private final float YOFFSET = 565;
+	/** Time until invulnerability after getting hit wears off */
+	private final float INVULN_TIME = 1;
+
+	/** Counter for Invulnerability timer*/
+	private float invuln_counter = 0f;
 
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache = new Vector2();
@@ -134,7 +139,12 @@ public class DudeModel extends CapsuleObstacle {
 	public boolean isAlive(){ return health > 0; }
 
 	/** Reduces the dude's health by one. */
-	public void decrementHealth() { health --; }
+	public void decrementHealth() {
+		if (invuln_counter >= INVULN_TIME) {
+			health --;
+			invuln_counter = 0f;
+		}
+	}
 
 	/**
 	 * Returns current character health.
@@ -314,7 +324,7 @@ public class DudeModel extends CapsuleObstacle {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
-
+		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 		if (isShooting()) {
 			shootCooldown = shotLimit;
 		} else {
