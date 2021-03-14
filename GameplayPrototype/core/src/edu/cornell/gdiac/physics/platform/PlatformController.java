@@ -307,6 +307,11 @@ public class PlatformController extends WorldController implements ContactListen
 
 	}
 
+	public void draw(float dt) {
+		super.draw(dt);
+		System.out.println(chickens);
+	}
+
 	/**
 	 * Returns the current avatar health
 	 *
@@ -352,8 +357,10 @@ public class PlatformController extends WorldController implements ContactListen
 	 * @param chicken	 the chicken to remove
 	 */
 	private void removeChicken(Obstacle chicken){
-		chicken.markRemoved(true);
-		chickens --;
+		if(!chicken.isRemoved()) {
+			chicken.markRemoved(true);
+			chickens--;
+		}
 	}
 	/**
 	 * Add a new bullet to the world and send it in the right direction.
