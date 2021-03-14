@@ -380,6 +380,10 @@ public class PlatformController extends WorldController implements ContactListen
 		bullet.setDensity(0);
 	    bullet.setDrawScale(scale);
 	    bullet.setTexture(bulletTexture);
+	    Filter bulletFilter = new Filter();
+	    bulletFilter.groupIndex = -1;
+	    bulletFilter.categoryBits = 0x0002;
+	    bullet.setFilterData(bulletFilter);
 	    bullet.setBullet(true);
 	    bullet.setGravityScale(0);
 		

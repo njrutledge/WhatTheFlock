@@ -221,7 +221,6 @@ public class DudeModel extends CapsuleObstacle {
 		shotLimit = data.getInt( "shot_cool", 0 );
 		sensorName = "DudeGroundSensor";
 		this.data = data;
-
 		// Gameplay attributes
 		isShooting = false;
 		faceRight = true;
@@ -252,6 +251,8 @@ public class DudeModel extends CapsuleObstacle {
 		FixtureDef sensorDef = new FixtureDef();
 		sensorDef.density = data.getFloat("density",0);
 		sensorDef.isSensor = true;
+		sensorDef.filter.groupIndex = -1;
+		sensorDef.filter.categoryBits =  0x0002;
 		sensorShape = new PolygonShape();
 		JsonValue sensorjv = data.get("sensor");
 		sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
