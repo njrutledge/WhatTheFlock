@@ -6,12 +6,6 @@
     	"restitution": 0.1,
     	"volume": 0.8
 	},
-	"goal" : {
-		"pos": [4.0, 14.0],
-		"density": 0.0,
-    	"friction": 0.0,
-    	"restitution": 0.0
-    },
 	"dude" : {
 		"pos": [15, 8.0],
 		"shrink": [0.95, 0.7],

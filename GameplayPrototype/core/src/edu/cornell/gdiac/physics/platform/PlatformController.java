@@ -152,22 +152,6 @@ public class PlatformController extends WorldController implements ContactListen
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)
 
 		// Add level goal
-		float dwidth  = goalTile.getRegionWidth()/scale.x;
-		float dheight = goalTile.getRegionHeight()/scale.y;
-
-		JsonValue goal = constants.get("goal");
-		JsonValue goalpos = goal.get("pos");
-		goalDoor = new BoxObstacle(goalpos.getFloat(0),goalpos.getFloat(1),dwidth,dheight);
-		goalDoor.setBodyType(BodyDef.BodyType.StaticBody);
-		goalDoor.setDensity(goal.getFloat("density", 0));
-		goalDoor.setFriction(goal.getFloat("friction", 0));
-		goalDoor.setRestitution(goal.getFloat("restitution", 0));
-		goalDoor.setSensor(true);
-		goalDoor.setDrawScale(scale);
-		goalDoor.setTexture(goalTile);
-		goalDoor.setName("goal");
-		addObject(goalDoor);
-
 	    String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 	    JsonValue defaults = constants.get("defaults");
@@ -204,8 +188,8 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setGravity( new Vector2(0,0) );
 
 		// Create dude
-		dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		dheight = avatarTexture.getRegionHeight()/scale.y;
+		float dwidth  = avatarTexture.getRegionWidth()/scale.x;
+		float dheight = avatarTexture.getRegionHeight()/scale.y;
 		avatar = new DudeModel(constants.get("dude"), dwidth, dheight);
 		avatar.setDrawScale(scale);
 		avatar.setTexture(avatarTexture);
