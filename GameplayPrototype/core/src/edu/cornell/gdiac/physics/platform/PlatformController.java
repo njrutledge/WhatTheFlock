@@ -12,16 +12,12 @@ package edu.cornell.gdiac.physics.platform;
 
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
-import com.badlogic.gdx.audio.*;
-import com.badlogic.gdx.assets.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
-import edu.cornell.gdiac.physics.rocket.RocketModel;
-import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 
@@ -64,7 +60,9 @@ public class PlatformController extends WorldController implements ContactListen
 	/** The number of chickens to initially spawn*/
 	private int INITIAL_SPAWN = 10;
 	/** The chicken spawn chance*/
-	private static final int SPAWN_CHANCE = 4; //1 in 4 update calls
+	private static final int SPAWN_CHANCE = 50; //1 in 50 update calls
+
+
 
 	// Physics objects for the game
 	/** Physics constants for initialization */
@@ -73,6 +71,16 @@ public class PlatformController extends WorldController implements ContactListen
 	private DudeModel avatar;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
+	/** The minimum x position of a spawned chicken*/
+	private static float spawn_xmin;
+	/** The maximum x position of a spawned chicken*/
+	private static float spawn_xmax;
+	/** The minimum y position of a spawned chicken*/
+	private static float spawn_ymin;
+	/** The maximum y position of a spawned chicken */
+	private static float spawn_ymax;
+
+
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -90,6 +98,7 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
 		chickens = 0;
+
 	}
 
 	/**
@@ -103,7 +112,7 @@ public class PlatformController extends WorldController implements ContactListen
 	public void gatherAssets(AssetDirectory directory) {
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
-		//TODO set a chickenTexture
+		chickenTexture  = new TextureRegion(directory.getEntry("platform:chicken",Texture.class));
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
@@ -132,6 +141,7 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
+		chickens = 0;
 		populateLevel();
 	}
 
@@ -204,6 +214,10 @@ public class PlatformController extends WorldController implements ContactListen
 		volume = constants.getFloat("volume", 1.0f);
 
 		// Create some chickens
+		spawn_xmin = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[0];
+		spawn_xmax = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[1];
+		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
+		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
 		for (int i = 0; i < INITIAL_SPAWN; i++){
 			spawnChicken();
 		}
@@ -242,7 +256,7 @@ public class PlatformController extends WorldController implements ContactListen
 		//TODO check for win condition, when chickens = 0 (see var)
 
 
-		if (chickens==0){
+		if (chickens<=0){
 			setComplete(true);
 			return false;
 		}
@@ -283,21 +297,37 @@ public class PlatformController extends WorldController implements ContactListen
 
 		avatar.applyForce();
 
+
 	}
 
 	/**
 	 * Spawn a chicken somewhere in the world, then increments the number of chickens
 	 */
 	private void spawnChicken(){
-		//TODO spawn a chicken somewhere, use constants.get("chicken")
-		/*dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		dheight = avatarTexture.getRegionHeight()/scale.y;
-		avatar = new DudeModel(constants.get("dude"), dwidth, dheight);
-		avatar.setDrawScale(scale);
-		avatar.setTexture(avatarTexture);
-		addObject(avatar);
+		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
+		float dheight = chickenTexture.getRegionHeight()/scale.y;
+		float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
+		float y = ((float)Math.random() * (spawn_ymax - spawn_ymin) + spawn_ymin);
+		float rand = (float)Math.random();
+		// Spawn chicken at the border of the world
+		if (rand < 0.25){
+			x = spawn_xmin;
+		}
+		else if (rand < 0.5){
+			x = spawn_xmax;
+		}
+		else if (rand < 0.75){
+			y = spawn_ymin;
+		}
+		else{
+			y = spawn_ymax;
+		}
 
-		volume = constants.getFloat("volume", 1.0f);*/
+		ChickenModel enemy;
+		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar);
+		enemy.setDrawScale(scale);
+		enemy.setTexture(chickenTexture);
+		addObject(enemy);
 		chickens ++;
 	}
 

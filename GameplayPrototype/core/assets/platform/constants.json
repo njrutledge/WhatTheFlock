@@ -13,7 +13,7 @@
     	"restitution": 0.0
     },
 	"dude" : {
-		"pos": [2.5, 5.0],
+		"pos": [15, 8.0],
 		"shrink": [0.95, 0.7],
 		"force": 20.0,
 		"damping": 10.0,
@@ -29,19 +29,21 @@
 		}
 	},
 	"chicken" : {
-		"shrink": [0.95, 0.7],
+		"shrink": [0.7, 0.7],
 		"force": 20.0,
 		"damping": 10.0,
 		"density": 1.0,
 		"friction": 0.0,
 		"maxspeed": 5.0,
+		"chasespeed": 2.0,
 		"jump_force": 5.5,
 		"jump_cool": 30,
 		"shot_cool": 40,
 		"sensor": {
 			"shrink" : 0.6,
 			"height" : 0.05
-		}
+		},
+		"spawn_range": [[1, 31], [1, 17]]
 	},
 	"bridge" : {
 		"pos": [9.0, 3.8],
