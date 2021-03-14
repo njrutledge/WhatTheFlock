@@ -185,9 +185,6 @@ public class DudeModel extends CapsuleObstacle {
 		return sensorName;
 	}
 
-    /** Returns the health of the dude */
-	public int getHealth(){return health;}
-
 	/**
 	 * Returns true if this character is facing right
 	 *

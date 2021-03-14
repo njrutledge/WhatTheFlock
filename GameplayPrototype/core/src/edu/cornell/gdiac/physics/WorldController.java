@@ -54,8 +54,6 @@ public abstract class WorldController implements Screen {
 	protected TextureRegion goalTile;
 	/** The font for giving messages to the player */
 	protected BitmapFont displayFont;
-	/** The font for displaying health to the player */
-	protected BitmapFont healthFont;
 	
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
@@ -292,7 +290,6 @@ public abstract class WorldController implements Screen {
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
 		goalTile  = new TextureRegion(directory.getEntry( "shared:goal", Texture.class ));
 		displayFont = directory.getEntry( "shared:retro" ,BitmapFont.class);
-		healthFont = directory.getEntry("shared:minecraft" ,BitmapFont.class);
 	}
 
 	/**
@@ -462,7 +459,6 @@ public abstract class WorldController implements Screen {
 		canvas.clear();
 		
 		canvas.begin();
-		canvas.drawText("Health: " + getHealth(), healthFont, 40, 60);
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
