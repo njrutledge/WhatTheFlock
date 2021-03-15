@@ -441,8 +441,8 @@ public class PlatformController extends WorldController implements ContactListen
 			}
 
 			//cook if player is near stove and not doing anything
-			if ((bd1 == avatar && bd2.getName().equals("stove"))
-					|| (bd2 == avatar && bd1.getName().equals("stove"))){
+			if ((bd1 == avatar && bd2 == stove)
+					|| (bd2 == avatar && bd1 == stove)){
 				if (avatar.getMovement() == 0f
 						&& avatar.getVertMovement() == 0f
 						&& !avatar.isShooting()) {
