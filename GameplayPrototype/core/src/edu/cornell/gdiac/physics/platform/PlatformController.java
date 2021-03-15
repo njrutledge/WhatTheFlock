@@ -64,7 +64,7 @@ public class PlatformController extends WorldController implements ContactListen
 	/** The chicken spawn chance*/
 	private static final int SPAWN_CHANCE = 50; //1 in 50 update calls
 
-
+	private boolean cooking;
 
 	// Physics objects for the game
 	/** Physics constants for initialization */
@@ -102,7 +102,7 @@ public class PlatformController extends WorldController implements ContactListen
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
 		chickens = 0;
-
+		cooking = false;
 	}
 
 	/**
@@ -117,6 +117,7 @@ public class PlatformController extends WorldController implements ContactListen
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("platform:chicken",Texture.class));
+		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
@@ -155,11 +156,10 @@ public class PlatformController extends WorldController implements ContactListen
 	private void populateLevel() {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)
 
-		// Add level goal
-	    String wname = "wall";
+		String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
-	    JsonValue defaults = constants.get("defaults");
-	    for (int ii = 0; ii < walljv.size; ii++) {
+		JsonValue defaults = constants.get("defaults");
+		for (int ii = 0; ii < walljv.size; ii++) {
 	        PolygonObstacle obj;
 	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
 			obj.setBodyType(BodyDef.BodyType.StaticBody);
@@ -198,6 +198,14 @@ public class PlatformController extends WorldController implements ContactListen
 		avatar.setDrawScale(scale);
 		avatar.setTexture(avatarTexture);
 		addObject(avatar);
+
+		// Add stove
+		float swidth = stoveTexture.getRegionWidth()/scale.x;
+		float sheight = stoveTexture.getRegionHeight()/scale.y;
+		stove = new StoveModel(constants.get("stove"),16,9,swidth,sheight);
+		stove.setDrawScale(scale);
+		stove.setTexture(stoveTexture);
+		addObject(stove);
 
 		volume = constants.getFloat("volume", 1.0f);
 
@@ -251,7 +259,7 @@ public class PlatformController extends WorldController implements ContactListen
 		//TODO check for win condition, when chickens = 0 (see var)
 
 
-		if (chickens<=0){
+		if (stove.isCooked()){
 			setComplete(true);
 			return false;
 		}
@@ -291,8 +299,13 @@ public class PlatformController extends WorldController implements ContactListen
 		}
 
 		avatar.applyForce();
-
-
+		if (cooking && (avatar.getMovement() == 0f
+						&& avatar.getVertMovement() == 0f
+						&& !avatar.isShooting())) {
+			stove.cook(true);
+		}else {
+			stove.cook(false);
+		}
 	}
 
 	/**
@@ -442,12 +455,8 @@ public class PlatformController extends WorldController implements ContactListen
 
 			//cook if player is near stove and not doing anything
 			if ((bd1 == avatar && bd2 == stove)
-					|| (bd2 == avatar && bd1 == stove)){
-				if (avatar.getMovement() == 0f
-						&& avatar.getVertMovement() == 0f
-						&& !avatar.isShooting()) {
-					stove.cookChick();
-				}
+					|| (bd2 == avatar && bd1 == stove)) {
+				cooking = true;
 			}
 
 			//bullet collision with chicken eliminates chicken and bullet
@@ -493,6 +502,11 @@ public class PlatformController extends WorldController implements ContactListen
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 			(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 			sensorFixtures.remove(avatar == bd1 ? fix2 : fix1);
+		}
+
+		if (avatar.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
+				avatar.getSensorName().equals(fd1) && stove.getSensorName().equals(fd2)){
+			cooking = false;
 		}
 	}
 	

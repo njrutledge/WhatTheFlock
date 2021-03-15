@@ -67,7 +67,7 @@ public class DudeModel extends CapsuleObstacle {
 	/** The font used to draw text on the screen*/
 	private static final BitmapFont font = new BitmapFont();
 	/** X offset for health display */
-	private final float XOFFSET = 450;
+	private final float XOFFSET = 400;
 	/** Y offset for health display */
 	private final float YOFFSET = 565;
 	/** Time until invulnerability after getting hit wears off */

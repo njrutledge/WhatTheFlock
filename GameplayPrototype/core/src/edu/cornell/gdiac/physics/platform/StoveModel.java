@@ -1,5 +1,6 @@
 package edu.cornell.gdiac.physics.platform;
 
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -8,7 +9,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 
-public class StoveModel extends CapsuleObstacle {
+public class StoveModel extends BoxObstacle {
 
     private JsonValue data;
 
@@ -20,11 +21,14 @@ public class StoveModel extends CapsuleObstacle {
 
     private int temperature;
 
-    private final float TEMPERATURE_TIMER = 50f;
+    private final float TEMPERATURE_TIMER = 1f;
 
-    private final int MAX_TEMPERATURE = 20;
+    private final int MAX_TEMPERATURE = 30;
 
     private float temperature_counter = 0f;
+
+    /** The font used to draw text on the screen*/
+    private static final BitmapFont font = new BitmapFont();
 
     public int getTemperature() {
         return temperature;
@@ -40,22 +44,25 @@ public class StoveModel extends CapsuleObstacle {
     }
 
     public boolean isCooked(){
-        return (temperature == MAX_TEMPERATURE);
+        return (temperature >= MAX_TEMPERATURE);
     }
 
-    public StoveModel(JsonValue data, float x, float y, float width, float height) {
+    public StoveModel(JsonValue jv, float x, float y, float width, float height) {
         super(x, y,
-                width * data.get("shrink").getFloat(0),
-                height * data.get("shrink").getFloat(1));
+                width * jv.get("shrink").getFloat(0),
+                height * jv.get("shrink").getFloat(1));
         setBodyType(BodyDef.BodyType.StaticBody);
         setFixedRotation(true);
+        data = jv;
         setName("stove");
+        name = "stove";
+        sensorName = "cookRadius";
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
-        temperature_counter = MathUtils.clamp(temperature_counter += delta, 0f, (float) temperature);
+        temperature_counter = MathUtils.clamp(temperature_counter += delta, 0f, TEMPERATURE_TIMER);
     }
 
     public boolean activatePhysics(World world) {
@@ -66,12 +73,12 @@ public class StoveModel extends CapsuleObstacle {
         // Ground Sensor
         // -------------
         // Previously used to detect double-jumps, but also allows us to see hitboxes
-        Vector2 sensorCenter = new Vector2(0, -getHeight() / 2);
+        Vector2 sensorCenter = new Vector2(0, 0);
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         sensorShape = new PolygonShape();
         JsonValue sensorjv = data.get("sensor");
-        sensorShape.setAsBox(sensorjv.getFloat("shrink", 0) * getWidth() / 2.0f,
+        sensorShape.setAsBox(sensorjv.getFloat("height", 0),
                 sensorjv.getFloat("height", 0), sensorCenter, 0.0f);
         sensorDef.shape = sensorShape;
 
@@ -82,9 +89,9 @@ public class StoveModel extends CapsuleObstacle {
     }
 
 
-    public void cookChick(){
+    public void cook(boolean incr){
         if (temperature_counter >= TEMPERATURE_TIMER){
-            temperature ++;
+            temperature = Math.max(incr ? temperature+3 : temperature-1,0);
             temperature_counter = 0f;
         }
     }
@@ -95,7 +102,8 @@ public class StoveModel extends CapsuleObstacle {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),1.0f,1.0f);
+        canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
+        canvas.drawText("Temp: "+temperature, font, 500,565);
     }
 
     /**
