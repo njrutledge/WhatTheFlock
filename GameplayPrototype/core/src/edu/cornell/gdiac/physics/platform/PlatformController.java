@@ -104,7 +104,7 @@ public class PlatformController implements ContactListener, Screen {
 	/** Physics constants for initialization */
 	private JsonValue constants;
 	/** Reference to the character avatar */
-	private DudeModel avatar;
+	private ChefModel avatar;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
 	/** The minimum x position of a spawned chicken*/
@@ -301,7 +301,7 @@ public class PlatformController implements ContactListener, Screen {
 		// Create dude
 		float dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		float dheight = avatarTexture.getRegionHeight()/scale.y;
-		avatar = new DudeModel(constants.get("dude"), dwidth, dheight);
+		avatar = new ChefModel(constants.get("dude"), dwidth, dheight);
 		avatar.setDrawScale(scale);
 		avatar.setTexture(avatarTexture);
 		addObject(avatar);
