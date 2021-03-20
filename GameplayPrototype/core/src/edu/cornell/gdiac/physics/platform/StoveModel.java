@@ -91,7 +91,7 @@ public class StoveModel extends BoxObstacle {
 
     public void cook(boolean incr){
         if (temperature_counter >= TEMPERATURE_TIMER){
-            temperature = Math.max(incr ? temperature+3 : temperature-1,0);
+            temperature = MathUtils.clamp(incr ? temperature+3 : temperature-1,0,30);
             temperature_counter = 0f;
         }
     }
