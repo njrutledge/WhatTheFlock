@@ -1,5 +1,5 @@
 /*
- * PlatformController.java
+ * WorldController.java
  *
  * You SHOULD NOT need to modify this file.  However, you may learn valuable lessons
  * for the rest of the lab by looking at it.
@@ -35,7 +35,7 @@ import java.util.Iterator;
  * This is the purpose of our AssetState variable; it ensures that multiple instances
  * place nicely with the static assets.
  */
-public class PlatformController implements ContactListener, Screen {
+public class WorldController implements ContactListener, Screen {
 	///TODO: Implement a proper board and interactions between the player and chickens, slap may also be implemented here
 	////////////// This file puts together a lot of data, be sure that you do not modify something without knowing fully
 	////////////// its purpose or you may break someone else's work, further comments are below ////////////////////
@@ -177,7 +177,7 @@ public class PlatformController implements ContactListener, Screen {
 	 *
 	 * The game has default gravity and other settings
 	 */
-	public PlatformController() {
+	public WorldController() {
 		this(new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT), new Vector2(0,DEFAULT_GRAVITY));
 		setDebug(false);
 		setComplete(false);
@@ -199,7 +199,7 @@ public class PlatformController implements ContactListener, Screen {
 	 * @param bounds	The game bounds in Box2d coordinates
 	 * @param gravity	The gravitational force on this Box2d world
 	 */
-	protected PlatformController(Rectangle bounds, Vector2 gravity){
+	protected WorldController(Rectangle bounds, Vector2 gravity){
 		world = new World(gravity,false);
 		this.bounds = new Rectangle(bounds);
 		this.scale = new Vector2(1,1);
