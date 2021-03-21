@@ -453,8 +453,8 @@ public class WorldController implements ContactListener, Screen {
 			spawnChicken();
 		}
 		for (Obstacle obj : objects) {
-			//Remove a bullet if too much time passes (really fast cause its a slap)
-			if (obj.isBullet()) {
+			//Remove a bullet if slap is complete
+			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {
 				removeBullet(obj);
 			}
 		}
@@ -524,42 +524,51 @@ public class WorldController implements ContactListener, Screen {
 	 *
 	 */
 	private void createSlap(int direction) {
-		//TODO: Instead of creating a bullet, should create a slap which behaves similarly (though inputs will be different)
+		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
 
-		///////This will require work outside of this file and method, but this is primarily where the magic happens
-
-		JsonValue bulletjv = constants.get("bullet");
 		float radius = 6*bulletTexture.getRegionWidth() / (2.0f * scale.x);
-		float offset = radius+1;
-		WheelObstacle bullet = new WheelObstacle(avatar.getX(), avatar.getY(), radius);
+		float offset = 1.5f;
+		float angvel = 3f;
+		float ofratio = 0.4f;
+		BoxObstacle slap;
 		if (direction == 2 || direction == 4) {
+			slap = new BoxObstacle(avatar.getX(), avatar.getY(), radius, 0.1f);
 			offset *= (direction == 2 ? 1 : -1);
-			bullet.setX(avatar.getX() + offset);
+			slap.setX(avatar.getX() + offset);
+			slap.setY(avatar.getY() - offset*ofratio);
+			slap.setAngle((float)(-1*Math.PI/24));
+			slap.setAngularVelocity(angvel);
 		} else {
+			slap = new BoxObstacle(avatar.getX(), avatar.getY(), 0.1f, radius);
 			offset *= (direction == 1 ? 1 : -1);
-			bullet.setY(avatar.getY() + offset);
+			slap.setY(avatar.getY() + offset);
+			slap.setX(avatar.getX() - offset*ofratio);
+			slap.setAngle((float)(1*Math.PI/24));
+			slap.setAngularVelocity(-1*angvel);
 		}
-	    bullet.setName("bullet");
-		bullet.setDensity(0);
-	    bullet.setDrawScale(scale);
-	    bullet.setTexture(bulletTexture);
+
+
+	    slap.setName("bullet");
+		slap.setDensity(0);
+	    slap.setDrawScale(scale);
+	    slap.setTexture(bulletTexture);
 	    Filter bulletFilter = new Filter();
 	    bulletFilter.groupIndex = -1;
 	    bulletFilter.categoryBits = 0x0002;
-	    bullet.setFilterData(bulletFilter);
-	    bullet.setBullet(true);
-	    bullet.setGravityScale(0);
+	    slap.setFilterData(bulletFilter);
+	    slap.setBullet(true);
+	    slap.setGravityScale(0);
 		
 		// Compute position and velocity
-//		float speed = bulletjv.getFloat( "speed", 0 );
-//		if (direction == 2 || direction == 4) {
-//			speed *= (direction == 2 ? 1 : -1);
-//			bullet.setVX(speed);
-//		} else {
-//			speed *= (direction == 1 ? 1 : -1);
-//			bullet.setVY(speed);
-//		}
-		addQueuedObject(bullet);
+		float speed = 80;
+		if (direction == 2 || direction == 4) {
+			speed *= (direction == 2 ? 0.1f : -0.1f);
+			slap.setVY(speed);
+		} else {
+			speed *= (direction == 1 ? 0.1f : -0.1f);
+			slap.setVX(speed);
+		}
+		addQueuedObject(slap);
 
 		fireId = playSound( fireSound, fireId );
 	}
@@ -599,6 +608,7 @@ public class WorldController implements ContactListener, Screen {
 			Obstacle bd1 = (Obstacle)body1.getUserData();
 			Obstacle bd2 = (Obstacle)body2.getUserData();
 
+			//TODO: Slap Collision should continue, not just disappear when hitting world
 			// Test bullet collision with world
 			if (bd1.getName().equals("bullet") && bd2 != avatar) {
 		        removeBullet(bd1);
@@ -620,13 +630,11 @@ public class WorldController implements ContactListener, Screen {
 				cooking = true;
 			}
 
-			//bullet collision with chicken eliminates chicken and bullet
+			//bullet collision with chicken eliminates chicken
 			if (bd1.getName().equals("bullet") && bd2.getName().equals("chicken")) {
-				removeBullet(bd1);
 				removeChicken(bd2);
 			}
 			if (bd2.getName().equals("bullet") && bd1.getName().equals("chicken")) {
-				removeBullet(bd2);
 				removeChicken(bd1);
 			}
 			//removeChicken()
@@ -662,7 +670,7 @@ public class WorldController implements ContactListener, Screen {
 
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 			(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-			sensorFixtures.remove(avatar == bd1 ? fix2 : fix1);
+			sensorFixtures.remove((avatar == bd1) ? fix2 : fix1);
 		}
 
 		if (avatar.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
