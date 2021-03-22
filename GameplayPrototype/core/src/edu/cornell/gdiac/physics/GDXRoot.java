@@ -14,11 +14,12 @@
  package edu.cornell.gdiac.physics;
 
 import com.badlogic.gdx.*;
+import edu.cornell.gdiac.physics.platform.WorldController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 //import edu.cornell.gdiac.physics.rocket.*;
 //import edu.cornell.gdiac.physics.ragdoll.*;
-import edu.cornell.gdiac.physics.platform.*;
+
 
 /**
  * Root class for a LibGDX.  
@@ -41,7 +42,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	/** List of all WorldControllers */
-	private WorldController[] controllers;
+	private WorldController controller;
 	
 	/**
 	 * Creates a new game from the configuration settings.
@@ -62,10 +63,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		loading = new LoadingMode("assets.json",canvas,1);
 
 		// Initialize the three game worlds
-		controllers = new WorldController[1];
-//		controllers[0] = new RocketController();
-		controllers[0] = new PlatformController();
-//		controllers[2] = new RagdollController();
+		controller = new WorldController();
 		current = 0;
 		loading.setScreenListener(this);
 		setScreen(loading);
@@ -79,9 +77,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void dispose() {
 		// Call dispose on our children
 		setScreen(null);
-		for(int ii = 0; ii < controllers.length; ii++) {
-			controllers[ii].dispose();
-		}
+		controller.dispose();
 
 		canvas.dispose();
 		canvas = null;
@@ -120,25 +116,22 @@ public class GDXRoot extends Game implements ScreenListener {
 	 */
 	public void exitScreen(Screen screen, int exitCode) {
 		if (screen == loading) {
-			for(int ii = 0; ii < controllers.length; ii++) {
-				directory = loading.getAssets();
-				controllers[ii].gatherAssets(directory);
-				controllers[ii].setScreenListener(this);
-				controllers[ii].setCanvas(canvas);
-			}
-			controllers[current].reset();
-			setScreen(controllers[current]);
+			directory = loading.getAssets();
+			controller.gatherAssets(directory);
+			controller.setScreenListener(this);
+			controller.setCanvas(canvas);
+
+			controller.reset();
+			setScreen(controller);
 			
 			loading.dispose();
 			loading = null;
 		} else if (exitCode == WorldController.EXIT_NEXT) {
-			current = (current+1) % controllers.length;
-			controllers[current].reset();
-			setScreen(controllers[current]);
+			controller.reset();
+			setScreen(controller);
 		} else if (exitCode == WorldController.EXIT_PREV) {
-			current = (current+controllers.length-1) % controllers.length;
-			controllers[current].reset();
-			setScreen(controllers[current]);
+			controller.reset();
+			setScreen(controller);
 		} else if (exitCode == WorldController.EXIT_QUIT) {
 			// We quit the main application
 			Gdx.app.exit();

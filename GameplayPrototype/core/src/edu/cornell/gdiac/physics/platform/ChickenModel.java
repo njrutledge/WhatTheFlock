@@ -22,7 +22,7 @@ public class ChickenModel extends CapsuleObstacle {
     /** The player character that the enemy will follow
      * We would probably want an AI Controller to handle this, but enemy movement is
      * pretty simple for the prototype */
-    private DudeModel player;
+    private ChefModel player;
     /** The maximum enemy speed */
     private final float maxspeed;
     /** The speed that the enemy chases the player */
@@ -55,7 +55,7 @@ public class ChickenModel extends CapsuleObstacle {
      * @param width		The object width in physics units
      * @param height	The object width in physics units
      */
-    public ChickenModel(JsonValue data, float x, float y, float width, float height, DudeModel player) {
+    public ChickenModel(JsonValue data, float x, float y, float width, float height, ChefModel player) {
         // The shrink factors fit the image to a tigher hitbox
         super(/*data.get("pos").getFloat(0),
                 data.get("pos").getFloat(1),*/
