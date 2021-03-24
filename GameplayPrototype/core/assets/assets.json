@@ -42,6 +42,7 @@
         "platform:bullet":  "platform/bullet.png",
         "platform:chicken": "platform/chicken.png",
         "platform:stove": "platform/stove.png",
+        "platform:trap": "platform/spiketrap.png",
         "ragdoll:bubble": "ragdoll/bubble.png",
         "ragdoll:torso":  "ragdoll/tux_body.png",
         "ragdoll:head":   "ragdoll/ProfWhite.png",

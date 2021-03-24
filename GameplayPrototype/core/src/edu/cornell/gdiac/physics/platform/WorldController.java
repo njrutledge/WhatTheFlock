@@ -54,6 +54,8 @@ public class WorldController implements ContactListener, Screen {
 	private TextureRegion chickenTexture;
 	/** Texture asset for the stove */
 	private TextureRegion stoveTexture;
+	/** Texture asset for the trap (TEMP) */
+	private TextureRegion trapTexture;
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -222,6 +224,7 @@ public class WorldController implements ContactListener, Screen {
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("platform:chicken",Texture.class));
+		trapTexture = new TextureRegion(directory.getEntry("platform:trap",Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
 		displayFont = directory.getEntry( "shared:retro" ,BitmapFont.class);
@@ -304,6 +307,9 @@ public class WorldController implements ContactListener, Screen {
 		avatar = new ChefModel(constants.get("dude"), dwidth, dheight);
 		avatar.setDrawScale(scale);
 		avatar.setTexture(avatarTexture);
+		//Set temperature based on difficulty of the level
+		avatar.setMaxTemp(30);
+
 		addObject(avatar);
 
 		// Add stove
@@ -324,6 +330,18 @@ public class WorldController implements ContactListener, Screen {
 		for (int i = 0; i < INITIAL_SPAWN; i++){
 			spawnChicken();
 		}
+
+		//spawn test traps
+		float twidth = trapTexture.getRegionWidth()/scale.x;
+		float theight = trapTexture.getRegionHeight()/scale.y;
+		Trap trap = new Trap(constants.get("trap"), 10, 9, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.CIRCLE);
+		trap.setDrawScale(scale);
+		trap.setTexture(trapTexture);
+		addObject(trap);
+		trap = new Trap(constants.get("trap"), 20, 4, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.SQUARE);
+		trap.setDrawScale(scale);
+		trap.setTexture(trapTexture);
+		addObject(trap);
 	}
 
 	/**
@@ -366,7 +384,7 @@ public class WorldController implements ContactListener, Screen {
 		//TODO check for win condition, when chickens = 0 (see var)
 
 
-		if (stove.isCooked()){
+		if (avatar.isCooked()){
 			setComplete(true);
 			return false;
 		}
@@ -463,19 +481,10 @@ public class WorldController implements ContactListener, Screen {
 		if (cooking && (avatar.getMovement() == 0f
 						&& avatar.getVertMovement() == 0f
 						&& !avatar.isShooting())) {
-			stove.cook(true);
+			avatar.cook(true);
 		}else {
-			stove.cook(false);
+			avatar.cook(false);
 		}
-	}
-
-	/**
-	 * Returns the current avatar health
-	 *
-	 * @return the current avatar health
-	 */
-	public int getHealth() {
-		return avatar.getHealth();
 	}
 
 	/**
@@ -525,6 +534,11 @@ public class WorldController implements ContactListener, Screen {
 	 */
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
+		if (avatar.getTemperature() == 0){
+			return;
+		} else{
+			avatar.reduceTemp(1);
+		}
 
 		float radius = 6*bulletTexture.getRegionWidth() / (2.0f * scale.x);
 		float offset = 1.5f;
@@ -610,16 +624,6 @@ public class WorldController implements ContactListener, Screen {
 			Obstacle bd1 = (Obstacle)body1.getUserData();
 			Obstacle bd2 = (Obstacle)body2.getUserData();
 
-			//TODO: Slap Collision should continue, not just disappear when hitting world
-			// Test bullet collision with world
-			if (bd1.getName().equals("bullet") && bd2 != avatar) {
-				// The bullet is already removed at the end of the slap, so no need to remove it here, I think
-		        //removeBullet(bd1);
-			}
-
-			if (bd2.getName().equals("bullet") && bd1 != avatar) {
-		        //removeBullet(bd2);
-			}
 
 			//reduce health if chicken collides with avatar
 			if ((bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned())
@@ -644,8 +648,30 @@ public class WorldController implements ContactListener, Screen {
 					removeChicken(bd1);
 				}
 			}
-			//removeChicken()
 
+			//trap collision with chicken eliminates chicken
+			if (bd1.getName().equals("trap") && bd2.getName().equals("chicken")) {
+				switch (((Trap) bd1).getTrapType()){
+					case TRAP_ONE: //damage
+						removeChicken(bd2);
+						break;
+					case TRAP_TWO: //TODO
+						break;
+					case TRAP_THREE : //TODO
+						break;
+				}
+			}
+			if (bd2.getName().equals("trap") && bd1.getName().equals("chicken")) {
+				switch (((Trap) bd2).getTrapType()){
+					case TRAP_ONE: //damage
+						removeChicken(bd1);
+						break;
+					case TRAP_TWO: //TODO
+						break;
+					case TRAP_THREE : //TODO
+						break;
+				}
+			}
 			//chicken to chicken collision does nothing
 
 		} catch (Exception e) {

@@ -62,6 +62,17 @@ public class ChefModel extends CapsuleObstacle {
 
 	/**The maximum health a player can have */
 	private static final int MAX_HEALTH = 3;
+
+	/**The max temperature the chicken can get to (when cooked) */
+	private int maxTemperature;
+	/**Current temperature of the chicken */
+	private int temperature;
+	/**Using to determine how fast the chicken cooks */
+	private final float TEMPERATURE_TIMER = 1f;
+	private float temperatureCounter = 0f;
+	/**The amount of heat the stove gives the player for standing by it (per second) */
+	private int stoveHeat = 2;
+
 	/**The current health of the player, >= 0*/
 	private int health;
 	/** The font used to draw text on the screen*/
@@ -121,7 +132,48 @@ public class ChefModel extends CapsuleObstacle {
 	public boolean isShooting() {
 		return isShooting && shootCooldown <= 0;
 	}
-	
+
+	/** Returns the temperature of the chicken
+	 *
+	 * @return temperature of the chicken
+	 * */
+	public int getTemperature() {
+		return temperature;
+	}
+
+	/** Sets the maximum temperature for the level
+	 *
+	 * @param max - maximum temperature in order to cook the chicken
+	 */
+	public void setMaxTemp(int max){ maxTemperature = max; }
+
+	/**Returns true if the chicken is cooked (temp > max) and false otherwise
+	 *
+	 * @return true if chicken is cooked and false otherwise
+	 */
+	public boolean isCooked(){
+		return (temperature >= maxTemperature);
+	}
+
+	/** If incr is true, increases the temperature of the chicken, void otherwise
+	 *
+	 *
+	 * @param incr - whether or not the temperature should be increasing
+	 */
+
+	public void cook(boolean incr){
+		if (temperatureCounter >= TEMPERATURE_TIMER){
+			temperature = MathUtils.clamp(incr ? temperature+stoveHeat : temperature,0,30);
+			temperatureCounter = 0f;
+		}
+	}
+
+	/** Decreases the temperature of the player's chicken by a given amount
+	 *
+	 * @param amt - the amount to decrease by
+	 */
+	public void reduceTemp(int amt) { temperature -= amt; }
+
 	/**
 	 * Sets whether the dude is actively firing.
 	 *
@@ -331,6 +383,7 @@ public class ChefModel extends CapsuleObstacle {
 			shootCooldown = Math.max(0, shootCooldown - 1);
 		}
 		super.update(dt);
+		temperatureCounter = MathUtils.clamp(temperatureCounter += dt, 0f, TEMPERATURE_TIMER);
 	}
 
 	/**
@@ -342,6 +395,9 @@ public class ChefModel extends CapsuleObstacle {
 		float effect = faceRight ? 1.0f : -1.0f;
 		canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),effect,1.0f);
 		canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
+
+		//TODO: Move this draw method to the appropriate location
+		canvas.drawText("Temp: "+temperature, font, 500,565);
 
 	}
 	
