@@ -45,7 +45,15 @@
 			"shrink" : 1.69,
 			"height" : 1.69
 		}
-	}, "bridge" : {
+	},
+	"trap" : {
+		"shrink": [0.1, 0.1],
+		"sensor":  {
+			"radius": 1.0,
+			"height": 1.69
+		}
+	},
+	"bridge" : {
 		"pos": [9.0, 3.8],
 	    "width": 14.0,
 		"density": 1.0,

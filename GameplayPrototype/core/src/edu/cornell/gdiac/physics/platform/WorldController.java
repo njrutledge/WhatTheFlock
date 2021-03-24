@@ -54,6 +54,8 @@ public class WorldController implements ContactListener, Screen {
 	private TextureRegion chickenTexture;
 	/** Texture asset for the stove */
 	private TextureRegion stoveTexture;
+	/** Texture asset for the trap (TEMP) */
+	private TextureRegion trapTexture;
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -222,6 +224,7 @@ public class WorldController implements ContactListener, Screen {
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("platform:chicken",Texture.class));
+		trapTexture = new TextureRegion(directory.getEntry("platform:trap",Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
 		displayFont = directory.getEntry( "shared:retro" ,BitmapFont.class);
@@ -324,6 +327,18 @@ public class WorldController implements ContactListener, Screen {
 		for (int i = 0; i < INITIAL_SPAWN; i++){
 			spawnChicken();
 		}
+
+		//spawn test traps
+		float twidth = trapTexture.getRegionWidth()/scale.x;
+		float theight = trapTexture.getRegionHeight()/scale.y;
+		Trap trap = new Trap(constants.get("trap"), 10, 9, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.CIRCLE);
+		trap.setDrawScale(scale);
+		trap.setTexture(trapTexture);
+		addObject(trap);
+		trap = new Trap(constants.get("trap"), 20, 4, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.SQUARE);
+		trap.setDrawScale(scale);
+		trap.setTexture(trapTexture);
+		addObject(trap);
 	}
 
 	/**
@@ -637,8 +652,30 @@ public class WorldController implements ContactListener, Screen {
 			if (bd2.getName().equals("bullet") && bd1.getName().equals("chicken")) {
 				removeChicken(bd1);
 			}
-			//removeChicken()
 
+			//trap collision with chicken eliminates chicken
+			if (bd1.getName().equals("trap") && bd2.getName().equals("chicken")) {
+				switch (((Trap) bd1).getTrapType()){
+					case TRAP_ONE: //damage
+						removeChicken(bd2);
+						break;
+					case TRAP_TWO: //TODO
+						break;
+					case TRAP_THREE : //TODO
+						break;
+				}
+			}
+			if (bd2.getName().equals("trap") && bd1.getName().equals("chicken")) {
+				switch (((Trap) bd2).getTrapType()){
+					case TRAP_ONE: //damage
+						removeChicken(bd1);
+						break;
+					case TRAP_TWO: //TODO
+						break;
+					case TRAP_THREE : //TODO
+						break;
+				}
+			}
 			//chicken to chicken collision does nothing
 
 		} catch (Exception e) {
