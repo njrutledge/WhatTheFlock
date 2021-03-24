@@ -29,8 +29,19 @@ public class ChickenModel extends CapsuleObstacle {
     private final float chaseSpeed;
     /** The amount to slow the character down */
     private final float damping;
+    /** The strength of the knockback force the chicken receives after getting slapped*/
+    private final float knockback;
     /** Cache for internal force calculations */
     private final Vector2 forceCache = new Vector2();
+    private static int INITIAL_HEALTH = 2;
+    /** Health of the chicken*/
+    private int health;
+    /** Time until invulnerability after getting hit wears off */
+    private final float INVULN_TIME = 1f;
+    /** Counter for Invulnerability timer*/
+    private float invuln_counter = INVULN_TIME;
+    /** True if the chicken has just been hit and the knockback has not yet been applied*/
+    private boolean hit = false;
     /**
      * Returns the name of the ground sensor
      *
@@ -71,6 +82,8 @@ public class ChickenModel extends CapsuleObstacle {
         maxspeed = data.getFloat("maxspeed", 0);
         damping = data.getFloat("damping", 0);
         chaseSpeed = data.getFloat("chasespeed", 0);
+        knockback = data.getFloat("knockback", 0);
+        health = INITIAL_HEALTH;
         this.data = data;
 
     }
@@ -117,14 +130,25 @@ public class ChickenModel extends CapsuleObstacle {
         if (!isActive()) {
             return;
         }
+
+        if (hit){
+            hit = false;
+        }
+        else {
+            forceCache.set(-damping * getVX(), -damping * getVY());
+        }
+        body.applyForce(forceCache,getPosition(),true);
+
         // Velocity too high, clamp it
         if (Math.abs(getVX()) >= maxspeed) {
             setVX(Math.signum(getVX())*maxspeed);
         }
+
         // Velocity too high, clamp it
         if (Math.abs(getVY()) >= maxspeed) {
             setVY(Math.signum(getVY())*maxspeed);
         }
+
     }
 
     /**
@@ -136,13 +160,19 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void update(float dt) {
         super.update(dt);
+        invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         if (player.isActive()) {
             forceCache.set(player.getPosition().sub(getPosition()));
             forceCache.nor();
             forceCache.scl(chaseSpeed);
-            setVX(forceCache.x);
-            setVY(forceCache.y);
-            //applyForce();
+            if (isStunned()) {
+                forceCache.scl(-knockback);
+                applyForce();
+            }
+            else{
+                setVX(forceCache.x);
+                setVY(forceCache.y);
+            }
         }
     }
 
@@ -153,7 +183,9 @@ public class ChickenModel extends CapsuleObstacle {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),1.0f,1.0f);
+        if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
+            canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 1.0f, 1.0f);
+        }
     }
 
     /**
@@ -166,5 +198,27 @@ public class ChickenModel extends CapsuleObstacle {
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
         canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),getAngle(),drawScale.x,drawScale.y);
+    }
+
+    /**
+     * The chicken takes damage
+     *
+     * @param damage The amount of damage to this chicken's health
+     *
+     * @return true if the chicken has no health after taking damage
+     */
+    public Boolean takeDamage(int damage) {
+        if (!isStunned()) {
+            health -= damage;
+            invuln_counter = 0;
+            hit = true;
+            return health <= 0;
+        }
+
+        return false;
+    }
+
+    public Boolean isStunned(){
+        return invuln_counter < INVULN_TIME;
     }
 }

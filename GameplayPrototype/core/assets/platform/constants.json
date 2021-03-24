@@ -25,11 +25,12 @@
 	"chicken" : {
 		"shrink": [0.7, 0.7],
 		"force": 20.0,
-		"damping": 10.0,
+		"damping": 1.0,
 		"density": 1.0,
 		"friction": 0.0,
 		"maxspeed": 5.0,
 		"chasespeed": 2.0,
+		"knockback": 100.0,
 		"jump_force": 5.5,
 		"jump_cool": 30,
 		"shot_cool": 40,
