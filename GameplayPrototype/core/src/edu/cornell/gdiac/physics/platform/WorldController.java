@@ -307,6 +307,9 @@ public class WorldController implements ContactListener, Screen {
 		avatar = new ChefModel(constants.get("dude"), dwidth, dheight);
 		avatar.setDrawScale(scale);
 		avatar.setTexture(avatarTexture);
+		//Set temperature based on difficulty of the level
+		avatar.setMaxTemp(30);
+
 		addObject(avatar);
 
 		// Add stove
@@ -381,7 +384,7 @@ public class WorldController implements ContactListener, Screen {
 		//TODO check for win condition, when chickens = 0 (see var)
 
 
-		if (stove.isCooked()){
+		if (avatar.isCooked()){
 			setComplete(true);
 			return false;
 		}
@@ -478,19 +481,10 @@ public class WorldController implements ContactListener, Screen {
 		if (cooking && (avatar.getMovement() == 0f
 						&& avatar.getVertMovement() == 0f
 						&& !avatar.isShooting())) {
-			stove.cook(true);
+			avatar.cook(true);
 		}else {
-			stove.cook(false);
+			avatar.cook(false);
 		}
-	}
-
-	/**
-	 * Returns the current avatar health
-	 *
-	 * @return the current avatar health
-	 */
-	public int getHealth() {
-		return avatar.getHealth();
 	}
 
 	/**
@@ -540,6 +534,11 @@ public class WorldController implements ContactListener, Screen {
 	 */
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
+		if (avatar.getTemperature() == 0){
+			return;
+		} else{
+			avatar.reduceTemp(1);
+		}
 
 		float radius = 6*bulletTexture.getRegionWidth() / (2.0f * scale.x);
 		float offset = 1.5f;
@@ -624,14 +623,6 @@ public class WorldController implements ContactListener, Screen {
 			Obstacle bd2 = (Obstacle)body2.getUserData();
 
 			//TODO: Slap Collision should continue, not just disappear when hitting world
-			// Test bullet collision with world
-			if (bd1.getName().equals("bullet") && bd2 != avatar) {
-		        removeBullet(bd1);
-			}
-
-			if (bd2.getName().equals("bullet") && bd1 != avatar) {
-		        removeBullet(bd2);
-			}
 
 			//reduce health if chicken collides with avatar
 			if ((bd1 == avatar && bd2.getName().equals("chicken"))

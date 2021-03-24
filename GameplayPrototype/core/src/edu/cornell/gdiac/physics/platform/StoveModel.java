@@ -19,20 +19,8 @@ public class StoveModel extends BoxObstacle {
 
     private String sensorName;
 
-    private int temperature;
-
-    private final float TEMPERATURE_TIMER = 1f;
-
-    private final int MAX_TEMPERATURE = 30;
-
-    private float temperature_counter = 0f;
-
     /** The font used to draw text on the screen*/
     private static final BitmapFont font = new BitmapFont();
-
-    public int getTemperature() {
-        return temperature;
-    }
 
     public String getSensorName() {
         return sensorName;
@@ -41,10 +29,6 @@ public class StoveModel extends BoxObstacle {
     @Override
     public String getName() {
         return name;
-    }
-
-    public boolean isCooked(){
-        return (temperature >= MAX_TEMPERATURE);
     }
 
     public StoveModel(JsonValue jv, float x, float y, float width, float height) {
@@ -57,12 +41,6 @@ public class StoveModel extends BoxObstacle {
         setName("stove");
         name = "stove";
         sensorName = "cookRadius";
-    }
-
-    @Override
-    public void update(float delta) {
-        super.update(delta);
-        temperature_counter = MathUtils.clamp(temperature_counter += delta, 0f, TEMPERATURE_TIMER);
     }
 
     public boolean activatePhysics(World world) {
@@ -88,14 +66,6 @@ public class StoveModel extends BoxObstacle {
         return true;
     }
 
-
-    public void cook(boolean incr){
-        if (temperature_counter >= TEMPERATURE_TIMER){
-            temperature = MathUtils.clamp(incr ? temperature+3 : temperature-1,0,30);
-            temperature_counter = 0f;
-        }
-    }
-
     /**
      * Draws the physics object.
      *
@@ -103,7 +73,6 @@ public class StoveModel extends BoxObstacle {
      */
     public void draw(GameCanvas canvas) {
         canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
-        canvas.drawText("Temp: "+temperature, font, 500,565);
     }
 
     /**
