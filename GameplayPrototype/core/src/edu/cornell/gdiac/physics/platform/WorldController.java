@@ -540,6 +540,7 @@ public class WorldController implements ContactListener, Screen {
 		BoxObstacle slap;
 		if (direction == 2 || direction == 4) {
 			slap = new BoxObstacle(avatar.getX(), avatar.getY(), radius, 0.1f);
+			slap.setSensor(true);
 			offset *= (direction == 2 ? 1 : -1);
 			slap.setX(avatar.getX() + offset);
 			slap.setY(avatar.getY() - offset*ofratio);
@@ -547,6 +548,7 @@ public class WorldController implements ContactListener, Screen {
 			slap.setAngularVelocity(angvel);
 		} else {
 			slap = new BoxObstacle(avatar.getX(), avatar.getY(), 0.1f, radius);
+			slap.setSensor(true);
 			offset *= (direction == 1 ? 1 : -1);
 			slap.setY(avatar.getY() + offset);
 			slap.setX(avatar.getX() - offset*ofratio);
@@ -640,11 +642,10 @@ public class WorldController implements ContactListener, Screen {
 			Obstacle bd1 = (Obstacle)body1.getUserData();
 			Obstacle bd2 = (Obstacle)body2.getUserData();
 
-			//TODO: Slap Collision should continue, not just disappear when hitting world
 
 			//reduce health if chicken collides with avatar
-			if ((bd1 == avatar && bd2.getName().equals("chicken"))
-					|| (bd2 == avatar && bd1.getName().equals("chicken"))){
+			if ((bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned())
+					|| (bd2 == avatar && bd1.getName().equals("chicken"))&& !((ChickenModel)bd1).isStunned()){
 				avatar.decrementHealth();
 			}
 
@@ -656,10 +657,14 @@ public class WorldController implements ContactListener, Screen {
 
 			//bullet collision with chicken eliminates chicken
 			if (bd1.getName().equals("bullet") && bd2.getName().equals("chicken")) {
-				removeChicken(bd2);
+				if (((ChickenModel)bd2).takeDamage(1)) {
+					removeChicken(bd2);
+				}
 			}
 			if (bd2.getName().equals("bullet") && bd1.getName().equals("chicken")) {
-				removeChicken(bd1);
+				if (((ChickenModel)bd1).takeDamage(1)) {
+					removeChicken(bd1);
+				}
 			}
 
 			//trap collision with chicken eliminates chicken
