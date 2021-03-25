@@ -49,7 +49,7 @@
 	"trap" : {
 		"shrink": [0.1, 0.1],
 		"sensor":  {
-			"radius": 1.0,
+			"radius": 2.0,
 			"height": 1.69
 		}
 	},

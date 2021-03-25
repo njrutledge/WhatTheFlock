@@ -378,9 +378,6 @@ public class WorldController implements ContactListener, Screen {
 			return false;
 		}
 
-		//TODO check for win condition, when chickens = 0 (see var)
-
-
 		if (stove.isCooked()){
 			setComplete(true);
 			return false;
@@ -598,6 +595,17 @@ public class WorldController implements ContactListener, Screen {
 	    bullet.markRemoved(true);
 	    plopId = playSound( plopSound, plopId );
 	}
+
+	/**
+	 *  decrement the trap durability, and remove the trap if it breaks.
+	 *
+	 * @param trap   the trap to decrement durability and possibly remove
+	 */
+	public void decrementTrap(Trap trap){
+		if(!trap.isRemoved() && trap.decrementDurability()){
+			trap.markRemoved(true);
+		}
+	}
 	
 	/**
 	 * Callback method for the start of a collision
@@ -658,6 +666,7 @@ public class WorldController implements ContactListener, Screen {
 				switch (((Trap) bd1).getTrapType()){
 					case TRAP_ONE: //damage
 						removeChicken(bd2);
+						decrementTrap((Trap)bd1);
 						break;
 					case TRAP_TWO: //TODO
 						break;
@@ -669,6 +678,7 @@ public class WorldController implements ContactListener, Screen {
 				switch (((Trap) bd2).getTrapType()){
 					case TRAP_ONE: //damage
 						removeChicken(bd1);
+						decrementTrap((Trap)bd2);
 						break;
 					case TRAP_TWO: //TODO
 						break;
