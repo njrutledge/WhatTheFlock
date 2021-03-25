@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
+import edu.cornell.gdiac.util.FilmStrip;
 
 public class ChickenModel extends CapsuleObstacle {
     //TODO: Implement the Enemy Chicken and its methods, feel free to add or remove methods as needed
@@ -42,6 +43,11 @@ public class ChickenModel extends CapsuleObstacle {
     private float invuln_counter = INVULN_TIME;
     /** True if the chicken has just been hit and the knockback has not yet been applied*/
     private boolean hit = false;
+
+    protected FilmStrip animator;
+    /** Reference to texture origin */
+    protected Vector2 origin;
+
     /**
      * Returns the name of the ground sensor
      *
@@ -176,6 +182,10 @@ public class ChickenModel extends CapsuleObstacle {
         }
     }
 
+    public void setTexture(Texture texture) {
+        animator = new FilmStrip(texture, 3, 5);
+        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+    }
 
     /**
      * Draws the physics object.
@@ -184,7 +194,7 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void draw(GameCanvas canvas) {
         if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
-            canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 1.0f, 1.0f);
+            canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f, 0.1f);
         }
     }
 

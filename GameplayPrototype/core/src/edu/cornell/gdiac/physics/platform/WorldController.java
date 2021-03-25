@@ -57,6 +57,11 @@ public class WorldController implements ContactListener, Screen {
 	/** Texture asset for the trap (TEMP) */
 	private TextureRegion trapTexture;
 
+	/** Texture asset for the chef*/
+	private Texture chefTexture;
+	/** Texture asset for the nugget */
+	private Texture nuggetTexture;
+
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
 	private long jumpId = -1;
@@ -227,6 +232,10 @@ public class WorldController implements ContactListener, Screen {
 		trapTexture = new TextureRegion(directory.getEntry("platform:trap",Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
+
+		chefTexture = directory.getEntry("platform:chef", Texture.class);
+		nuggetTexture = directory.getEntry("platform:nugget", Texture.class);
+
 		displayFont = directory.getEntry( "shared:retro" ,BitmapFont.class);
 
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
@@ -306,7 +315,7 @@ public class WorldController implements ContactListener, Screen {
 		float dheight = avatarTexture.getRegionHeight()/scale.y;
 		avatar = new ChefModel(constants.get("dude"), dwidth, dheight);
 		avatar.setDrawScale(scale);
-		avatar.setTexture(avatarTexture);
+		avatar.setTexture(chefTexture);
 		//Set temperature based on difficulty of the level
 		avatar.setMaxTemp(30);
 
@@ -506,7 +515,7 @@ public class WorldController implements ContactListener, Screen {
 		ChickenModel enemy;
 		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar);
 		enemy.setDrawScale(scale);
-		enemy.setTexture(chickenTexture);
+		enemy.setTexture(nuggetTexture);
 		addObject(enemy);
 		chickens ++;
 	}

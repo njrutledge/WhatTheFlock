@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
+import edu.cornell.gdiac.util.FilmStrip;
 
 /**
  * Player avatar for the plaform game.
@@ -95,6 +96,12 @@ public class ChefModel extends CapsuleObstacle {
 
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache = new Vector2();
+
+
+	/** CURRENT image for this object. May change over time. */
+	protected FilmStrip animator;
+	/** Reference to texture origin */
+	protected Vector2 origin;
 
 	/**
 	 * Returns left/right movement of this character.
@@ -202,6 +209,11 @@ public class ChefModel extends CapsuleObstacle {
 	 * @param bln whether or not the chef is trying to place a trap
 	 */
 	public void setTrap(boolean bln) { isTrap = bln; }
+
+	public void setTexture(Texture texture) {
+		animator = new FilmStrip(texture, 2, 5);
+		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+	}
 
 	/**
 	 * Returns if the character is alive.
@@ -421,7 +433,7 @@ public class ChefModel extends CapsuleObstacle {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
-		canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),effect,1.0f);
+		canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
 		canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
 
 		//TODO: Move this draw method to the appropriate location
