@@ -543,9 +543,9 @@ public class WorldController implements ContactListener, Screen {
 		}
 
 		float radius = 6*bulletTexture.getRegionWidth() / (2.0f * scale.x);
-		float offset = 1.5f;
-		float angvel = 3f;
-		float ofratio = 0.4f;
+		float offset = 1f;
+		float angvel = 6f;
+		float ofratio = 0.7f;
 		BoxObstacle slap;
 		if (direction == 2 || direction == 4) {
 			slap = new BoxObstacle(avatar.getX(), avatar.getY(), radius, 0.1f);
@@ -578,7 +578,7 @@ public class WorldController implements ContactListener, Screen {
 	    slap.setGravityScale(0);
 		
 		// Compute position and velocity
-		float speed = 80;
+		float speed = 175;
 		if (direction == 2 || direction == 4) {
 			speed *= (direction == 2 ? 0.1f : -0.1f);
 			slap.setVY(speed);
