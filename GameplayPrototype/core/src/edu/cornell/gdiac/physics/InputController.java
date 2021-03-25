@@ -67,6 +67,9 @@ public class InputController {
 	private boolean secondPrevious;
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
+	/** Whether the trap placement button ws pressed */
+	private boolean trapPressed;
+	private boolean trapPrevious;
 	/** Whether the debug toggle was pressed. */
 	private boolean debugPressed;
 	private boolean debugPrevious;
@@ -171,6 +174,14 @@ public class InputController {
 		return tertiaryPressed;
 	}
 
+	/**
+	 * Returns true if the trap button was pressed.
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
+	 *
+	 * @return true if the trap button was pressed
+	 */
+	public boolean didTrap() {return trapPressed && !trapPrevious; }
 	/**
 	 * Returns true if the reset button was pressed.
 	 *
@@ -322,6 +333,7 @@ public class InputController {
 		prevPressed = (secondary && prevPressed) || (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
 		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
+		trapPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
 		
 		// Directional controls
 		horizontal = (secondary ? horizontal : 0.0f);

@@ -44,6 +44,8 @@ public class ChefModel extends CapsuleObstacle {
 	private final String sensorName;
 	/** Cooldown (in animation frames) for shooting */
 	private final int shotLimit;
+	/** Cooldown (in animation frames) for trapping */
+	private final int trapLimit;
 
 	/** The current horizontal movement of the character */
 	private float movement;
@@ -57,6 +59,10 @@ public class ChefModel extends CapsuleObstacle {
 	private int shootCooldown;
 	/** Whether we are actively shooting */
 	private boolean isShooting;
+	/** How long until we can place another trap */
+	private int trapCooldown;
+	/** Is the player trying to set a trap*/
+	private boolean isTrap = false;
 	/** The physics shape of this object */
 	private PolygonShape sensorShape;
 
@@ -133,6 +139,13 @@ public class ChefModel extends CapsuleObstacle {
 		return isShooting && shootCooldown <= 0;
 	}
 
+	/**
+	 * Returns true if the dud is trying to place a trap.
+	 *
+	 * @return true if the dud is trying to place a trap.
+	 */
+	public boolean isTrapping() { return isTrap && trapCooldown <= 0; }
+
 	/** Returns the temperature of the chicken
 	 *
 	 * @return temperature of the chicken
@@ -182,6 +195,13 @@ public class ChefModel extends CapsuleObstacle {
 	public void setShooting(boolean value) {
 		isShooting = value; 
 	}
+
+	/**
+	 * Sets whether or not the chef is trying to place a trap
+	 *
+	 * @param bln whether or not the chef is trying to place a trap
+	 */
+	public void setTrap(boolean bln) { isTrap = bln; }
 
 	/**
 	 * Returns if the character is alive.
@@ -281,6 +301,7 @@ public class ChefModel extends CapsuleObstacle {
 		damping = data.getFloat("damping", 0);
 		force = data.getFloat("force", 0);
 		shotLimit = data.getInt( "shot_cool", 0 );
+		trapLimit = 120;
 		sensorName = "DudeGroundSensor";
 		this.data = data;
 		// Gameplay attributes
@@ -288,6 +309,7 @@ public class ChefModel extends CapsuleObstacle {
 		faceRight = true;
 		health = MAX_HEALTH;
 		shootCooldown = 0;
+		trapCooldown = 0;
 		setName("dude");
 	}
 
@@ -382,6 +404,12 @@ public class ChefModel extends CapsuleObstacle {
 		} else {
 			shootCooldown = Math.max(0, shootCooldown - 1);
 		}
+		if (isTrapping()) {
+			trapCooldown = trapLimit;
+		} else {
+			trapCooldown = Math.max(0, trapCooldown - 1);
+		}
+
 		super.update(dt);
 		temperatureCounter = MathUtils.clamp(temperatureCounter += dt, 0f, TEMPERATURE_TIMER);
 	}

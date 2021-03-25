@@ -331,17 +331,6 @@ public class WorldController implements ContactListener, Screen {
 			spawnChicken();
 		}
 
-		//spawn test traps
-		float twidth = trapTexture.getRegionWidth()/scale.x;
-		float theight = trapTexture.getRegionHeight()/scale.y;
-		Trap trap = new Trap(constants.get("trap"), 10, 9, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.CIRCLE);
-		trap.setDrawScale(scale);
-		trap.setTexture(trapTexture);
-		addObject(trap);
-		trap = new Trap(constants.get("trap"), 20, 4, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.SQUARE);
-		trap.setDrawScale(scale);
-		trap.setTexture(trapTexture);
-		addObject(trap);
 	}
 
 	/**
@@ -458,11 +447,18 @@ public class WorldController implements ContactListener, Screen {
 		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
 		avatar.setVertmovement(InputController.getInstance().getVertical()*avatar.getForce());
 		avatar.setShooting(InputController.getInstance().didSecondary());
+		avatar.setTrap(InputController.getInstance().didTrap());
 		
 		// Add a bullet if we fire
 		if (avatar.isShooting()) {
 			createSlap(InputController.getInstance().getSlapDirection());
 		}
+
+		// Add a trap if trying to press
+		if (avatar.isTrapping()) {
+			createTrap();
+		}
+
 		//random chance of spawning a chicken
 		if ((int)(Math.random() * (SPAWN_CHANCE + 1)) == 0) {
 			spawnChicken();
@@ -593,6 +589,20 @@ public class WorldController implements ContactListener, Screen {
 		//TODO: may need to alter similar to createBullet()
 	    bullet.markRemoved(true);
 	    plopId = playSound( plopSound, plopId );
+	}
+
+	public void createTrap() {
+		//spawn test traps
+		float twidth = trapTexture.getRegionWidth()/scale.x;
+		float theight = trapTexture.getRegionHeight()/scale.y;
+		Trap trap = new Trap(constants.get("trap"), avatar.getX(), avatar.getY(), twidth, theight, Trap.type.TRAP_ONE, Trap.shape.CIRCLE);
+		trap.setDrawScale(scale);
+		trap.setTexture(trapTexture);
+		addObject(trap);
+//		trap = new Trap(constants.get("trap"), 20, 4, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.SQUARE);
+//		trap.setDrawScale(scale);
+//		trap.setTexture(trapTexture);
+//		addObject(trap);
 	}
 
 	/**
