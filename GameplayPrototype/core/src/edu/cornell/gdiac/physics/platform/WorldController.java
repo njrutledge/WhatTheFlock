@@ -79,7 +79,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The number of chickens to initially spawn*/
 	private int INITIAL_SPAWN = 5;
 	/** The chicken spawn chance*/
-	private static final int SPAWN_CHANCE = 50; //1 in 50 update calls
+	private static final int SPAWN_CHANCE = 100; //1 in 50 update calls
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
@@ -356,7 +356,11 @@ public class WorldController implements ContactListener, Screen {
 	 */
 	public void killChickens(){
 		chickens = 0;
-		//TODO: delete all chicken objects from where they are being stored
+		for (Obstacle obstacle: objects){
+			if (obstacle.getName().equals("chicken")){
+				removeChicken(obstacle);
+			}
+		}
 	}
 	
 	/**
@@ -677,6 +681,7 @@ public class WorldController implements ContactListener, Screen {
 			if ((bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned())
 					|| (bd2 == avatar && bd1.getName().equals("chicken"))&& !((ChickenModel)bd1).isStunned()){
 				avatar.decrementHealth();
+				((ChickenModel)bd2).hitPlayer();
 			}
 
 			//cook if player is near stove and not doing anything
@@ -734,7 +739,14 @@ public class WorldController implements ContactListener, Screen {
 					decrementTrap((Trap) bd2);
 				}
 			}
-			//chicken to chicken collision does nothing
+
+			if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
+				((ChickenModel)bd2).hitWall();
+			}
+			if (bd2.getName().contains("platform") && bd1.getName().equals("chicken")){
+				((ChickenModel)bd1).hitWall();
+
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
