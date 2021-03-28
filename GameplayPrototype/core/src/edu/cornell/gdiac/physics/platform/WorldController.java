@@ -112,6 +112,8 @@ public class WorldController implements ContactListener, Screen {
 	private JsonValue constants;
 	/** Reference to the character avatar */
 	private ChefModel avatar;
+	/** Reference to the temperature*/
+	private TemperatureBar temp;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
 	/** The minimum x position of a spawned chicken*/
@@ -317,7 +319,9 @@ public class WorldController implements ContactListener, Screen {
 		avatar.setDrawScale(scale);
 		avatar.setTexture(chefTexture);
 		//Set temperature based on difficulty of the level
-		avatar.setMaxTemp(30);
+		temp = new TemperatureBar(30);
+
+		//avatar.setMaxTemp(30);
 
 		addObject(avatar);
 
@@ -379,7 +383,7 @@ public class WorldController implements ContactListener, Screen {
 			return false;
 		}
 
-		if (avatar.isCooked()){
+		if (temp.isCooked()){
 			setComplete(true);
 			return false;
 		}
@@ -454,7 +458,7 @@ public class WorldController implements ContactListener, Screen {
 	public void update(float dt) {
 		// Process actions in object model
 		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
-		avatar.setVertmovement(InputController.getInstance().getVertical()*avatar.getForce());
+		avatar.setVertMovement(InputController.getInstance().getVertical()*avatar.getForce());
 		avatar.setShooting(InputController.getInstance().didSecondary());
 		avatar.setTrap(InputController.getInstance().didTrap());
 		
@@ -483,9 +487,11 @@ public class WorldController implements ContactListener, Screen {
 		if (cooking && (avatar.getMovement() == 0f
 						&& avatar.getVertMovement() == 0f
 						&& !avatar.isShooting())) {
-			avatar.cook(true);
+			//avatar.cook(true);
+			temp.cook(true);
 		}else {
-			avatar.cook(false);
+			//avatar.cook(false);
+			temp.cook(true);
 		}
 	}
 
@@ -536,10 +542,10 @@ public class WorldController implements ContactListener, Screen {
 	 */
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
-		if (avatar.getTemperature() == 0){
+		if (temp.getTemperature() == 0){
 			return;
 		} else{
-			avatar.reduceTemp(1);
+			temp.reduceTemp(1);
 		}
 
 		float radius = 6*bulletTexture.getRegionWidth() / (2.0f * scale.x);
@@ -865,6 +871,12 @@ public class WorldController implements ContactListener, Screen {
 			}
 			canvas.endDebug();
 		}
+
+		//TODO add section for UI
+		//draw temp bar
+		canvas.begin();
+		temp.draw(canvas);
+		canvas.end();
 
 		// Final message
 		if (complete && !failed) {

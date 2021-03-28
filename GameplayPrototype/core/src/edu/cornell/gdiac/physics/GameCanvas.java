@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 
 /**
  * Primary view class for the game, abstracting the basic graphics calls.
@@ -432,7 +433,17 @@ public class GameCanvas {
     	spriteBatch.setColor(tint);
 		spriteBatch.draw(image, x,  y, width, height);
 	}
-	
+
+	/**Draws a progress bar
+	 * */
+	public void draw(ProgressBar progress, Color tint, float x, float y, float sc){
+		progress.setPosition(x, y);
+		progress.setColor(tint);
+		//progress.setWidth(width);
+		//progress.setHeight(height);
+		progress.setScale(sc);
+		progress.draw(spriteBatch,1.0f);
+	}
 	/**
 	 * Draws the tinted texture at the given position.
 	 *
