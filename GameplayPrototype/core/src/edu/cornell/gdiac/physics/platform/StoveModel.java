@@ -13,7 +13,7 @@ public class StoveModel extends BoxObstacle {
 
     private JsonValue data;
 
-    private PolygonShape sensorShape;
+    private CircleShape sensorShape;
 
     private String name;
 
@@ -54,10 +54,9 @@ public class StoveModel extends BoxObstacle {
         Vector2 sensorCenter = new Vector2(0, 0);
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
-        sensorShape = new PolygonShape();
+        sensorShape = new CircleShape();
         JsonValue sensorjv = data.get("sensor");
-        sensorShape.setAsBox(sensorjv.getFloat("height", 0),
-                sensorjv.getFloat("height", 0), sensorCenter, 0.0f);
+        sensorShape.setRadius(3f);
         sensorDef.shape = sensorShape;
 
         // Ground sensor to represent our feet
@@ -84,7 +83,7 @@ public class StoveModel extends BoxObstacle {
      */
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
-        canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),getAngle(),drawScale.x,drawScale.y);
+        canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
     }
 }
 
