@@ -15,9 +15,9 @@ public class Trap extends BoxObstacle {
      *  Enumeration to encode the trap type
      */
     public enum type {
-        TRAP_ONE,
-        TRAP_TWO,
-        TRAP_THREE
+        LURE,
+        SLOW,
+        FIRE
     }
 
     /**
@@ -46,6 +46,9 @@ public class Trap extends BoxObstacle {
     private float durability;
     /** The max durability */
     private static final float MAX_DURABILITY = 30.0f;
+
+
+    private static final float LURE_RADIUS = 5f;
 
     /**
      * Creates a new Trap model with the given physics data
@@ -144,8 +147,6 @@ public class Trap extends BoxObstacle {
     /**
      * Creates the physics Body(s) for this object, adding them to the world.
      *
-     * This method overrides the base method to keep your ship from spinning.
-     *
      * @param world Box2D world to store body
      *
      * @return true if object allocation succeeded
@@ -160,15 +161,18 @@ public class Trap extends BoxObstacle {
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         JsonValue sensorjv = data.get("sensor");
-        switch (trapShape) {
-            case CIRCLE:
+        switch (trapType) {
+            case LURE:
                 sensorShape = new CircleShape();
                 sensorShape.setRadius(sensorjv.getFloat("radius", 0));
                 break;
-            case SQUARE:
+            case SLOW:
                 sensorShape = new PolygonShape();
                 ((PolygonShape) sensorShape).setAsBox(sensorjv.getFloat("height", 0),
                         sensorjv.getFloat("height", 0), sensorCenter, 0.0f);
+                break;
+            case FIRE:
+
                 break;
         }
         sensorDef.shape = sensorShape;

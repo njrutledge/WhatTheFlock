@@ -125,7 +125,7 @@ public class WorldController implements ContactListener, Screen {
 	/** Reference to the stove object */
 	private StoveModel stove;
 
-	private Trap.type trapTypeSelected = Trap.type.TRAP_ONE;
+	private Trap.type trapTypeSelected = Trap.type.LURE;
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -461,20 +461,20 @@ public class WorldController implements ContactListener, Screen {
 		avatar.setTrap(InputController.getInstance().didTrap());
 
 		if (InputController.getInstance().didRotateTrapLeft()){
-			if (trapTypeSelected == Trap.type.TRAP_ONE){
-				trapTypeSelected = Trap.type.TRAP_THREE;
-			} else if (trapTypeSelected == Trap.type.TRAP_TWO){
-				trapTypeSelected = Trap.type.TRAP_ONE;
+			if (trapTypeSelected == Trap.type.LURE){
+				trapTypeSelected = Trap.type.FIRE;
+			} else if (trapTypeSelected == Trap.type.SLOW){
+				trapTypeSelected = Trap.type.LURE;
 			} else {
-				trapTypeSelected = Trap.type.TRAP_TWO;
+				trapTypeSelected = Trap.type.SLOW;
 			}
 		} else if (InputController.getInstance().didRotateTrapRight()){
-			if (trapTypeSelected == Trap.type.TRAP_ONE) {
-				trapTypeSelected = Trap.type.TRAP_TWO;
-			} else if (trapTypeSelected == Trap.type.TRAP_TWO){
-				trapTypeSelected = Trap.type.TRAP_THREE;
+			if (trapTypeSelected == Trap.type.LURE) {
+				trapTypeSelected = Trap.type.SLOW;
+			} else if (trapTypeSelected == Trap.type.SLOW){
+				trapTypeSelected = Trap.type.FIRE;
 			} else {
-				trapTypeSelected = Trap.type.TRAP_ONE;
+				trapTypeSelected = Trap.type.LURE;
 			}
 		}
 
@@ -700,25 +700,25 @@ public class WorldController implements ContactListener, Screen {
 			//trap collision with chicken eliminates chicken
 			if (bd1.getName().equals("trap") && bd2.getName().equals("chicken")) {
 				switch (((Trap) bd1).getTrapType()){
-					case TRAP_ONE: //damage
+					case LURE: //damage
 						removeChicken(bd2);
 						decrementTrap((Trap)bd1);
 						break;
-					case TRAP_TWO: //TODO
+					case SLOW: //TODO
 						break;
-					case TRAP_THREE : //TODO
+					case FIRE : //TODO
 						break;
 				}
 			}
 			if (bd2.getName().equals("trap") && bd1.getName().equals("chicken")) {
 				switch (((Trap) bd2).getTrapType()){
-					case TRAP_ONE: //damage
+					case LURE: //damage
 						removeChicken(bd1);
 						decrementTrap((Trap)bd2);
 						break;
-					case TRAP_TWO: //TODO
+					case SLOW: //TODO
 						break;
-					case TRAP_THREE : //TODO
+					case FIRE : //TODO
 						break;
 				}
 			}
