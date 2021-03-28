@@ -72,8 +72,10 @@ public class InputController {
 	private boolean trapPrevious;
 	/** Whether or not rotate left through traps is pressed*/
 	private boolean trapRotateLeftPressed;
+	private boolean trapRLPrevious;
 	/** Whether or not rotate right through traps is pressed*/
 	private boolean trapRotateRightPressed;
+	private boolean trapRRPrevious;
 
 	/** Whether the debug toggle was pressed. */
 	private boolean debugPressed;
@@ -190,17 +192,21 @@ public class InputController {
 
 	/**
 	 * Returns true if the left rotate trap button is pressed.
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
 	 *
 	 * 	@return true if the left rotate trap button was pressed
 	 */
-	public boolean didRotateTrapLeft() {return trapRotateLeftPressed; }
+	public boolean didRotateTrapLeft() {return trapRotateLeftPressed && !trapRLPrevious; }
 
 	/**
 	 * Returns true if the right rotate trap button is pressed.
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
 	 *
 	 * 	@return true if the right rotate trap button was pressed
 	 */
-	public boolean didRotateTrapRight() {return trapRotateRightPressed; }
+	public boolean didRotateTrapRight() {return trapRotateRightPressed && !trapRRPrevious; }
 
 	/**
 	 * Returns true if the reset button was pressed.
@@ -285,6 +291,9 @@ public class InputController {
 		exitPrevious = exitPressed;
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
+		trapPrevious = trapPressed;
+		trapRLPrevious = trapRotateLeftPressed;
+		trapRRPrevious = trapRotateRightPressed;
 		
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {

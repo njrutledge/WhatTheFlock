@@ -886,7 +886,21 @@ public class WorldController implements ContactListener, Screen {
 	public void draw(float dt) {
 		canvas.clear();
 
+		String s = "";
+		switch (trapTypeSelected ){
+			case TRAP_LURE:
+				s = "one";
+				break;
+			case TRAP_SLOW:
+				s = "two";
+				break;
+			case TRAP_FIRE:
+				s = "three";
+				break;
+		}
+
 		canvas.begin();
+		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
