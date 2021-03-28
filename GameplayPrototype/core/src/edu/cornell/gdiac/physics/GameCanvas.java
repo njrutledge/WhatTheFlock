@@ -441,7 +441,7 @@ public class GameCanvas {
 		progress.setColor(tint);
 		//progress.setWidth(width);
 		//progress.setHeight(height);
-		progress.setScale(sc);
+		//progress.setScale(sc);
 		progress.draw(spriteBatch,1f);
 	}
 	/**

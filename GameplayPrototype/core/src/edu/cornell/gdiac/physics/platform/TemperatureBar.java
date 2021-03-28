@@ -26,8 +26,8 @@ public class TemperatureBar {
     private TextureRegion tempBackground;
     /** Middle portion of the temperature forground (colored region) */
     private TextureRegion tempForeground;
-    private int WIDTH = 10;
-    private int HEIGHT = 70;
+    private int WIDTH = 1;
+    private int HEIGHT = 300;
 
     /**Using to determine how fast the chicken cooks */
     private final float TEMPERATURE_TIMER = 1f;
@@ -48,7 +48,10 @@ public class TemperatureBar {
         ProgressBar.ProgressBarStyle barStyle = new ProgressBar.ProgressBarStyle();
         barStyle.background = new TextureRegionDrawable(tempBackground);
         barStyle.knob = new TextureRegionDrawable(tempForeground);
-        barStyle.knobBefore = barStyle.knob;
+        //barStyle.knob.setMinHeight(0);
+        //barStyle.knob.setTopHeight(HEIGHT);
+        //barStyle.knobAfter = barStyle.knob;
+        //barStyle.knobBefore = barStyle.background;
         tempBar = new ProgressBar(0, maxTemperature, 1, true, barStyle);
         tempBar.setWidth(WIDTH);
         tempBar.setHeight(HEIGHT);
@@ -72,6 +75,10 @@ public class TemperatureBar {
         return temperature;
     }
 
+    /**Returns the % the chicken is cooked, for calculation*/
+    public float getPercentCooked(){
+        return (float) temperature/ (float) maxTemperature;
+    }
     /**Returns true if the chicken is cooked (temp > max) and false otherwise
      *
      * @return true if chicken is cooked and false otherwise
@@ -112,9 +119,9 @@ public class TemperatureBar {
 
     public void draw(GameCanvas canvas){
         //draw temperature
-        canvas.draw(tempBar, Color.WHITE, 800, 300,  0.7f);
+        //canvas.draw(tempBar, Color.WHITE, 900, 300,  0.5f);
         //tempBar.draw(canvas, temperature);
         canvas.drawText("Temp: "+tempBar.getValue(), font, 500,565);
-        canvas.drawText("Temp: "+temperature, font, 575,565);
+       // canvas.drawText("Temp: "+temperature, font, 575,565);
     }
 }
