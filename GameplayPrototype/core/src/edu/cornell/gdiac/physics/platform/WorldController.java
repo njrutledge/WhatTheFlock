@@ -914,13 +914,13 @@ public class WorldController implements ContactListener, Screen {
 
 		String s = "";
 		switch (trapTypeSelected ){
-			case TRAP_LURE:
+			case LURE:
 				s = "one";
 				break;
-			case TRAP_SLOW:
+			case SLOW:
 				s = "two";
 				break;
-			case TRAP_FIRE:
+			case FIRE:
 				s = "three";
 				break;
 		}
