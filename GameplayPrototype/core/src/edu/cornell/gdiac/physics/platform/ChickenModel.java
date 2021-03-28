@@ -4,7 +4,6 @@ import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
@@ -38,10 +37,19 @@ public class ChickenModel extends CapsuleObstacle {
     private static int INITIAL_HEALTH = 2;
     /** Health of the chicken*/
     private int health;
+    // All of these variables will be put into a FSM in AIController eventually
     /** Time until invulnerability after getting hit wears off */
     private final float INVULN_TIME = 1f;
     /** Counter for Invulnerability timer*/
     private float invuln_counter = INVULN_TIME;
+    /** Time to move perpendicular to a wall upon collision before returning to normal AI */
+    private final float SIDEWAYS_TIME = 1f;
+    /** Counter for sideways movement timer*/
+    private float sideways_counter = SIDEWAYS_TIME;
+    /** Time to remain stationary after hitting the player */
+    private final float STOP_TIME = 1f;
+    /** Counter for stop movement timer*/
+    private float stop_counter = STOP_TIME;
     /** True if the chicken has just been hit and the knockback has not yet been applied*/
     private boolean hit = false;
 
@@ -174,7 +182,9 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void update(float dt) {
         super.update(dt);
-        invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
+        invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
+        sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
+        stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
         if (target.isActive()) {
             forceCache.set(target.getPosition().sub(getPosition()));
             forceCache.nor();
@@ -184,8 +194,15 @@ public class ChickenModel extends CapsuleObstacle {
                 applyForce();
             }
             else{
+                if (sideways_counter < SIDEWAYS_TIME){
+                    forceCache.rotate90(0);
+                }
+                if (stop_counter < STOP_TIME){
+                    forceCache.setZero();
+                }
                 setVX(forceCache.x);
                 setVY(forceCache.y);
+
             }
         }
     }
@@ -287,7 +304,29 @@ public class ChickenModel extends CapsuleObstacle {
         target = player;
     }
 
+    /**
+     * Whether the chicken is currently in hitstun
+     *
+     * @return true if the chicken is currently stunned
+     */
     public Boolean isStunned(){
         return invuln_counter < INVULN_TIME;
     }
+
+    /**
+     * The chicken has collided with a wall and will move perpendicularly to get around the wall
+     */
+    public void hitWall(){
+        if (!isStunned()){
+            sideways_counter = 0;
+        }
+    }
+
+    /**
+     * The chicken has collided with the player and will remain stationary for some time
+     */
+    public void hitPlayer(){
+        stop_counter = 0;
+    }
+
 }
