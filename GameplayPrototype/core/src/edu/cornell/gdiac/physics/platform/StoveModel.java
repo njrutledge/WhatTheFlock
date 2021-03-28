@@ -51,11 +51,9 @@ public class StoveModel extends BoxObstacle {
         // Ground Sensor
         // -------------
         // Previously used to detect double-jumps, but also allows us to see hitboxes
-        Vector2 sensorCenter = new Vector2(0, 0);
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         sensorShape = new CircleShape();
-        JsonValue sensorjv = data.get("sensor");
         sensorShape.setRadius(3f);
         sensorDef.shape = sensorShape;
 

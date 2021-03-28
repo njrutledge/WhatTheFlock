@@ -15,9 +15,10 @@ public class Trap extends BoxObstacle {
      *  Enumeration to encode the trap type
      */
     public enum type {
-        TRAP_ONE,
-        TRAP_TWO,
-        TRAP_THREE
+        LURE,
+        SLOW,
+        FIRE,
+        FIRE_LINGER
     }
 
     /**
@@ -46,6 +47,28 @@ public class Trap extends BoxObstacle {
     private float durability;
     /** The max durability */
     private static final float MAX_DURABILITY = 30.0f;
+
+    /** Hurt box shape for the Lure trap. Null for all other traps */
+    private Shape lHShape;
+
+    /** Radius which chickens get lured to the trap */
+    private static final float LURE_RADIUS = 5f;
+    /** Radius which chickens get slowed near the trap */
+    private static final float SLOW_RADIUS = 3F;
+    /** Radius which chickens can trigger the fire trap */
+    private static final float FIRE_TRIGGER_RADIUS = 2f;
+    /** Radius which chickens get set on fire */
+    private static final float FIRE_LINGER_RADIUS = 4f;
+    /** Radius for the Lure hurtbox */
+    private static final float LURE_HURT = 1.5f;
+
+
+    /** Lure Durability */
+    private float LURE_CRUMBS = MAX_DURABILITY / 6;
+    /** Slow effect strength */
+    private float SLOW_EFFECT = 0.5f;
+    /** Fire duration effect */
+    private float FIRE_DUR = 10.0f;
 
     /**
      * Creates a new Trap model with the given physics data
@@ -126,9 +149,14 @@ public class Trap extends BoxObstacle {
      *  @return true if durability is now zero
      */
     public boolean decrementDurability(){
-        durability = Math.max(0,--durability);
+        if (trapType.equals(type.LURE)) {
+            durability = Math.max(0, durability - LURE_CRUMBS);
+        } else {
+            durability = Math.max(0,--durability);
+        }
         return durability == 0;
     }
+
     /**
      * Updates the object's physics state (NOT GAME LOGIC).
      *
@@ -144,8 +172,6 @@ public class Trap extends BoxObstacle {
     /**
      * Creates the physics Body(s) for this object, adding them to the world.
      *
-     * This method overrides the base method to keep your ship from spinning.
-     *
      * @param world Box2D world to store body
      *
      * @return true if object allocation succeeded
@@ -155,26 +181,49 @@ public class Trap extends BoxObstacle {
         if (!super.activatePhysics(world)) {
             return false;
         }
-
-        Vector2 sensorCenter = new Vector2();
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
-        JsonValue sensorjv = data.get("sensor");
-        switch (trapShape) {
-            case CIRCLE:
-                sensorShape = new CircleShape();
-                sensorShape.setRadius(sensorjv.getFloat("radius", 0));
+        sensorShape = new CircleShape();
+        switch (trapType) {
+            case LURE:
+                sensorShape.setRadius(LURE_RADIUS);
+                FixtureDef sensHurt = new FixtureDef();
+                sensHurt.isSensor = true;
+                lHShape= new CircleShape();
+                lHShape.setRadius(LURE_HURT);
+                sensHurt.shape = lHShape;
+                Fixture sensorHurtF = body.createFixture(sensHurt);
+                sensorHurtF.setUserData("lureHurt");
                 break;
-            case SQUARE:
-                sensorShape = new PolygonShape();
-                ((PolygonShape) sensorShape).setAsBox(sensorjv.getFloat("height", 0),
-                        sensorjv.getFloat("height", 0), sensorCenter, 0.0f);
+            case SLOW:
+                sensorShape.setRadius(SLOW_RADIUS);
                 break;
+            case FIRE:
+                sensorShape.setRadius(FIRE_TRIGGER_RADIUS);
+                break;
+            case FIRE_LINGER:
+                sensorShape.setRadius(FIRE_LINGER_RADIUS);
         }
         sensorDef.shape = sensorShape;
         Fixture sensorFixture = body.createFixture(sensorDef);
         sensorFixture.setUserData(getSensorName());
         return true;
+    }
+
+    /**
+     * Gets the trap's effect. This is either a multiplier for the slow down effect or a duration for the fire effect.
+     * -1 otherwise
+     *
+     * @return a float determining the effect
+     */
+    public float getEffect() {
+        switch (trapType) {
+            case SLOW:
+                return SLOW_EFFECT;
+            case FIRE_LINGER:
+                return FIRE_DUR;
+        }
+        return -1;
     }
 
     /**
@@ -199,6 +248,9 @@ public class Trap extends BoxObstacle {
         switch (trapShape) {
             case CIRCLE:
                 canvas.drawPhysics((CircleShape) sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
+                if (lHShape != null) {
+                    canvas.drawPhysics((CircleShape) lHShape,Color.BLUE,getX(),getY(),drawScale.x,drawScale.y);
+                }
                 break;
             case SQUARE:
                 canvas.drawPhysics((PolygonShape) sensorShape,Color.RED,getX(),getY(),getAngle(),drawScale.x,drawScale.y);

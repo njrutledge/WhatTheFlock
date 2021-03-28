@@ -23,7 +23,7 @@ public class ChickenModel extends CapsuleObstacle {
     /** The player character that the enemy will follow
      * We would probably want an AI Controller to handle this, but enemy movement is
      * pretty simple for the prototype */
-    private ChefModel player;
+    private Obstacle target;
     /** The maximum enemy speed */
     private final float maxspeed;
     /** The speed that the enemy chases the player */
@@ -53,9 +53,15 @@ public class ChickenModel extends CapsuleObstacle {
     /** True if the chicken has just been hit and the knockback has not yet been applied*/
     private boolean hit = false;
 
+    private ChefModel player;
+
     protected FilmStrip animator;
     /** Reference to texture origin */
     protected Vector2 origin;
+
+    private float slow = 1f;
+
+    private float status_timer = 0f;
 
     /**
      * Returns the name of the ground sensor
@@ -92,7 +98,8 @@ public class ChickenModel extends CapsuleObstacle {
         setFriction(data.getFloat("friction", 0));  /// IT WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true);
         setName("chicken");
-
+        sensorName = "chickenSensor";
+        this.target = player;
         this.player = player;
         maxspeed = data.getFloat("maxspeed", 0);
         damping = data.getFloat("damping", 0);
@@ -178,10 +185,10 @@ public class ChickenModel extends CapsuleObstacle {
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
-        if (player.isActive()) {
-            forceCache.set(player.getPosition().sub(getPosition()));
+        if (target.isActive()) {
+            forceCache.set(target.getPosition().sub(getPosition()));
             forceCache.nor();
-            forceCache.scl(chaseSpeed);
+            forceCache.scl(chaseSpeed * slow);
             if (isStunned()) {
                 forceCache.scl(-knockback);
                 applyForce();
@@ -244,6 +251,57 @@ public class ChickenModel extends CapsuleObstacle {
         }
 
         return false;
+    }
+
+    /**
+     * Applies a slowdown modifier to the chicken's speed
+     *
+     * @param strength a slowdown multiplier (1f for normal speed)
+     */
+    public void applySlow(float strength) {
+        slow = strength;
+    }
+
+    /**
+     * Removes any slowdown modifiers to the chicken's speed
+     */
+    public void removeSlow() {
+        slow = 1f;
+    }
+
+    /**
+     * Applies the fire effect by giving the chicken a countdown timer
+     * representing the remaining time of the fire effect
+     *
+     * @param duration a duration for the fire effect in seconds.
+     */
+    public void applyFire(float duration) {
+        status_timer = duration;
+    }
+
+    /**
+     * Applies a negative value to the fire duration to notify no decrease in fire duration (used to tell whether the
+     * chicken is still in the fire radius)
+     */
+    public void applyFireConst() {
+        status_timer = -10f;
+    }
+
+    /**
+     * Sets the chicken's target to the specific Lure trap
+     *
+     * @param t a Lure trap target
+     */
+    public void trapTarget(Trap t) {
+        target = t;
+    }
+
+    /**
+     * Resets the chicken's target to the player
+     *
+     */
+    public void resetTarget() {
+        target = player;
     }
 
     /**

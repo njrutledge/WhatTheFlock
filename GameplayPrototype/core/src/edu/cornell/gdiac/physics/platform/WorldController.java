@@ -79,7 +79,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The number of chickens to initially spawn*/
 	private int INITIAL_SPAWN = 5;
 	/** The chicken spawn chance*/
-	private static final int SPAWN_CHANCE = 100; //1 in 50 update calls
+	private static final int SPAWN_CHANCE = 50; //1 in 50 update calls
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
@@ -125,7 +125,7 @@ public class WorldController implements ContactListener, Screen {
 	/** Reference to the stove object */
 	private StoveModel stove;
 
-	private Trap.type trapTypeSelected = Trap.type.TRAP_ONE;
+	private Trap.type trapTypeSelected = Trap.type.LURE;
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -356,11 +356,6 @@ public class WorldController implements ContactListener, Screen {
 	 */
 	public void killChickens(){
 		chickens = 0;
-		for (Obstacle obstacle: objects){
-			if (obstacle.getName().equals("chicken")){
-				removeChicken(obstacle);
-			}
-		}
 		//TODO: delete all chicken objects from where they are being stored
 	}
 	
@@ -466,20 +461,20 @@ public class WorldController implements ContactListener, Screen {
 		avatar.setTrap(InputController.getInstance().didTrap());
 
 		if (InputController.getInstance().didRotateTrapLeft()){
-			if (trapTypeSelected == Trap.type.TRAP_ONE){
-				trapTypeSelected = Trap.type.TRAP_THREE;
-			} else if (trapTypeSelected == Trap.type.TRAP_TWO){
-				trapTypeSelected = Trap.type.TRAP_ONE;
+			if (trapTypeSelected == Trap.type.LURE){
+				trapTypeSelected = Trap.type.FIRE;
+			} else if (trapTypeSelected == Trap.type.SLOW){
+				trapTypeSelected = Trap.type.LURE;
 			} else {
-				trapTypeSelected = Trap.type.TRAP_TWO;
+				trapTypeSelected = Trap.type.SLOW;
 			}
 		} else if (InputController.getInstance().didRotateTrapRight()){
-			if (trapTypeSelected == Trap.type.TRAP_ONE) {
-				trapTypeSelected = Trap.type.TRAP_TWO;
-			} else if (trapTypeSelected == Trap.type.TRAP_TWO){
-				trapTypeSelected = Trap.type.TRAP_THREE;
+			if (trapTypeSelected == Trap.type.LURE) {
+				trapTypeSelected = Trap.type.SLOW;
+			} else if (trapTypeSelected == Trap.type.SLOW){
+				trapTypeSelected = Trap.type.FIRE;
 			} else {
-				trapTypeSelected = Trap.type.TRAP_ONE;
+				trapTypeSelected = Trap.type.LURE;
 			}
 		}
 
@@ -561,7 +556,7 @@ public class WorldController implements ContactListener, Screen {
 	 *
 	 */
 	private void createSlap(int direction) {
-		//TODO:Specific arc still needs to be tweaked, probably best if in-game changing of variables is added
+		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
 		if (avatar.getTemperature() == 0){
 			return;
 		} else{
@@ -682,7 +677,6 @@ public class WorldController implements ContactListener, Screen {
 			if ((bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned())
 					|| (bd2 == avatar && bd1.getName().equals("chicken"))&& !((ChickenModel)bd1).isStunned()){
 				avatar.decrementHealth();
-				((ChickenModel)bd2).hitPlayer();
 			}
 
 			//cook if player is near stove and not doing anything
@@ -706,36 +700,41 @@ public class WorldController implements ContactListener, Screen {
 			//trap collision with chicken eliminates chicken
 			if (bd1.getName().equals("trap") && bd2.getName().equals("chicken")) {
 				switch (((Trap) bd1).getTrapType()){
-					case TRAP_ONE: //damage
-						removeChicken(bd2);
-						decrementTrap((Trap)bd1);
+					case LURE: //damage
+						((ChickenModel) bd2).trapTarget((Trap) bd1);
 						break;
-					case TRAP_TWO: //TODO
+					case SLOW:
+						((ChickenModel) bd2).applySlow(((Trap) bd1).getEffect());
+						decrementTrap((Trap) bd1);
 						break;
-					case TRAP_THREE : //TODO
+					case FIRE :
 						break;
 				}
 			}
 			if (bd2.getName().equals("trap") && bd1.getName().equals("chicken")) {
 				switch (((Trap) bd2).getTrapType()){
-					case TRAP_ONE: //damage
-						removeChicken(bd1);
-						decrementTrap((Trap)bd2);
+					case LURE: //damage
+						((ChickenModel) bd1).trapTarget((Trap) bd2);
 						break;
-					case TRAP_TWO: //TODO
+					case SLOW:
+						((ChickenModel) bd1).applySlow(((Trap) bd2).getEffect());
+						decrementTrap((Trap) bd2);
 						break;
-					case TRAP_THREE : //TODO
+					case FIRE :
 						break;
 				}
 			}
 
-			if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
-				((ChickenModel)bd2).hitWall();
-			}
-			if (bd2.getName().contains("platform") && bd1.getName().equals("chicken")){
-				((ChickenModel)bd1).hitWall();
+			if (fd1 != null && fd2 != null) {
+				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
+					decrementTrap((Trap) bd1);
+				}
 
+				if (fd2.equals("lureHurt") && bd1.getName().equals("chicken")){
+					decrementTrap((Trap) bd2);
+				}
 			}
+			//chicken to chicken collision does nothing
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -764,6 +763,9 @@ public class WorldController implements ContactListener, Screen {
 		Object bd1 = body1.getUserData();
 		Object bd2 = body2.getUserData();
 
+		Obstacle b1 = (Obstacle) bd1;
+		Obstacle b2 = (Obstacle) bd2;
+
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 			(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 			sensorFixtures.remove((avatar == bd1) ? fix2 : fix1);
@@ -772,6 +774,30 @@ public class WorldController implements ContactListener, Screen {
 		if (avatar.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
 				avatar.getSensorName().equals(fd1) && stove.getSensorName().equals(fd2)){
 			cooking = false;
+		}
+		if (b1.getName().equals("trap") && b2.getName().equals("chicken")) {
+			switch (((Trap) b1).getTrapType()){
+				case LURE:
+					((ChickenModel) b2).resetTarget();
+					break;
+				case SLOW:
+					((ChickenModel) b2).removeSlow();
+					break;
+				case FIRE :
+					break;
+			}
+		}
+		if (b2.getName().equals("trap") && b1.getName().equals("chicken")) {
+			switch (((Trap) b2).getTrapType()){
+				case LURE: //damage
+					((ChickenModel) b1).resetTarget();
+					break;
+				case SLOW:
+					((ChickenModel) b1).removeSlow();
+					break;
+				case FIRE : //TODO
+					break;
+			}
 		}
 	}
 
