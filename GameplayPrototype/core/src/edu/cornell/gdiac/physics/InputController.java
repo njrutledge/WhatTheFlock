@@ -336,15 +336,29 @@ public class InputController {
 		trapPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
 		
 		// Directional controls
-		horizontal = (secondary ? horizontal : 0.0f);
+		if (horizontal > 0 && Gdx.input.isKeyPressed(Input.Keys.D)){
+			horizontal = 0;
+		} else if (horizontal < 0 && Gdx.input.isKeyPressed(Input.Keys.A)){
+			horizontal = 0;
+		} else if (!Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)){
+			horizontal = 0;
+		}
+
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
 			horizontal += 1.0f;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
 			horizontal -= 1.0f;
 		}
-		
-		vertical = (secondary ? vertical : 0.0f);
+
+		if (vertical > 0 && Gdx.input.isKeyPressed(Input.Keys.W)){
+			vertical = 0;
+		} else if (vertical < 0 && Gdx.input.isKeyPressed(Input.Keys.S)){
+			vertical = 0;
+		} else if (!Gdx.input.isKeyPressed(Input.Keys.W) && !Gdx.input.isKeyPressed(Input.Keys.S)){
+			vertical = 0;
+		}
+
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			vertical += 1.0f;
 		}

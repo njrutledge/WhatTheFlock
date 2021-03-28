@@ -77,9 +77,9 @@ public class WorldController implements ContactListener, Screen {
 	/** The current number of chickens */
 	private int chickens;
 	/** The number of chickens to initially spawn*/
-	private int INITIAL_SPAWN = 10;
+	private int INITIAL_SPAWN = 0;
 	/** The chicken spawn chance*/
-	private static final int SPAWN_CHANCE = 50; //1 in 50 update calls
+	private static final int SPAWN_CHANCE = 500; //1 in 50 update calls
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
