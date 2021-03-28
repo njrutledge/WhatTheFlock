@@ -92,7 +92,7 @@ public class ChefModel extends CapsuleObstacle {
 	private final float INVULN_TIME = 1;
 
 	/** Counter for Invulnerability timer*/
-	private float invuln_counter = 0f;
+	private float invuln_counter = INVULN_TIME;
 
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache = new Vector2();
@@ -212,7 +212,7 @@ public class ChefModel extends CapsuleObstacle {
 
 	public void setTexture(Texture texture) {
 		animator = new FilmStrip(texture, 2, 5);
-		origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
 	}
 
 	/**
@@ -224,10 +224,18 @@ public class ChefModel extends CapsuleObstacle {
 
 	/** Reduces the dude's health by one. */
 	public void decrementHealth() {
-		if (invuln_counter >= INVULN_TIME) {
+		if (!isStunned()) {
 			health --;
 			invuln_counter = 0f;
 		}
+	}
+
+	/**Returns true if the character has recently taken damage and is not invulnerable
+	 *
+	 * @return true if the character is stunned, false otherwise
+	 */
+	public Boolean isStunned(){
+		return invuln_counter < INVULN_TIME;
 	}
 
 	/**
@@ -433,7 +441,9 @@ public class ChefModel extends CapsuleObstacle {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
-		canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
+		if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
+			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), effect / 10, 0.1f);
+		}
 		canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
 
 		//TODO: Move this draw method to the appropriate location

@@ -194,7 +194,7 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void draw(GameCanvas canvas) {
         if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
-            canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f, 0.1f);
+            canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f, 0.25f);
         }
     }
 
