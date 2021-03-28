@@ -70,6 +70,11 @@ public class InputController {
 	/** Whether the trap placement button ws pressed */
 	private boolean trapPressed;
 	private boolean trapPrevious;
+	/** Whether or not rotate left through traps is pressed*/
+	private boolean trapRotateLeftPressed;
+	/** Whether or not rotate right through traps is pressed*/
+	private boolean trapRotateRightPressed;
+
 	/** Whether the debug toggle was pressed. */
 	private boolean debugPressed;
 	private boolean debugPrevious;
@@ -182,6 +187,21 @@ public class InputController {
 	 * @return true if the trap button was pressed
 	 */
 	public boolean didTrap() {return trapPressed && !trapPrevious; }
+
+	/**
+	 * Returns true if the left rotate trap button is pressed.
+	 *
+	 * 	@return true if the left rotate trap button was pressed
+	 */
+	public boolean didRotateTrapLeft() {return trapRotateLeftPressed; }
+
+	/**
+	 * Returns true if the right rotate trap button is pressed.
+	 *
+	 * 	@return true if the right rotate trap button was pressed
+	 */
+	public boolean didRotateTrapRight() {return trapRotateRightPressed; }
+
 	/**
 	 * Returns true if the reset button was pressed.
 	 *
@@ -334,6 +354,8 @@ public class InputController {
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
 		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		trapPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
+		trapRotateLeftPressed = (Gdx.input.isKeyPressed(Input.Keys.Q));
+		trapRotateRightPressed = (Gdx.input.isKeyPressed(Input.Keys.E));
 		
 		// Directional controls
 		if (horizontal > 0 && Gdx.input.isKeyPressed(Input.Keys.D)){

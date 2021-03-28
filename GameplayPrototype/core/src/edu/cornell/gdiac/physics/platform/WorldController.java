@@ -77,9 +77,9 @@ public class WorldController implements ContactListener, Screen {
 	/** The current number of chickens */
 	private int chickens;
 	/** The number of chickens to initially spawn*/
-	private int INITIAL_SPAWN = 0;
+	private int INITIAL_SPAWN = 5;
 	/** The chicken spawn chance*/
-	private static final int SPAWN_CHANCE = 500; //1 in 50 update calls
+	private static final int SPAWN_CHANCE = 50; //1 in 50 update calls
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
@@ -124,6 +124,8 @@ public class WorldController implements ContactListener, Screen {
 	private static float spawn_ymax;
 	/** Reference to the stove object */
 	private StoveModel stove;
+
+	private Trap.type trapTypeSelected = Trap.type.TRAP_ONE;
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -457,6 +459,25 @@ public class WorldController implements ContactListener, Screen {
 		avatar.setVertmovement(InputController.getInstance().getVertical()*avatar.getForce());
 		avatar.setShooting(InputController.getInstance().didSecondary());
 		avatar.setTrap(InputController.getInstance().didTrap());
+
+		if (InputController.getInstance().didRotateTrapLeft()){
+			if (trapTypeSelected == Trap.type.TRAP_ONE){
+				trapTypeSelected = Trap.type.TRAP_THREE;
+			} else if (trapTypeSelected == Trap.type.TRAP_TWO){
+				trapTypeSelected = Trap.type.TRAP_ONE;
+			} else {
+				trapTypeSelected = Trap.type.TRAP_TWO;
+			}
+		} else if (InputController.getInstance().didRotateTrapRight()){
+			if (trapTypeSelected == Trap.type.TRAP_ONE) {
+				trapTypeSelected = Trap.type.TRAP_TWO;
+			} else if (trapTypeSelected == Trap.type.TRAP_TWO){
+				trapTypeSelected = Trap.type.TRAP_THREE;
+			} else {
+				trapTypeSelected = Trap.type.TRAP_ONE;
+			}
+		}
+
 		
 		// Add a bullet if we fire
 		if (avatar.isShooting()) {
@@ -606,7 +627,7 @@ public class WorldController implements ContactListener, Screen {
 		//spawn test traps
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
-		Trap trap = new Trap(constants.get("trap"), avatar.getX(), avatar.getY(), twidth, theight, Trap.type.TRAP_ONE, Trap.shape.CIRCLE);
+		Trap trap = new Trap(constants.get("trap"), avatar.getX(), avatar.getY(), twidth, theight, trapTypeSelected, Trap.shape.CIRCLE);
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
 		addObject(trap);
