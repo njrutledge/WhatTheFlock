@@ -77,9 +77,9 @@ public class WorldController implements ContactListener, Screen {
 	/** The current number of chickens */
 	private int chickens;
 	/** The number of chickens to initially spawn*/
-	private int INITIAL_SPAWN = 5;
+	private int INITIAL_SPAWN = 2;
 	/** The chicken spawn chance*/
-	private static final int SPAWN_CHANCE = 100; //1 in 50 update calls
+	private static final int SPAWN_CHANCE = 50; //1 in 50 update calls
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
@@ -567,7 +567,7 @@ public class WorldController implements ContactListener, Screen {
 			avatar.reduceTemp(1);
 		}
 
-		float radius = 6*bulletTexture.getRegionWidth() / (2.0f * scale.x);
+		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
 		float offset = 1f;
 		float angvel = 6f;
 		float ofratio = 0.7f;
@@ -924,7 +924,21 @@ public class WorldController implements ContactListener, Screen {
 	public void draw(float dt) {
 		canvas.clear();
 
+		String s = "";
+		switch (trapTypeSelected ){
+			case LURE:
+				s = "lure";
+				break;
+			case SLOW:
+				s = "slow";
+				break;
+			case FIRE:
+				s = "fire";
+				break;
+		}
+
 		canvas.begin();
+		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
