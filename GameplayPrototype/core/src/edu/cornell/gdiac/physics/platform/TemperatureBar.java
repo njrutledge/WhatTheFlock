@@ -26,12 +26,15 @@ public class TemperatureBar {
     private TextureRegion tempBackground;
     /** Middle portion of the temperature forground (colored region) */
     private TextureRegion tempForeground;
+    private int WIDTH = 10;
+    private int HEIGHT = 70;
 
     /**Using to determine how fast the chicken cooks */
     private final float TEMPERATURE_TIMER = 1f;
     private float temperatureCounter = 0f;
     /**The amount of heat the stove gives the player for standing by it (per second) */
     private int stoveHeat = 2;
+
 
     /**The font*/
     private BitmapFont font = new BitmapFont();
@@ -40,14 +43,18 @@ public class TemperatureBar {
     public TemperatureBar(int max){
         maxTemperature = max;
         temperature = 0;
-
         //init temperature bar
         gatherTempAssets();
-        ProgressBar.ProgressBarStyle barstyle = new ProgressBar.ProgressBarStyle
-                (new TextureRegionDrawable(tempBackground), new TextureRegionDrawable(tempForeground));
-        tempBar = new ProgressBar(0, maxTemperature, 1, true, barstyle);
+        ProgressBar.ProgressBarStyle barStyle = new ProgressBar.ProgressBarStyle();
+        barStyle.background = new TextureRegionDrawable(tempBackground);
+        barStyle.knob = new TextureRegionDrawable(tempForeground);
+        barStyle.knobBefore = barStyle.knob;
+        tempBar = new ProgressBar(0, maxTemperature, 1, true, barStyle);
+        tempBar.setWidth(WIDTH);
+        tempBar.setHeight(HEIGHT);
     }
-    /**Gather art assets for temperature*/
+
+    /**Gather art assets for temperature from the JSON file specifications and the corresponding image*/
     private void gatherTempAssets(){
         AssetDirectory internal = new AssetDirectory("tempbar.json");
         internal.loadAssets();
@@ -56,6 +63,7 @@ public class TemperatureBar {
         tempBackground = internal.getEntry("progress.background", TextureRegion.class);
         tempForeground = internal.getEntry("progress.foreground", TextureRegion.class);
     }
+
     /** Returns the temperature of the chicken
      *
      * @return temperature of the chicken
@@ -72,8 +80,6 @@ public class TemperatureBar {
         return (temperature >= maxTemperature);
     }
     /** If incr is true, increases the temperature of the chicken, void otherwise
-     *
-     *
      * @param incr - whether or not the temperature should be increasing
      */
 
@@ -89,8 +95,6 @@ public class TemperatureBar {
      */
     public void reduceTemp(int amt) {
         temperature -= amt;
-        //update progress bar
-        tempBar.setValue(temperature);
     }
 
     /**
@@ -102,6 +106,8 @@ public class TemperatureBar {
      */
     public void update(float dt){
         temperatureCounter = MathUtils.clamp(temperatureCounter += dt, 0f, TEMPERATURE_TIMER);
+        //update progress bar
+        tempBar.setValue(temperature);
     }
 
     public void draw(GameCanvas canvas){

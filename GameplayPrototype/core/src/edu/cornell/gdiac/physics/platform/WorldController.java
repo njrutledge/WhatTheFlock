@@ -484,6 +484,8 @@ public class WorldController implements ContactListener, Screen {
 		}
 
 		avatar.applyForce();
+
+		//update temperature
 		if (cooking && (avatar.getMovement() == 0f
 						&& avatar.getVertMovement() == 0f
 						&& !avatar.isShooting())) {
@@ -491,8 +493,9 @@ public class WorldController implements ContactListener, Screen {
 			temp.cook(true);
 		}else {
 			//avatar.cook(false);
-			temp.cook(true);
+			temp.cook(false);
 		}
+		temp.update(dt);
 	}
 
 	/**

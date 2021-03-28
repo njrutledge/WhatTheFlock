@@ -442,7 +442,7 @@ public class GameCanvas {
 		//progress.setWidth(width);
 		//progress.setHeight(height);
 		progress.setScale(sc);
-		progress.draw(spriteBatch,1.0f);
+		progress.draw(spriteBatch,1f);
 	}
 	/**
 	 * Draws the tinted texture at the given position.
