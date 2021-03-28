@@ -701,27 +701,41 @@ public class WorldController implements ContactListener, Screen {
 			if (bd1.getName().equals("trap") && bd2.getName().equals("chicken")) {
 				switch (((Trap) bd1).getTrapType()){
 					case LURE: //damage
-						removeChicken(bd2);
-						decrementTrap((Trap)bd1);
+						((ChickenModel) bd2).trapTarget((Trap) bd1);
 						break;
-					case SLOW: //TODO
+					case SLOW:
+						((ChickenModel) bd2).applySlow(((Trap) bd1).getEffect());
+						decrementTrap((Trap) bd1);
 						break;
-					case FIRE : //TODO
+					case FIRE :
 						break;
 				}
 			}
 			if (bd2.getName().equals("trap") && bd1.getName().equals("chicken")) {
 				switch (((Trap) bd2).getTrapType()){
 					case LURE: //damage
-						removeChicken(bd1);
-						decrementTrap((Trap)bd2);
+						((ChickenModel) bd1).trapTarget((Trap) bd2);
 						break;
-					case SLOW: //TODO
+					case SLOW:
+						((ChickenModel) bd1).applySlow(((Trap) bd2).getEffect());
+						decrementTrap((Trap) bd2);
 						break;
-					case FIRE : //TODO
+					case FIRE :
 						break;
 				}
 			}
+
+			if (fd1 != null && fd2 != null) {
+				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
+					decrementTrap((Trap) bd1);
+				}
+
+				if (fd2.equals("lureHurt") && bd1.getName().equals("chicken")){
+					decrementTrap((Trap) bd2);
+				}
+			}
+
+
 			//chicken to chicken collision does nothing
 
 		} catch (Exception e) {
@@ -751,6 +765,9 @@ public class WorldController implements ContactListener, Screen {
 		Object bd1 = body1.getUserData();
 		Object bd2 = body2.getUserData();
 
+		Obstacle b1 = (Obstacle) bd1;
+		Obstacle b2 = (Obstacle) bd2;
+
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
 			(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 			sensorFixtures.remove((avatar == bd1) ? fix2 : fix1);
@@ -759,6 +776,31 @@ public class WorldController implements ContactListener, Screen {
 		if (avatar.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
 				avatar.getSensorName().equals(fd1) && stove.getSensorName().equals(fd2)){
 			cooking = false;
+		}
+
+		if (b1.getName().equals("trap") && b2.getName().equals("chicken")) {
+			switch (((Trap) b1).getTrapType()){
+				case LURE:
+					((ChickenModel) b2).resetTarget();
+					break;
+				case SLOW:
+					((ChickenModel) b2).removeSlow();
+					break;
+				case FIRE :
+					break;
+			}
+		}
+		if (b2.getName().equals("trap") && b1.getName().equals("chicken")) {
+			switch (((Trap) b2).getTrapType()){
+				case LURE: //damage
+					((ChickenModel) b1).resetTarget();
+					break;
+				case SLOW:
+					((ChickenModel) b1).removeSlow();
+					break;
+				case FIRE : //TODO
+					break;
+			}
 		}
 	}
 
