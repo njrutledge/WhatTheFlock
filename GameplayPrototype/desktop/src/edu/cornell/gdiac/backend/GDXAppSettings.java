@@ -26,9 +26,9 @@ public class GDXAppSettings {
     /** The title of the application **/
     public String title;
     /** The width of the application window **/
-    public int width  = 1280;
+    public int width  = 1920;
     /** The width of the application window **/
-    public int height = 720;
+    public int height = 1080;
     /** The x coordinate of the application, -1 for center **/
     public int x = -1;
     /** The x coordinate of the application, -1 for center **/

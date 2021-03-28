@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Tutorial",
+        "unlocked": true,
+        "completed": false,
+        "path": "levels/level0.json"
+    },
+    {
+        "name": "Beginner",
+        "unlocked": false,
+        "completed": false,
+        "path": "levels/level1.json"
+    }
+]
