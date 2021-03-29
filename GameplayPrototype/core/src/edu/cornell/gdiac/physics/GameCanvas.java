@@ -595,7 +595,22 @@ public class GameCanvas {
     	spriteBatch.setColor(tint);
 		spriteBatch.draw(region, x,  y, width, height);
 	}
-	
+
+	/**
+	 * Draws the tinted texture at the given position
+	 * @param region The texture to draw
+	 * @param tint  The color tint
+	 * @param ox 	The x-coordinate of texture origin (in pixels)
+	 * @param oy 	The y-coordinate of texture origin (in pixels)
+	 * @param x 	The x-coordinate of the texture origin (on screen)
+	 * @param y 	The y-coordinate of the texture origin (on screen)
+	 * @param width	The texture width
+	 * @param height The texture height
+	 */
+	public void draw(TextureRegion region, Color tint, float ox, float oy, float x, float y, float width, float height) {
+		draw(region, -1, tint, ox, oy, x, y, width, height);
+	}
+
 	/**
 	 * Draws the tinted texture at the given position.
 	 *
@@ -607,6 +622,7 @@ public class GameCanvas {
 	 * at the given coordinates.
 	 *
 	 * @param region The texture to draw
+	 * @param clipScale  Scale at which the height of the texture is clipped
 	 * @param tint  The color tint
 	 * @param ox 	The x-coordinate of texture origin (in pixels)
 	 * @param oy 	The y-coordinate of texture origin (in pixels)
@@ -615,15 +631,23 @@ public class GameCanvas {
 	 * @param width	The texture width
 	 * @param height The texture height
 	 */	
-	public void draw(TextureRegion region, Color tint, float ox, float oy, float x, float y, float width, float height) {
+	public void draw(TextureRegion region, float clipScale, Color tint, float ox, float oy, float x, float y, float width,
+					 float height) {
 		if (active != DrawPass.STANDARD) {
 			Gdx.app.error("GameCanvas", "Cannot draw without active begin()", new IllegalStateException());
 			return;
 		}
 		
 		// Unlike Lab 1, we can shortcut without a master drawing method
-    	spriteBatch.setColor(tint);
-		spriteBatch.draw(region, x-ox, y-oy, width, height);
+		spriteBatch.setColor(tint);
+
+		if (clipScale != -1) {
+			spriteBatch.draw(region.getTexture(), x, y, ox, oy, width, height*clipScale, 1, 1, 0,
+					region.getRegionX(), region.getRegionY(), region.getRegionWidth(), (int)(region.getRegionHeight()*clipScale),
+					false, true);
+		} else {
+			spriteBatch.draw(region, x - ox, y - oy, width, height);
+		}
 	}
 
 	/**

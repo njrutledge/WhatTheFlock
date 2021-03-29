@@ -35,8 +35,10 @@ public class TemperatureBar {
     /**Using to determine how fast the chicken cooks */
     private final float TEMPERATURE_TIMER = 1f;
     private float temperatureCounter = 0f;
+
     /**The amount of heat the stove gives the player for standing by it (per second) */
     private int stoveHeat = 2;
+    private final float LOSE_HEAT_RATE = 0.1f;
 
 
     /**The font*/
@@ -64,6 +66,7 @@ public class TemperatureBar {
         //tempBar.setWidth(WIDTH);
         //tempBar.setHeight(HEIGHT);
         tempBar.setAnimateDuration(1);
+
     }
 
     /**Gather art assets for temperature from the JSON file specifications and the corresponding image*/
@@ -73,7 +76,8 @@ public class TemperatureBar {
         internal.finishLoading();
         tempTexture = internal.getEntry("tempbar", Texture.class);
         tempBackground = internal.getEntry("progress.background", TextureRegion.class);
-        tempForeground = internal.getEntry("progress.foreground", TextureRegion.class);
+        tempForeground = internal.getEntry("progressfull.foreground", TextureRegion.class);
+        //tempForeground.flip(false,true);
     }
 
     /** Returns the temperature of the chicken
@@ -103,6 +107,7 @@ public class TemperatureBar {
     public void cook(boolean incr){
         if (temperatureCounter >= TEMPERATURE_TIMER){
             temperature = MathUtils.clamp(incr ? temperature+stoveHeat : temperature,0,30);
+            // temperature = incr ? temperature+stoveHeat : temperature,0,30;
             temperatureCounter = 0f;
         }
     }
@@ -128,7 +133,13 @@ public class TemperatureBar {
     }
     public void draw(GameCanvas canvas){
         //draw temperature
-        //canvas.draw(tempBar, Color.WHITE, 900, 300,  0.5f);
+        //System.out.println(getTemperature());
+        float scale = 1.5f;
+        canvas.draw(tempBackground, Color.WHITE, 960f, 250f,  tempBackground.getRegionWidth()/scale, tempBackground.getRegionHeight()/scale);
+        canvas.draw(tempForeground, (tempBar.getValue() / maxTemperature), Color.WHITE,
+                tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale, 960f, 250f,
+                tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale);
+
         //tempBar.draw(canvas, temperature);
         canvas.drawText("Temp: "+tempBar.getValue(), font, 500,565);
        // canvas.drawText("Temp: "+temperature, font, 575,565);
