@@ -79,7 +79,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The number of chickens to initially spawn*/
 	private int INITIAL_SPAWN = 2;
 	/** The chicken spawn chance*/
-	private static final int SPAWN_CHANCE = 50; //1 in 50 update calls
+	private static final int SPAWN_CHANCE = 100; //1 in SPAWN_CHANCE update calls
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
@@ -112,6 +112,8 @@ public class WorldController implements ContactListener, Screen {
 	private JsonValue constants;
 	/** Reference to the character avatar */
 	private ChefModel avatar;
+	/** Reference to the temperature*/
+	private TemperatureBar temp;
 	/** Reference to the goalDoor (for collision detection) */
 	private BoxObstacle goalDoor;
 	/** The minimum x position of a spawned chicken*/
@@ -125,7 +127,12 @@ public class WorldController implements ContactListener, Screen {
 	/** Reference to the stove object */
 	private StoveModel stove;
 
+	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.LURE;
+	/** The parameter from the list of parameters currently selected */
+	private int parameterSelected = 0;
+	/** List of all parameter values */
+	private int[] parameterList = {3,0,0,0,0,0,0,0};
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -315,11 +322,13 @@ public class WorldController implements ContactListener, Screen {
 		// Create dude
 		float dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		float dheight = avatarTexture.getRegionHeight()/scale.y;
-		avatar = new ChefModel(constants.get("dude"), dwidth, dheight);
+		avatar = new ChefModel(constants.get("dude"), dwidth, dheight, parameterList[0]);
 		avatar.setDrawScale(scale);
 		avatar.setTexture(chefTexture);
 		//Set temperature based on difficulty of the level
-		avatar.setMaxTemp(30);
+		temp = new TemperatureBar(30);
+
+		//avatar.setMaxTemp(30);
 
 		addObject(avatar);
 
@@ -341,6 +350,9 @@ public class WorldController implements ContactListener, Screen {
 		for (int i = 0; i < INITIAL_SPAWN; i++){
 			spawnChicken();
 		}
+
+		// Get initial values for parameters in the list
+		parameterList[0] = avatar.getMaxHealth();
 
 	}
 
@@ -385,7 +397,7 @@ public class WorldController implements ContactListener, Screen {
 			return false;
 		}
 
-		if (avatar.isCooked()){
+		if (temp.isCooked()){
 			setComplete(true);
 			return false;
 		}
@@ -460,10 +472,11 @@ public class WorldController implements ContactListener, Screen {
 	public void update(float dt) {
 		// Process actions in object model
 		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
-		avatar.setVertmovement(InputController.getInstance().getVertical()*avatar.getForce());
+		avatar.setVertMovement(InputController.getInstance().getVertical()*avatar.getForce());
 		avatar.setShooting(InputController.getInstance().didSecondary());
 		avatar.setTrap(InputController.getInstance().didTrap());
 
+		// Rotate through player's available traps
 		if (InputController.getInstance().didRotateTrapLeft()){
 			if (trapTypeSelected == Trap.type.LURE){
 				trapTypeSelected = Trap.type.FIRE;
@@ -480,6 +493,30 @@ public class WorldController implements ContactListener, Screen {
 			} else {
 				trapTypeSelected = Trap.type.LURE;
 			}
+		}
+
+		// Change the parameter currently selected
+		if (InputController.getInstance().didParameterToggle()){
+			if (parameterSelected < parameterList.length-1){
+				parameterSelected += 1;
+			} else {
+				parameterSelected = 0;
+			}
+		}
+		// Increase the current parameter
+		if (InputController.getInstance().didParameterIncreased()){
+			parameterList[parameterSelected] += 1;
+		}
+		// Decrease the current parameter
+		if (InputController.getInstance().didParameterDecreased()){
+			parameterList[parameterSelected] -= 1;
+		}
+
+		// Set the parameters to their new values
+		if (parameterSelected == 0){
+			avatar.setMaxHealth(parameterList[parameterSelected]);
+		} else if (parameterSelected == 1){
+
 		}
 
 		
@@ -505,13 +542,18 @@ public class WorldController implements ContactListener, Screen {
 		}
 
 		avatar.applyForce();
+
+		//update temperature
 		if (cooking && (avatar.getMovement() == 0f
 						&& avatar.getVertMovement() == 0f
 						&& !avatar.isShooting())) {
-			avatar.cook(true);
+			//avatar.cook(true);
+			temp.cook(true);
 		}else {
-			avatar.cook(false);
+			//avatar.cook(false);
+			temp.cook(false);
 		}
+		temp.update(dt);
 	}
 
 	/**
@@ -561,10 +603,10 @@ public class WorldController implements ContactListener, Screen {
 	 */
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
-		if (avatar.getTemperature() == 0){
+		if (temp.getTemperature() == 0){
 			return;
 		} else{
-			avatar.reduceTemp(1);
+			temp.reduceTemp(1);
 		}
 
 		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
@@ -975,6 +1017,14 @@ public class WorldController implements ContactListener, Screen {
 
 		canvas.begin();
 		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
+		// Draws out all the parameters and their values
+		String[] parameters = {"max health:"};
+		for (int i = 0; i < parameterList.length - 1; i++){
+			if (parameterList[i] != 0) {
+				canvas.drawText(parameters[i] + parameterList[i], new BitmapFont(), 800, 540 - 10 * i);
+			}
+		}
+
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
@@ -987,6 +1037,12 @@ public class WorldController implements ContactListener, Screen {
 			}
 			canvas.endDebug();
 		}
+
+		//TODO add section for UI
+		//draw temp bar
+		canvas.begin();
+		temp.draw(canvas);
+		canvas.end();
 
 		// Final message
 		if (complete && !failed) {

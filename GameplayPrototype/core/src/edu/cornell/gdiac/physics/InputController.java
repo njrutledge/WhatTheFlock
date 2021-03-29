@@ -83,6 +83,15 @@ public class InputController {
 	/** Whether the exit button was pressed. */
 	private boolean exitPressed;
 	private boolean exitPrevious;
+
+	/** Whether parameter toggle was pressed*/
+	private boolean paraToggled;
+	private boolean paraPrevious;
+	/** Whether parameter increased or decreased was pressed*/
+	private boolean paraIncPressed;
+	private boolean paraIncPrevious;
+	private boolean paraDecPressed;
+	private boolean paraDecPrevious;
 	
 	/** How much did we move horizontally? */
 	private float horizontal;
@@ -209,6 +218,33 @@ public class InputController {
 	public boolean didRotateTrapRight() {return trapRotateRightPressed && !trapRRPrevious; }
 
 	/**
+	 * Returns true if the parameter toggle button is pressed.
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
+	 *
+	 * 	@return true if the parameter toggled button was pressed
+	 */
+	public boolean didParameterToggle() {return paraToggled && !paraPrevious; }
+
+	/**
+	 * Returns true if the parameter increased button is pressed.
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
+	 *
+	 * 	@return true if the parameter increased button was pressed
+	 */
+	public boolean didParameterIncreased() {return paraIncPressed && !paraIncPrevious; }
+
+	/**
+	 * Returns true if the parameter decreased button is pressed.
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
+	 *
+	 * 	@return true if the parameter decreased button was pressed
+	 */
+	public boolean didParameterDecreased() {return paraDecPressed && !paraDecPrevious; }
+
+	/**
 	 * Returns true if the reset button was pressed.
 	 *
 	 * @return true if the reset button was pressed.
@@ -294,6 +330,9 @@ public class InputController {
 		trapPrevious = trapPressed;
 		trapRLPrevious = trapRotateLeftPressed;
 		trapRRPrevious = trapRotateRightPressed;
+		paraPrevious = paraToggled;
+		paraIncPrevious = paraIncPressed;
+		paraDecPrevious = paraDecPressed;
 		
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -359,12 +398,14 @@ public class InputController {
 		secondPressed = (secondary && secondPressed) || (Gdx.input.isKeyPressed(Input.Keys.UP)) ||
 				(Gdx.input.isKeyPressed(Input.Keys.LEFT)) || (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) ||
 						(Gdx.input.isKeyPressed(Input.Keys.DOWN));
-		prevPressed = (secondary && prevPressed) || (Gdx.input.isKeyPressed(Input.Keys.P));
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
 		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		trapPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
 		trapRotateLeftPressed = (Gdx.input.isKeyPressed(Input.Keys.Q));
 		trapRotateRightPressed = (Gdx.input.isKeyPressed(Input.Keys.E));
+		paraToggled = (Gdx.input.isKeyPressed(Input.Keys.O));
+		paraDecPressed = (Gdx.input.isKeyPressed(Input.Keys.I));
+		paraIncPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		
 		// Directional controls
 		if (horizontal > 0 && Gdx.input.isKeyPressed(Input.Keys.D)){

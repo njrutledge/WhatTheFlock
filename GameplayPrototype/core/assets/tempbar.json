@@ -1,0 +1,17 @@
+{
+	"textures": {
+        "progress": {
+            "file":      "platform/tempbar.png",
+            "atlas":     {
+                "background" : [0, 0, 100, 436],
+                "backtop"   : [0, 0,  100, 30],
+                "backmid"   : [0, 100, 100, 336],
+                "backbottom"  : [336,  0, 100, 100],
+                "foreground" : [100,  0, 200, 436],
+                "foretop"   : [100,  0,  200, 30],
+                "foremid"   : [100, 30, 200, 336],
+                "forebottom"  : [100, 336, 200, 436]
+            }
+        }
+	}
+}

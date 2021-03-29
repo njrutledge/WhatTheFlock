@@ -11,11 +11,15 @@
 package edu.cornell.gdiac.physics.platform;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.JsonValue;
+import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 import edu.cornell.gdiac.util.FilmStrip;
@@ -30,7 +34,8 @@ public class ChefModel extends CapsuleObstacle {
 	///TODO: Any gameplay or design adjustments to the player will be altered here.
 	//////////// Nothing explicit is needed now but may be when altering other files. /////
 	//////////////////////////////////////////////////////////////////////////////////////
-
+	/** the texture of the chef */
+	private TextureRegion chefTexture;
 
 	/** The initializing data (to avoid magic numbers) */
 	private final JsonValue data;
@@ -50,9 +55,7 @@ public class ChefModel extends CapsuleObstacle {
 
 	/** The current horizontal movement of the character */
 	private float movement;
-
 	private float vertmovement;
-
 
 	/** Which direction is the character facing */
 	private boolean faceRight;
@@ -68,17 +71,9 @@ public class ChefModel extends CapsuleObstacle {
 	private PolygonShape sensorShape;
 
 	/**The maximum health a player can have */
-	private static final int MAX_HEALTH = 3;
+	private int max_health;
 
-	/**The max temperature the chicken can get to (when cooked) */
-	private int maxTemperature;
-	/**Current temperature of the chicken */
-	private int temperature;
-	/**Using to determine how fast the chicken cooks */
-	private final float TEMPERATURE_TIMER = 1f;
-	private float temperatureCounter = 0f;
-	/**The amount of heat the stove gives the player for standing by it (per second) */
-	private int stoveHeat = 2;
+
 
 	/**The current health of the player, >= 0*/
 	private int health;
@@ -93,10 +88,8 @@ public class ChefModel extends CapsuleObstacle {
 
 	/** Counter for Invulnerability timer*/
 	private float invuln_counter = INVULN_TIME;
-
 	/** Cache for internal force calculations */
 	private final Vector2 forceCache = new Vector2();
-
 
 	/** CURRENT image for this object. May change over time. */
 	protected FilmStrip animator;
@@ -105,7 +98,7 @@ public class ChefModel extends CapsuleObstacle {
 
 	/**
 	 * Returns left/right movement of this character.
-	 * 
+	 *
 	 * This is the result of input times dude force.
 	 *
 	 * @return left/right movement of this character.
@@ -115,16 +108,16 @@ public class ChefModel extends CapsuleObstacle {
 	}
 
 	public float getVertMovement() { return vertmovement; }
-	
+
 	/**
 	 * Sets left/right movement of this character.
-	 * 
+	 *
 	 * This is the result of input times dude force.
 	 *
 	 * @param value left/right movement of this character.
 	 */
 	public void setMovement(float value) {
-		movement = value; 
+		movement = value;
 		// Change facing if appropriate
 		if (movement < 0) {
 			faceRight = false;
@@ -133,10 +126,12 @@ public class ChefModel extends CapsuleObstacle {
 		}
 	}
 
-	public void setVertmovement(float value) {
+	/**Set the vertical movement of the character*/
+	public void setVertMovement(float value) {
 		vertmovement = value;
+		//TODO change if facing up/down
 	}
-	
+
 	/**
 	 * Returns true if the dude is actively firing.
 	 *
@@ -153,54 +148,13 @@ public class ChefModel extends CapsuleObstacle {
 	 */
 	public boolean isTrapping() { return isTrap && trapCooldown <= 0; }
 
-	/** Returns the temperature of the chicken
-	 *
-	 * @return temperature of the chicken
-	 * */
-	public int getTemperature() {
-		return temperature;
-	}
-
-	/** Sets the maximum temperature for the level
-	 *
-	 * @param max - maximum temperature in order to cook the chicken
-	 */
-	public void setMaxTemp(int max){ maxTemperature = max; }
-
-	/**Returns true if the chicken is cooked (temp > max) and false otherwise
-	 *
-	 * @return true if chicken is cooked and false otherwise
-	 */
-	public boolean isCooked(){
-		return (temperature >= maxTemperature);
-	}
-
-	/** If incr is true, increases the temperature of the chicken, void otherwise
-	 *
-	 *
-	 * @param incr - whether or not the temperature should be increasing
-	 */
-
-	public void cook(boolean incr){
-		if (temperatureCounter >= TEMPERATURE_TIMER){
-			temperature = MathUtils.clamp(incr ? temperature+stoveHeat : temperature,0,30);
-			temperatureCounter = 0f;
-		}
-	}
-
-	/** Decreases the temperature of the player's chicken by a given amount
-	 *
-	 * @param amt - the amount to decrease by
-	 */
-	public void reduceTemp(int amt) { temperature -= amt; }
-
 	/**
 	 * Sets whether the dude is actively firing.
 	 *
 	 * @param value whether the dude is actively firing.
 	 */
 	public void setShooting(boolean value) {
-		isShooting = value; 
+		isShooting = value;
 	}
 
 	/**
@@ -210,6 +164,7 @@ public class ChefModel extends CapsuleObstacle {
 	 */
 	public void setTrap(boolean bln) { isTrap = bln; }
 
+	/** */
 	public void setTexture(Texture texture) {
 		animator = new FilmStrip(texture, 2, 5);
 		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
@@ -239,6 +194,31 @@ public class ChefModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * Sets the current character max health
+	 * @param h - the number to set the max health of the player to
+	 *
+	 */
+	public void setMaxHealth(int h){
+		max_health = h;
+	}
+
+	/**
+	 * Returns current character max health.
+	 *
+	 * @return the current character max health.
+	 */
+	public int getMaxHealth(){ return max_health;}
+
+	/**
+	 * Sets the current character health
+	 * @param h - the number to set the health of the player to
+	 *
+	 */
+	public void setHealth(int h){
+		health = h;
+	}
+
+	/**
 	 * Returns current character health.
 	 *
 	 * @return the current character health.
@@ -264,13 +244,13 @@ public class ChefModel extends CapsuleObstacle {
 	public float getDamping() {
 		return damping;
 	}
-	
+
 	/**
-	 * Returns the upper limit on dude left-right movement.  
+	 * Returns the upper limit on dude left-right movement.
 	 *
 	 * This does NOT apply to vertical movement.
 	 *
-	 * @return the upper limit on dude left-right movement.  
+	 * @return the upper limit on dude left-right movement.
 	 */
 	public float getMaxSpeed() {
 		return maxspeed;
@@ -283,7 +263,7 @@ public class ChefModel extends CapsuleObstacle {
 	 *
 	 * @return the name of the ground sensor
 	 */
-	public String getSensorName() { 
+	public String getSensorName() {
 		return sensorName;
 	}
 
@@ -306,8 +286,9 @@ public class ChefModel extends CapsuleObstacle {
 	 * @param data  	The physics constants for this dude
 	 * @param width		The object width in physics units
 	 * @param height	The object width in physics units
+	 * @param maxHealth The maximum health of the chef
 	 */
-	public ChefModel(JsonValue data, float width, float height) {
+	public ChefModel(JsonValue data, float width, float height, int maxHealth) {
 		// The shrink factors fit the image to a tigher hitbox
 		super(	data.get("pos").getFloat(0),
 				data.get("pos").getFloat(1),
@@ -327,7 +308,8 @@ public class ChefModel extends CapsuleObstacle {
 		// Gameplay attributes
 		isShooting = false;
 		faceRight = true;
-		health = MAX_HEALTH;
+		max_health = maxHealth;
+		health = max_health;
 		shootCooldown = 0;
 		trapCooldown = 0;
 		setName("dude");
@@ -429,9 +411,7 @@ public class ChefModel extends CapsuleObstacle {
 		} else {
 			trapCooldown = Math.max(0, trapCooldown - 1);
 		}
-
 		super.update(dt);
-		temperatureCounter = MathUtils.clamp(temperatureCounter += dt, 0f, TEMPERATURE_TIMER);
 	}
 
 	/**
@@ -445,10 +425,7 @@ public class ChefModel extends CapsuleObstacle {
 			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), effect / 10, 0.1f);
 		}
 		canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
-
 		//TODO: Move this draw method to the appropriate location
-		canvas.drawText("Temp: "+temperature, font, 500,565);
-
 	}
 	
 	/**
