@@ -1,5 +1,6 @@
 package edu.cornell.gdiac.physics.platform;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -66,6 +67,8 @@ public class ChickenModel extends CapsuleObstacle {
     private float status_timer = 0f;
 
     private boolean cookin = false;
+
+    private TextureRegion healthBar;
 
     /**
      * Returns the name of the ground sensor
@@ -219,6 +222,10 @@ public class ChickenModel extends CapsuleObstacle {
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
     }
 
+    public void setBarTexture(TextureRegion texture){
+        healthBar = texture;
+    }
+
     /**
      * Draws the physics object.
      *
@@ -226,6 +233,8 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void draw(GameCanvas canvas) {
         if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
+            canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f, 0.025f);
+            canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f*(health/INITIAL_HEALTH), 0.025f);
             canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f, 0.25f);
         }
     }
@@ -246,10 +255,8 @@ public class ChickenModel extends CapsuleObstacle {
      * The chicken takes damage
      *
      * @param damage The amount of damage to this chicken's health
-     *
-     * @return true if the chicken has no health after taking damage
      */
-    public Boolean takeDamage(float damage) {
+    public void takeDamage(float damage) {
         if (!isStunned()) {
             if (status_timer >= 0) {
                 health -= damage * FIRE_MULT;
@@ -258,10 +265,7 @@ public class ChickenModel extends CapsuleObstacle {
             }
             invuln_counter = 0;
             hit = true;
-            return health <= 0;
         }
-
-        return false;
     }
 
     /**
@@ -323,7 +327,7 @@ public class ChickenModel extends CapsuleObstacle {
 
     /** If the enemy is still alive
      * @return true if chicken health > 0*/
-    public boolean isAlive() {return health <= 0;}
+    public boolean isAlive() {return health > 0;}
 
 
 
