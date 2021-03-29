@@ -34,9 +34,9 @@ public class ChickenModel extends CapsuleObstacle {
     private final float knockback;
     /** Cache for internal force calculations */
     private final Vector2 forceCache = new Vector2();
-    private static int INITIAL_HEALTH = 2;
+    private static float INITIAL_HEALTH = 2.0f;
     /** Health of the chicken*/
-    private int health;
+    private float health;
     // All of these variables will be put into a FSM in AIController eventually
     /** Time until invulnerability after getting hit wears off */
     private final float INVULN_TIME = 1f;
@@ -62,6 +62,8 @@ public class ChickenModel extends CapsuleObstacle {
     private float slow = 1f;
 
     private float status_timer = 0f;
+
+    private boolean ablaze = false;
 
     /**
      * Returns the name of the ground sensor
@@ -219,7 +221,7 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void draw(GameCanvas canvas) {
         if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
-            canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f, 0.25f);
+            canvas.draw(animator, ablaze ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f, 0.25f);
         }
     }
 
@@ -277,6 +279,7 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void applyFire(float duration) {
         status_timer = duration;
+        ablaze = true;
     }
 
     /**

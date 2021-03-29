@@ -629,6 +629,11 @@ public class WorldController implements ContactListener, Screen {
 
 	public void createTrap() {
 		//spawn test traps
+		trapHelper(avatar.getX(), avatar.getY(), trapTypeSelected);
+
+	}
+
+	public void trapHelper(float x, float y, Trap.type t){
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
 		Trap trap = new Trap(constants.get("trap"), avatar.getX(), avatar.getY(), twidth, theight, trapTypeSelected, Trap.shape.CIRCLE);
@@ -640,7 +645,6 @@ public class WorldController implements ContactListener, Screen {
 //		trap.setTexture(trapTexture);
 //		addObject(trap);
 	}
-
 	/**
 	 *  decrement the trap durability, and remove the trap if it breaks.
 	 *
@@ -717,6 +721,7 @@ public class WorldController implements ContactListener, Screen {
 						decrementTrap((Trap) bd1);
 						break;
 					case FIRE :
+						((Trap) bd1).enableLinger(true);
 						break;
 				}
 			}
@@ -730,7 +735,30 @@ public class WorldController implements ContactListener, Screen {
 						decrementTrap((Trap) bd2);
 						break;
 					case FIRE :
+						((Trap) bd2).enableLinger(true);
 						break;
+				}
+			}
+
+			if(bd1.getName().equals("linger") && bd2.getName().equals("chicken")) {
+				if (((Trap) bd1).getLinger()){
+					((ChickenModel) bd2).applyFire(((Trap) bd1).getEffect());
+				}
+			}
+
+			if(bd2.getName().equals("linger") && bd1.getName().equals("chicken")) {
+				if (((Trap) bd2).getLinger()){
+					((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
+				}
+			}
+
+			if (fd1 != null && fd2 != null) {
+				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
+					decrementTrap((Trap) bd1);
+				}
+
+				if (fd2.equals("lureHurt") && bd1.getName().equals("chicken")){
+					decrementTrap((Trap) bd2);
 				}
 			}
 
@@ -909,6 +937,10 @@ public class WorldController implements ContactListener, Screen {
 				obj.deactivatePhysics(world);
 				entry.remove();
 			} else {
+				if(obj.isDirty()){
+					obj.deactivatePhysics(world);
+					obj.activatePhysics(world);
+				}
 				// Note that update is called last!
 				obj.update(dt);
 			}
