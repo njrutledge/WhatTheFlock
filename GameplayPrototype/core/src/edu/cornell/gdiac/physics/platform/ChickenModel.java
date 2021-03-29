@@ -36,7 +36,7 @@ public class ChickenModel extends CapsuleObstacle {
     private final Vector2 forceCache = new Vector2();
     private static int INITIAL_HEALTH = 2;
     /** Health of the chicken*/
-    private int health;
+    private float health;
     /** Time until invulnerability after getting hit wears off */
     private final float INVULN_TIME = 1f;
     /** Counter for Invulnerability timer*/
@@ -217,7 +217,7 @@ public class ChickenModel extends CapsuleObstacle {
      *
      * @return true if the chicken has no health after taking damage
      */
-    public Boolean takeDamage(int damage) {
+    public Boolean takeDamage(float damage) {
         if (!isStunned()) {
             health -= damage;
             invuln_counter = 0;
@@ -227,6 +227,10 @@ public class ChickenModel extends CapsuleObstacle {
 
         return false;
     }
+
+    /** If the enemy is still alive
+     * @return true if chicken health > 0*/
+    public boolean isAlive() {return health <= 0;}
 
     public Boolean isStunned(){
         return invuln_counter < INVULN_TIME;
