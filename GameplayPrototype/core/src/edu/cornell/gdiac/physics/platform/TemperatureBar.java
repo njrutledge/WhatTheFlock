@@ -128,7 +128,7 @@ public class TemperatureBar {
     }
     public void draw(GameCanvas canvas){
         //draw temperature
-        //canvas.draw(tempBar, Color.WHITE, 900, 300,  0.5f);
+        canvas.draw(tempBar, Color.WHITE, 900, 300,  0.5f);
         //tempBar.draw(canvas, temperature);
         canvas.drawText("Temp: "+tempBar.getValue(), font, 500,565);
        // canvas.drawText("Temp: "+temperature, font, 575,565);
