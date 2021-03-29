@@ -34,7 +34,8 @@ public class ChickenModel extends CapsuleObstacle {
     private final float knockback;
     /** Cache for internal force calculations */
     private final Vector2 forceCache = new Vector2();
-    private static int INITIAL_HEALTH = 2;
+    /** The max health of the chicken nugget */
+    private int max_health;
     /** Health of the chicken*/
     // All of these variables will be put into a FSM in AIController eventually
     private float health;
@@ -90,8 +91,10 @@ public class ChickenModel extends CapsuleObstacle {
      * @param y         The y axis location of this chicken
      * @param width		The object width in physics units
      * @param height	The object width in physics units
+     * @param player    The target player
+     * @param mh        The max health of the chicken
      */
-    public ChickenModel(JsonValue data, float x, float y, float width, float height, ChefModel player) {
+    public ChickenModel(JsonValue data, float x, float y, float width, float height, ChefModel player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
         super(/*data.get("pos").getFloat(0),
                 data.get("pos").getFloat(1),*/
@@ -109,10 +112,27 @@ public class ChickenModel extends CapsuleObstacle {
         damping = data.getFloat("damping", 0);
         chaseSpeed = data.getFloat("chasespeed", 0);
         knockback = data.getFloat("knockback", 0);
-        health = INITIAL_HEALTH;
+        max_health = mh;
+        health = max_health;
         this.data = data;
 
     }
+
+    /**
+     * Sets the current chicken max health
+     * @param h - the number to set the max health of the chicken to
+     *
+     */
+    public void setMaxHealth(int h){
+        max_health = h;
+    }
+
+    /**
+     * Returns current chicken max health.
+     *
+     * @return the current chicken max health.
+     */
+    public int getMaxHealth(){ return max_health;}
 
     /**
      * Creates the physics Body(s) for this object, adding them to the world.

@@ -134,7 +134,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values */
-	private int[] parameterList = {3,0,0,0,0,0,0,0};
+	private int[] parameterList = {3,5,0,0,0,0,0,0};
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -360,13 +360,6 @@ public class WorldController implements ContactListener, Screen {
 	}
 
 	/**
-	 * decrements the avatar health by 1
-	 */
-	public void decrementHealth(){
-		avatar.decrementHealth();
-	}
-
-	/**
 	 * kill all chickens
 	 */
 	public void killChickens(){
@@ -436,7 +429,7 @@ public class WorldController implements ContactListener, Screen {
 			reset();
 		}
 		if(input.didAdvance()) {
-			decrementHealth();
+			avatar.decrementHealth();
 		}
 		if(input.didRetreat()) {
 			killChickens();
@@ -519,6 +512,12 @@ public class WorldController implements ContactListener, Screen {
 		if (parameterSelected == 0){
 			avatar.setMaxHealth(parameterList[parameterSelected]);
 		} else if (parameterSelected == 1){
+			for (Obstacle obstacle: objects){
+				if (obstacle.getName().equals("chicken")){
+					((ChickenModel)obstacle).setMaxHealth(parameterList[1]);
+				}
+			}
+		} else if (parameterSelected == 2){
 
 		}
 
@@ -583,7 +582,7 @@ public class WorldController implements ContactListener, Screen {
 		}
 
 		ChickenModel enemy;
-		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar);
+		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1]);
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
 		addObject(enemy);
@@ -1046,10 +1045,16 @@ public class WorldController implements ContactListener, Screen {
 		canvas.begin();
 		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
-		String[] parameters = {"max health:"};
+		String[] parameters = {"player max health: ", "chicken max health: "};
+		BitmapFont pFont = new BitmapFont();
 		for (int i = 0; i < parameterList.length - 1; i++){
 			if (parameterList[i] != 0) {
-				canvas.drawText(parameters[i] + parameterList[i], new BitmapFont(), 800, 540 - 10 * i);
+				if (i == parameterSelected) {
+					pFont.setColor(Color.YELLOW);
+				} else {
+					pFont.setColor(Color.WHITE);
+				}
+				canvas.drawText(parameters[i] + parameterList[i], pFont, 850, 540 - 12 * i);
 			}
 		}
 
