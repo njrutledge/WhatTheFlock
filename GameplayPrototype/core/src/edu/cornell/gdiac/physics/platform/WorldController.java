@@ -160,7 +160,8 @@ public class WorldController implements ContactListener, Screen {
 	private boolean debug;
 	/** Countdown active for winning or losing */
 	private int countdown;
-
+	/** the base damage the player does to the chicken*/
+	private final int BASE_DAMAGE = 2;
 
 
 	/** Mark set to handle more sophisticated collision callbacks */
@@ -738,12 +739,16 @@ public class WorldController implements ContactListener, Screen {
 
 			//bullet collision with chicken eliminates chicken
 			if (bd1.getName().equals("bullet") && bd2.getName().equals("chicken")) {
-				if (((ChickenModel)bd2).takeDamage(1)) {
+				ChickenModel chick = (ChickenModel) bd2;
+				chick.takeDamage(BASE_DAMAGE * temp.getPercentCooked());
+				if (!chick.isAlive()) {
 					removeChicken(bd2);
 				}
 			}
 			if (bd2.getName().equals("bullet") && bd1.getName().equals("chicken")) {
-				if (((ChickenModel)bd1).takeDamage(1)) {
+				ChickenModel chick = (ChickenModel) bd1;
+				chick.takeDamage(BASE_DAMAGE * temp.getPercentCooked());
+				if (!chick.isAlive()) {
 					removeChicken(bd1);
 				}
 			}
