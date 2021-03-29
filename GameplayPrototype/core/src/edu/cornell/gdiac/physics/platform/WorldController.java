@@ -132,7 +132,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3,5,2,50,2,0,0,0};
+	private int[] parameterList = {3,5,2,50,2};
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -1045,7 +1045,7 @@ public class WorldController implements ContactListener, Screen {
 		// Draws out all the parameters and their values
 		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: "};
 		BitmapFont pFont = new BitmapFont();
-		for (int i = 0; i < parameterList.length - 1; i++){
+		for (int i = 0; i < parameterList.length; i++){
 			if (parameterList[i] != 0) {
 				if (i == parameterSelected) {
 					pFont.setColor(Color.YELLOW);
