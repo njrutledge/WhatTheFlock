@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 
+
 public class Trap extends BoxObstacle {
 
     /**
@@ -37,6 +38,10 @@ public class Trap extends BoxObstacle {
     private String sensorName;
     /** The physics shape of this object */
     private Shape sensorShape;
+    /** The second physics shape of this object, if used */
+    private Shape lingerSensorShape;
+    /** true if using the second physics shape */
+    private boolean linger;
     /** The type of this trap */
     private type trapType;
     /** The physics shape of this trap */
@@ -98,6 +103,23 @@ public class Trap extends BoxObstacle {
         sensorName = "trapSensor";
         setSensor(true);
         durability = MAX_DURABILITY;
+        linger = false;
+    }
+
+    /**
+     * Gets the trap's effect. This is either a multiplier for the slow down effect or a duration for the fire effect.
+     * -1 otherwise
+     *
+     * @return a float determining the effect
+     */
+    public float getEffect() {
+        switch (trapType) {
+            case SLOW:
+                return SLOW_EFFECT;
+            case FIRE_LINGER:
+                return FIRE_DUR;
+        }
+        return -1;
     }
 
     /**
@@ -133,6 +155,20 @@ public class Trap extends BoxObstacle {
     }
 
     /**
+     * Returns true if linger is enabled
+     *
+     * @return true if linger is enabled
+     */
+    public boolean getLinger(){ return linger; }
+
+    /**
+     * Sets the trapType of this trap.
+     *
+     * @param t is the type to switch to.
+     */
+    public void setTrapType(type t){ trapType=t;}
+
+    /**
      * Sets the physics object tag.
      *
      * A tag is a string attached to an object, in order to identify it in debugging.
@@ -143,17 +179,29 @@ public class Trap extends BoxObstacle {
         name = value;
     }
 
+    /** enables or disables the linger effect for fire traps
+     *
+     * @param b is true if enabling, and false if disabling.
+     */
+    public void enableLinger(boolean b){linger = b;}
+
 
     /** Decrements the durability of the trap, and returns true if the durability is then zero.
      *
      *  @return true if durability is now zero
      */
     public boolean decrementDurability(){
-        if (trapType.equals(type.LURE)) {
-            durability = Math.max(0, durability - LURE_CRUMBS);
-        } else {
-            durability = Math.max(0,--durability);
+        switch (trapType){
+            case LURE: durability = Math.max(0, durability - LURE_CRUMBS);
+                break;
+            case FIRE: durability = 0; //FIRE transitions into FIRE_LINGER
+                break;
+            case SLOW:
+                durability = Math.max(0,--durability);
+                break;
+
         }
+
         return durability == 0;
     }
 
@@ -166,7 +214,14 @@ public class Trap extends BoxObstacle {
      */
     @Override
     public void update(float delta) {
+
         super.update(delta);
+        if (trapType == type.FIRE_LINGER) {
+            durability = durability - (MAX_DURABILITY / FIRE_DUR * delta);
+            if (durability <= 0) {
+                this.markRemoved(true);
+            }
+        }
     }
 
     /**
@@ -203,6 +258,7 @@ public class Trap extends BoxObstacle {
                 break;
             case FIRE_LINGER:
                 sensorShape.setRadius(FIRE_LINGER_RADIUS);
+
         }
         sensorDef.shape = sensorShape;
         Fixture sensorFixture = body.createFixture(sensorDef);
@@ -210,21 +266,6 @@ public class Trap extends BoxObstacle {
         return true;
     }
 
-    /**
-     * Gets the trap's effect. This is either a multiplier for the slow down effect or a duration for the fire effect.
-     * -1 otherwise
-     *
-     * @return a float determining the effect
-     */
-    public float getEffect() {
-        switch (trapType) {
-            case SLOW:
-                return SLOW_EFFECT;
-            case FIRE_LINGER:
-                return FIRE_DUR;
-        }
-        return -1;
-    }
 
     /**
      * Draws the physics object.
@@ -232,7 +273,16 @@ public class Trap extends BoxObstacle {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        Color c = new Color(255,255,255,durability/MAX_DURABILITY);
+        Color c = Color.RED;
+        switch (trapType){
+            case FIRE: c = Color.RED;
+            break;
+            case LURE: c = Color.YELLOW;
+            break;
+            case SLOW: c = Color.CYAN;
+            break;
+        }
+        c.a = durability/MAX_DURABILITY;
         canvas.draw(texture, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
     }
 
@@ -251,6 +301,7 @@ public class Trap extends BoxObstacle {
                 if (lHShape != null) {
                     canvas.drawPhysics((CircleShape) lHShape,Color.BLUE,getX(),getY(),drawScale.x,drawScale.y);
                 }
+
                 break;
             case SQUARE:
                 canvas.drawPhysics((PolygonShape) sensorShape,Color.RED,getX(),getY(),getAngle(),drawScale.x,drawScale.y);
