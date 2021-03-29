@@ -132,7 +132,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3,5,2,200,2};
+	private int[] parameterList = {3,5,2,200,2, 6, 30, 10, 5};
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -352,7 +352,7 @@ public class WorldController implements ContactListener, Screen {
 		}
 
 		// Get initial values for parameters in the list
-		parameterList[0] = avatar.getMaxHealth();
+		//parameterList[0] = avatar.getMaxHealth();
 
 	}
 
@@ -503,19 +503,6 @@ public class WorldController implements ContactListener, Screen {
 		// Decrease the current parameter
 		if (InputController.getInstance().didParameterDecreased()){
 			parameterList[parameterSelected] -= 1;
-		}
-
-		// Set the parameters to their new values
-		if (parameterSelected == 0){
-			avatar.setMaxHealth(parameterList[parameterSelected]);
-		} else if (parameterSelected == 1){
-			for (Obstacle obstacle: objects){
-				if (obstacle.getName().equals("chicken")){
-					((ChickenModel)obstacle).setMaxHealth(parameterList[1]);
-				}
-			}
-		} else if (parameterSelected == 2){
-
 		}
 
 		
@@ -698,6 +685,9 @@ public class WorldController implements ContactListener, Screen {
 		}
 	}
 
+	public float damageCalc(){
+		return avatar.getDamage() + 2*avatar.getDamage()*temp.getPercentCooked();
+	}
 	/**
 	 * Callback method for the start of a collision
 	 *
@@ -743,14 +733,14 @@ public class WorldController implements ContactListener, Screen {
 			//bullet collision with chicken eliminates chicken
 			if (bd1.getName().equals("bullet") && bd2.getName().equals("chicken")) {
 				ChickenModel chick = (ChickenModel) bd2;
-				chick.takeDamage(parameterList[2] + 2*parameterList[2]*temp.getPercentCooked());
+				chick.takeDamage(damageCalc());
 				if (!chick.isAlive()) {
 					removeChicken(bd2);
 				}
 			}
 			if (bd2.getName().equals("bullet") && bd1.getName().equals("chicken")) {
 				ChickenModel chick = (ChickenModel) bd1;
-				chick.takeDamage(parameterList[2] + 2*parameterList[2]*temp.getPercentCooked());
+				chick.takeDamage(damageCalc());
 				if (!chick.isAlive()) {
 					removeChicken(bd1);
 				}
@@ -1009,7 +999,7 @@ public class WorldController implements ContactListener, Screen {
 					obj.activatePhysics(world);
 				}
 				// Note that update is called last!
-				obj.update(dt);
+				obj.update(dt, parameterList);
 			}
 		}
 	}
@@ -1043,7 +1033,8 @@ public class WorldController implements ContactListener, Screen {
 		canvas.begin();
 		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
-		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: "};
+		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ",
+				"initial spawn: ", "lure durability: ", "slow durability: ", "fire linger durability: ", "fire damage durability: "};
 		BitmapFont pFont = new BitmapFont();
 		for (int i = 0; i < parameterList.length; i++){
 			if (parameterList[i] != 0) {
@@ -1052,7 +1043,7 @@ public class WorldController implements ContactListener, Screen {
 				} else {
 					pFont.setColor(Color.WHITE);
 				}
-				canvas.drawText(parameters[i] + parameterList[i], pFont, 825, 540 - 12 * i);
+				canvas.drawText(parameters[i] + parameterList[i], pFont, 825, 540 - 14 * i);
 			}
 		}
 

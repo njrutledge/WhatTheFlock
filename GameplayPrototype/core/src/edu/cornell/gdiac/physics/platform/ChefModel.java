@@ -83,11 +83,13 @@ public class ChefModel extends CapsuleObstacle {
 	/** X offset for health display */
 	private final float X_HEALTH = 900;
 	/** Y offset for health display */
-	private final float Y_HEALTH = 400;
+	private final float Y_HEALTH = 350;
 	/** size of each heart */
 	private final int HEART_SIZE = 30;
 	/** Time until invulnerability after getting hit wears off */
 	private final float INVULN_TIME = 1;
+	//TODO: make final after technical
+	private float BASE_DAMAGE = 2;
 
 	/** Counter for Invulnerability timer*/
 	private float invuln_counter = INVULN_TIME;
@@ -271,6 +273,13 @@ public class ChefModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * Returns the base damage value for the chef
+	 *
+	 * @return the base damage value for the chef
+	 */
+	public float getDamage(){ return BASE_DAMAGE;}
+
+	/**
 	 * Returns true if this character is facing right
 	 *
 	 * @return true if this character is facing right
@@ -411,7 +420,7 @@ public class ChefModel extends CapsuleObstacle {
 	 *
 	 * @param dt	Number of seconds since last animation frame
 	 */
-	public void update(float dt) {
+	public void update(float dt, int[] plist) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 		if (isShooting()) {
 			shootCooldown = shotLimit;
@@ -423,7 +432,12 @@ public class ChefModel extends CapsuleObstacle {
 		} else {
 			trapCooldown = Math.max(0, trapCooldown - 1);
 		}
-		super.update(dt);
+		super.update(dt, plist);
+
+		//TODO: remove after technical
+		setMaxHealth(plist[0]);
+		BASE_DAMAGE = plist[2];
+
 	}
 	/**
 	 * Draws the physics object.

@@ -1020,12 +1020,12 @@ public abstract class ComplexObstacle extends Obstacle {
 	 * primary purpose is to adjust changes to the fixture, which have to take place 
 	 * after collision.
 	 *
-	 * @param dt Timing values from parent loop
+	 * @param delta Timing values from parent loop
 	 */
-	public void update(float delta) {
+	public void update(float delta, int[] plist) {
 		// Delegate to components
 		for(Obstacle obj : bodies) {
-			obj.update(delta);
+			obj.update(delta, plist);
 		}
 	}
 	

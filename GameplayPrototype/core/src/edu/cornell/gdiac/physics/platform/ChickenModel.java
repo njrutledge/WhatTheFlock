@@ -207,8 +207,8 @@ public class ChickenModel extends CapsuleObstacle {
      *
      * @param dt	Number of seconds since last animation frame
      */
-    public void update(float dt) {
-        super.update(dt);
+    public void update(float dt, int[] plist) {
+        super.update(dt, plist);
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
@@ -234,6 +234,8 @@ public class ChickenModel extends CapsuleObstacle {
             if (!cookin) {
                 status_timer = Math.max(status_timer - dt, -1f);
             }
+            //TODO: delete after technical
+            setMaxHealth(plist[1]);
         }
     }
 
