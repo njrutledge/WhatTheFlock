@@ -56,6 +56,8 @@ public class WorldController implements ContactListener, Screen {
 	private TextureRegion stoveTexture;
 	/** Texture asset for the trap (TEMP) */
 	private TextureRegion trapTexture;
+	/** Texture asset for chicken health bar */
+	private TextureRegion enemyHealthBarTexture;
 
 	/** Texture asset for the chef*/
 	private Texture chefTexture;
@@ -244,6 +246,7 @@ public class WorldController implements ContactListener, Screen {
 		trapTexture = new TextureRegion(directory.getEntry("platform:trap",Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
+		enemyHealthBarTexture = new TextureRegion(directory.getEntry("platform:nuggetBar", Texture.class));
 
 		chefTexture = directory.getEntry("platform:chef", Texture.class);
 		nuggetTexture = directory.getEntry("platform:nugget", Texture.class);
@@ -585,6 +588,7 @@ public class WorldController implements ContactListener, Screen {
 		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1]);
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
+		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy);
 		chickens ++;
 	}
