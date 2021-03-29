@@ -1,11 +1,13 @@
 package edu.cornell.gdiac.physics.platform;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.physics.GameCanvas;
@@ -26,8 +28,9 @@ public class TemperatureBar {
     private TextureRegion tempBackground;
     /** Middle portion of the temperature forground (colored region) */
     private TextureRegion tempForeground;
-    private int WIDTH = 1;
-    private int HEIGHT = 300;
+    //private int WIDTH = 1;
+    //private int HEIGHT = 300;
+
 
     /**Using to determine how fast the chicken cooks */
     private final float TEMPERATURE_TIMER = 1f;
@@ -45,16 +48,22 @@ public class TemperatureBar {
         temperature = 0;
         //init temperature bar
         gatherTempAssets();
-        ProgressBar.ProgressBarStyle barStyle = new ProgressBar.ProgressBarStyle();
-        barStyle.background = new TextureRegionDrawable(tempBackground);
-        barStyle.knob = new TextureRegionDrawable(tempForeground);
+
+        ProgressBar.ProgressBarStyle barStyle =
+                new ProgressBar.ProgressBarStyle(new TextureRegionDrawable(tempBackground),
+                        new TextureRegionDrawable(tempForeground));
+        barStyle.knobBefore = barStyle.knob;
+
+        //barStyle.background = new TextureRegionDrawable(tempBackground);
+        //barStyle.knob = new TextureRegionDrawable(tempForeground);
         //barStyle.knob.setMinHeight(0);
         //barStyle.knob.setTopHeight(HEIGHT);
         //barStyle.knobAfter = barStyle.knob;
         //barStyle.knobBefore = barStyle.background;
         tempBar = new ProgressBar(0, maxTemperature, 1, true, barStyle);
-        tempBar.setWidth(WIDTH);
-        tempBar.setHeight(HEIGHT);
+        //tempBar.setWidth(WIDTH);
+        //tempBar.setHeight(HEIGHT);
+        tempBar.setAnimateDuration(1);
     }
 
     /**Gather art assets for temperature from the JSON file specifications and the corresponding image*/
@@ -79,6 +88,7 @@ public class TemperatureBar {
     public float getPercentCooked(){
         return (float) temperature/ (float) maxTemperature;
     }
+
     /**Returns true if the chicken is cooked (temp > max) and false otherwise
      *
      * @return true if chicken is cooked and false otherwise
@@ -116,7 +126,6 @@ public class TemperatureBar {
         //update progress bar
         tempBar.setValue(temperature);
     }
-
     public void draw(GameCanvas canvas){
         //draw temperature
         //canvas.draw(tempBar, Color.WHITE, 900, 300,  0.5f);

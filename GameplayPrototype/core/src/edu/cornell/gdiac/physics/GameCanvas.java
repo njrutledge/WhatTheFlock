@@ -23,6 +23,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.*;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 
 /**
@@ -440,7 +441,7 @@ public class GameCanvas {
 		progress.setColor(tint);
 		//progress.setWidth(width);
 		//progress.setHeight(height);
-		//progress.setScale(sc);
+		progress.setScale(sc);
 		progress.draw(spriteBatch,1f);
 	}
 	/**
