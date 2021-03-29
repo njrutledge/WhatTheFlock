@@ -68,7 +68,7 @@ public class ChefModel extends CapsuleObstacle {
 	private PolygonShape sensorShape;
 
 	/**The maximum health a player can have */
-	private static final int MAX_HEALTH = 3;
+	private int max_health;
 
 	/**The max temperature the chicken can get to (when cooked) */
 	private int maxTemperature;
@@ -239,6 +239,31 @@ public class ChefModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * Sets the current character max health
+	 * @param h - the number to set the max health of the player to
+	 *
+	 */
+	public void setMaxHealth(int h){
+		max_health = h;
+	}
+
+	/**
+	 * Returns current character max health.
+	 *
+	 * @return the current character max health.
+	 */
+	public int getMaxHealth(){ return max_health;}
+
+	/**
+	 * Sets the current character health
+	 * @param h - the number to set the health of the player to
+	 *
+	 */
+	public void setHealth(int h){
+		health = h;
+	}
+
+	/**
 	 * Returns current character health.
 	 *
 	 * @return the current character health.
@@ -306,8 +331,9 @@ public class ChefModel extends CapsuleObstacle {
 	 * @param data  	The physics constants for this dude
 	 * @param width		The object width in physics units
 	 * @param height	The object width in physics units
+	 * @param maxHealth The maximum health of the chef
 	 */
-	public ChefModel(JsonValue data, float width, float height) {
+	public ChefModel(JsonValue data, float width, float height, int maxHealth) {
 		// The shrink factors fit the image to a tigher hitbox
 		super(	data.get("pos").getFloat(0),
 				data.get("pos").getFloat(1),
@@ -327,7 +353,8 @@ public class ChefModel extends CapsuleObstacle {
 		// Gameplay attributes
 		isShooting = false;
 		faceRight = true;
-		health = MAX_HEALTH;
+		max_health = maxHealth;
+		health = max_health;
 		shootCooldown = 0;
 		trapCooldown = 0;
 		setName("dude");

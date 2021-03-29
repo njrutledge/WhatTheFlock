@@ -79,7 +79,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The number of chickens to initially spawn*/
 	private int INITIAL_SPAWN = 2;
 	/** The chicken spawn chance*/
-	private static final int SPAWN_CHANCE = 50; //1 in 50 update calls
+	private static final int SPAWN_CHANCE = 100; //1 in SPAWN_CHANCE update calls
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
@@ -125,7 +125,12 @@ public class WorldController implements ContactListener, Screen {
 	/** Reference to the stove object */
 	private StoveModel stove;
 
+	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.LURE;
+	/** The parameter from the list of parameters currently selected */
+	private int parameterSelected = 0;
+	/** List of all parameter values */
+	private int[] parameterList = {3,0,0,0,0,0,0,0};
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -315,7 +320,7 @@ public class WorldController implements ContactListener, Screen {
 		// Create dude
 		float dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		float dheight = avatarTexture.getRegionHeight()/scale.y;
-		avatar = new ChefModel(constants.get("dude"), dwidth, dheight);
+		avatar = new ChefModel(constants.get("dude"), dwidth, dheight, parameterList[0]);
 		avatar.setDrawScale(scale);
 		avatar.setTexture(chefTexture);
 		//Set temperature based on difficulty of the level
@@ -341,6 +346,9 @@ public class WorldController implements ContactListener, Screen {
 		for (int i = 0; i < INITIAL_SPAWN; i++){
 			spawnChicken();
 		}
+
+		// Get initial values for parameters in the list
+		parameterList[0] = avatar.getMaxHealth();
 
 	}
 
@@ -464,6 +472,7 @@ public class WorldController implements ContactListener, Screen {
 		avatar.setShooting(InputController.getInstance().didSecondary());
 		avatar.setTrap(InputController.getInstance().didTrap());
 
+		// Rotate through player's available traps
 		if (InputController.getInstance().didRotateTrapLeft()){
 			if (trapTypeSelected == Trap.type.LURE){
 				trapTypeSelected = Trap.type.FIRE;
@@ -480,6 +489,30 @@ public class WorldController implements ContactListener, Screen {
 			} else {
 				trapTypeSelected = Trap.type.LURE;
 			}
+		}
+
+		// Change the parameter currently selected
+		if (InputController.getInstance().didParameterToggle()){
+			if (parameterSelected < parameterList.length-1){
+				parameterSelected += 1;
+			} else {
+				parameterSelected = 0;
+			}
+		}
+		// Increase the current parameter
+		if (InputController.getInstance().didParameterIncreased()){
+			parameterList[parameterSelected] += 1;
+		}
+		// Decrease the current parameter
+		if (InputController.getInstance().didParameterDecreased()){
+			parameterList[parameterSelected] -= 1;
+		}
+
+		// Set the parameters to their new values
+		if (parameterSelected == 0){
+			avatar.setMaxHealth(parameterList[parameterSelected]);
+		} else if (parameterSelected == 1){
+
 		}
 
 		
@@ -939,6 +972,14 @@ public class WorldController implements ContactListener, Screen {
 
 		canvas.begin();
 		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
+		// Draws out all the parameters and their values
+		String[] parameters = {"max health:"};
+		for (int i = 0; i < parameterList.length - 1; i++){
+			if (parameterList[i] != 0) {
+				canvas.drawText(parameters[i] + parameterList[i], new BitmapFont(), 800, 540 - 10 * i);
+			}
+		}
+
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
