@@ -780,14 +780,6 @@ public class WorldController implements ContactListener, Screen {
 					decrementTrap((Trap) bd2);
 				}
 
-				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
-					decrementTrap((Trap) bd1);
-				}
-
-				if (fd2.equals("lureHurt") && bd1.getName().equals("chicken")){
-					decrementTrap((Trap) bd2);
-				}
-
 				if (fd1.equals("trapSensor") && bd2.getName().equals("chicken")) {
 					switch (((Trap) bd1).getTrapType()){
 						case LURE: //damage
