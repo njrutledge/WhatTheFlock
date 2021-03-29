@@ -1,5 +1,6 @@
 package edu.cornell.gdiac.physics.platform;
 
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -34,7 +35,8 @@ public class ChickenModel extends CapsuleObstacle {
     private final float knockback;
     /** Cache for internal force calculations */
     private final Vector2 forceCache = new Vector2();
-    private static int INITIAL_HEALTH = 2;
+    /** The max health of the chicken nugget */
+    private int max_health;
     /** Health of the chicken*/
     // All of these variables will be put into a FSM in AIController eventually
     private float health;
@@ -67,6 +69,8 @@ public class ChickenModel extends CapsuleObstacle {
 
     private boolean cookin = false;
 
+    private TextureRegion healthBar;
+
     /**
      * Returns the name of the ground sensor
      *
@@ -90,8 +94,10 @@ public class ChickenModel extends CapsuleObstacle {
      * @param y         The y axis location of this chicken
      * @param width		The object width in physics units
      * @param height	The object width in physics units
+     * @param player    The target player
+     * @param mh        The max health of the chicken
      */
-    public ChickenModel(JsonValue data, float x, float y, float width, float height, ChefModel player) {
+    public ChickenModel(JsonValue data, float x, float y, float width, float height, ChefModel player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
         super(/*data.get("pos").getFloat(0),
                 data.get("pos").getFloat(1),*/
@@ -109,10 +115,27 @@ public class ChickenModel extends CapsuleObstacle {
         damping = data.getFloat("damping", 0);
         chaseSpeed = data.getFloat("chasespeed", 0);
         knockback = data.getFloat("knockback", 0);
-        health = INITIAL_HEALTH;
+        max_health = mh;
+        health = max_health;
         this.data = data;
 
     }
+
+    /**
+     * Sets the current chicken max health
+     * @param h - the number to set the max health of the chicken to
+     *
+     */
+    public void setMaxHealth(int h){
+        max_health = h;
+    }
+
+    /**
+     * Returns current chicken max health.
+     *
+     * @return the current chicken max health.
+     */
+    public int getMaxHealth(){ return max_health;}
 
     /**
      * Creates the physics Body(s) for this object, adding them to the world.
@@ -219,6 +242,10 @@ public class ChickenModel extends CapsuleObstacle {
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
     }
 
+    public void setBarTexture(TextureRegion texture){
+        healthBar = texture;
+    }
+
     /**
      * Draws the physics object.
      *
@@ -226,6 +253,8 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void draw(GameCanvas canvas) {
         if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
+            canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f, 0.025f);
+            canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f*(health/max_health), 0.025f);
             canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f, 0.25f);
         }
     }
@@ -246,10 +275,8 @@ public class ChickenModel extends CapsuleObstacle {
      * The chicken takes damage
      *
      * @param damage The amount of damage to this chicken's health
-     *
-     * @return true if the chicken has no health after taking damage
      */
-    public Boolean takeDamage(float damage) {
+    public void takeDamage(float damage) {
         if (!isStunned()) {
             if (status_timer >= 0) {
                 health -= damage * FIRE_MULT;
@@ -258,10 +285,7 @@ public class ChickenModel extends CapsuleObstacle {
             }
             invuln_counter = 0;
             hit = true;
-            return health <= 0;
         }
-
-        return false;
     }
 
     /**
@@ -323,7 +347,7 @@ public class ChickenModel extends CapsuleObstacle {
 
     /** If the enemy is still alive
      * @return true if chicken health > 0*/
-    public boolean isAlive() {return health <= 0;}
+    public boolean isAlive() {return health > 0;}
 
 
 

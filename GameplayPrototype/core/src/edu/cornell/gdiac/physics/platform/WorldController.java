@@ -56,6 +56,8 @@ public class WorldController implements ContactListener, Screen {
 	private TextureRegion stoveTexture;
 	/** Texture asset for the trap (TEMP) */
 	private TextureRegion trapTexture;
+	/** Texture asset for chicken health bar */
+	private TextureRegion enemyHealthBarTexture;
 
 	/** Texture asset for the chef*/
 	private Texture chefTexture;
@@ -76,10 +78,6 @@ public class WorldController implements ContactListener, Screen {
 
 	/** The current number of chickens */
 	private int chickens;
-	/** The number of chickens to initially spawn*/
-	private int INITIAL_SPAWN = 2;
-	/** The chicken spawn chance*/
-	private static final int SPAWN_CHANCE = 100; //1 in SPAWN_CHANCE update calls
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
@@ -133,8 +131,8 @@ public class WorldController implements ContactListener, Screen {
 	private Trap.type trapTypeSelected = Trap.type.LURE;
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
-	/** List of all parameter values */
-	private int[] parameterList = {3,0,0,0,0,0,0,0};
+	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
+	private int[] parameterList = {3,5,2,50,2};
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -162,8 +160,6 @@ public class WorldController implements ContactListener, Screen {
 	private boolean debug;
 	/** Countdown active for winning or losing */
 	private int countdown;
-	/** the base damage the player does to the chicken*/
-	private final int BASE_DAMAGE = 2;
 
 
 	/** Mark set to handle more sophisticated collision callbacks */
@@ -244,6 +240,7 @@ public class WorldController implements ContactListener, Screen {
 		trapTexture = new TextureRegion(directory.getEntry("platform:trap",Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
+		enemyHealthBarTexture = new TextureRegion(directory.getEntry("platform:nuggetBar", Texture.class));
 
 		chefTexture = directory.getEntry("platform:chef", Texture.class);
 		nuggetTexture = directory.getEntry("platform:nugget", Texture.class);
@@ -350,20 +347,13 @@ public class WorldController implements ContactListener, Screen {
 		spawn_xmax = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[1];
 		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
-		for (int i = 0; i < INITIAL_SPAWN; i++){
+		for (int i = 0; i < parameterList[4]; i++){
 			spawnChicken();
 		}
 
 		// Get initial values for parameters in the list
 		parameterList[0] = avatar.getMaxHealth();
 
-	}
-
-	/**
-	 * decrements the avatar health by 1
-	 */
-	public void decrementHealth(){
-		avatar.decrementHealth();
 	}
 
 	/**
@@ -436,7 +426,7 @@ public class WorldController implements ContactListener, Screen {
 			reset();
 		}
 		if(input.didAdvance()) {
-			decrementHealth();
+			avatar.decrementHealth();
 		}
 		if(input.didRetreat()) {
 			killChickens();
@@ -519,6 +509,12 @@ public class WorldController implements ContactListener, Screen {
 		if (parameterSelected == 0){
 			avatar.setMaxHealth(parameterList[parameterSelected]);
 		} else if (parameterSelected == 1){
+			for (Obstacle obstacle: objects){
+				if (obstacle.getName().equals("chicken")){
+					((ChickenModel)obstacle).setMaxHealth(parameterList[1]);
+				}
+			}
+		} else if (parameterSelected == 2){
 
 		}
 
@@ -534,7 +530,7 @@ public class WorldController implements ContactListener, Screen {
 		}
 
 		//random chance of spawning a chicken
-		if ((int)(Math.random() * (SPAWN_CHANCE + 1)) == 0) {
+		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
 			spawnChicken();
 		}
 		for (Obstacle obj : objects) {
@@ -583,9 +579,10 @@ public class WorldController implements ContactListener, Screen {
 		}
 
 		ChickenModel enemy;
-		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar);
+		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1]);
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
+		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy);
 		chickens ++;
 	}
@@ -746,14 +743,14 @@ public class WorldController implements ContactListener, Screen {
 			//bullet collision with chicken eliminates chicken
 			if (bd1.getName().equals("bullet") && bd2.getName().equals("chicken")) {
 				ChickenModel chick = (ChickenModel) bd2;
-				chick.takeDamage(BASE_DAMAGE * temp.getPercentCooked());
+				chick.takeDamage(parameterList[2] * temp.getPercentCooked());
 				if (!chick.isAlive()) {
 					removeChicken(bd2);
 				}
 			}
 			if (bd2.getName().equals("bullet") && bd1.getName().equals("chicken")) {
 				ChickenModel chick = (ChickenModel) bd1;
-				chick.takeDamage(BASE_DAMAGE * temp.getPercentCooked());
+				chick.takeDamage(parameterList[2] * temp.getPercentCooked());
 				if (!chick.isAlive()) {
 					removeChicken(bd1);
 				}
@@ -1046,10 +1043,16 @@ public class WorldController implements ContactListener, Screen {
 		canvas.begin();
 		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
-		String[] parameters = {"max health:"};
-		for (int i = 0; i < parameterList.length - 1; i++){
+		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: "};
+		BitmapFont pFont = new BitmapFont();
+		for (int i = 0; i < parameterList.length; i++){
 			if (parameterList[i] != 0) {
-				canvas.drawText(parameters[i] + parameterList[i], new BitmapFont(), 800, 540 - 10 * i);
+				if (i == parameterSelected) {
+					pFont.setColor(Color.YELLOW);
+				} else {
+					pFont.setColor(Color.WHITE);
+				}
+				canvas.drawText(parameters[i] + parameterList[i], pFont, 825, 540 - 12 * i);
 			}
 		}
 
