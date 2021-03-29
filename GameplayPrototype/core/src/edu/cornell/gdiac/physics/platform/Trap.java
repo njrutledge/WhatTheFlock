@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 
-import javax.xml.bind.annotation.XmlType;
 
 public class Trap extends BoxObstacle {
 
@@ -19,7 +18,8 @@ public class Trap extends BoxObstacle {
     public enum type {
         LURE,
         SLOW,
-        FIRE
+        FIRE,
+        FIRE_LINGER
     }
 
     /**
@@ -116,7 +116,7 @@ public class Trap extends BoxObstacle {
         switch (trapType) {
             case SLOW:
                 return SLOW_EFFECT;
-            case FIRE:
+            case FIRE_LINGER:
                 return FIRE_DUR;
         }
         return -1;
@@ -201,11 +201,7 @@ public class Trap extends BoxObstacle {
                 break;
 
         }
-        if (trapType.equals(type.LURE)) {
 
-        } else {
-
-        }
         return durability == 0;
     }
 
@@ -218,7 +214,14 @@ public class Trap extends BoxObstacle {
      */
     @Override
     public void update(float delta) {
+
         super.update(delta);
+        if (trapType == type.FIRE_LINGER) {
+            durability = durability - (MAX_DURABILITY / FIRE_DUR * delta);
+            if (durability <= 0) {
+                this.markRemoved(true);
+            }
+        }
     }
 
     /**
@@ -252,14 +255,10 @@ public class Trap extends BoxObstacle {
                 break;
             case FIRE:
                 sensorShape.setRadius(FIRE_TRIGGER_RADIUS);
-                FixtureDef sensLinger = new FixtureDef();
-                sensLinger.isSensor = true;
-                lingerSensorShape = new CircleShape();
-                lingerSensorShape.setRadius(FIRE_LINGER_RADIUS);
-                sensLinger.shape = lingerSensorShape;
-                Fixture sensorLingerF = body.createFixture(sensLinger);
-                sensorLingerF.setUserData("linger");
                 break;
+            case FIRE_LINGER:
+                sensorShape.setRadius(FIRE_LINGER_RADIUS);
+
         }
         sensorDef.shape = sensorShape;
         Fixture sensorFixture = body.createFixture(sensorDef);
@@ -302,9 +301,7 @@ public class Trap extends BoxObstacle {
                 if (lHShape != null) {
                     canvas.drawPhysics((CircleShape) lHShape,Color.BLUE,getX(),getY(),drawScale.x,drawScale.y);
                 }
-                if(trapType == type.FIRE){
-                    canvas.drawPhysics((CircleShape) lingerSensorShape,Color.FIREBRICK,getX(),getY(),drawScale.x,drawScale.y);
-                }
+
                 break;
             case SQUARE:
                 canvas.drawPhysics((PolygonShape) sensorShape,Color.RED,getX(),getY(),getAngle(),drawScale.x,drawScale.y);

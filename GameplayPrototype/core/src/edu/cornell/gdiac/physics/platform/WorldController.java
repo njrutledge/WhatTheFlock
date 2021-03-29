@@ -107,6 +107,8 @@ public class WorldController implements ContactListener, Screen {
 	/** Whether or not the player is cooking, true is they are and false otherwise*/
 	private boolean cooking;
 
+	private Trap trapCache;
+
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
@@ -753,34 +755,7 @@ public class WorldController implements ContactListener, Screen {
 			}
 
 			//trap collision with chicken eliminates chicken
-			if (bd1.getName().equals("trap") && bd2.getName().equals("chicken")) {
-				switch (((Trap) bd1).getTrapType()){
-					case LURE: //damage
-						((ChickenModel) bd2).trapTarget((Trap) bd1);
-						break;
-					case SLOW:
-						((ChickenModel) bd2).applySlow(((Trap) bd1).getEffect());
-						decrementTrap((Trap) bd1);
-						break;
-					case FIRE :
-						((Trap) bd1).enableLinger(true);
-						break;
-				}
-			}
-			if (bd2.getName().equals("trap") && bd1.getName().equals("chicken")) {
-				switch (((Trap) bd2).getTrapType()){
-					case LURE: //damage
-						((ChickenModel) bd1).trapTarget((Trap) bd2);
-						break;
-					case SLOW:
-						((ChickenModel) bd1).applySlow(((Trap) bd2).getEffect());
-						decrementTrap((Trap) bd2);
-						break;
-					case FIRE :
-						((Trap) bd2).enableLinger(true);
-						break;
-				}
-			}
+
 
 			if(bd1.getName().equals("linger") && bd2.getName().equals("chicken")) {
 				if (((Trap) bd1).getLinger()){
@@ -802,9 +777,7 @@ public class WorldController implements ContactListener, Screen {
 				if (fd2.equals("lureHurt") && bd1.getName().equals("chicken")){
 					decrementTrap((Trap) bd2);
 				}
-			}
 
-			if (fd1 != null && fd2 != null) {
 				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
 					decrementTrap((Trap) bd1);
 				}
@@ -812,7 +785,53 @@ public class WorldController implements ContactListener, Screen {
 				if (fd2.equals("lureHurt") && bd1.getName().equals("chicken")){
 					decrementTrap((Trap) bd2);
 				}
+
+				if (fd1.equals("trapSensor") && bd2.getName().equals("chicken")) {
+					switch (((Trap) bd1).getTrapType()){
+						case LURE: //damage
+							((ChickenModel) bd2).trapTarget((Trap) bd1);
+							break;
+						case SLOW:
+							((ChickenModel) bd2).applySlow(((Trap) bd1).getEffect());
+							decrementTrap((Trap) bd1);
+							break;
+						case FIRE :
+							float twidth = trapTexture.getRegionWidth()/scale.x;
+							float theight = trapTexture.getRegionHeight()/scale.y;
+							trapCache = new Trap(constants.get("trap"), bd1.getX(), bd1.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE);
+							trapCache.setDrawScale(scale);
+							trapCache.setTexture(trapTexture);
+							addQueuedObject(trapCache);
+							decrementTrap((Trap) bd1);
+							break;
+						case FIRE_LINGER:
+							((ChickenModel) bd2).applyFire(((Trap) bd1).getEffect());
+					}
+				}
+				if (fd2.equals("trapSensor") && bd1.getName().equals("chicken")) {
+					switch (((Trap) bd2).getTrapType()){
+						case LURE: //damage
+							((ChickenModel) bd1).trapTarget((Trap) bd2);
+							break;
+						case SLOW:
+							((ChickenModel) bd1).applySlow(((Trap) bd2).getEffect());
+							decrementTrap((Trap) bd2);
+							break;
+						case FIRE:
+							float twidth = trapTexture.getRegionWidth()/scale.x;
+							float theight = trapTexture.getRegionHeight()/scale.y;
+							trapCache = new Trap(constants.get("trap"), bd2.getX(), bd2.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE);
+							trapCache.setDrawScale(scale);
+							trapCache.setTexture(trapTexture);
+							addQueuedObject(trapCache);
+							decrementTrap((Trap) bd2);
+							break;
+						case FIRE_LINGER:
+							((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
+					}
+				}
 			}
+
 
 			if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
 				((ChickenModel)bd2).hitWall();
@@ -871,6 +890,8 @@ public class WorldController implements ContactListener, Screen {
 					break;
 				case FIRE :
 					break;
+				case FIRE_LINGER:
+					((ChickenModel) b2).letItBurn();
 			}
 		}
 		if (b2.getName().equals("trap") && b1.getName().equals("chicken")) {
@@ -881,8 +902,10 @@ public class WorldController implements ContactListener, Screen {
 				case SLOW:
 					((ChickenModel) b1).removeSlow();
 					break;
-				case FIRE : //TODO
+				case FIRE :
 					break;
+				case FIRE_LINGER:
+					((ChickenModel) b1).letItBurn();
 			}
 		}
 	}
