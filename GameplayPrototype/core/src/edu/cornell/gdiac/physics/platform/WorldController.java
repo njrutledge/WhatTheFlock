@@ -711,10 +711,14 @@ public class WorldController implements ContactListener, Screen {
 
 
 			//reduce health if chicken collides with avatar
-			if ((bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned())
-					|| (bd2 == avatar && bd1.getName().equals("chicken"))&& !((ChickenModel)bd1).isStunned()){
+			if (bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned()) {
 				avatar.decrementHealth();
-				((ChickenModel)bd2).hitPlayer();
+				((ChickenModel) bd2).hitPlayer();
+			}
+
+			if ((bd2 == avatar && bd1.getName().equals("chicken"))&& !((ChickenModel)bd1).isStunned()){
+				avatar.decrementHealth();
+				((ChickenModel) bd1).hitPlayer();
 			}
 
 			//cook if player is near stove and not doing anything
