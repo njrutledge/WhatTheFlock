@@ -36,6 +36,9 @@ public class ChefModel extends CapsuleObstacle {
 	//////////////////////////////////////////////////////////////////////////////////////
 	/** the texture of the chef */
 	private TextureRegion chefTexture;
+	/** Health textures*/
+	private TextureRegion healthTexture;
+	private TextureRegion noHealthTexture;
 
 	/** The initializing data (to avoid magic numbers) */
 	private final JsonValue data;
@@ -80,9 +83,11 @@ public class ChefModel extends CapsuleObstacle {
 	/** The font used to draw text on the screen*/
 	private static final BitmapFont font = new BitmapFont();
 	/** X offset for health display */
-	private final float XOFFSET = 400;
+	private final float XOFFSET = 900;
 	/** Y offset for health display */
-	private final float YOFFSET = 565;
+	private final float YOFFSET = 475;
+	/** size of each heart */
+	private final int HEART_SIZE = 30;
 	/** Time until invulnerability after getting hit wears off */
 	private final float INVULN_TIME = 1;
 
@@ -276,6 +281,14 @@ public class ChefModel extends CapsuleObstacle {
 		return faceRight;
 	}
 
+	/**Gather art assets for health display*/
+	private void gatherHealthAssets(){
+		AssetDirectory internal = new AssetDirectory("health.json");
+		internal.loadAssets();
+		internal.finishLoading();
+		healthTexture = internal.getEntry("progress.on", TextureRegion.class);
+		noHealthTexture = internal.getEntry("progress.off", TextureRegion.class);
+	}
 	/**
 	 * Creates a new dude avatar with the given physics data
 	 *
@@ -310,6 +323,7 @@ public class ChefModel extends CapsuleObstacle {
 		faceRight = true;
 		max_health = maxHealth;
 		health = max_health;
+		gatherHealthAssets();
 		shootCooldown = 0;
 		trapCooldown = 0;
 		setName("dude");
@@ -413,7 +427,6 @@ public class ChefModel extends CapsuleObstacle {
 		}
 		super.update(dt);
 	}
-
 	/**
 	 * Draws the physics object.
 	 *
@@ -424,8 +437,21 @@ public class ChefModel extends CapsuleObstacle {
 		if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
 			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), effect / 10, 0.1f);
 		}
-		canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
-		//TODO: Move this draw method to the appropriate location
+
+		canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
+		//canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
+		//draw health
+		float x = XOFFSET;
+		float y = YOFFSET;
+		for (int i = 1; i <= max_health; i++){
+			if(i <= health){
+				canvas.draw(healthTexture, Color.WHITE, x, y, HEART_SIZE, HEART_SIZE);
+			}
+			else {
+				canvas.draw(noHealthTexture, Color.WHITE, x, y, HEART_SIZE, HEART_SIZE);
+			}
+			y -= HEART_SIZE + HEART_SIZE/3;
+		}
 	}
 	
 	/**
