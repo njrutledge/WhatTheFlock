@@ -16,8 +16,6 @@ import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.physics.*;
@@ -83,9 +81,9 @@ public class ChefModel extends CapsuleObstacle {
 	/** The font used to draw text on the screen*/
 	private static final BitmapFont font = new BitmapFont();
 	/** X offset for health display */
-	private final float XOFFSET = 900;
+	private final float X_HEALTH = 900;
 	/** Y offset for health display */
-	private final float YOFFSET = 475;
+	private final float Y_HEALTH = 400;
 	/** size of each heart */
 	private final int HEART_SIZE = 30;
 	/** Time until invulnerability after getting hit wears off */
@@ -441,8 +439,8 @@ public class ChefModel extends CapsuleObstacle {
 		canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
 		//canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
 		//draw health
-		float x = XOFFSET;
-		float y = YOFFSET;
+		float x = X_HEALTH;
+		float y = Y_HEALTH;
 		for (int i = 1; i <= max_health; i++){
 			if(i <= health){
 				canvas.draw(healthTexture, Color.WHITE, x, y, HEART_SIZE, HEART_SIZE);
