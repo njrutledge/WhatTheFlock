@@ -66,6 +66,12 @@ public class Trap extends BoxObstacle {
     private static final float FIRE_LINGER_RADIUS = 4f;
     /** Radius for the Lure hurtbox */
     private static final float LURE_HURT = 1.5f;
+    /** Colors of Fire trap */
+    private static final Color fireColor = Color.RED;
+    /** Colors of slow trap */
+    private static final Color slowColor = Color.CYAN;
+    /** Colors of lure trap */
+    private static final Color lureColor = Color.YELLOW;
 
 
     /** Lure Durability */
@@ -273,13 +279,13 @@ public class Trap extends BoxObstacle {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        Color c = Color.RED;
+        Color c = fireColor.cpy();
         switch (trapType){
-            case FIRE: c = Color.RED;
+            case FIRE: c = fireColor.cpy();
             break;
-            case LURE: c = Color.YELLOW;
+            case LURE: c = lureColor.cpy();
             break;
-            case SLOW: c = Color.CYAN;
+            case SLOW: c = slowColor.cpy();
             break;
         }
         c.a = durability/MAX_DURABILITY;
