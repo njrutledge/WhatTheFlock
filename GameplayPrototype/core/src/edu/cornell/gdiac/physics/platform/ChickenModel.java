@@ -26,9 +26,11 @@ public class ChickenModel extends CapsuleObstacle {
      * pretty simple for the prototype */
     private Obstacle target;
     /** The maximum enemy speed */
-    private final float maxspeed;
+    //TODO: make final after technical
+    private float maxspeed;
     /** The speed that the enemy chases the player */
-    private final float chaseSpeed;
+    //TODO: make final after technical
+    private float chaseSpeed;
     /** The amount to slow the character down */
     private final float damping;
     /** The strength of the knockback force the chicken receives after getting slapped*/
@@ -236,7 +238,12 @@ public class ChickenModel extends CapsuleObstacle {
             }
             //TODO: delete after technical
             setMaxHealth(plist[1]);
+            setChaseSpeed(plist[10]);
         }
+    }
+
+    public void setChaseSpeed(float spd){
+        chaseSpeed = spd;
     }
 
     public void setTexture(Texture texture) {
