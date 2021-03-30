@@ -164,6 +164,8 @@ public class WorldController implements ContactListener, Screen {
 	/** Countdown active for winning or losing */
 	private int countdown;
 
+	/** Whether or not mute is toggled */
+	private boolean muted = false;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -473,6 +475,8 @@ public class WorldController implements ContactListener, Screen {
 		avatar.setVertMovement(InputController.getInstance().getVertical()*avatar.getForce());
 		avatar.setShooting(InputController.getInstance().didSecondary());
 		avatar.setTrap(InputController.getInstance().didTrap());
+
+		muted = InputController.getInstance().didMute();
 
 		// Rotate through player's available traps
 		if (InputController.getInstance().didRotateTrapLeft()){
