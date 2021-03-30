@@ -544,6 +544,7 @@ public class WorldController implements ContactListener, Screen {
 			//avatar.cook(false);
 			temp.cook(false);
 		}
+
 		temp.update(dt);
 	}
 
