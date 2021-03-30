@@ -68,12 +68,20 @@
         "rocket:leftburn" : "rocket/sideburner-left.mp3",
         "rocket:rightburn": "rocket/sideburner-right.mp3",
         "platform:jump" : "platform/jump.mp3",
-        "platform:pew"  : "platform/pew.mp3",
+        "platform:pew"  : "platform/slap_1.ogg",
         "platform:plop" : "platform/plop.mp3",
         "ragdoll:glub1" : "ragdoll/bubble01.mp3",
         "ragdoll:glub2" : "ragdoll/bubble02.mp3",
         "ragdoll:glub3" : "ragdoll/bubble03.mp3",
-        "ragdoll:glub4" : "ragdoll/bubble04.mp3"
+        "ragdoll:glub4" : "ragdoll/bubble04.mp3",
+        "platform:chickHurt" : "platform/nug_hurt_1.ogg",
+        "platform:chickAttack" : "platform/nug_attack_1.ogg",
+        "platform:fireLinger" : "platform/fire_linger_1.ogg",
+        "platform:fireTrig" : "platform/fire_trigger_2.ogg",
+        "platform:lureCrumb" : "platform/lure_damage.ogg",
+        "platform:emptySlap" : "platform/empty_slap_2.ogg",
+        "platform:chickOnFire" : "platform/set_ablaze_cluck.ogg",
+        "platform:squelch": "platform/squelch.ogg"
     },
     "fonts": {
         "shared:retro": {

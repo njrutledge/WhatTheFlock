@@ -46,7 +46,9 @@ public class ChefModel extends CapsuleObstacle {
 	/** The amount to slow the character down */
 	private final float damping;
 	/** The maximum character speed */
-	private final float maxspeed;
+	//TODO: make final after technical
+	private float maxspeed;
+
 	/** Identifier to allow us to track the sensor in ContactListener */
 	private final String sensorName;
 	/** Cooldown (in animation frames) for shooting */
@@ -81,13 +83,14 @@ public class ChefModel extends CapsuleObstacle {
 	/** The font used to draw text on the screen*/
 	private static final BitmapFont font = new BitmapFont();
 	/** X offset for health display */
-	private final float X_HEALTH = 900;
+	private final float X_HEALTH = 935;
 	/** Y offset for health display */
-	private final float Y_HEALTH = 350;
+	private final float Y_HEALTH = 450;
 	/** size of each heart */
 	private final int HEART_SIZE = 30;
 	/** Time until invulnerability after getting hit wears off */
-	private final float INVULN_TIME = 1;
+	//TODO: make final after technical
+	private float INVULN_TIME = 1;
 	//TODO: make final after technical
 	private float BASE_DAMAGE = 2;
 
@@ -205,6 +208,9 @@ public class ChefModel extends CapsuleObstacle {
 	 */
 	public void setMaxHealth(int h){
 		max_health = h;
+	}
+	public void setMaxSpeed(float spd){
+		maxspeed = spd;
 	}
 
 	/**
@@ -437,6 +443,12 @@ public class ChefModel extends CapsuleObstacle {
 		//TODO: remove after technical
 		setMaxHealth(plist[0]);
 		BASE_DAMAGE = plist[2];
+		setMaxSpeed(plist[9]);
+		float next_max = (float) plist[11] / 5;
+		if(next_max != INVULN_TIME){
+			invuln_counter = next_max;
+		}
+		INVULN_TIME = next_max;
 
 	}
 	/**

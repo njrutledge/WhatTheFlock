@@ -76,6 +76,19 @@ public class WorldController implements ContactListener, Screen {
 	/** The default sound volume */
 	private float volume;
 
+	private SoundBuffer chickHurt;
+	private SoundBuffer chickAttack;
+	private long cSoundID = -2;
+	private SoundBuffer fireTrig;
+	private SoundBuffer fireLinger;
+	private SoundBuffer lureCrumb;
+	private SoundBuffer emptySlap;
+	private SoundBuffer chickOnFire;
+	private SoundBuffer slowSquelch;
+
+
+	private final float DEFAULT_VOL = 0.5F;
+
 	/** The current number of chickens */
 	private int chickens;
 
@@ -132,7 +145,9 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3,5,2,200,2, 6, 30, 10, 5};
+	private int[] parameterList = {3, 5, 2, 200, 2, 3, 30, 10, 5, 5, 2, 5, 0};
+
+
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -163,6 +178,8 @@ public class WorldController implements ContactListener, Screen {
 	/** Countdown active for winning or losing */
 	private int countdown;
 
+	/** Whether or not mute is toggled */
+	private boolean muted = false;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -236,6 +253,7 @@ public class WorldController implements ContactListener, Screen {
 	 * @param directory	Reference to global asset manager.
 	 */
 	public void gatherAssets(AssetDirectory directory) {
+		//TODO add temperature and health assets here
 		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("platform:chicken",Texture.class));
@@ -252,6 +270,17 @@ public class WorldController implements ContactListener, Screen {
 		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
 		plopSound = directory.getEntry( "platform:plop", SoundBuffer.class );
+
+		chickHurt = directory.getEntry( "platform:chickHurt", SoundBuffer.class );
+		chickAttack = directory.getEntry( "platform:chickAttack", SoundBuffer.class );
+		fireTrig = directory.getEntry( "platform:fireTrig", SoundBuffer.class );
+		fireLinger = directory.getEntry( "platform:fireLinger", SoundBuffer.class );
+		lureCrumb = directory.getEntry( "platform:lureCrumb", SoundBuffer.class );
+		emptySlap = directory.getEntry( "platform:emptySlap", SoundBuffer.class );
+		chickOnFire = directory.getEntry( "platform:chickOnFire", SoundBuffer.class );
+		slowSquelch = directory.getEntry("platform:squelch", SoundBuffer.class);
+
+
 
 		constants = directory.getEntry( "platform:constants", JsonValue.class );
 	}
@@ -471,6 +500,15 @@ public class WorldController implements ContactListener, Screen {
 		avatar.setShooting(InputController.getInstance().didSecondary());
 		avatar.setTrap(InputController.getInstance().didTrap());
 
+		if(InputController.getInstance().didMute()){
+			muted = !muted;
+		}
+		if (muted) {
+			volume = 0;
+		} else {
+			volume = DEFAULT_VOL;
+		}
+
 		// Rotate through player's available traps
 		if (InputController.getInstance().didRotateTrapLeft()){
 			if (trapTypeSelected == Trap.type.LURE){
@@ -500,11 +538,15 @@ public class WorldController implements ContactListener, Screen {
 		}
 		// Increase the current parameter
 		if (InputController.getInstance().didParameterIncreased()){
-			parameterList[parameterSelected] += 1;
+			if (parameterSelected == 12) {
+				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+1, 1);
+			} else {
+				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] + 1);
+			}
 		}
 		// Decrease the current parameter
 		if (InputController.getInstance().didParameterDecreased()){
-			parameterList[parameterSelected] -= 1;
+			parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected]-1);
 		}
 
 		
@@ -541,6 +583,7 @@ public class WorldController implements ContactListener, Screen {
 			//avatar.cook(false);
 			temp.cook(false);
 		}
+
 		temp.update(dt);
 	}
 
@@ -643,8 +686,8 @@ public class WorldController implements ContactListener, Screen {
 			slap.setVX(speed);
 		}
 		addQueuedObject(slap);
+		emptySlap.play(volume);
 
-		fireId = playSound( fireSound, fireId );
 	}
 	
 	/**
@@ -655,7 +698,6 @@ public class WorldController implements ContactListener, Screen {
 	public void removeBullet(Obstacle bullet) {
 		//TODO: may need to alter similar to createBullet()
 	    bullet.markRemoved(true);
-	    plopId = playSound( plopSound, plopId );
 	}
 
 	public void createTrap() {
@@ -717,13 +759,17 @@ public class WorldController implements ContactListener, Screen {
 
 			//reduce health if chicken collides with avatar
 			if (bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned()) {
-				avatar.decrementHealth();
+				if (parameterList[12] != 1) { avatar.decrementHealth(); }
 				((ChickenModel) bd2).hitPlayer();
+				chickAttack.stop();
+				chickAttack.play(volume*0.5f);
 			}
 
 			if ((bd2 == avatar && bd1.getName().equals("chicken"))&& !((ChickenModel)bd1).isStunned()){
-				avatar.decrementHealth();
+				if (parameterList[12] != 1) { avatar.decrementHealth(); }
 				((ChickenModel) bd1).hitPlayer();
+				chickAttack.stop();
+				chickAttack.play(volume*0.5f);
 			}
 
 			//cook if player is near stove and not doing anything
@@ -733,43 +779,48 @@ public class WorldController implements ContactListener, Screen {
 			}
 
 			//bullet collision with chicken eliminates chicken
-			if (bd1.getName().equals("bullet") && bd2.getName().equals("chicken")) {
-				ChickenModel chick = (ChickenModel) bd2;
-				chick.takeDamage(damageCalc());
-				if (!chick.isAlive()) {
-					removeChicken(bd2);
+
+			if (fd1 != null){
+				if (bd2.getName().equals("bullet") && fd1.equals("chickenSensor")) {
+					chickHurt.stop();
+					chickHurt.play(volume);
+					fireSound.stop();
+					fireSound.play(volume);
+					ChickenModel chick = (ChickenModel) bd1;
+					chick.takeDamage(damageCalc());
+					if (!chick.isAlive()) {
+						removeChicken(bd1);
+					}
 				}
 			}
-			if (bd2.getName().equals("bullet") && bd1.getName().equals("chicken")) {
-				ChickenModel chick = (ChickenModel) bd1;
-				chick.takeDamage(damageCalc());
-				if (!chick.isAlive()) {
-					removeChicken(bd1);
+
+			if (fd2 != null) {
+				if (bd1.getName().equals("bullet") && fd2.equals("chickenSensor")) {
+					chickHurt.stop();
+					chickHurt.play(volume);
+					fireSound.stop();
+					fireSound.play(volume);
+					ChickenModel chick = (ChickenModel) bd2;
+					chick.takeDamage(damageCalc());
+					if (!chick.isAlive()) {
+						removeChicken(bd2);
+					}
 				}
 			}
 
 			//trap collision with chicken eliminates chicken
 
 
-			if(bd1.getName().equals("linger") && bd2.getName().equals("chicken")) {
-				if (((Trap) bd1).getLinger()){
-					((ChickenModel) bd2).applyFire(((Trap) bd1).getEffect());
-				}
-			}
-
-			if(bd2.getName().equals("linger") && bd1.getName().equals("chicken")) {
-				if (((Trap) bd2).getLinger()){
-					((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
-				}
-			}
-
 			if (fd1 != null && fd2 != null) {
+
 				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
 					decrementTrap((Trap) bd1);
+					lureCrumb.play(volume);
 				}
 
 				if (fd2.equals("lureHurt") && bd1.getName().equals("chicken")){
 					decrementTrap((Trap) bd2);
+					lureCrumb.play(volume);
 				}
 
 				if (fd1.equals("trapSensor") && bd2.getName().equals("chicken")) {
@@ -780,6 +831,8 @@ public class WorldController implements ContactListener, Screen {
 						case SLOW:
 							((ChickenModel) bd2).applySlow(((Trap) bd1).getEffect());
 							decrementTrap((Trap) bd1);
+							slowSquelch.stop();
+							slowSquelch.play(volume);
 							break;
 						case FIRE :
 							float twidth = trapTexture.getRegionWidth()/scale.x;
@@ -789,9 +842,13 @@ public class WorldController implements ContactListener, Screen {
 							trapCache.setTexture(trapTexture);
 							addQueuedObject(trapCache);
 							decrementTrap((Trap) bd1);
+							fireTrig.play(volume);
+							fireLinger.play(volume*0.5f);
 							break;
 						case FIRE_LINGER:
 							((ChickenModel) bd2).applyFire(((Trap) bd1).getEffect());
+							chickOnFire.stop();
+							chickOnFire.play(volume*0.5f);
 					}
 				}
 				if (fd2.equals("trapSensor") && bd1.getName().equals("chicken")) {
@@ -802,6 +859,8 @@ public class WorldController implements ContactListener, Screen {
 						case SLOW:
 							((ChickenModel) bd1).applySlow(((Trap) bd2).getEffect());
 							decrementTrap((Trap) bd2);
+							slowSquelch.stop();
+							slowSquelch.play(volume);
 							break;
 						case FIRE:
 							float twidth = trapTexture.getRegionWidth()/scale.x;
@@ -811,18 +870,20 @@ public class WorldController implements ContactListener, Screen {
 							trapCache.setTexture(trapTexture);
 							addQueuedObject(trapCache);
 							decrementTrap((Trap) bd2);
+							fireTrig.play(volume);
+							fireLinger.play(volume*0.5f);
 							break;
 						case FIRE_LINGER:
 							((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
+							chickOnFire.stop();
+							chickOnFire.play(volume*0.5f);
 					}
 				}
 			}
-
-
-			if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
+			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
 				((ChickenModel)bd2).hitWall();
 			}
-			if (bd2.getName().contains("platform") && bd1.getName().equals("chicken")){
+			if ((bd2.getName().contains("platform") || (bd2.getName().equals("stove") && !fix2.isSensor())) && bd1.getName().equals("chicken")){
 				((ChickenModel)bd1).hitWall();
 
 			}
@@ -1027,22 +1088,30 @@ public class WorldController implements ContactListener, Screen {
 		canvas.begin();
 		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
-		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ",
-				"initial spawn: ", "lure durability: ", "slow durability: ", "fire linger durability: ", "fire damage durability: "};
+		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: ",
+				"lure durability: ", "slow durability: ", "fire linger durability: ", "fire damage durability: ", "player speed: ",
+				"enemy speed: ", "invulnerability time: ", "invincibility: "};
 		BitmapFont pFont = new BitmapFont();
-		for (int i = 0; i < parameterList.length; i++){
-			if (parameterList[i] != 0) {
-				if (i == parameterSelected) {
-					pFont.setColor(Color.YELLOW);
-				} else {
-					pFont.setColor(Color.WHITE);
-				}
-				canvas.drawText(parameters[i] + parameterList[i], pFont, 825, 540 - 14 * i);
+		for (int i = 0; i < parameterList.length; i++) {
+			if (i == parameterSelected) {
+				pFont.setColor(Color.YELLOW);
+			} else {
+				pFont.setColor(Color.WHITE);
+			}
+			if (i == 12) {
+				canvas.drawText(parameters[i] + (parameterList[i] == 1? "on":"off"), pFont, 40, 520-14*i);
+			} else {
+				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
 		}
 
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
+		}
+		if ((cooking && (avatar.getMovement() == 0f
+				&& avatar.getVertMovement() == 0f
+				&& !avatar.isShooting()))){
+			stove.drawLit(canvas);
 		}
 		canvas.end();
 
@@ -1057,6 +1126,7 @@ public class WorldController implements ContactListener, Screen {
 		//TODO add section for UI
 		//draw temp bar
 		canvas.begin();
+
 		temp.draw(canvas);
 		canvas.end();
 
@@ -1089,7 +1159,7 @@ public class WorldController implements ContactListener, Screen {
 	 * @return the new sound instance for this asset.
 	 */
 	public long playSound(SoundBuffer sound, long soundId) {
-		return playSound( sound, soundId, 1.0f );
+		return playSound( sound, soundId, volume);
 	}
 
 

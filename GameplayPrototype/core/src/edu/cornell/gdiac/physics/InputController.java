@@ -83,6 +83,9 @@ public class InputController {
 	/** Whether the exit button was pressed. */
 	private boolean exitPressed;
 	private boolean exitPrevious;
+	/** Wether or not the mute button was pressed. */
+	private boolean mutePressed;
+	private boolean mutePrevious;
 
 	/** Whether parameter toggle was pressed*/
 	private boolean paraToggled;
@@ -227,6 +230,15 @@ public class InputController {
 	public boolean didParameterToggle() {return paraToggled && !paraPrevious; }
 
 	/**
+	 * Returns true if the mute button is pressed.
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
+	 *
+	 * 	@return true if the mute button was pressed
+	 */
+	public boolean didMute() {return mutePressed && !mutePrevious; }
+
+	/**
 	 * Returns true if the parameter increased button is pressed.
 	 * This is a one-press button. It only returns true at the moment it was
 	 * pressed, and returns false at any frame afterwards.
@@ -333,6 +345,7 @@ public class InputController {
 		paraPrevious = paraToggled;
 		paraIncPrevious = paraIncPressed;
 		paraDecPrevious = paraDecPressed;
+		mutePrevious = mutePressed;
 		
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -406,6 +419,7 @@ public class InputController {
 		paraToggled = (Gdx.input.isKeyPressed(Input.Keys.O));
 		paraDecPressed = (Gdx.input.isKeyPressed(Input.Keys.I));
 		paraIncPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
+		mutePressed = (Gdx.input.isKeyPressed(Input.Keys.M));
 		
 		// Directional controls
 		if (horizontal > 0 && Gdx.input.isKeyPressed(Input.Keys.D)){

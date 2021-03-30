@@ -64,12 +64,20 @@ public class StoveModel extends BoxObstacle {
     }
 
     /**
-     * Draws the physics object.
+     * Draws the unlit stove
      *
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
         canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
+    }
+
+    /**
+     * Draws the physics object, lit
+     * @param canvas
+     */
+    public void drawLit(GameCanvas canvas){
+        canvas.draw(texture, new Color(Color.RED),origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
     }
 
     /**
