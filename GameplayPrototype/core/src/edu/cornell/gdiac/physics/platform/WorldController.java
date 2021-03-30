@@ -779,7 +779,6 @@ public class WorldController implements ContactListener, Screen {
 				chickHurt.play(volume);
 				fireSound.stop();
 				fireSound.play(volume);
-				System.out.print("hit");
 				if (!chick.isAlive()) {
 					removeChicken(bd2);
 				}

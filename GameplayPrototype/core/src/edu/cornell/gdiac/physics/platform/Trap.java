@@ -74,7 +74,7 @@ public class Trap extends BoxObstacle {
     private static final Color lureColor = Color.YELLOW;
 
 
-    private float lure_ammount=6;
+    private float lure_ammount=3;
     /** Lure Durability */
     private float LURE_CRUMBS = MAX_DURABILITY / lure_ammount;
     /** Slow effect strength */
