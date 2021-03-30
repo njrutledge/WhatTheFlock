@@ -268,14 +268,14 @@ public class WorldController implements ContactListener, Screen {
 		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
 		plopSound = directory.getEntry( "platform:plop", SoundBuffer.class );
 
-		chickHurt = directory.getEntry( "platform:chickHurt", SoundBuffer.class );;
-		chickAttack = directory.getEntry( "platform:chickAttack", SoundBuffer.class );;
-		fireTrig = directory.getEntry( "platform:fireTrig", SoundBuffer.class );;
-		fireLinger = directory.getEntry( "platform:fireLinger", SoundBuffer.class );;
-		lureCrumb = directory.getEntry( "platform:lureCrumb", SoundBuffer.class );;
-		emptySlap = directory.getEntry( "platform:emptySlap", SoundBuffer.class );;
+		chickHurt = directory.getEntry( "platform:chickHurt", SoundBuffer.class );
+		chickAttack = directory.getEntry( "platform:chickAttack", SoundBuffer.class );
+		fireTrig = directory.getEntry( "platform:fireTrig", SoundBuffer.class );
+		fireLinger = directory.getEntry( "platform:fireLinger", SoundBuffer.class );
+		lureCrumb = directory.getEntry( "platform:lureCrumb", SoundBuffer.class );
+		emptySlap = directory.getEntry( "platform:emptySlap", SoundBuffer.class );
 		chickOnFire = directory.getEntry( "platform:chickOnFire", SoundBuffer.class );
-		//slowSquelch;
+		slowSquelch = directory.getEntry("platform:squelch", SoundBuffer.class);
 
 
 
@@ -817,6 +817,8 @@ public class WorldController implements ContactListener, Screen {
 						case SLOW:
 							((ChickenModel) bd2).applySlow(((Trap) bd1).getEffect());
 							decrementTrap((Trap) bd1);
+							slowSquelch.stop();
+							slowSquelch.play(volume);
 							break;
 						case FIRE :
 							float twidth = trapTexture.getRegionWidth()/scale.x;
@@ -843,6 +845,8 @@ public class WorldController implements ContactListener, Screen {
 						case SLOW:
 							((ChickenModel) bd1).applySlow(((Trap) bd2).getEffect());
 							decrementTrap((Trap) bd2);
+							slowSquelch.stop();
+							slowSquelch.play(volume);
 							break;
 						case FIRE:
 							float twidth = trapTexture.getRegionWidth()/scale.x;
