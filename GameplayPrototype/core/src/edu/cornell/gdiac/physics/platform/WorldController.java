@@ -145,7 +145,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3, 5, 2, 200, 2, 6, 30, 10, 5, 5, 2, 5};
+	private int[] parameterList = {3, 5, 2, 200, 2, 3, 30, 10, 5, 5, 2, 5, 0};
 
 
 	/** Reference to the game canvas */
@@ -535,7 +535,11 @@ public class WorldController implements ContactListener, Screen {
 		}
 		// Increase the current parameter
 		if (InputController.getInstance().didParameterIncreased()){
-			parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected]+1);
+			if (parameterSelected == 12) {
+				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+1, 1);
+			} else {
+				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] + 1);
+			}
 		}
 		// Decrease the current parameter
 		if (InputController.getInstance().didParameterDecreased()){
@@ -752,14 +756,14 @@ public class WorldController implements ContactListener, Screen {
 
 			//reduce health if chicken collides with avatar
 			if (bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned()) {
-				avatar.decrementHealth();
+				if (parameterList[12] != 1) { avatar.decrementHealth(); }
 				((ChickenModel) bd2).hitPlayer();
 				chickAttack.stop();
 				chickAttack.play(volume*0.5f);
 			}
 
 			if ((bd2 == avatar && bd1.getName().equals("chicken"))&& !((ChickenModel)bd1).isStunned()){
-				avatar.decrementHealth();
+				if (parameterList[12] != 1) { avatar.decrementHealth(); }
 				((ChickenModel) bd1).hitPlayer();
 				chickAttack.stop();
 				chickAttack.play(volume*0.5f);
@@ -1083,7 +1087,7 @@ public class WorldController implements ContactListener, Screen {
 		// Draws out all the parameters and their values
 		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: ",
 				"lure durability: ", "slow durability: ", "fire linger durability: ", "fire damage durability: ", "player speed: ",
-				"enemy speed: ", "invulnerability time: "};
+				"enemy speed: ", "invulnerability time: ", "invincibility: "};
 		BitmapFont pFont = new BitmapFont();
 		for (int i = 0; i < parameterList.length; i++) {
 			if (i == parameterSelected) {
@@ -1091,7 +1095,11 @@ public class WorldController implements ContactListener, Screen {
 			} else {
 				pFont.setColor(Color.WHITE);
 			}
-			canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
+			if (i == 12) {
+				canvas.drawText(parameters[i] + (parameterList[i] == 1? "on":"off"), pFont, 40, 520-14*i);
+			} else {
+				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
+			}
 		}
 
 		for(Obstacle obj : objects) {
