@@ -1097,7 +1097,9 @@ public class WorldController implements ContactListener, Screen {
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
-		if (cooking){
+		if ((cooking && (avatar.getMovement() == 0f
+				&& avatar.getVertMovement() == 0f
+				&& !avatar.isShooting()))){
 			stove.drawLit(canvas);
 		}
 		canvas.end();
