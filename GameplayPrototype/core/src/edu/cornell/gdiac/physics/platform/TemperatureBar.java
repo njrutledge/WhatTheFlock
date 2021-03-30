@@ -67,7 +67,6 @@ public class TemperatureBar {
         tempBar.setAnimateDuration(1);
 
     }
-
     /**Gather art assets for temperature from the JSON file specifications and the corresponding image*/
     private void gatherTempAssets(){
         AssetDirectory internal = new AssetDirectory("tempbar.json");
@@ -78,7 +77,6 @@ public class TemperatureBar {
         tempForeground = internal.getEntry("progressfull.foreground", TextureRegion.class);
         //tempForeground.flip(false,true);
     }
-
     /** Returns the temperature of the chicken
      *
      * @return temperature of the chicken
@@ -140,7 +138,7 @@ public class TemperatureBar {
                 tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale);
 
         //tempBar.draw(canvas, temperature);
-        canvas.drawText("Temp: "+tempBar.getValue(), font, 500,565);
+        //canvas.drawText("Temp: "+tempBar.getValue(), font, 500,565);
        // canvas.drawText("Temp: "+temperature, font, 575,565);
     }
 }
