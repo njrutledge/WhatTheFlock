@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 
-
 public class Trap extends BoxObstacle {
 
     /**
@@ -51,7 +50,8 @@ public class Trap extends BoxObstacle {
     /** The durability of this trap */
     private float durability;
     /** The max durability */
-    private static final float MAX_DURABILITY = 30.0f;
+    //TODO: make final after technical
+    private static float MAX_DURABILITY = 30.0f;
 
     /** Hurt box shape for the Lure trap. Null for all other traps */
     private Shape lHShape;
@@ -74,12 +74,15 @@ public class Trap extends BoxObstacle {
     private static final Color lureColor = Color.YELLOW;
 
 
+    private float lure_ammount=6;
     /** Lure Durability */
-    private float LURE_CRUMBS = MAX_DURABILITY / 6;
+    private float LURE_CRUMBS = MAX_DURABILITY / lure_ammount;
     /** Slow effect strength */
     private float SLOW_EFFECT = 0.5f;
     /** Fire duration effect */
     private float FIRE_DUR = 10.0f;
+
+    private float FIRE_DAM_DUR = 5.0f;
 
     /**
      * Creates a new Trap model with the given physics data
@@ -123,7 +126,7 @@ public class Trap extends BoxObstacle {
             case SLOW:
                 return SLOW_EFFECT;
             case FIRE_LINGER:
-                return FIRE_DUR;
+                return FIRE_DAM_DUR;
         }
         return -1;
     }
@@ -219,15 +222,42 @@ public class Trap extends BoxObstacle {
      * @param delta	Number of seconds since last animation frame
      */
     @Override
-    public void update(float delta) {
+    public void update(float delta, int[] plist) {
 
-        super.update(delta);
+        super.update(delta, plist);
         if (trapType == type.FIRE_LINGER) {
             durability = durability - (MAX_DURABILITY / FIRE_DUR * delta);
             if (durability <= 0) {
                 this.markRemoved(true);
             }
         }
+
+        //TODO: delete after technical
+        float next_val = 0f;
+        float diff = 0f;
+        switch (trapType){
+            case LURE:
+                next_val = plist[5];
+                diff = next_val - lure_ammount;
+                durability += diff * LURE_CRUMBS;
+                lure_ammount = next_val;
+            break;
+            case SLOW:
+                next_val = plist[6];
+                diff = next_val - MAX_DURABILITY;
+                durability += diff;
+                MAX_DURABILITY = next_val;
+            break;
+            case FIRE_LINGER:
+                next_val = plist[7];
+                diff = next_val - FIRE_DUR;
+                durability = MathUtils.clamp(durability+ MAX_DURABILITY*diff * delta, 0, MAX_DURABILITY);
+                FIRE_DUR = next_val;
+                FIRE_DAM_DUR = plist[8];
+            break;
+        }
+
+
     }
 
     /**
