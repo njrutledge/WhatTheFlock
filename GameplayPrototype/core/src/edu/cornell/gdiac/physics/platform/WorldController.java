@@ -132,7 +132,8 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3,5,2,200,2, 6, 30, 10, 5};
+	private int[] parameterList = {3, 5, 2, 200, 2, 6, 30, 10, 5, 5, 2, 5};
+
 
 	/** Reference to the game canvas */
 	protected GameCanvas canvas;
@@ -498,11 +499,11 @@ public class WorldController implements ContactListener, Screen {
 		}
 		// Increase the current parameter
 		if (InputController.getInstance().didParameterIncreased()){
-			parameterList[parameterSelected] += 1;
+			parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected]+1);
 		}
 		// Decrease the current parameter
 		if (InputController.getInstance().didParameterDecreased()){
-			parameterList[parameterSelected] -= 1;
+			parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected]-1);
 		}
 
 		
@@ -815,12 +816,10 @@ public class WorldController implements ContactListener, Screen {
 					}
 				}
 			}
-
-
-			if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
+			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
 				((ChickenModel)bd2).hitWall();
 			}
-			if (bd2.getName().contains("platform") && bd1.getName().equals("chicken")){
+			if ((bd2.getName().contains("platform") || (bd2.getName().equals("stove") && !fix2.isSensor())) && bd1.getName().equals("chicken")){
 				((ChickenModel)bd1).hitWall();
 
 			}
@@ -1025,18 +1024,17 @@ public class WorldController implements ContactListener, Screen {
 		canvas.begin();
 		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
-		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ",
-				"initial spawn: ", "lure durability: ", "slow durability: ", "fire linger durability: ", "fire damage durability: "};
+		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: ",
+				"lure durability: ", "slow durability: ", "fire linger durability: ", "fire damage durability: ", "player speed: ",
+				"enemy speed: ", "invulnerability time: "};
 		BitmapFont pFont = new BitmapFont();
-		for (int i = 0; i < parameterList.length; i++){
-			if (parameterList[i] != 0) {
-				if (i == parameterSelected) {
-					pFont.setColor(Color.YELLOW);
-				} else {
-					pFont.setColor(Color.WHITE);
-				}
-				canvas.drawText(parameters[i] + parameterList[i], pFont, 825, 540 - 14 * i);
+		for (int i = 0; i < parameterList.length; i++) {
+			if (i == parameterSelected) {
+				pFont.setColor(Color.YELLOW);
+			} else {
+				pFont.setColor(Color.WHITE);
 			}
+			canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 		}
 
 		for(Obstacle obj : objects) {
