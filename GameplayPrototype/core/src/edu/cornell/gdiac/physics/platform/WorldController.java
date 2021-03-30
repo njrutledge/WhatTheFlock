@@ -54,8 +54,6 @@ public class WorldController implements ContactListener, Screen {
 	private TextureRegion chickenTexture;
 	/** Texture asset for the stove */
 	private TextureRegion stoveTexture;
-	/** Texture asset for the lit stove */
-	private TextureRegion stoveLitTexture;
 	/** Texture asset for the trap (TEMP) */
 	private TextureRegion trapTexture;
 	/** Texture asset for chicken health bar */
@@ -245,7 +243,6 @@ public class WorldController implements ContactListener, Screen {
 		chickenTexture  = new TextureRegion(directory.getEntry("platform:chicken",Texture.class));
 		trapTexture = new TextureRegion(directory.getEntry("platform:trap",Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
-		stoveLitTexture = stoveTexture;
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("platform:nuggetBar", Texture.class));
 
