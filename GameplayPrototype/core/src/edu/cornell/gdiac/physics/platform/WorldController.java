@@ -817,10 +817,10 @@ public class WorldController implements ContactListener, Screen {
 			}
 
 
-			if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
+			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
 				((ChickenModel)bd2).hitWall();
 			}
-			if (bd2.getName().contains("platform") && bd1.getName().equals("chicken")){
+			if ((bd2.getName().contains("platform") || (bd2.getName().equals("stove") && !fix2.isSensor())) && bd1.getName().equals("chicken")){
 				((ChickenModel)bd1).hitWall();
 
 			}
