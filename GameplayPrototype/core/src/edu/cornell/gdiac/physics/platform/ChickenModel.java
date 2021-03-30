@@ -26,9 +26,11 @@ public class ChickenModel extends CapsuleObstacle {
      * pretty simple for the prototype */
     private Obstacle target;
     /** The maximum enemy speed */
-    private final float maxspeed;
+    //TODO: make final after technical
+    private float maxspeed;
     /** The speed that the enemy chases the player */
-    private final float chaseSpeed;
+    //TODO: make final after technical
+    private float chaseSpeed;
     /** The amount to slow the character down */
     private final float damping;
     /** The strength of the knockback force the chicken receives after getting slapped*/
@@ -207,8 +209,8 @@ public class ChickenModel extends CapsuleObstacle {
      *
      * @param dt	Number of seconds since last animation frame
      */
-    public void update(float dt) {
-        super.update(dt);
+    public void update(float dt, int[] plist) {
+        super.update(dt, plist);
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
@@ -234,7 +236,14 @@ public class ChickenModel extends CapsuleObstacle {
             if (!cookin) {
                 status_timer = Math.max(status_timer - dt, -1f);
             }
+            //TODO: delete after technical
+            setMaxHealth(plist[1]);
+            setChaseSpeed(plist[10]);
         }
+    }
+
+    public void setChaseSpeed(float spd){
+        chaseSpeed = spd;
     }
 
     public void setTexture(Texture texture) {

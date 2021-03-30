@@ -12,6 +12,12 @@
                 "foremid"   : [100, 30, 200, 336],
                 "forebottom"  : [100, 336, 200, 436]
             }
+        },
+        "progressfull": {
+            "file":      "platform/temp_bar_flip.png",
+            "atlas":     {
+                "foreground" : [0, 0, 100, 436]
+            }
         }
 	}
 }
