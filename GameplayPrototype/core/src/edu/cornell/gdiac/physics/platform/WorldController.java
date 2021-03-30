@@ -779,6 +779,7 @@ public class WorldController implements ContactListener, Screen {
 				chickHurt.play(volume);
 				fireSound.stop();
 				fireSound.play(volume);
+				System.out.print("hit");
 				if (!chick.isAlive()) {
 					removeChicken(bd2);
 				}
@@ -797,20 +798,6 @@ public class WorldController implements ContactListener, Screen {
 
 			//trap collision with chicken eliminates chicken
 
-
-			/*if(bd1.getName().equals("linger") && bd2.getName().equals("chicken")) {
-				if (((Trap) bd1).getLinger()){
-					((ChickenModel) bd2).applyFire(((Trap) bd1).getEffect());
-
-				}
-			}
-
-			if(bd2.getName().equals("linger") && bd1.getName().equals("chicken")) {
-				if (((Trap) bd2).getLinger()){
-					((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
-
-				}
-			}*/
 
 			if (fd1 != null && fd2 != null) {
 				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
@@ -841,7 +828,7 @@ public class WorldController implements ContactListener, Screen {
 							addQueuedObject(trapCache);
 							decrementTrap((Trap) bd1);
 							fireTrig.play(volume);
-							fireLinger.play(volume);
+							fireLinger.play(volume*0.5f);
 							break;
 						case FIRE_LINGER:
 							((ChickenModel) bd2).applyFire(((Trap) bd1).getEffect());
@@ -867,7 +854,7 @@ public class WorldController implements ContactListener, Screen {
 							addQueuedObject(trapCache);
 							decrementTrap((Trap) bd2);
 							fireTrig.play(volume);
-							fireLinger.play(volume);
+							fireLinger.play(volume*0.5f);
 							break;
 						case FIRE_LINGER:
 							((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
