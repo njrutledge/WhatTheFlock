@@ -772,26 +772,32 @@ public class WorldController implements ContactListener, Screen {
 			}
 
 			//bullet collision with chicken eliminates chicken
-			if (bd1.getName().equals("bullet") && bd2.getName().equals("chicken")) {
-				ChickenModel chick = (ChickenModel) bd2;
-				chick.takeDamage(damageCalc());
-				chickHurt.stop();
-				chickHurt.play(volume);
-				fireSound.stop();
-				fireSound.play(volume);
-				if (!chick.isAlive()) {
-					removeChicken(bd2);
+
+			if (fd1 != null){
+				if (bd2.getName().equals("bullet") && fd1.equals("chickenSensor")) {
+					chickHurt.stop();
+					chickHurt.play(volume);
+					fireSound.stop();
+					fireSound.play(volume);
+					ChickenModel chick = (ChickenModel) bd1;
+					chick.takeDamage(damageCalc());
+					if (!chick.isAlive()) {
+						removeChicken(bd1);
+					}
 				}
 			}
-			if (bd2.getName().equals("bullet") && bd1.getName().equals("chicken")) {
-				ChickenModel chick = (ChickenModel) bd1;
-				chick.takeDamage(damageCalc());
-				chickHurt.stop();
-				chickHurt.play(volume);
-				fireSound.stop();
-				fireSound.play(volume);
-				if (!chick.isAlive()) {
-					removeChicken(bd1);
+
+			if (fd2 != null) {
+				if (bd1.getName().equals("bullet") && fd2.equals("chickenSensor")) {
+					chickHurt.stop();
+					chickHurt.play(volume);
+					fireSound.stop();
+					fireSound.play(volume);
+					ChickenModel chick = (ChickenModel) bd2;
+					chick.takeDamage(damageCalc());
+					if (!chick.isAlive()) {
+						removeChicken(bd2);
+					}
 				}
 			}
 
@@ -799,6 +805,7 @@ public class WorldController implements ContactListener, Screen {
 
 
 			if (fd1 != null && fd2 != null) {
+
 				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
 					decrementTrap((Trap) bd1);
 					lureCrumb.play(volume);

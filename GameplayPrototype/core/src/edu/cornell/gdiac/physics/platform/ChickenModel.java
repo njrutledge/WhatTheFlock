@@ -18,7 +18,7 @@ public class ChickenModel extends CapsuleObstacle {
     /** The initializing data (to avoid magic numbers) */
     private JsonValue data;
     /** The physics shape of this object */
-    private PolygonShape sensorShape;
+    private CircleShape sensorShape;
     /** Identifier to allow us to track the sensor in ContactListener */
     private String sensorName;
     /** The player character that the enemy will follow
@@ -72,6 +72,8 @@ public class ChickenModel extends CapsuleObstacle {
     private boolean cookin = false;
 
     private TextureRegion healthBar;
+
+    private float CHICK_HIT_BOX = 0.8f;
 
     /**
      * Returns the name of the ground sensor
@@ -160,10 +162,8 @@ public class ChickenModel extends CapsuleObstacle {
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.density = data.getFloat("density",0);
         sensorDef.isSensor = true;
-        sensorShape = new PolygonShape();
-        JsonValue sensorjv = data.get("sensor");
-        sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
-                sensorjv.getFloat("height",0), sensorCenter, 0.0f);
+        sensorShape = new CircleShape();
+        sensorShape.setRadius(CHICK_HIT_BOX);
         sensorDef.shape = sensorShape;
 
         // Ground sensor to represent our feet
@@ -277,7 +277,7 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
-        canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),getAngle(),drawScale.x,drawScale.y);
+        canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
     }
 
     /**
