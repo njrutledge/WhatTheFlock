@@ -35,12 +35,12 @@ public class TemperatureBar {
     /**Using to determine how fast the chicken cooks */
     private final float TEMPERATURE_TIMER = 1f;
     private float temperatureCounter = 0f;
-    private final float COOL_DOWN_TIMER = 2f;
+    private final float COOL_DOWN_TIMER = 3f;
     private float cooldownCounter = 0f;
 
     /**The amount of heat the stove gives the player for standing by it (per second) */
     private int stoveHeat = 2;
-    private final float COOLDOWN_RATE = 0.02f;
+    private final float COOLDOWN_RATE = 0.01f;
 
 
     /**The font*/
