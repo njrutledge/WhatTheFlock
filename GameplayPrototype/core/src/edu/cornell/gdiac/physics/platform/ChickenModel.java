@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.Queue;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 import edu.cornell.gdiac.util.FilmStrip;
@@ -25,6 +26,15 @@ public class ChickenModel extends CapsuleObstacle {
      * We would probably want an AI Controller to handle this, but enemy movement is
      * pretty simple for the prototype */
     private Obstacle target;
+    /** The grid */
+    private Grid grid;
+    /** Goal tiles */
+    private Queue<Vector2> goals;
+    /** Row and col of the tile the chicken is currently on */
+    private Vector2 curr_tile;
+    /** Whether the target tile has been found */
+    private boolean found;
+
     /** The maximum enemy speed */
     private final float maxspeed;
     /** The speed that the enemy chases the player */
@@ -97,7 +107,7 @@ public class ChickenModel extends CapsuleObstacle {
      * @param player    The target player
      * @param mh        The max health of the chicken
      */
-    public ChickenModel(JsonValue data, float x, float y, float width, float height, ChefModel player, int mh) {
+    public ChickenModel(JsonValue data, float x, float y, float width, float height, ChefModel player, int mh, Grid grid) {
         // The shrink factors fit the image to a tigher hitbox
         super(/*data.get("pos").getFloat(0),
                 data.get("pos").getFloat(1),*/
@@ -111,6 +121,7 @@ public class ChickenModel extends CapsuleObstacle {
         sensorName = "chickenSensor";
         this.target = player;
         this.player = player;
+        this.grid = grid;
         maxspeed = data.getFloat("maxspeed", 0);
         damping = data.getFloat("damping", 0);
         chaseSpeed = data.getFloat("chasespeed", 0);
@@ -118,7 +129,7 @@ public class ChickenModel extends CapsuleObstacle {
         max_health = mh;
         health = max_health;
         this.data = data;
-
+        goals = new Queue<>();
     }
 
     /**
@@ -200,6 +211,44 @@ public class ChickenModel extends CapsuleObstacle {
 
     }
 
+    /** Determines the direction of the force that will move the chicken forward
+     *  based on the closest possible path towards the target
+     *
+     * @param parent     Whether the goal tile is directly next to the chicken
+     * @param iterations Iterations of BFS since the start of the search
+     */
+    public boolean BFS(boolean parent, int iterations) {
+        if (goals.isEmpty()) { return false; }
+        else if (found) { return false; }
+        Vector2 goal = goals.removeFirst();
+        if (!grid.inBounds((int)goal.x, (int)goal.y)) { BFS(iterations < 8, iterations++); }
+        else if (grid.isVisited((int)goal.x, (int)goal.y)) { BFS(false, iterations++); }
+        else if (grid.isObstacle((int)goal.x, (int)goal.y)) { BFS(false, iterations++); }
+        else if (grid.sameTile(target.getX(),target.getY(),goal.x,goal.y)) {
+            found = true;
+            if (parent) {
+                forceCache.set(grid.getPosition(goal.x, goal.y).sub(getPosition()));
+            }
+            return true;
+        } else {
+            grid.setVisited((int)goal.x,(int)goal.y);
+            for (int i = -1; i < 2; i++) {
+                for (int j = -1; j < 2; j++) {
+                    goals.addLast(new Vector2(goal.x+i, goal.y+j));
+                }
+            }
+            if (BFS(iterations < 8, iterations++)) {
+                if (parent) {
+                    forceCache.set(grid.getPosition(goal.x, goal.y).sub(getPosition()));
+                }
+                return true;
+            };
+        }
+        // Should never get to this line
+        return false;
+    }
+
+
     /**
      * Updates the object's physics state (NOT GAME LOGIC).
      *
@@ -208,12 +257,25 @@ public class ChickenModel extends CapsuleObstacle {
      * @param dt	Number of seconds since last animation frame
      */
     public void update(float dt, int[] plist) {
+        goals.clear();
+        found = false;
         super.update(dt, plist);
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
         if (target.isActive()) {
-            forceCache.set(target.getPosition().sub(getPosition()));
+            if (grid.sameTile(target.getX(), target.getY(), getX(), getY())) {
+                forceCache.set(target.getPosition().sub(getPosition()));
+            } else {
+                curr_tile = grid.getTileRowCol(getX(), getY());
+                for (int i = -1; i < 2; i++) {
+                    for (int j = -1; j < 2; j++) {
+                        goals.addLast(new Vector2(curr_tile.x+i, curr_tile.y+j));
+                    }
+                }
+                BFS(true, 0);
+            }
+            //forceCache.set(target.getPosition().sub(getPosition()));
             forceCache.nor();
             forceCache.scl(chaseSpeed * slow);
             if (isStunned()) {
@@ -221,9 +283,9 @@ public class ChickenModel extends CapsuleObstacle {
                 applyForce();
             }
             else{
-                if (sideways_counter < SIDEWAYS_TIME){
-                    forceCache.rotate90(0);
-                }
+                //if (sideways_counter < SIDEWAYS_TIME){
+                    //forceCache.rotate90(0);
+                //}
                 if (stop_counter < STOP_TIME){
                     forceCache.setZero();
                 }
@@ -357,9 +419,10 @@ public class ChickenModel extends CapsuleObstacle {
      * The chicken has collided with a wall and will move perpendicularly to get around the wall
      */
     public void hitWall(){
-        if (!isStunned()){
+/*        if (!isStunned()){
             sideways_counter = 0;
-        }
+        }*/
+        grid.setObstacle(getX(),getY());
     }
 
     /**

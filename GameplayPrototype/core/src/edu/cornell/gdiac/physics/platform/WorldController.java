@@ -149,6 +149,8 @@ public class WorldController implements ContactListener, Screen {
 	protected Rectangle bounds;
 	/** The world scale */
 	protected Vector2 scale;
+	/** The grid */
+	protected Grid grid;
 
 	/** Whether or not this is an active controller */
 	private boolean active;
@@ -283,7 +285,7 @@ public class WorldController implements ContactListener, Screen {
 	 */
 	private void populateLevel() {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)
-
+		grid = new Grid(canvas.getWidth(), canvas.getHeight());
 		String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 		JsonValue defaults = constants.get("defaults");
@@ -566,7 +568,7 @@ public class WorldController implements ContactListener, Screen {
 		}
 
 		ChickenModel enemy;
-		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1]);
+		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1],grid);
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
