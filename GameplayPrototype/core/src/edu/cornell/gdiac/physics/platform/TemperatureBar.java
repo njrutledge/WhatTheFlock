@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.physics.GameCanvas;
-import org.graalvm.compiler.loop.MathUtil;
 
 public class TemperatureBar {
     /**The max temperature the chicken can get to (when cooked) */
