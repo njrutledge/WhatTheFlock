@@ -63,6 +63,8 @@ public class ChickenModel extends CapsuleObstacle {
 
     private boolean finishA = false;
 
+    private boolean soundCheck = true;
+
     private float attack_timer = -1f;
 
     private float attack_charge = 0f;
@@ -139,6 +141,7 @@ public class ChickenModel extends CapsuleObstacle {
         max_health = mh;
         health = max_health;
         this.data = data;
+        this.setName("chicken");
 
     }
 
@@ -252,17 +255,16 @@ public class ChickenModel extends CapsuleObstacle {
 
                     hitboxOut = true;
                 }
-
             }
             if (attack_timer == 0f) {
                 attack_charge = 0f;
                 attack_timer = ATTACK_DUR;
                 hitboxOut = false;
+                soundCheck = true;
                 if (finishA){
                     attack_timer = -1f;
                     attack_charge = -1f;
                     finishA = false;
-
                 }
             }
 
@@ -294,6 +296,14 @@ public class ChickenModel extends CapsuleObstacle {
         }
     }
 
+    public boolean getSoundCheck() {
+        if (soundCheck) {
+            soundCheck = false;
+            return true;
+        } else
+        return false;
+    }
+
     public void startAttack() {
         attack_timer = ATTACK_DUR;
         attack_charge = 0f;
@@ -304,7 +314,7 @@ public class ChickenModel extends CapsuleObstacle {
     }
 
     public boolean isAttacking(){
-        return attack_timer >= 0 && attack_timer != ATTACK_DUR;
+        return hitboxOut;
     }
 
     public void setChaseSpeed(float spd){
@@ -360,6 +370,7 @@ public class ChickenModel extends CapsuleObstacle {
             } else {
                 health -= damage;
             }
+            finishA = true;
             attack_timer = -1f;
             attack_charge = -1f;
             invuln_counter = 0;

@@ -567,6 +567,13 @@ public class WorldController implements ContactListener, Screen {
 			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {
 				removeBullet(obj);
 			}
+			if (obj.getName().equals("chicken")){
+				ChickenModel chick = ((ChickenModel) obj);
+				if (chick.isAttacking() && chick.getSoundCheck()) {
+					chickAttack.stop();
+					chickAttack.play(volume*0.5f);
+				}
+			}
 		}
 
 		avatar.applyForce();
@@ -814,8 +821,6 @@ public class WorldController implements ContactListener, Screen {
 				if (bd1 == avatar && fd2.equals("nugAttack") && ((ChickenModel)bd2).isAttacking()) {
 					if (parameterList[12] != 1) { avatar.decrementHealth(); }
 					((ChickenModel) bd2).hitPlayer();
-					chickAttack.stop();
-					chickAttack.play(volume*0.5f);
 				}
 			}
 
