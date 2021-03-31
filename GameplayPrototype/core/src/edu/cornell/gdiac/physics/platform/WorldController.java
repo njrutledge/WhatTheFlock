@@ -145,7 +145,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3, 5, 2, 100, 2, 3, 30, 10, 5, 5, 6, 5, 0};
+	private int[] parameterList = {3, 5, 2, 100, 2, 6, 30, 10, 5, 5, 5, 5, 0};
 
 
 

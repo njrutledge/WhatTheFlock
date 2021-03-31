@@ -57,15 +57,15 @@ public class Trap extends BoxObstacle {
     private Shape lHShape;
 
     /** Radius which chickens get lured to the trap */
-    private static final float LURE_RADIUS = 5f;
+    private static final float LURE_RADIUS = 6f;
     /** Radius which chickens get slowed near the trap */
-    private static final float SLOW_RADIUS = 3F;
+    private static final float SLOW_RADIUS = 3.5F;
     /** Radius which chickens can trigger the fire trap */
     private static final float FIRE_TRIGGER_RADIUS = 2f;
     /** Radius which chickens get set on fire */
     private static final float FIRE_LINGER_RADIUS = 4f;
     /** Radius for the Lure hurtbox */
-    private static final float LURE_HURT = 1.5f;
+    private static final float LURE_HURT = 1.3f;
     /** Colors of Fire trap */
     private static final Color fireColor = Color.RED;
     /** Colors of slow trap */
@@ -74,7 +74,7 @@ public class Trap extends BoxObstacle {
     private static final Color lureColor = Color.YELLOW;
 
 
-    private float lure_ammount=3;
+    private float lure_ammount=6;
     /** Lure Durability */
     private float LURE_CRUMBS = MAX_DURABILITY / lure_ammount;
     /** Slow effect strength */

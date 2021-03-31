@@ -69,16 +69,16 @@ public class ChickenModel extends CapsuleObstacle {
 
     private float attack_charge = 0f;
 
-    private float ATTACK_CHARGE = 0.5f;
+    private float ATTACK_CHARGE = 0.4f;
 
     private boolean hitboxOut = false;
 
 
-    private float ATTACK_DUR = 0.3f;
+    private float ATTACK_DUR = 0.2f;
 
     private CircleShape attackHit;
 
-    private float ATTACK_RADIUS = 1.4f;
+    private float ATTACK_RADIUS = 1.5f;
 
     protected FilmStrip animator;
     /** Reference to texture origin */
