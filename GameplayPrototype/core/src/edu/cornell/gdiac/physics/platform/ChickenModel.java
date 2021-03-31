@@ -61,6 +61,23 @@ public class ChickenModel extends CapsuleObstacle {
 
     private final int FIRE_MULT = 2;
 
+    private boolean finishA = false;
+
+    private float attack_timer = -1f;
+
+    private float attack_charge = 0f;
+
+    private float ATTACK_CHARGE = 1f;
+
+    private boolean hitboxOut = false;
+
+
+    private float ATTACK_DUR = 0.5f;
+
+    private CircleShape attackHit;
+
+    private float ATTACK_RADIUS = 1.4f;
+
     protected FilmStrip animator;
     /** Reference to texture origin */
     protected Vector2 origin;
@@ -169,6 +186,8 @@ public class ChickenModel extends CapsuleObstacle {
         // Ground sensor to represent our feet
         Fixture sensorFixture = body.createFixture( sensorDef );
         sensorFixture.setUserData(getSensorName());
+
+
         return true;
     }
 
@@ -214,7 +233,40 @@ public class ChickenModel extends CapsuleObstacle {
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
-        if (target.isActive()) {
+        if (attack_timer >= 0 && attack_charge >= 0f) {
+            body.setLinearVelocity(new Vector2());
+            forceCache.setZero();
+            attack_charge = MathUtils.clamp(attack_charge + dt,0, ATTACK_CHARGE);
+            if (attack_charge == ATTACK_CHARGE){
+                attack_timer = MathUtils.clamp(attack_timer - dt, 0, ATTACK_DUR);
+                if (!hitboxOut) {
+                    FixtureDef attack = new FixtureDef();
+                    attack.density = 0.1f;
+                    attack.isSensor = true;
+                    attackHit = new CircleShape();
+                    attackHit.setRadius(ATTACK_RADIUS);
+                    attack.shape = attackHit;
+
+                    Fixture chickAttack = body.createFixture(attack);
+                    chickAttack.setUserData("nugAttack");
+
+                    hitboxOut = true;
+                }
+
+            }
+            if (attack_timer == 0f) {
+                attack_charge = 0f;
+                attack_timer = ATTACK_DUR;
+                hitboxOut = false;
+                if (finishA){
+                    attack_timer = -1f;
+                    attack_charge = -1f;
+                    finishA = false;
+
+                }
+            }
+
+        } else if (target.isActive()) {
             forceCache.set(target.getPosition().sub(getPosition()));
             forceCache.nor();
             forceCache.scl(chaseSpeed * slow);
@@ -240,6 +292,19 @@ public class ChickenModel extends CapsuleObstacle {
             setMaxHealth(plist[1]);
             setChaseSpeed(plist[10]);
         }
+    }
+
+    public void startAttack() {
+        attack_timer = ATTACK_DUR;
+        attack_charge = 0f;
+    }
+
+    public void stopAttack() {
+        finishA = true;
+    }
+
+    public boolean isAttacking(){
+        return attack_timer >= 0 && attack_timer != ATTACK_DUR;
     }
 
     public void setChaseSpeed(float spd){
@@ -278,6 +343,9 @@ public class ChickenModel extends CapsuleObstacle {
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
         canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
+        if (hitboxOut) {
+            canvas.drawPhysics(attackHit,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
+        }
     }
 
     /**
@@ -292,7 +360,10 @@ public class ChickenModel extends CapsuleObstacle {
             } else {
                 health -= damage;
             }
+            attack_timer = -1f;
+            attack_charge = -1f;
             invuln_counter = 0;
+            hitboxOut = false;
             hit = true;
         }
     }

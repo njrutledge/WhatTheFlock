@@ -756,19 +756,6 @@ public class WorldController implements ContactListener, Screen {
 
 
 			//reduce health if chicken collides with avatar
-			if (bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned()) {
-				if (parameterList[12] != 1) { avatar.decrementHealth(); }
-				((ChickenModel) bd2).hitPlayer();
-				chickAttack.stop();
-				chickAttack.play(volume*0.5f);
-			}
-
-			if ((bd2 == avatar && bd1.getName().equals("chicken"))&& !((ChickenModel)bd1).isStunned()){
-				if (parameterList[12] != 1) { avatar.decrementHealth(); }
-				((ChickenModel) bd1).hitPlayer();
-				chickAttack.stop();
-				chickAttack.play(volume*0.5f);
-			}
 
 			//cook if player is near stove and not doing anything
 			if ((bd1 == avatar && bd2 == stove)
@@ -790,6 +777,20 @@ public class WorldController implements ContactListener, Screen {
 						removeChicken(bd1);
 					}
 				}
+
+				if (bd2 == avatar && fd1.equals("chickenSensor")) {
+					ChickenModel chick = (ChickenModel) bd1;
+					chick.startAttack();
+				}
+
+				if ((bd2 == avatar && fd1.equals("nugAttack"))&& !((ChickenModel)bd1).isAttacking()){
+					if (parameterList[12] != 1) { avatar.decrementHealth(); }
+					((ChickenModel) bd1).hitPlayer();
+					chickAttack.stop();
+					chickAttack.play(volume*0.5f);
+				}
+
+
 			}
 
 			if (fd2 != null) {
@@ -804,6 +805,18 @@ public class WorldController implements ContactListener, Screen {
 						removeChicken(bd2);
 					}
 				}
+
+				if (bd1 == avatar && fd2.equals("chickenSensor")) {
+					ChickenModel chick = (ChickenModel) bd2;
+					chick.startAttack();
+				}
+
+				if (bd1 == avatar && fd2.equals("nugAttack") && ((ChickenModel)bd2).isAttacking()) {
+					if (parameterList[12] != 1) { avatar.decrementHealth(); }
+					((ChickenModel) bd2).hitPlayer();
+					chickAttack.stop();
+					chickAttack.play(volume*0.5f);
+				}
 			}
 
 			//trap collision with chicken eliminates chicken
@@ -811,12 +824,20 @@ public class WorldController implements ContactListener, Screen {
 
 			if (fd1 != null && fd2 != null) {
 
-				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
+				if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
+					((ChickenModel) bd2).startAttack();
+				}
+
+				if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
+					((ChickenModel) bd1).startAttack();
+				}
+
+				if (fd1.equals("lureHurt") && fd2.equals("nugAttack") && ((ChickenModel) bd2).isAttacking()) {
 					decrementTrap((Trap) bd1);
 					lureCrumb.play(volume);
 				}
 
-				if (fd2.equals("lureHurt") && bd1.getName().equals("chicken")){
+				if (fd2.equals("lureHurt") && fd1.equals("nugAttack") && ((ChickenModel) bd2).isAttacking()){
 					decrementTrap((Trap) bd2);
 					lureCrumb.play(volume);
 				}
@@ -951,6 +972,28 @@ public class WorldController implements ContactListener, Screen {
 					break;
 				case FIRE_LINGER:
 					((ChickenModel) b1).letItBurn();
+			}
+		}
+
+		if (fd1 != null && fd2 != null) {
+			if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
+				((ChickenModel) bd2).stopAttack();
+			}
+
+			if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
+				((ChickenModel) bd1).stopAttack();
+			}
+		}
+
+		if (fd1 != null) {
+			if (bd2 == avatar && fd1.equals("chickenSensor")){
+				((ChickenModel) bd1).stopAttack();
+			}
+		}
+
+		if (fd2 != null) {
+			if (bd1 == avatar && fd2.equals("chickenSensor")) {
+				((ChickenModel) bd2).stopAttack();
 			}
 		}
 	}
