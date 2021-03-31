@@ -145,7 +145,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3, 5, 2, 200, 2, 3, 30, 10, 5, 5, 2, 5, 0};
+	private int[] parameterList = {3, 5, 2, 100, 2, 3, 30, 10, 5, 5, 6, 5, 0};
 
 
 
@@ -842,7 +842,7 @@ public class WorldController implements ContactListener, Screen {
 					lureCrumb.play(volume);
 				}
 
-				if (fd2.equals("lureHurt") && fd1.equals("nugAttack") && ((ChickenModel) bd2).isAttacking()){
+				if (fd2.equals("lureHurt") && fd1.equals("nugAttack") && ((ChickenModel) bd1).isAttacking()){
 					decrementTrap((Trap) bd2);
 					lureCrumb.play(volume);
 				}

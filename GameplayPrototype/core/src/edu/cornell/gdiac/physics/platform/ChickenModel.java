@@ -47,7 +47,7 @@ public class ChickenModel extends CapsuleObstacle {
     /** Counter for Invulnerability timer*/
     private float invuln_counter = INVULN_TIME;
     /** Time to move perpendicular to a wall upon collision before returning to normal AI */
-    private final float SIDEWAYS_TIME = 1f;
+    private final float SIDEWAYS_TIME = 0.1f;
     /** Counter for sideways movement timer*/
     private float sideways_counter = SIDEWAYS_TIME;
     /** Time to remain stationary after hitting the player */
@@ -69,12 +69,12 @@ public class ChickenModel extends CapsuleObstacle {
 
     private float attack_charge = 0f;
 
-    private float ATTACK_CHARGE = 1f;
+    private float ATTACK_CHARGE = 0.5f;
 
     private boolean hitboxOut = false;
 
 
-    private float ATTACK_DUR = 0.5f;
+    private float ATTACK_DUR = 0.3f;
 
     private CircleShape attackHit;
 
