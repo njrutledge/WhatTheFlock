@@ -787,7 +787,10 @@ public class WorldController implements ContactListener, Screen {
 
 				if (bd2 == avatar && fd1.equals("chickenSensor")) {
 					ChickenModel chick = (ChickenModel) bd1;
-					chick.startAttack();
+					if (chick.chasingPlayer()) {
+						chick.startAttack();
+					}
+
 				}
 
 				if ((bd2 == avatar && fd1.equals("nugAttack"))&& !((ChickenModel)bd1).isAttacking()){
@@ -815,7 +818,9 @@ public class WorldController implements ContactListener, Screen {
 
 				if (bd1 == avatar && fd2.equals("chickenSensor")) {
 					ChickenModel chick = (ChickenModel) bd2;
-					chick.startAttack();
+					if (chick.chasingPlayer()) {
+						chick.startAttack();
+					}
 				}
 
 				if (bd1 == avatar && fd2.equals("nugAttack") && ((ChickenModel)bd2).isAttacking()) {

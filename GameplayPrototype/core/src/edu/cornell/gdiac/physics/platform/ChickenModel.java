@@ -317,6 +317,8 @@ public class ChickenModel extends CapsuleObstacle {
         return hitboxOut;
     }
 
+    public boolean chasingPlayer() { return target.equals(player); }
+
     public void setChaseSpeed(float spd){
         chaseSpeed = spd;
     }
