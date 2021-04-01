@@ -109,6 +109,13 @@ public class WorldController implements ContactListener, Screen {
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
+	/** Exit code for starting in Easy */
+	public static final int EASY = 0;
+	/** Exit code for starting in Medium */
+	public static final int MED = 1;
+	/** Exit code for starting in Hard */
+	public static final int HARD = 2;
+
 	/** Width of the game world in Box2d units */
 	protected static final float DEFAULT_WIDTH  = 32.0f;
 	/** Height of the game world in Box2d units */
@@ -182,6 +189,9 @@ public class WorldController implements ContactListener, Screen {
 
 	/** Whether or not pause is toggled */
 	private boolean paused = false;
+
+	/** Whether or not the cooldown effect is enabled */
+	private boolean cooldown;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -311,6 +321,20 @@ public class WorldController implements ContactListener, Screen {
 		chickens = 0;
 		populateLevel();
 	}
+	public void initEasy(){
+		parameterList = new int []{5, 5, 3, 150, 2, 6, 30, 10, 5, 5, 3, 5, 0};
+		cooldown = false;
+	}
+
+	public void initMed(){
+		parameterList = new int []{4, 5, 2, 100, 3, 6, 30, 10, 5, 5, 4, 5, 0};
+		cooldown = false;
+	}
+
+	public void initHard(){
+		parameterList = new int []{3, 5, 2, 100, 4, 6, 30, 10, 5, 5, 5, 5, 0};
+		cooldown = true;
+	}
 
 	/**
 	 * Lays out the game geography.
@@ -361,6 +385,7 @@ public class WorldController implements ContactListener, Screen {
 		avatar.setTexture(chefTexture);
 		//Set temperature based on difficulty of the level
 		temp = new TemperatureBar(30);
+		temp.setUseCooldown(cooldown);
 
 		//avatar.setMaxTemp(30);
 

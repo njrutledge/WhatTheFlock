@@ -59,6 +59,7 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	private Texture easyButton;
 	private Texture medButton;
 	private Texture hardButton;
+	private Texture hardButtonPushed;
 	/** Texture atlas to support a progress bar */
 	private final Texture statusBar;
 	
@@ -88,6 +89,8 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	private static float BAR_HEIGHT_RATIO = 0.25f;	
 	/** Height of the progress bar */
 	private static float BUTTON_SCALE  = 0.75f;
+	//TODO
+	private static float SKULL_SCALE = 0.33f;
 	
 	/** Reference to GameCanvas created by the root */
 	private GameCanvas canvas;
@@ -286,6 +289,7 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 				easyButton = internal.getEntry("play",Texture.class);
 				medButton = internal.getEntry("play",Texture.class);
 				hardButton = internal.getEntry("play",Texture.class);
+				hardButtonPushed = internal.getEntry("skull", Texture.class);
 			}
 		}
 	}
@@ -300,18 +304,20 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	private void draw() {
 		canvas.begin();
 		canvas.draw(background, 0, 0);
-		if (easyButton == null || medButton == null || hardButton == null) {
+		if (easyButton == null || medButton == null || hardButton == null|| hardButtonPushed == null) {
 			drawProgress(canvas);
 		} else {
 			Color easyTint = (pressState == 1 ? Color.FOREST: Color.GREEN);
 			Color medTint = (pressState == 3 ? Color.GOLDENROD: Color.YELLOW);
 			Color hardTint = (pressState == 5 ? Color.FIREBRICK: Color.RED);
+			Texture hardTexture = (pressState == 5 ? hardButtonPushed : hardButton);
+			float hardScale = (pressState == 5 ? SKULL_SCALE*scale: BUTTON_SCALE*scale );
 			canvas.draw(easyButton, easyTint, easyButton.getWidth()/2, easyButton.getHeight()/2,
 						easyCenterX, centerY, 0, BUTTON_SCALE*scale, BUTTON_SCALE*scale);
 			canvas.draw(medButton, medTint, medButton.getWidth()/2, medButton.getHeight()/2,
 					medCenterX, centerY, 0, BUTTON_SCALE*scale, BUTTON_SCALE*scale);
-			canvas.draw(hardButton, hardTint, hardButton.getWidth()/2, hardButton.getHeight()/2,
-					hardCenterX, centerY, 0, BUTTON_SCALE*scale, BUTTON_SCALE*scale);
+			canvas.draw(hardTexture, hardTint, hardTexture.getWidth()/2, hardTexture.getHeight()/2,
+					hardCenterX, centerY, 0, hardScale, hardScale);
 		}
 		canvas.end();
 	}
@@ -366,9 +372,9 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 			if (isEasyReady() && listener != null) {
 				listener.exitScreen(this, 0);
 			}else if (isMedReady() && listener != null) {
-				listener.exitScreen(this,0);
+				listener.exitScreen(this,1);
 			}else if (isHardReady() && listener != null) {
-				listener.exitScreen(this, 0);
+				listener.exitScreen(this, 2);
 			}
 		}
 	}
