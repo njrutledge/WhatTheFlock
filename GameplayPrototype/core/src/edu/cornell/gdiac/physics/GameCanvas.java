@@ -70,6 +70,8 @@ public class GameCanvas {
 	
 	/** Rendering context for the debug outlines */
 	private ShapeRenderer debugRender;
+	//TODO: delete after technical
+	private ShapeRenderer debugRenderTry;
 	
 	/** Track whether or not we are active (for error checking) */
 	private DrawPass active;
@@ -105,12 +107,14 @@ public class GameCanvas {
 		active = DrawPass.INACTIVE;
 		spriteBatch = new PolygonSpriteBatch();
 		debugRender = new ShapeRenderer();
+		debugRenderTry = new ShapeRenderer();
 		
 		// Set the projection matrix (for proper scaling)
 		camera = new OrthographicCamera(getWidth(),getHeight());
 		camera.setToOrtho(false);
 		spriteBatch.setProjectionMatrix(camera.combined);
 		debugRender.setProjectionMatrix(camera.combined);
+		debugRenderTry.setProjectionMatrix(camera.combined);
 
 		// Initialize the cache objects
 		holder = new TextureRegion();
@@ -370,6 +374,9 @@ public class GameCanvas {
     public void begin() {
 		spriteBatch.setProjectionMatrix(camera.combined);
     	spriteBatch.begin();
+    	//TODO:remove after technical
+		debugRenderTry.setProjectionMatrix(camera.combined);
+		debugRenderTry.begin(ShapeRenderer.ShapeType.Line);
     	active = DrawPass.STANDARD;
     }
 
@@ -378,6 +385,7 @@ public class GameCanvas {
 	 */
     public void end() {
     	spriteBatch.end();
+    	debugRenderTry.end();
     	active = DrawPass.INACTIVE;
     }
 
@@ -1143,6 +1151,23 @@ public class GameCanvas {
     	debugRender.setColor(color);
     	debugRender.circle(x, y, shape.getRadius(),12);
     }
+
+	public void drawPhysicsCircle(CircleShape shape, Color color, float x, float y, float sx, float sy) {
+		if (active != DrawPass.STANDARD) {
+			if (active == DrawPass.INACTIVE){
+				Gdx.app.error("GameCanvas", "ACK", new IllegalStateException());
+			}
+			Gdx.app.error("GameCanvas", "Cannot draw without active begin()", new IllegalStateException());
+			return;
+		}
+
+		float x0 = x*sx;
+		float y0 = y*sy;
+		float w = shape.getRadius()*sx;
+		float h = shape.getRadius()*sy;
+		debugRenderTry.setColor(color);
+		debugRenderTry.ellipse(x0-w, y0-h, 2*w, 2*h, 12);
+	}
     
     /** 
      * Draws the outline of the given shape in the specified color

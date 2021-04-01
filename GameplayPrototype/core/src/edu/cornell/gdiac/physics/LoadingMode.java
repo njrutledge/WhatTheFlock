@@ -56,7 +56,9 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	/** Background texture for start-up */
 	private Texture background;
 	/** Play button to display when done */
-	private Texture playButton;
+	private Texture easyButton;
+	private Texture medButton;
+	private Texture hardButton;
 	/** Texture atlas to support a progress bar */
 	private final Texture statusBar;
 	
@@ -113,6 +115,13 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	/** Whether or not this player mode is still active */
 	private boolean active;
 
+	//TODO
+	private int easyCenterX;
+
+	private int medCenterX;
+
+	private int hardCenterX;
+
 	/**
 	 * Returns the budget for the asset loader.
 	 *
@@ -146,9 +155,29 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	 *
 	 * @return true if the player is ready to go
 	 */
-	public boolean isReady() {
+	public boolean isEasyReady() {
 		return pressState == 2;
 	}
+
+	/**
+	 * Returns true if all assets are loaded and the player is ready to go.
+	 *
+	 * @return true if the player is ready to go
+	 */
+	public boolean isMedReady() {
+		return pressState == 4;
+	}
+
+	/**
+	 * Returns true if all assets are loaded and the player is ready to go.
+	 *
+	 * @return true if the player is ready to go
+	 */
+	public boolean isHardReady() {
+		return pressState == 6;
+	}
+
+
 
 	/**
 	 * Returns the asset directory produced by this loading screen
@@ -198,7 +227,9 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 		internal.finishLoading();
 
 		// Load the next two images immediately.
-		playButton = null;
+		easyButton = null;
+		medButton = null;
+		hardButton = null;
 		background = internal.getEntry( "background", Texture.class );
 		background.setFilter( TextureFilter.Linear, TextureFilter.Linear );
 		statusBar = internal.getEntry( "progress", Texture.class );
@@ -247,12 +278,14 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	 * @param delta Number of seconds since last animation frame
 	 */
 	private void update(float delta) {
-		if (playButton == null) {
+		if (easyButton == null || medButton == null || hardButton == null) {
 			assets.update(budget);
 			this.progress = assets.getProgress();
 			if (progress >= 1.0f) {
 				this.progress = 1.0f;
-				playButton = internal.getEntry("play",Texture.class);
+				easyButton = internal.getEntry("play",Texture.class);
+				medButton = internal.getEntry("play",Texture.class);
+				hardButton = internal.getEntry("play",Texture.class);
 			}
 		}
 	}
@@ -267,12 +300,18 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	private void draw() {
 		canvas.begin();
 		canvas.draw(background, 0, 0);
-		if (playButton == null) {
+		if (easyButton == null || medButton == null || hardButton == null) {
 			drawProgress(canvas);
 		} else {
-			Color tint = (pressState == 1 ? Color.GRAY: Color.WHITE);
-			canvas.draw(playButton, tint, playButton.getWidth()/2, playButton.getHeight()/2, 
-						centerX, centerY, 0, BUTTON_SCALE*scale, BUTTON_SCALE*scale);
+			Color easyTint = (pressState == 1 ? Color.FOREST: Color.GREEN);
+			Color medTint = (pressState == 3 ? Color.GOLDENROD: Color.YELLOW);
+			Color hardTint = (pressState == 5 ? Color.FIREBRICK: Color.RED);
+			canvas.draw(easyButton, easyTint, easyButton.getWidth()/2, easyButton.getHeight()/2,
+						easyCenterX, centerY, 0, BUTTON_SCALE*scale, BUTTON_SCALE*scale);
+			canvas.draw(medButton, medTint, medButton.getWidth()/2, medButton.getHeight()/2,
+					medCenterX, centerY, 0, BUTTON_SCALE*scale, BUTTON_SCALE*scale);
+			canvas.draw(hardButton, hardTint, hardButton.getWidth()/2, hardButton.getHeight()/2,
+					hardCenterX, centerY, 0, BUTTON_SCALE*scale, BUTTON_SCALE*scale);
 		}
 		canvas.end();
 	}
@@ -324,7 +363,11 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 			draw();
 
 			// We are are ready, notify our listener
-			if (isReady() && listener != null) {
+			if (isEasyReady() && listener != null) {
+				listener.exitScreen(this, 0);
+			}else if (isMedReady() && listener != null) {
+				listener.exitScreen(this,0);
+			}else if (isHardReady() && listener != null) {
 				listener.exitScreen(this, 0);
 			}
 		}
@@ -348,6 +391,9 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 		this.width = (int)(BAR_WIDTH_RATIO*width);
 		centerY = (int)(BAR_HEIGHT_RATIO*height);
 		centerX = width/2;
+		easyCenterX = width/4;
+		medCenterX = width/2;
+		hardCenterX = 3*width/4;
 		heightY = height;
 	}
 
@@ -411,7 +457,7 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	 * @return whether to hand the event to other listeners. 
 	 */
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		if (playButton == null || pressState == 2) {
+		if (easyButton == null || medButton == null || hardButton == null || pressState == 2) {
 			return true;
 		}
 		
@@ -420,10 +466,16 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 		
 		// TODO: Fix scaling
 		// Play button is a circle.
-		float radius = BUTTON_SCALE*scale*playButton.getWidth()/2.0f;
-		float dist = (screenX-centerX)*(screenX-centerX)+(screenY-centerY)*(screenY-centerY);
-		if (dist < radius*radius) {
+		float radius = BUTTON_SCALE*scale*easyButton.getWidth()/2.0f;
+		float easydist = (screenX-easyCenterX)*(screenX-easyCenterX)+(screenY-centerY)*(screenY-centerY);
+		float meddist = (screenX-medCenterX)*(screenX-medCenterX)+(screenY-centerY)*(screenY-centerY);
+		float harddist = (screenX-hardCenterX)*(screenX-hardCenterX)+(screenY-centerY)*(screenY-centerY);
+		if (easydist < radius*radius) {
 			pressState = 1;
+		}else if (meddist < radius*radius) {
+			pressState = 3;
+		}else if (harddist < radius*radius) {
+			pressState = 5;
 		}
 		return false;
 	}
@@ -442,6 +494,12 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) { 
 		if (pressState == 1) {
 			pressState = 2;
+			return false;
+		}else if (pressState == 3) {
+			pressState = 4;
+			return false;
+		}else if (pressState == 5) {
+			pressState = 6;
 			return false;
 		}
 		return true;
@@ -506,7 +564,7 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	/** 
 	 * Called when a key is typed (UNSUPPORTED)
 	 *
-	 * @param keycode the key typed
+	 * @paream keycode the key typed
 	 * @return whether to hand the event to other listeners. 
 	 */
 	public boolean keyTyped(char character) { 

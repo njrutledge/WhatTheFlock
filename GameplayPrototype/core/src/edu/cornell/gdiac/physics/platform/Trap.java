@@ -1,6 +1,5 @@
 package edu.cornell.gdiac.physics.platform;
 
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -320,6 +319,10 @@ public class Trap extends BoxObstacle {
         }
         c.a = durability/MAX_DURABILITY;
         canvas.draw(texture, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
+        canvas.drawPhysicsCircle((CircleShape) sensorShape, Color.RED, getX(), getY(), drawScale.x, drawScale.y);
+        if (lHShape != null) {
+            canvas.drawPhysicsCircle((CircleShape) lHShape, Color.RED, getX(), getY(), drawScale.x, drawScale.y);
+        }
     }
 
     /**
