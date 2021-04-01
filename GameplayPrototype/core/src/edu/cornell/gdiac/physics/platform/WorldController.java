@@ -85,6 +85,7 @@ public class WorldController implements ContactListener, Screen {
 	private SoundBuffer emptySlap;
 	private SoundBuffer chickOnFire;
 	private SoundBuffer slowSquelch;
+	private SoundBuffer chefOof;
 
 
 	private final float DEFAULT_VOL = 0.5F;
@@ -277,6 +278,7 @@ public class WorldController implements ContactListener, Screen {
 		emptySlap = directory.getEntry( "platform:emptySlap", SoundBuffer.class );
 		chickOnFire = directory.getEntry( "platform:chickOnFire", SoundBuffer.class );
 		slowSquelch = directory.getEntry("platform:squelch", SoundBuffer.class);
+		chefOof = directory.getEntry("platform:chefOof", SoundBuffer.class);
 
 
 
@@ -796,8 +798,8 @@ public class WorldController implements ContactListener, Screen {
 				if ((bd2 == avatar && fd1.equals("nugAttack"))&& !((ChickenModel)bd1).isAttacking()){
 					if (parameterList[12] != 1) { avatar.decrementHealth(); }
 					((ChickenModel) bd1).hitPlayer();
-					chickAttack.stop();
-					chickAttack.play(volume*0.5f);
+					chefOof.stop();
+					chefOof.play(volume);
 				}
 
 
@@ -826,6 +828,8 @@ public class WorldController implements ContactListener, Screen {
 				if (bd1 == avatar && fd2.equals("nugAttack") && ((ChickenModel)bd2).isAttacking()) {
 					if (parameterList[12] != 1) { avatar.decrementHealth(); }
 					((ChickenModel) bd2).hitPlayer();
+					chefOof.stop();
+					chefOof.play(volume);
 				}
 			}
 

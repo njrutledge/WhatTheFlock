@@ -81,7 +81,8 @@
         "platform:lureCrumb" : "platform/lure_damage.ogg",
         "platform:emptySlap" : "platform/empty_slap_2.ogg",
         "platform:chickOnFire" : "platform/set_ablaze_cluck.ogg",
-        "platform:squelch": "platform/squelch.ogg"
+        "platform:squelch": "platform/squelch.ogg",
+      "platform:chefOof": "platform/chef_hurt_2.ogg"
     },
     "fonts": {
         "shared:retro": {
