@@ -197,7 +197,7 @@ public class ChefModel extends CapsuleObstacle {
 	 *
 	 * @return true if the character is stunned, false otherwise
 	 */
-	public Boolean isStunned(){
+	public boolean isStunned(){
 		return invuln_counter < INVULN_TIME;
 	}
 

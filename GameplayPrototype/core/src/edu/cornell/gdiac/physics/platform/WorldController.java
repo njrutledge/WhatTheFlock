@@ -796,10 +796,14 @@ public class WorldController implements ContactListener, Screen {
 				}
 
 				if ((bd2 == avatar && fd1.equals("nugAttack"))&& !((ChickenModel)bd1).isAttacking()){
+					if (!avatar.isStunned()) {
+						chefOof.stop();
+						chefOof.play(volume);
+					}
 					if (parameterList[12] != 1) { avatar.decrementHealth(); }
 					((ChickenModel) bd1).hitPlayer();
-					chefOof.stop();
-					chefOof.play(volume);
+
+
 				}
 
 
@@ -826,10 +830,12 @@ public class WorldController implements ContactListener, Screen {
 				}
 
 				if (bd1 == avatar && fd2.equals("nugAttack") && ((ChickenModel)bd2).isAttacking()) {
+					if (!avatar.isStunned()) {
+						chefOof.stop();
+						chefOof.play(volume);
+					}
 					if (parameterList[12] != 1) { avatar.decrementHealth(); }
 					((ChickenModel) bd2).hitPlayer();
-					chefOof.stop();
-					chefOof.play(volume);
 				}
 			}
 
