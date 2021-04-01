@@ -180,6 +180,9 @@ public class WorldController implements ContactListener, Screen {
 	/** Whether or not mute is toggled */
 	private boolean muted = false;
 
+	/** Whether or not pause is toggled */
+	private boolean paused = false;
+
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
 
@@ -426,7 +429,11 @@ public class WorldController implements ContactListener, Screen {
 			return false;
 		}
 
-		return true;
+		if (InputController.getInstance().didPause()){
+			paused = !paused;
+		}
+
+		return !paused;
 	}
 
 	/**
@@ -1191,6 +1198,12 @@ public class WorldController implements ContactListener, Screen {
 		temp.draw(canvas);
 		canvas.end();
 
+		if (paused){
+			displayFont.setColor(Color.GREEN);
+			canvas.begin();
+			canvas.drawTextCentered("PAUSED!", displayFont, 0.0f);
+			canvas.end();
+		}
 		// Final message
 		if (complete && !failed) {
 			displayFont.setColor(Color.YELLOW);
