@@ -838,6 +838,12 @@ public class WorldController implements ContactListener, Screen {
 							((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
 					}
 				}
+				if (fd1.equals("placeRadius") && bd2==avatar){
+					avatar.setCanPlaceTrap(true);
+				}
+				if (fd2.equals("placeRadius") && bd1==avatar){
+					avatar.setCanPlaceTrap(true);
+				}
 			}
 			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
 				((ChickenModel)bd2).hitWall();
@@ -912,6 +918,14 @@ public class WorldController implements ContactListener, Screen {
 					break;
 				case FIRE_LINGER:
 					((ChickenModel) b1).letItBurn();
+			}
+		}
+		if(fd1!= null && fd2 != null) {
+			if (fd1.equals("placeRadius") && bd2 == avatar) {
+				avatar.setCanPlaceTrap(true);
+			}
+			if (fd2.equals("placeRadius") && bd1 == avatar) {
+				avatar.setCanPlaceTrap(true);
 			}
 		}
 	}
