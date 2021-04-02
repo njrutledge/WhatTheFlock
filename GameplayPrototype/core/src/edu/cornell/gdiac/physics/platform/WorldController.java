@@ -922,10 +922,10 @@ public class WorldController implements ContactListener, Screen {
 		}
 		if(fd1!= null && fd2 != null) {
 			if (fd1.equals("placeRadius") && bd2 == avatar) {
-				avatar.setCanPlaceTrap(true);
+				avatar.setCanPlaceTrap(false);
 			}
 			if (fd2.equals("placeRadius") && bd1 == avatar) {
-				avatar.setCanPlaceTrap(true);
+				avatar.setCanPlaceTrap(false);
 			}
 		}
 	}
