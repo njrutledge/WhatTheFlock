@@ -954,20 +954,6 @@ public class WorldController implements ContactListener, Screen {
 							chickOnFire.play(volume*0.5f);
 					}
 				}
-				if (fd1.equals("trapSensor") && bd2==avatar){
-					switch (((Trap) bd1).getTrapType()){
-						case PLACEMENT:
-							avatar.setCanPlaceTrap(true);
-							break;
-					}
-				}
-				if (fd2.equals("trapSensor") && bd1==avatar){
-					switch (((Trap) bd2).getTrapType()){
-						case PLACEMENT:
-							avatar.setCanPlaceTrap(true);
-							break;
-					}
-				}
 			}
 
 			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
@@ -1053,20 +1039,6 @@ public class WorldController implements ContactListener, Screen {
 
 			if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
 				((ChickenModel) bd1).stopAttack();
-			}
-			if (fd1.equals("trapSensor") && bd2==avatar){
-				switch (((Trap) bd1).getTrapType()){
-					case PLACEMENT:
-						avatar.setCanPlaceTrap(false);
-						break;
-				}
-			}
-			if (fd2.equals("trapSensor") && bd1==avatar){
-				switch (((Trap) bd2).getTrapType()){
-					case PLACEMENT:
-						avatar.setCanPlaceTrap(false);
-						break;
-				}
 			}
 		}
 

@@ -18,7 +18,6 @@ public class Trap extends BoxObstacle {
         SLOW,
         FIRE,
         FIRE_LINGER,
-        PLACEMENT
     }
 
     /**
@@ -308,24 +307,22 @@ public class Trap extends BoxObstacle {
      */
     public void draw(GameCanvas canvas) {
         Color c = fireColor.cpy();
-        switch (trapType){
-            case FIRE: c = fireColor.cpy();
-            break;
-            case LURE: c = lureColor.cpy();
-            break;
-            case SLOW: c = slowColor.cpy();
-            break;
-            case FIRE_LINGER: c = Color.FIREBRICK.cpy();
-            break;
-            case PLACEMENT: c = Color.FOREST.cpy();
+        switch (trapType) {
+            case FIRE:
+                c = fireColor.cpy();
+                break;
+            case LURE:
+                c = lureColor.cpy();
+                break;
+            case SLOW:
+                c = slowColor.cpy();
+                break;
+            case FIRE_LINGER:
+                c = Color.FIREBRICK.cpy();
+                break;
         }
-        if(trapType != type.PLACEMENT) {
-            c.a = durability / MAX_DURABILITY;
-            canvas.draw(texture, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
-        }else {
-            canvas.drawPhysicsCircle((CircleShape) sensorShape, c, getX(), getY(), drawScale.x, drawScale.y);
-
-        }
+        c.a = durability / MAX_DURABILITY;
+        canvas.draw(texture, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
     }
 
     /**
