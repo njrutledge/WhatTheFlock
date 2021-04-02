@@ -164,6 +164,7 @@ public class ChefModel extends CapsuleObstacle {
 	 * @return true if the dud is trying to place a trap.
 	 */
 	public boolean isTrapping() {
+		canPlaceTrap = true; //TODO: REMOVE THIS LINE!!!
 		return isTrap && trapCooldown <= 0 && canPlaceTrap;
 	}
 
