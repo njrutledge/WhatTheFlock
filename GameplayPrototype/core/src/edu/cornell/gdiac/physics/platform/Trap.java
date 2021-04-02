@@ -1,6 +1,5 @@
 package edu.cornell.gdiac.physics.platform;
 
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -18,7 +17,7 @@ public class Trap extends BoxObstacle {
         LURE,
         SLOW,
         FIRE,
-        FIRE_LINGER
+        FIRE_LINGER,
     }
 
     /**
@@ -37,8 +36,6 @@ public class Trap extends BoxObstacle {
     private String sensorName;
     /** The physics shape of this object */
     private Shape sensorShape;
-    /** The second physics shape of this object, if used */
-    private Shape lingerSensorShape;
     /** true if using the second physics shape */
     private boolean linger;
     /** The type of this trap */
@@ -313,15 +310,21 @@ public class Trap extends BoxObstacle {
      */
     public void draw(GameCanvas canvas) {
         Color c = fireColor.cpy();
-        switch (trapType){
-            case FIRE: c = fireColor.cpy();
-            break;
-            case LURE: c = lureColor.cpy();
-            break;
-            case SLOW: c = slowColor.cpy();
-            break;
+        switch (trapType) {
+            case FIRE:
+                c = fireColor.cpy();
+                break;
+            case LURE:
+                c = lureColor.cpy();
+                break;
+            case SLOW:
+                c = slowColor.cpy();
+                break;
+            case FIRE_LINGER:
+                c = Color.FIREBRICK.cpy();
+                break;
         }
-        c.a = durability/MAX_DURABILITY;
+        c.a = durability / MAX_DURABILITY;
         canvas.draw(texture, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
     }
 

@@ -72,6 +72,8 @@ public class ChefModel extends CapsuleObstacle {
 	private boolean isTrap = false;
 	/** The physics shape of this object */
 	private PolygonShape sensorShape;
+	/**Whether or not the player can place a trap */
+	private boolean canPlaceTrap;
 
 	/**The maximum health a player can have */
 	private int max_health;
@@ -118,6 +120,13 @@ public class ChefModel extends CapsuleObstacle {
 	}
 
 	public float getVertMovement() { return vertmovement; }
+
+	/**
+	 * Enables or disables placement of a trap.
+	 *
+	 * @param val is true if a trap can be placed.
+	 */
+	public void setCanPlaceTrap(boolean val){canPlaceTrap = val;}
 
 	/**
 	 * Sets left/right movement of this character.
