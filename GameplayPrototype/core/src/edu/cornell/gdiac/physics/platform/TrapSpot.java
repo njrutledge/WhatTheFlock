@@ -41,6 +41,7 @@ public class TrapSpot extends BoxObstacle {
         super(x, y, 2, 2);
         setBodyType(BodyDef.BodyType.StaticBody);
         setFixedRotation(true);
+        setSensor(true);
         //data = jv;
         setName("place");
         name = "place";
@@ -108,7 +109,7 @@ public class TrapSpot extends BoxObstacle {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
+        canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.35f,.35f);
         //canvas.drawShape(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
     }
     /**
