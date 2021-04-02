@@ -78,9 +78,6 @@ public class ChefModel extends CapsuleObstacle {
 	/**The maximum health a player can have */
 	private int max_health;
 
-	/** Whether or not the player can place a trap */
-	private boolean canPlaceTrap;
-
 
 	/**The current health of the player, >= 0*/
 	private int health;
@@ -120,13 +117,6 @@ public class ChefModel extends CapsuleObstacle {
 	}
 
 	public float getVertMovement() { return vertmovement; }
-
-	/**
-	 * Enables or disables placement of a trap.
-	 *
-	 * @param val is true if a trap can be placed.
-	 */
-	public void setCanPlaceTrap(boolean val){canPlaceTrap = val;}
 
 	/**
 	 * Sets left/right movement of this character.
