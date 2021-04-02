@@ -317,8 +317,19 @@ public class WorldController implements ContactListener, Screen {
 			obj.setName(pname+ii);
 			addObject(obj);
 	    }
+		//TODO add stove to JSON
 
-	    // This world is heavier
+		//trap places
+		String trpname = "trap_place";
+		JsonValue placejv = constants.get("trapplace");
+		for (int ii = 0; ii < placejv.size; ii++) {
+			TrapSpot obj;
+			float[] coors = placejv.get(ii).asFloatArray();
+			obj = new TrapSpot(coors[0], coors[1]);
+			obj.setName(trpname+ii);
+			addObject(obj);
+		}
+		// This world is heavier
 		world.setGravity( new Vector2(0,0) );
 
 		// Create dude
