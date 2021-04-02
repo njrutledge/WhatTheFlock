@@ -46,6 +46,7 @@
         "platform:chef": "platform/chef.png",
         "platform:nugget": "platform/nugget.png",
         "platform:nuggetBar": "platform/nuggetBar.png",
+        "platform:trapSpot": "platform/trapspot.png",
         "ragdoll:bubble": "ragdoll/bubble.png",
         "ragdoll:torso":  "ragdoll/tux_body.png",
         "ragdoll:head":   "ragdoll/ProfWhite.png",

@@ -213,7 +213,10 @@ public class Trap extends BoxObstacle {
 
         return durability == 0;
     }
-
+    /**Whether the trap is still active or not*/
+    public boolean isActive(){
+        return durability > 0;
+    }
     /**
      * Updates the object's physics state (NOT GAME LOGIC).
      *

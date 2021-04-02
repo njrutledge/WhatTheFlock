@@ -1170,6 +1170,28 @@ public class GameCanvas {
     	debugRender.setColor(color);
     	debugRender.ellipse(x0-w, y0-h, 2*w, 2*h, 12);
     }
+
+    /*
+    public void drawShape(CircleShape shape, Color color, float x, float y, float sx, float sy) {
+		float x0 = x * sx;
+		float y0 = y * sy;
+		float w = shape.getRadius() * sx;
+		float h = shape.getRadius() * sy;
+		Pixmap pixmap = new Pixmap((int) w, (int) h, Pixmap.Format.RGB888);
+		pixmap.setColor(Color.RED);
+		pixmap.fillCircle((int) x0, (int) y0, (int) w);
+		//pixmap.drawCircle((int)w/2, (int)h/2, (int)w);
+		TextureRegion region = new TextureRegion(new Texture(pixmap));
+		spriteBatch.draw(region, x0, y0);
+
+
+		//float x0 = x*sx;
+		//float y0 = y*sy;
+		//float w = shape.getRadius()*sx;
+		//float h = shape.getRadius()*sy;
+		//debugRender.setColor(color);
+		//debugRender.ellipse(x0-w, y0-h, 2*w, 2*h, 12);
+	}*/
     
 	/**
 	 * Compute the affine transform (and store it in local) for this image.

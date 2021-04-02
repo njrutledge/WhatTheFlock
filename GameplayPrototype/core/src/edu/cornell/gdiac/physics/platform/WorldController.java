@@ -58,6 +58,8 @@ public class WorldController implements ContactListener, Screen {
 	private TextureRegion trapTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
+	/** Texture asset for trap spot*/
+	private TextureRegion trapSpotTexture;
 
 	/** Texture asset for the chef*/
 	private Texture chefTexture;
@@ -260,6 +262,7 @@ public class WorldController implements ContactListener, Screen {
 		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("platform:nuggetBar", Texture.class));
+		trapSpotTexture = new TextureRegion(directory.getEntry("platform:trapSpot", Texture.class));
 
 		chefTexture = directory.getEntry("platform:chef", Texture.class);
 		nuggetTexture = directory.getEntry("platform:nugget", Texture.class);
@@ -346,6 +349,24 @@ public class WorldController implements ContactListener, Screen {
 			obj.setName(pname+ii);
 			addObject(obj);
 	    }
+		//TODO add stove to JSON
+
+		//trap places
+		String trpname = "trap_place";
+		JsonValue placejv = constants.get("trapplace");
+		for (int ii = 0; ii < placejv.size; ii++) {
+			TrapSpot obj;
+			float[] coors = placejv.get(ii).asFloatArray();
+			obj = new TrapSpot(coors[0], coors[1]);
+			obj.setBodyType(BodyDef.BodyType.StaticBody);
+			obj.setDensity(defaults.getFloat( "density", 0.0f ));
+			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+			obj.setDrawScale(scale);
+			obj.setTexture(trapSpotTexture);
+			obj.setName(trpname+ii);
+			addObject(obj);
+		}
 
 	    // This world is heavier
 		world.setGravity( new Vector2(0,0) );
@@ -918,6 +939,12 @@ public class WorldController implements ContactListener, Screen {
 							chickOnFire.play(volume*0.5f);
 					}
 				}
+				if (fd1.equals("placeRadius") && bd2==avatar){
+					avatar.setCanPlaceTrap(true);
+				}
+				if (fd2.equals("placeRadius") && bd1==avatar){
+					avatar.setCanPlaceTrap(true);
+				}
 			}
 			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
 				((ChickenModel)bd2).hitWall();
@@ -1002,6 +1029,13 @@ public class WorldController implements ContactListener, Screen {
 
 			if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
 				((ChickenModel) bd1).stopAttack();
+			}
+
+			if (fd1.equals("placeRadius") && bd2 == avatar) {
+				avatar.setCanPlaceTrap(false);
+			}
+			if (fd2.equals("placeRadius") && bd1 == avatar) {
+				avatar.setCanPlaceTrap(false);
 			}
 		}
 

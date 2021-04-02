@@ -76,6 +76,8 @@ public class ChefModel extends CapsuleObstacle {
 	/**The maximum health a player can have */
 	private int max_health;
 
+	/** Whether or not the player can place a trap */
+	private boolean canPlaceTrap;
 
 
 	/**The current health of the player, >= 0*/
@@ -141,6 +143,13 @@ public class ChefModel extends CapsuleObstacle {
 	}
 
 	/**
+	 * Enables or disables trap placement
+	 *
+	 * @param value is true if the player can place a trap.
+	 */
+	public void setCanPlaceTrap(boolean value) {canPlaceTrap = value;}
+
+	/**
 	 * Returns true if the dude is actively firing.
 	 *
 	 * @return true if the dude is actively firing.
@@ -154,7 +163,7 @@ public class ChefModel extends CapsuleObstacle {
 	 *
 	 * @return true if the dud is trying to place a trap.
 	 */
-	public boolean isTrapping() { return isTrap && trapCooldown <= 0; }
+	public boolean isTrapping() { return isTrap && trapCooldown <= 0 && canPlaceTrap; }
 
 	/**
 	 * Sets whether the dude is actively firing.
