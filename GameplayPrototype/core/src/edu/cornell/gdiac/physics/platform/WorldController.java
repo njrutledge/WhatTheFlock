@@ -58,6 +58,8 @@ public class WorldController implements ContactListener, Screen {
 	private TextureRegion trapTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
+	/** Texture asset for trap spot*/
+	private TextureRegion trapSpotTexture;
 
 	/** Texture asset for the chef*/
 	private Texture chefTexture;
@@ -243,6 +245,7 @@ public class WorldController implements ContactListener, Screen {
 		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("platform:nuggetBar", Texture.class));
+		trapSpotTexture = new TextureRegion(directory.getEntry("platform:trapSpot", Texture.class));
 
 		chefTexture = directory.getEntry("platform:chef", Texture.class);
 		nuggetTexture = directory.getEntry("platform:nugget", Texture.class);
@@ -326,6 +329,12 @@ public class WorldController implements ContactListener, Screen {
 			TrapSpot obj;
 			float[] coors = placejv.get(ii).asFloatArray();
 			obj = new TrapSpot(coors[0], coors[1]);
+			obj.setBodyType(BodyDef.BodyType.StaticBody);
+			obj.setDensity(defaults.getFloat( "density", 0.0f ));
+			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+			obj.setDrawScale(scale);
+			obj.setTexture(trapSpotTexture);
 			obj.setName(trpname+ii);
 			addObject(obj);
 		}

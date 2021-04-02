@@ -108,7 +108,8 @@ public class TrapSpot extends BoxObstacle {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.drawShape(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
+        canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
+        //canvas.drawShape(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
     }
     /**
      * Draws the outline of the physics body.
