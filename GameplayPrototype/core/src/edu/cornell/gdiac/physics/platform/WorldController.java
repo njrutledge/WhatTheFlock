@@ -193,6 +193,7 @@ public class WorldController implements ContactListener, Screen {
 	/** Whether or not the cooldown effect is enabled */
 	private boolean cooldown;
 
+
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
 
@@ -377,6 +378,18 @@ public class WorldController implements ContactListener, Screen {
 	    // This world is heavier
 		world.setGravity( new Vector2(0,0) );
 
+
+
+		// Add stove
+		float swidth = stoveTexture.getRegionWidth()/scale.x;
+		float sheight = stoveTexture.getRegionHeight()/scale.y;
+		stove = new StoveModel(constants.get("stove"),16,9,swidth,sheight);
+		stove.setDrawScale(scale);
+		stove.setTexture(stoveTexture);
+		addObject(stove);
+
+		volume = constants.getFloat("volume", 1.0f);
+
 		// Create dude
 		float dwidth  = avatarTexture.getRegionWidth()/scale.x;
 		float dheight = avatarTexture.getRegionHeight()/scale.y;
@@ -391,16 +404,6 @@ public class WorldController implements ContactListener, Screen {
 
 		addObject(avatar);
 
-		// Add stove
-		float swidth = stoveTexture.getRegionWidth()/scale.x;
-		float sheight = stoveTexture.getRegionHeight()/scale.y;
-		stove = new StoveModel(constants.get("stove"),16,9,swidth,sheight);
-		stove.setDrawScale(scale);
-		stove.setTexture(stoveTexture);
-		addObject(stove);
-
-		volume = constants.getFloat("volume", 1.0f);
-
 		// Create some chickens
 		spawn_xmin = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[0];
 		spawn_xmax = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[1];
@@ -412,6 +415,7 @@ public class WorldController implements ContactListener, Screen {
 
 		// Get initial values for parameters in the list
 		//parameterList[0] = avatar.getMaxHealth();
+
 
 	}
 
@@ -950,7 +954,22 @@ public class WorldController implements ContactListener, Screen {
 							chickOnFire.play(volume*0.5f);
 					}
 				}
+				if (fd1.equals("trapSensor") && bd2==avatar){
+					switch (((Trap) bd1).getTrapType()){
+						case PLACEMENT:
+							avatar.setCanPlaceTrap(true);
+							break;
+					}
+				}
+				if (fd2.equals("trapSensor") && bd1==avatar){
+					switch (((Trap) bd2).getTrapType()){
+						case PLACEMENT:
+							avatar.setCanPlaceTrap(true);
+							break;
+					}
+				}
 			}
+
 			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
 				((ChickenModel)bd2).hitWall();
 			}
@@ -1034,6 +1053,20 @@ public class WorldController implements ContactListener, Screen {
 
 			if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
 				((ChickenModel) bd1).stopAttack();
+			}
+			if (fd1.equals("trapSensor") && bd2==avatar){
+				switch (((Trap) bd1).getTrapType()){
+					case PLACEMENT:
+						avatar.setCanPlaceTrap(false);
+						break;
+				}
+			}
+			if (fd2.equals("trapSensor") && bd1==avatar){
+				switch (((Trap) bd2).getTrapType()){
+					case PLACEMENT:
+						avatar.setCanPlaceTrap(false);
+						break;
+				}
 			}
 		}
 
@@ -1197,15 +1230,18 @@ public class WorldController implements ContactListener, Screen {
 				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
 		}
+		if ((cooking && (avatar.getMovement() == 0f
+				&& avatar.getVertMovement() == 0f
+				&& !avatar.isShooting()))){
+			stove.setLit(true);
+		}else{
+			stove.setLit(false);
+		}
 
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
-		if ((cooking && (avatar.getMovement() == 0f
-				&& avatar.getVertMovement() == 0f
-				&& !avatar.isShooting()))){
-			stove.drawLit(canvas);
-		}
+
 		canvas.end();
 
 		if (debug) {
@@ -1291,7 +1327,7 @@ public class WorldController implements ContactListener, Screen {
 	 *
 	 * @return true if the level is completed.
 	 */
-	public boolean isComplete( ) {
+	public boolean isComplete() {
 		return complete;
 	}
 

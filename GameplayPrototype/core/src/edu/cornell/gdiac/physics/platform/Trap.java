@@ -17,7 +17,8 @@ public class Trap extends BoxObstacle {
         LURE,
         SLOW,
         FIRE,
-        FIRE_LINGER
+        FIRE_LINGER,
+        PLACEMENT
     }
 
     /**
@@ -36,8 +37,6 @@ public class Trap extends BoxObstacle {
     private String sensorName;
     /** The physics shape of this object */
     private Shape sensorShape;
-    /** The second physics shape of this object, if used */
-    private Shape lingerSensorShape;
     /** true if using the second physics shape */
     private boolean linger;
     /** The type of this trap */
@@ -316,12 +315,16 @@ public class Trap extends BoxObstacle {
             break;
             case SLOW: c = slowColor.cpy();
             break;
+            case FIRE_LINGER: c = Color.FIREBRICK.cpy();
+            break;
+            case PLACEMENT: c = Color.FOREST.cpy();
         }
-        c.a = durability/MAX_DURABILITY;
-        canvas.draw(texture, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
-        canvas.drawPhysicsCircle((CircleShape) sensorShape, Color.RED, getX(), getY(), drawScale.x, drawScale.y);
-        if (lHShape != null) {
-            canvas.drawPhysicsCircle((CircleShape) lHShape, Color.RED, getX(), getY(), drawScale.x, drawScale.y);
+        if(trapType != type.PLACEMENT) {
+            c.a = durability / MAX_DURABILITY;
+            canvas.draw(texture, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
+        }else {
+            canvas.drawPhysicsCircle((CircleShape) sensorShape, c, getX(), getY(), drawScale.x, drawScale.y);
+
         }
     }
 
