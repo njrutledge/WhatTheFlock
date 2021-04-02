@@ -61,7 +61,7 @@ public class TrapSpot extends BoxObstacle {
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         sensorShape = new CircleShape();
-        sensorShape.setRadius(3f);
+        sensorShape.setRadius(1.55f);
         sensorDef.shape = sensorShape;
 
         // Ground sensor to represent our feet
