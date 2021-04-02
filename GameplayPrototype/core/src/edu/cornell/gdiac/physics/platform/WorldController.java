@@ -326,7 +326,7 @@ public class WorldController implements ContactListener, Screen {
 		populateLevel();
 	}
 	public void initEasy(){
-		parameterList = new int []{5, 5, 3, 150, 2, 6, 30, 10, 5, 5, 3, 5, 0};
+		parameterList = new int []{5, 5, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
 		cooldown = false;
 	}
 
