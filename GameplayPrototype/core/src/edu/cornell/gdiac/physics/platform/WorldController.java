@@ -329,6 +329,7 @@ public class WorldController implements ContactListener, Screen {
 			obj.setName(trpname+ii);
 			addObject(obj);
 		}
+
 		// This world is heavier
 		world.setGravity( new Vector2(0,0) );
 

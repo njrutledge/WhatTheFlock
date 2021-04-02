@@ -1182,6 +1182,8 @@ public class GameCanvas {
 		//pixmap.drawCircle((int)w/2, (int)h/2, (int)w);
 		TextureRegion region = new TextureRegion(new Texture(pixmap));
 		spriteBatch.draw(region, x0, y0);
+
+
 		/*float x0 = x*sx;
 		float y0 = y*sy;
 		float w = shape.getRadius()*sx;

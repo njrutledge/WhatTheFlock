@@ -38,7 +38,7 @@ public class TrapSpot extends BoxObstacle {
     public TrapSpot(float x, float y) {
         //set constants manually for the constructor
         //TODO change
-        super(x, y, 10, 10);
+        super(x, y, 2, 2);
         setBodyType(BodyDef.BodyType.StaticBody);
         setFixedRotation(true);
         //data = jv;
