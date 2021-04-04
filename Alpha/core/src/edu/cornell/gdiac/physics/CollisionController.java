@@ -1,6 +1,8 @@
 package edu.cornell.gdiac.physics;
 
 import com.badlogic.gdx.physics.box2d.*;
+import edu.cornell.gdiac.physics.entity.ChefModel;
+import edu.cornell.gdiac.physics.entity.StoveModel;
 import edu.cornell.gdiac.physics.obstacle.Obstacle;
 import edu.cornell.gdiac.physics.entity.ChickenModel;
 import edu.cornell.gdiac.physics.entity.Trap;
@@ -18,44 +20,47 @@ public class CollisionController {
      *
      * @param contact The two bodies that collided
      */
-    public void beginContact(Contact contact) {
+    public void beginContact(Contact contact, float potential_dmg) {
         //TODO: Detect if a collision is with an enemy and have an appropriate interaction
-        /*Fixture fix1 = contact.getFixtureA();
+        //hitbox
+        Fixture fix1 = contact.getFixtureA();
         Fixture fix2 = contact.getFixtureB();
-
+        //physics body
         Body body1 = fix1.getBody();
         Body body2 = fix2.getBody();
-
+        //the object
         Object fd1 = fix1.getUserData();
         Object fd2 = fix2.getUserData();
 
         try {
-            Obstacle bd1 = (Obstacle)body1.getUserData();
-            Obstacle bd2 = (Obstacle)body2.getUserData();
-
+            Obstacle bd1 = (Obstacle) body1.getUserData();
+            Obstacle bd2 = (Obstacle) body2.getUserData();
 
             //reduce health if chicken collides with avatar
             //cook if player is near stove and not doing anything
-            if ((bd1 == avatar && bd2 == stove)
-                    || (bd2 == avatar && bd1 == stove)) {
-                avatar.setCanCook(true);
+            if ((bd1.getName().equals("chef") && bd2.getName().equals("stove"))
+                    || (bd2.getName().equals("chef") && bd1.getName().equals("stove"))) {
+                if (bd1.getName().equals("chef")) {
+                    handleCollision((ChefModel) bd1, (StoveModel) bd2);
+                } else {
+                    handleCollision((ChefModel) bd2, (StoveModel) bd1);
+                }
             }
 
             //bullet collision with chicken eliminates chicken
 
-            if (fd1 != null){
+            if (fd1 != null) {
+
                 if (bd2.getName().equals("bullet") && fd1.equals("chickenSensor")) {
-                    chickHurt.stop();
+                    /*chickHurt.stop();
                     chickHurt.play(volume);
                     fireSound.stop();
-                    fireSound.play(volume);
-                    ChickenModel chick = (ChickenModel) bd1;
-                    chick.takeDamage(damageCalc());
-                    if (!chick.isAlive()) {
-                        removeChicken(bd1);
-                    }
-                }
+                    fireSound.play(volume);*/
+                    handleSlapCollision((ChickenModel) bd1, potential_dmg);
+                    //ChickenModel chick = (ChickenModel) bd1;
 
+                }
+                /*
                 if (bd2 == avatar && fd1.equals("chickenSensor")) {
                     ChickenModel chick = (ChickenModel) bd1;
                     if (chick.chasingPlayer()) {
@@ -73,12 +78,13 @@ public class CollisionController {
                     ((ChickenModel) bd1).hitPlayer();
 
 
-                }
+                }*/
 
 
             }
 
             if (fd2 != null) {
+                /*
                 if (bd1.getName().equals("bullet") && fd2.equals("chickenSensor")) {
                     chickHurt.stop();
                     chickHurt.play(volume);
@@ -105,14 +111,12 @@ public class CollisionController {
                     }
                     if (parameterList[12] != 1) { avatar.decrementHealth(); }
                     ((ChickenModel) bd2).hitPlayer();
-                }
+                }*/
             }
 
             //trap collision with chicken eliminates chicken
-
-
             if (fd1 != null && fd2 != null) {
-
+                /*
                 if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
                     ((ChickenModel) bd2).startAttack();
                 }
@@ -157,10 +161,10 @@ public class CollisionController {
                             ((ChickenModel) bd2).applyFire(((Trap) bd1).getEffect());
                             chickOnFire.stop();
                             chickOnFire.play(volume*0.5f);
-                    }
+                    }*/
                 }
                 if (fd2.equals("trapSensor") && bd1.getName().equals("chicken")) {
-                    switch (((Trap) bd2).getTrapType()){
+                    /*switch (((Trap) bd2).getTrapType()){
                         case LURE: //damage
                             ((ChickenModel) bd1).trapTarget((Trap) bd2);
                             break;
@@ -185,27 +189,55 @@ public class CollisionController {
                             ((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
                             chickOnFire.stop();
                             chickOnFire.play(volume*0.5f);
-                    }
+                    }*/
                 }
+                /*
                 if (fd1.equals("placeRadius") && bd2==avatar){
                     avatar.setCanPlaceTrap(true);
                 }
                 if (fd2.equals("placeRadius") && bd1==avatar){
                     avatar.setCanPlaceTrap(true);
-                }
-            }
-
+                }*/
+            /*
             if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
                 ((ChickenModel)bd2).hitWall();
             }
             if ((bd2.getName().contains("platform") || (bd2.getName().equals("stove") && !fix2.isSensor())) && bd1.getName().equals("chicken")){
                 ((ChickenModel)bd1).hitWall();
 
-            }
+            }*/
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
+    /**
+     * Activates ability to cook when the chef is near the stove
+     * @param avatar
+     * @param stove
+     */
+    private void handleCollision(ChefModel avatar, StoveModel stove){
+        avatar.setCanCook(true);
+    }
+    /**
+     * Activates ability to cook when the chef is near the stove
+     * @param avatar
+     * @param chick
+     */
+    private void handleCollision(ChefModel avatar, ChickenModel chick){
+
+    }
+
+    private void handleSlapCollision(ChickenModel chick, float dmg){
+        chick.takeDamage(dmg);
+        if (!chick.isAlive()) {
+            chick.markRemoved(true); //was originally removeChicken(), idk if this breaks anything
+        }
+    }
+
+    private void handleCollision(ChickenModel chick, Trap trap){
 
     }
 

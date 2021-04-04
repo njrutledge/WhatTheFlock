@@ -104,8 +104,8 @@ public class GameController implements ContactListener, Screen {
 
 	private final float DEFAULT_VOL = 0.5F;
 
-	/** The current number of chickens */
-	private int chickens;
+	///** The current number of chickens */
+	//private int chickens;
 
 	/** The amount of time for a physics engine step. */
 	public static final float WORLD_STEP = 1/60.0f;
@@ -245,7 +245,7 @@ public class GameController implements ContactListener, Screen {
 		setFailure(false);
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
-		chickens = 0;
+		//chickens = 0;
 		//cooking = false;
 	}
 
@@ -347,7 +347,7 @@ public class GameController implements ContactListener, Screen {
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
-		chickens = 0;
+		//chickens = 0;
 		populateLevel();
 	}
 	public void initEasy(){
@@ -442,6 +442,7 @@ public class GameController implements ContactListener, Screen {
 		avatar.setTexture(chefTexture);
 		avatar.setHealthTexture(healthTexture);
 		avatar.setNoHealthTexture(noHealthTexture);
+		avatar.setName("chef");
 
 		//Set temperature based on difficulty of the level
 		temp = new TemperatureBar(tempBackground, tempForeground,30);
@@ -485,7 +486,7 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void beginContact(Contact contact) {
 		//TODO: Detect if a collision is with an enemy and have an appropriate interaction
-		Fixture fix1 = contact.getFixtureA();
+		/*Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
 		Body body1 = fix1.getBody();
@@ -671,7 +672,7 @@ public class GameController implements ContactListener, Screen {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 
 	}
 
@@ -684,7 +685,7 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void endContact(Contact contact) {
 		//TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
-		Fixture fix1 = contact.getFixtureA();
+		/*Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
 		Body body1 = fix1.getBody();
@@ -764,7 +765,7 @@ public class GameController implements ContactListener, Screen {
 			if (bd1 == avatar && fd2.equals("chickenSensor")) {
 				((ChickenModel) bd2).stopAttack();
 			}
-		}
+		}*/
 	}
 	/*******************************************************************************************
 	 * UPDATING LOGIC
@@ -970,12 +971,21 @@ public class GameController implements ContactListener, Screen {
 	/*******************************************************************************************
 	 * UPDATE HELPERS
 	 ******************************************************************************************/
+	/**
+	 * Removes the given chicken from the world, then decrements the number of chickens
+	 * @param chicken	 the chicken to remove
+	 */
+	private void removeChicken(Obstacle chicken){
+		if(!chicken.isRemoved()) {
+			chicken.markRemoved(true);
+		}
+	}
 
 	/**
 	 * Kills all chickens in the world
 	 */
 	public void killChickens(){
-		chickens = 0;
+		//chickens = 0;
 		for (Obstacle obstacle: objects){
 			if (obstacle.getName().equals("chicken")){
 				removeChicken(obstacle);
@@ -1011,19 +1021,9 @@ public class GameController implements ContactListener, Screen {
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy);
-		chickens ++;
+		//chickens ++;
 	}
 
-	/**
-	 * Removes the given chicken from the world, then decrements the number of chickens
-	 * @param chicken	 the chicken to remove
-	 */
-	private void removeChicken(Obstacle chicken){
-		if(!chicken.isRemoved()) {
-			chicken.markRemoved(true);
-			chickens--;
-		}
-	}
 	/**
 	 * Add a new bullet to the world and send it in the right direction.
 	 *
