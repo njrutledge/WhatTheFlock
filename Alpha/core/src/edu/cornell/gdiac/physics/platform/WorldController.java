@@ -50,6 +50,7 @@ public class WorldController implements ContactListener, Screen {
 	private TextureRegion avatarTexture;
 	/** Texture asset for the bullet */
 	private TextureRegion bulletTexture;
+
 	/** Texture asset for the chicken */
 	private TextureRegion chickenTexture;
 	/** Texture asset for the stove */
@@ -65,6 +66,17 @@ public class WorldController implements ContactListener, Screen {
 	private Texture chefTexture;
 	/** Texture asset for the nugget */
 	private Texture nuggetTexture;
+
+	///** Texture asset for temp bar*/
+	//private Texture tempTexture;
+	/** Texture asset for temp bar background */
+	private TextureRegion tempBackground;
+	/**Texture asset for temp bar foreground */
+	private TextureRegion tempForeground;
+
+	/** Health textures*/
+	private TextureRegion healthTexture;
+	private TextureRegion noHealthTexture;
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -137,8 +149,8 @@ public class WorldController implements ContactListener, Screen {
 	private ChefModel avatar;
 	/** Reference to the temperature*/
 	private TemperatureBar temp;
-	/** Reference to the goalDoor (for collision detection) */
-	private BoxObstacle goalDoor;
+	///** Reference to the goalDoor (for collision detection) */
+	//private BoxObstacle goalDoor;
 	/** The minimum x position of a spawned chicken*/
 	private static float spawn_xmin;
 	/** The maximum x position of a spawned chicken*/
@@ -268,38 +280,51 @@ public class WorldController implements ContactListener, Screen {
 	 * @param directory	Reference to global asset manager.
 	 */
 	public void gatherAssets(AssetDirectory directory) {
-		//TODO add temperature and health assets here
-		avatarTexture  = new TextureRegion(directory.getEntry("platform:dude",Texture.class));
-		bulletTexture = new TextureRegion(directory.getEntry("platform:bullet",Texture.class));
-		chickenTexture  = new TextureRegion(directory.getEntry("platform:chicken",Texture.class));
-		trapTexture = new TextureRegion(directory.getEntry("platform:trap",Texture.class));
-		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
-		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
-		enemyHealthBarTexture = new TextureRegion(directory.getEntry("platform:nuggetBar", Texture.class));
-		trapSpotTexture = new TextureRegion(directory.getEntry("platform:trapSpot", Texture.class));
+		//textures
+			//environment
+		earthTile = new TextureRegion(directory.getEntry( "enviro:earth", Texture.class ));
+		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
+			//traps
+		trapTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
+		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
+			//characters
+			//TODO: WHY DO WE HAVE AVATAR AND CHEF?? CONFUSING
+		avatarTexture  = new TextureRegion(directory.getEntry("char:dude",Texture.class));
+		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
+		chickenTexture  = new TextureRegion(directory.getEntry("char:chicken",Texture.class));
+		enemyHealthBarTexture = new TextureRegion(directory.getEntry("char:nuggetBar", Texture.class));
+		chefTexture = directory.getEntry("char:chef", Texture.class);
+		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
 
-		chefTexture = directory.getEntry("platform:chef", Texture.class);
-		nuggetTexture = directory.getEntry("platform:nugget", Texture.class);
+		//ui
+		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
+		tempForeground = directory.getEntry("ui:tempBarFlipped.foreground", TextureRegion.class);
+		healthTexture = directory.getEntry("ui:healthUnit.on", TextureRegion.class);
+		noHealthTexture = directory.getEntry("ui:healthUnit.off", TextureRegion.class);
 
-		displayFont = directory.getEntry( "shared:retro" ,BitmapFont.class);
+		//fonts
+		displayFont = directory.getEntry( "font:retro" ,BitmapFont.class);
 
-		jumpSound = directory.getEntry( "platform:jump", SoundBuffer.class );
-		fireSound = directory.getEntry( "platform:pew", SoundBuffer.class );
-		plopSound = directory.getEntry( "platform:plop", SoundBuffer.class );
+		//sounds
+			//chef
+		jumpSound = directory.getEntry( "sound:chef:jump", SoundBuffer.class );
+		fireSound = directory.getEntry( "sound:chef:pew", SoundBuffer.class );
+		plopSound = directory.getEntry( "sound:chef:plop", SoundBuffer.class );
+		emptySlap = directory.getEntry( "sound:chef:emptySlap", SoundBuffer.class );
+		slowSquelch = directory.getEntry("sound:chef:squelch", SoundBuffer.class);
+		chefOof = directory.getEntry("sound:chef:oof", SoundBuffer.class);
+			//chicken
+		chickOnFire = directory.getEntry( "sound:chick:fire", SoundBuffer.class );
+				//nugget
+		chickHurt = directory.getEntry( "sound:chick:nugget:hurt", SoundBuffer.class );
+		chickAttack = directory.getEntry( "sound:chick:nugget:attack", SoundBuffer.class );
+			//trap
+		fireTrig = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
+		fireLinger = directory.getEntry( "sound:trap:fireLinger", SoundBuffer.class );
+		lureCrumb = directory.getEntry( "sound:trap:lureCrumb", SoundBuffer.class );
 
-		chickHurt = directory.getEntry( "platform:chickHurt", SoundBuffer.class );
-		chickAttack = directory.getEntry( "platform:chickAttack", SoundBuffer.class );
-		fireTrig = directory.getEntry( "platform:fireTrig", SoundBuffer.class );
-		fireLinger = directory.getEntry( "platform:fireLinger", SoundBuffer.class );
-		lureCrumb = directory.getEntry( "platform:lureCrumb", SoundBuffer.class );
-		emptySlap = directory.getEntry( "platform:emptySlap", SoundBuffer.class );
-		chickOnFire = directory.getEntry( "platform:chickOnFire", SoundBuffer.class );
-		slowSquelch = directory.getEntry("platform:squelch", SoundBuffer.class);
-		chefOof = directory.getEntry("platform:chefOof", SoundBuffer.class);
-
-
-
-		constants = directory.getEntry( "platform:constants", JsonValue.class );
+		//constants
+		constants = directory.getEntry( "constants", JsonValue.class );
 	}
 
 	
@@ -417,8 +442,11 @@ public class WorldController implements ContactListener, Screen {
 		avatar = new ChefModel(constants.get("dude"), dwidth, dheight, parameterList[0]);
 		avatar.setDrawScale(scale);
 		avatar.setTexture(chefTexture);
+		avatar.setHealthTexture(healthTexture);
+		avatar.setNoHealthTexture(noHealthTexture);
+
 		//Set temperature based on difficulty of the level
-		temp = new TemperatureBar(30);
+		temp = new TemperatureBar(tempBackground, tempForeground,30);
 		temp.setUseCooldown(cooldown);
 
 		//avatar.setMaxTemp(30);

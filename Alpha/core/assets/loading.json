@@ -1,10 +1,10 @@
 {
 	"textures": {
-        "background": "shared/loading.png",
-		"play": "shared/play.png",
-        "skull": "shared/skull.png",
+        "background": "ui/loading/loading.png",
+		"play": "ui/loading/play.png",
+        "skull": "ui/loading/skull.png",
         "progress": {
-            "file":      "shared/progressbar.png",
+            "file":      "ui/loading/progressbar.png",
             "atlas":     {
                 "background" : [16,   0, 216, 30],
                 "backleft"   : [0,    0,  15, 30],

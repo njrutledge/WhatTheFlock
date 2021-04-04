@@ -33,11 +33,9 @@ public class ChefModel extends CapsuleObstacle {
 	//////////// Nothing explicit is needed now but may be when altering other files. /////
 	//////////////////////////////////////////////////////////////////////////////////////
 	/** the texture of the chef */
-	private TextureRegion chefTexture;
-	/** Health textures*/
+	//private TextureRegion chefTexture;
 	private TextureRegion healthTexture;
 	private TextureRegion noHealthTexture;
-
 	/** The initializing data (to avoid magic numbers) */
 	private final JsonValue data;
 
@@ -302,14 +300,6 @@ public class ChefModel extends CapsuleObstacle {
 		return faceRight;
 	}
 
-	/**Gather art assets for health display*/
-	private void gatherHealthAssets(){
-		AssetDirectory internal = new AssetDirectory("health.json");
-		internal.loadAssets();
-		internal.finishLoading();
-		healthTexture = internal.getEntry("progress.on", TextureRegion.class);
-		noHealthTexture = internal.getEntry("progress.off", TextureRegion.class);
-	}
 	/**
 	 * Creates a new dude avatar with the given physics data
 	 *
@@ -344,12 +334,18 @@ public class ChefModel extends CapsuleObstacle {
 		faceRight = true;
 		max_health = maxHealth;
 		health = max_health;
-		gatherHealthAssets();
+		//gatherHealthAssets();
 		shootCooldown = 0;
 		trapCooldown = 0;
 		setName("dude");
 	}
 
+	public void setHealthTexture(TextureRegion t){
+		healthTexture = t;
+	}
+	public void setNoHealthTexture(TextureRegion t){
+		noHealthTexture = t;
+	}
 	/**
 	 * Creates the physics Body(s) for this object, adding them to the world.
 	 *

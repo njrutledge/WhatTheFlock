@@ -1,97 +1,74 @@
 {
 	"textures": {
-        "shared:earth" : {
-            "file":  "shared/earthtile.png",
+        "enviro:earth" : {
+            "file":  "enviro/earthtile.png",
             "wrapU": "repeated",
             "wrapV": "repeated"
         },
-        "shared:goal":   "shared/goaldoor.png",
-        "rocket:rocket": "rocket/rocket.png",
-        "rocket:main":  {
-            "file" : "rocket/flames.png",
-            "sprites" : {
-                "fire": {
-                    "rows": 1,
-                    "cols": 4
-                }
-            }
+        "enviro:stove": "enviro/stove.png",
+        "enviro:trap:spike": "enviro/spiketrap.png",
+        "enviro:trap:spot": "enviro/trapspot.png",
+
+        "char:dude": "characters/dude.png",
+        "char:chicken": "characters/chicken.png",
+        "char:chef":"characters/chef.png",
+        "char:bullet": "characters/bullet.png",
+        "char:nugget": "characters/nugget.png",
+        "char:nuggetBar": "characters/nuggetBar.png",
+
+        "ui:tempBar": {
+          "file":      "ui/tempbar.png",
+          "atlas":     {
+            "background" : [0, 0, 100, 436],
+            "backtop"   : [0, 0,  100, 30],
+            "backmid"   : [0, 100, 100, 336],
+            "backbottom"  : [336,  0, 100, 100],
+            "foreground" : [100,  0, 200, 436],
+            "foretop"   : [100,  0,  200, 30],
+            "foremid"   : [100, 30, 200, 336],
+            "forebottom"  : [100, 336, 200, 436]
+          }
         },
-        "rocket:left": {
-            "file" : "rocket/flames-left.png",
-            "sprites" : {
-                "fire": {
-                    "rows": 1,
-                    "cols": 4
-                }
-            }
+        "ui:tempBarFlipped": {
+          "file":      "ui/temp_bar_flip.png",
+          "atlas":     {
+            "foreground" : [0, 0, 100, 436]
+          }
         },
-        "rocket:right": {
-            "file" : "rocket/flames-right.png",
-            "sprites" : {
-                "fire": {
-                    "rows": 1,
-                    "cols": 4
-                }
-            }
-        },
-        "rocket:crate01": "rocket/crate01.png",
-        "rocket:crate02": "rocket/crate02.png",
-        "platform:dude":  "platform/dude.png",
-        "platform:rope":  "platform/ropebridge.png",
-        "platform:barrier": "platform/barrier.png",
-        "platform:bullet":  "platform/bullet.png",
-        "platform:chicken": "platform/chicken.png",
-        "platform:stove": "platform/stove.png",
-        "platform:trap": "platform/spiketrap.png",
-        "platform:chef": "platform/chef.png",
-        "platform:nugget": "platform/nugget.png",
-        "platform:nuggetBar": "platform/nuggetBar.png",
-        "platform:trapSpot": "platform/trapspot.png",
-        "ragdoll:bubble": "ragdoll/bubble.png",
-        "ragdoll:torso":  "ragdoll/tux_body.png",
-        "ragdoll:head":   "ragdoll/ProfWhite.png",
-        "ragdoll:thigh":  "ragdoll/tux_thigh.png",
-        "ragdoll:shin":   "ragdoll/tux_shin.png",
-        "ragdoll:arm":    "ragdoll/tux_arm.png",
-        "ragdoll:forearm":    "ragdoll/tux_forearm.png",
-        "ragdoll:crosshair":  "ragdoll/crosshair.png",
-        "ragdoll:foreground": "ragdoll/foreground.png",
-        "ragdoll:background": "ragdoll/background.png"
+        "ui:healthUnit": {
+            "file": "ui/health.png",
+            "atlas": {
+              "on": [0, 0, 137, 165],
+              "off": [137, 0, 274, 165]
+          }
+      }
     },
     "jsons"  : {
-        "rocket:constants":  "rocket/constants.json",
-        "platform:constants": "platform/constants.json",
-        "ragdoll:constants":  "ragdoll/constants.json"
+        "constants": "constants.json"
     },
     "sounds" : {
-        "rocket:bump" : "rocket/bump.mp3",
-        "rocket:mainburn" : "rocket/afterburner.mp3",
-        "rocket:leftburn" : "rocket/sideburner-left.mp3",
-        "rocket:rightburn": "rocket/sideburner-right.mp3",
-        "platform:jump" : "platform/jump.mp3",
-        "platform:pew"  : "platform/slap_1.ogg",
-        "platform:plop" : "platform/plop.mp3",
-        "ragdoll:glub1" : "ragdoll/bubble01.mp3",
-        "ragdoll:glub2" : "ragdoll/bubble02.mp3",
-        "ragdoll:glub3" : "ragdoll/bubble03.mp3",
-        "ragdoll:glub4" : "ragdoll/bubble04.mp3",
-        "platform:chickHurt" : "platform/nug_hurt_1.ogg",
-        "platform:chickAttack" : "platform/nug_attack_1.ogg",
-        "platform:fireLinger" : "platform/fire_linger_1.ogg",
-        "platform:fireTrig" : "platform/fire_trigger_2.ogg",
-        "platform:lureCrumb" : "platform/lure_damage.ogg",
-        "platform:emptySlap" : "platform/empty_slap_2.ogg",
-        "platform:chickOnFire" : "platform/set_ablaze_cluck.ogg",
-        "platform:squelch": "platform/squelch.ogg",
-      "platform:chefOof": "platform/chef_hurt_2.ogg"
+        "sound:chef:jump" : "sounds/chef/jump.mp3",
+        "sound:chef:pew"  : "sounds/chef/slap_1.ogg",
+        "sound:chef:plop" : "sounds/chef/plop.mp3",
+        "sound:chef:emptySlap" : "sounds/chef/empty_slap_2.ogg",
+        "sound:chef:squelch": "sounds/chef/squelch.ogg",
+        "sound:chef:oof": "sounds/chef/chef_hurt_2.ogg",
+
+        "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt_1.ogg",
+        "sound:chick:nugget:attack" : "sounds/chicken/nug_attack_1.ogg",
+        "sound:chick:fire" : "sounds/chicken/set_ablaze_cluck.ogg",
+
+        "sound:trap:fireLinger" : "sounds/trap/fire_linger_1.ogg",
+        "sound:trap:fireTrig" : "sounds/trap/fire_trigger_2.ogg",
+        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg"
     },
     "fonts": {
-        "shared:retro": {
-            "file": "shared/RetroGame.ttf",
+        "font:retro": {
+            "file": "ui/fonts/RetroGame.ttf",
             "size": 64
         },
-        "shared:minecraft": {
-            "file": "shared/Minecraft.ttf",
+        "font:minecraft": {
+            "file": "ui/fonts/Minecraft.ttf",
             "size": 16
         }
     }

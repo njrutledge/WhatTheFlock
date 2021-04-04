@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.physics.GameCanvas;
 
@@ -18,15 +19,16 @@ public class TemperatureBar {
     /**Current temperature of the chicken */
     private float temperature;
 
-    /**Animated progress bar for temperature*/
-    private ProgressBar tempBar;
-    /** Texture atlas to support a temperature bar */
-    private Texture tempTexture;
+    ///**Animated progress bar for temperature*/
+    //private ProgressBar tempBar;
+    ///** Texture atlas to support a temperature bar */
+    //private Texture tempTexture;
     // tempBar is a "texture atlas." Break it up into parts.
     /** Temperature background */
     private TextureRegion tempBackground;
     /** Middle portion of the temperature forground (colored region) */
     private TextureRegion tempForeground;
+
     //private int WIDTH = 1;
     //private int HEIGHT = 300;
 
@@ -48,27 +50,20 @@ public class TemperatureBar {
     private BitmapFont font = new BitmapFont();
 
     /**Create a new temperature bar with temperature range 0 thru max*/
-    public TemperatureBar(int max){
+    public TemperatureBar(TextureRegion back, TextureRegion front, int max){
         maxTemperature = max;
         temperature = 0;
         //init temperature bar
-        gatherTempAssets();
-
-        ProgressBar.ProgressBarStyle barStyle =
-                new ProgressBar.ProgressBarStyle(new TextureRegionDrawable(tempBackground),
-                        new TextureRegionDrawable(tempForeground));
+        //gatherTempAssets();
+        tempBackground = back;
+        tempForeground = front;
+        /*ProgressBar.ProgressBarStyle barStyle =
+                new ProgressBar.ProgressBarStyle(new TextureRegionDrawable(back),
+                        new TextureRegionDrawable(front));
         barStyle.knobBefore = barStyle.knob;
-        tempBar = new ProgressBar(0, maxTemperature, 1, true, barStyle);
+        tempBar = new ProgressBar(0, maxTemperature, 1, true, barStyle);*/
     }
-    /**Gather art assets for temperature from the JSON file specifications and the corresponding image*/
-    private void gatherTempAssets(){
-        AssetDirectory internal = new AssetDirectory("tempbar.json");
-        internal.loadAssets();
-        internal.finishLoading();
-        tempTexture = internal.getEntry("tempbar", Texture.class);
-        tempBackground = internal.getEntry("progress.background", TextureRegion.class);
-        tempForeground = internal.getEntry("progressfull.foreground", TextureRegion.class);
-    }
+
     /** Returns the temperature of the chicken
      *
      * @return temperature of the chicken
@@ -135,7 +130,7 @@ public class TemperatureBar {
         temperatureCounter = MathUtils.clamp(temperatureCounter += dt, 0f, TEMPERATURE_TIMER);
         cooldownCounter += dt;
         //update progress bar
-        tempBar.setValue(temperature);
+        //tempBar.setValue(temperature);
     }
     public void draw(GameCanvas canvas){
         //draw temperature
