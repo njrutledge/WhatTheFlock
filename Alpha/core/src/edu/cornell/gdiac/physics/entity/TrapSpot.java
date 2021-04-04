@@ -1,17 +1,15 @@
-package edu.cornell.gdiac.physics.platform;
+package edu.cornell.gdiac.physics.entity;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
-import com.badlogic.gdx.utils.JsonValue;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 
-public class StoveModel extends BoxObstacle {
+public class TrapSpot extends BoxObstacle {
 
-    private JsonValue data;
+    //private JsonValue data;
 
     private CircleShape sensorShape;
 
@@ -19,9 +17,9 @@ public class StoveModel extends BoxObstacle {
 
     private String sensorName;
 
-    /** Whether or not the stove is lit */
-    private boolean lit = false;
-
+    private boolean hasTrap;
+    /** the trap at this spot */
+    private Trap trap;
     /** The font used to draw text on the screen*/
     private static final BitmapFont font = new BitmapFont();
 
@@ -34,16 +32,20 @@ public class StoveModel extends BoxObstacle {
         return name;
     }
 
-    public StoveModel(JsonValue jv, float x, float y, float width, float height) {
-        super(x, y,
-                width * jv.get("shrink").getFloat(0),
-                height * jv.get("shrink").getFloat(1));
+    /**Place where the player can put a trap*/
+    public TrapSpot(float x, float y) {
+        //set constants manually for the constructor
+        //TODO change
+        super(x, y, 2, 2);
         setBodyType(BodyDef.BodyType.StaticBody);
         setFixedRotation(true);
-        data = jv;
-        setName("stove");
-        name = "stove";
-        sensorName = "cookRadius";
+        setSensor(true);
+        //data = jv;
+        setName("place");
+        name = "place";
+        sensorName = "placeRadius";
+        hasTrap = false;
+        trap = null;
     }
 
     public boolean activatePhysics(World world) {
@@ -57,7 +59,7 @@ public class StoveModel extends BoxObstacle {
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         sensorShape = new CircleShape();
-        sensorShape.setRadius(3f);
+        sensorShape.setRadius(1.55f);
         sensorDef.shape = sensorShape;
 
         // Ground sensor to represent our feet
@@ -66,17 +68,48 @@ public class StoveModel extends BoxObstacle {
         return true;
     }
 
-    public void setLit(boolean val){lit = val;}
+
+    /** places the trap t at this location */
+    public void placeTrap(Trap t){
+        if (!hasTrap){
+            trap = t;
+            hasTrap = true;
+        }
+    }
+
+    /**updates this TrapSpot if needed, based on trap expiry status*/
+    public void update(){
+        if(hasTrap && !trap.isActive()){
+            hasTrap = false;
+            trap = null;
+        }
+    }
+
+    /** checks whether the spot is empty */
+    public boolean isEmpty(){return hasTrap;}
+
+
+    /** whether you can place a trap here, based on the specified location @param x and @param y */
+    public boolean canPlace(float x, float y) {
+        //check within bounds
+        if (getX() <= x && x <= getX() + getWidth() && isEmpty()){
+            if(getY() <= y && y <= getY() + getHeight()){
+                hasTrap = true;
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
-     * Draws the unlit stove
+     * Draws the trap area
      *
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.draw(texture, (lit ? Color.RED : Color.WHITE),origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
+        canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.35f,.35f);
+        //canvas.drawShape(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
     }
-
     /**
      * Draws the outline of the physics body.
      *
@@ -89,7 +122,3 @@ public class StoveModel extends BoxObstacle {
         canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
     }
 }
-
-
-
-

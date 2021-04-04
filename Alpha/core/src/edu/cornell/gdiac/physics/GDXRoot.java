@@ -14,7 +14,6 @@
  package edu.cornell.gdiac.physics;
 
 import com.badlogic.gdx.*;
-import edu.cornell.gdiac.physics.platform.WorldController;
 import edu.cornell.gdiac.util.*;
 import edu.cornell.gdiac.assets.*;
 //import edu.cornell.gdiac.physics.rocket.*;
@@ -42,7 +41,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	/** List of all WorldControllers */
-	private WorldController controller;
+	private GameController controller;
 	
 	/**
 	 * Creates a new game from the configuration settings.
@@ -63,7 +62,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		loading = new LoadingMode("assets.json",canvas,1);
 
 		// Initialize the three game worlds
-		controller = new WorldController();
+		controller = new GameController();
 		current = 0;
 		loading.setScreenListener(this);
 		setScreen(loading);
@@ -120,11 +119,11 @@ public class GDXRoot extends Game implements ScreenListener {
 			controller.gatherAssets(directory);
 			controller.setScreenListener(this);
 			controller.setCanvas(canvas);
-			if(exitCode == WorldController.EASY){
+			if(exitCode == GameController.EASY){
 				controller.initEasy();
-			} else if (exitCode == WorldController.MED){
+			} else if (exitCode == GameController.MED){
 				controller.initMed();
-			} else if (exitCode == WorldController.HARD){
+			} else if (exitCode == GameController.HARD){
 				controller.initHard();
 			}
 			controller.reset();
@@ -132,13 +131,13 @@ public class GDXRoot extends Game implements ScreenListener {
 			
 			loading.dispose();
 			loading = null;
-		} else if (exitCode == WorldController.EXIT_NEXT) {
+		} else if (exitCode == GameController.EXIT_NEXT) {
 			controller.reset();
 			setScreen(controller);
-		} else if (exitCode == WorldController.EXIT_PREV) {
+		} else if (exitCode == GameController.EXIT_PREV) {
 			controller.reset();
 			setScreen(controller);
-		} else if (exitCode == WorldController.EXIT_QUIT) {
+		} else if (exitCode == GameController.EXIT_QUIT) {
 			// We quit the main application
 			Gdx.app.exit();
 		}

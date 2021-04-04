@@ -8,7 +8,7 @@
  * Based on original PhysicsDemo Lab by Don Holden, 2007
  * Updated asset version, 2/6/2021
  */
-package edu.cornell.gdiac.physics.platform;
+package edu.cornell.gdiac.physics.entity;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.JsonValue;
-import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 import edu.cornell.gdiac.util.FilmStrip;
@@ -67,7 +66,10 @@ public class ChefModel extends CapsuleObstacle {
 	/** How long until we can place another trap */
 	private int trapCooldown;
 	/** Is the player trying to set a trap*/
-	private boolean isTrap = false;
+	private boolean isTrap;
+	/** Can the player cook */
+	private boolean canCook;
+
 	/** The physics shape of this object */
 	private PolygonShape sensorShape;
 	/**Whether or not the player can place a trap */
@@ -102,6 +104,60 @@ public class ChefModel extends CapsuleObstacle {
 	protected FilmStrip animator;
 	/** Reference to texture origin */
 	protected Vector2 origin;
+
+	/**
+	 * Creates a new dude avatar with the given physics data
+	 *
+	 * The size is expressed in physics units NOT pixels.  In order for
+	 * drawing to work properly, you MUST set the drawScale. The drawScale
+	 * converts the physics units to pixels.
+	 *
+	 * @param data  	The physics constants for this dude
+	 * @param width		The object width in physics units
+	 * @param height	The object width in physics units
+	 * @param maxHealth The maximum health of the chef
+	 */
+	public ChefModel(JsonValue data, float width, float height, int maxHealth) {
+		// The shrink factors fit the image to a tigher hitbox
+		super(	data.get("pos").getFloat(0),
+				data.get("pos").getFloat(1),
+				width*data.get("shrink").getFloat( 0 ),
+				height*data.get("shrink").getFloat( 1 ));
+		setDensity(data.getFloat("density", 0));
+		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
+		setFixedRotation(true);
+
+		maxspeed = data.getFloat("maxspeed", 0);
+		damping = data.getFloat("damping", 0);
+		force = data.getFloat("force", 0);
+		shotLimit = data.getInt( "shot_cool", 0 );
+		trapLimit = 120;
+		sensorName = "DudeGroundSensor";
+		this.data = data;
+		// Gameplay attributes
+		isShooting = false;
+		faceRight = true;
+		max_health = maxHealth;
+		health = max_health;
+		//gatherHealthAssets();
+		shootCooldown = 0;
+		trapCooldown = 0;
+		setName("dude");
+		isTrap = false;
+		canCook = false;
+	}
+
+	/**Sets the chef's cooking status
+	 * @param b the boolean, whether cooking is true or false*/
+	public void setCanCook(boolean b){
+		canCook = b;
+	}
+
+	/**Returns whether the chef is cooking.
+	 * @return the cooking status of the chef. */
+	public boolean canCook(){
+		return canCook;
+	}
 
 	/**
 	 * Returns left/right movement of this character.
@@ -298,46 +354,6 @@ public class ChefModel extends CapsuleObstacle {
 	 */
 	public boolean isFacingRight() {
 		return faceRight;
-	}
-
-	/**
-	 * Creates a new dude avatar with the given physics data
-	 *
-	 * The size is expressed in physics units NOT pixels.  In order for 
-	 * drawing to work properly, you MUST set the drawScale. The drawScale 
-	 * converts the physics units to pixels.
-	 *
-	 * @param data  	The physics constants for this dude
-	 * @param width		The object width in physics units
-	 * @param height	The object width in physics units
-	 * @param maxHealth The maximum health of the chef
-	 */
-	public ChefModel(JsonValue data, float width, float height, int maxHealth) {
-		// The shrink factors fit the image to a tigher hitbox
-		super(	data.get("pos").getFloat(0),
-				data.get("pos").getFloat(1),
-				width*data.get("shrink").getFloat( 0 ),
-				height*data.get("shrink").getFloat( 1 ));
-        setDensity(data.getFloat("density", 0));
-		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
-		setFixedRotation(true);
-
-		maxspeed = data.getFloat("maxspeed", 0);
-		damping = data.getFloat("damping", 0);
-		force = data.getFloat("force", 0);
-		shotLimit = data.getInt( "shot_cool", 0 );
-		trapLimit = 120;
-		sensorName = "DudeGroundSensor";
-		this.data = data;
-		// Gameplay attributes
-		isShooting = false;
-		faceRight = true;
-		max_health = maxHealth;
-		health = max_health;
-		//gatherHealthAssets();
-		shootCooldown = 0;
-		trapCooldown = 0;
-		setName("dude");
 	}
 
 	public void setHealthTexture(TextureRegion t){

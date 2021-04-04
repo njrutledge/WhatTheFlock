@@ -1,16 +1,9 @@
-package edu.cornell.gdiac.physics.platform;
+package edu.cornell.gdiac.physics.entity;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
-import com.badlogic.gdx.utils.JsonValue;
-import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.physics.GameCanvas;
 
 public class TemperatureBar {

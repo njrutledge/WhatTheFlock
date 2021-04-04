@@ -8,7 +8,7 @@
  * Based on original PhysicsDemo Lab by Don Holden, 2007
  * Updated asset version, 2/6/2021
  */
-package edu.cornell.gdiac.physics.platform;
+package edu.cornell.gdiac.physics;
 
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.*;
@@ -19,7 +19,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import edu.cornell.gdiac.assets.AssetDirectory;
 import edu.cornell.gdiac.audio.SoundBuffer;
-import edu.cornell.gdiac.physics.*;
+import edu.cornell.gdiac.physics.entity.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 import edu.cornell.gdiac.util.PooledList;
 import edu.cornell.gdiac.util.ScreenListener;
@@ -35,7 +35,7 @@ import java.util.Iterator;
  * This is the purpose of our AssetState variable; it ensures that multiple instances
  * place nicely with the static assets.
  */
-public class WorldController implements ContactListener, Screen {
+public class GameController implements ContactListener, Screen {
 	///TODO: Implement a proper board and interactions between the player and chickens, slap may also be implemented here
 	////////////// This file puts together a lot of data, be sure that you do not modify something without knowing fully
 	////////////// its purpose or you may break someone else's work, further comments are below ////////////////////
@@ -137,8 +137,8 @@ public class WorldController implements ContactListener, Screen {
 	/** The default value of gravity (going down) */
 	protected static final float DEFAULT_GRAVITY = -4.9f;
 
-	/** Whether or not the player is cooking, true is they are and false otherwise*/
-	private boolean cooking;
+	///** Whether or not the player is cooking, true is they are and false otherwise*/
+	//private boolean cooking;
 
 	private Trap trapCache;
 
@@ -238,7 +238,7 @@ public class WorldController implements ContactListener, Screen {
 	 *
 	 * The game has default gravity and other settings
 	 */
-	public WorldController() {
+	public GameController() {
 		this(new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT), new Vector2(0,DEFAULT_GRAVITY));
 		setDebug(false);
 		setComplete(false);
@@ -246,7 +246,7 @@ public class WorldController implements ContactListener, Screen {
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
 		chickens = 0;
-		cooking = false;
+		//cooking = false;
 	}
 
 
@@ -260,7 +260,7 @@ public class WorldController implements ContactListener, Screen {
 	 * @param bounds	The game bounds in Box2d coordinates
 	 * @param gravity	The gravitational force on this Box2d world
 	 */
-	protected WorldController(Rectangle bounds, Vector2 gravity){
+	protected GameController(Rectangle bounds, Vector2 gravity){
 		world = new World(gravity,false);
 		this.bounds = new Rectangle(bounds);
 		this.scale = new Vector2(1,1);
@@ -424,8 +424,6 @@ public class WorldController implements ContactListener, Screen {
 	    // This world is heavier
 		world.setGravity( new Vector2(0,0) );
 
-
-
 		// Add stove
 		float swidth = stoveTexture.getRegionWidth()/scale.x;
 		float sheight = stoveTexture.getRegionHeight()/scale.y;
@@ -468,366 +466,18 @@ public class WorldController implements ContactListener, Screen {
 
 	}
 
-	/**
-	 * kill all chickens
-	 */
-	public void killChickens(){
-		chickens = 0;
-		for (Obstacle obstacle: objects){
-			if (obstacle.getName().equals("chicken")){
-				removeChicken(obstacle);
-			}
-		}
-	}
-	
-	/**
-	 * Returns whether to process the update loop
-	 *
-	 * At the start of the update loop, we check if it is time
-	 * to switch to a new game mode.  If not, the update proceeds
-	 * normally.
-	 *
-	 * @param dt	Number of seconds since last animation frame
-	 * 
-	 * @return whether to process the update loop
-	 */
-	public boolean preUpdate(float dt) {
-		if (!preUpdateHelper(dt)) {
-			return false;
-		}
+	/*******************************************************************************************
+	 * COLLISIONS
+	 ******************************************************************************************/
+	/** Unused ContactListener method */
+	public void postSolve(Contact contact, ContactImpulse impulse) {}
+	/** Unused ContactListener method */
+	public void preSolve(Contact contact, Manifold oldManifold) {}
 
-		//set failure if avatar's health is 0
-		if (!isFailure() && !avatar.isAlive()) {
-			setFailure(true);
-			return false;
-		}
-
-		if (temp.isCooked()){
-			setComplete(true);
-			return false;
-		}
-
-		if (InputController.getInstance().didPause()){
-			paused = !paused;
-		}
-
-		return !paused;
-	}
-
-	/**
-	 * Returns whether to process the update loop
-	 *
-	 * At the start of the update loop, we check if it is time
-	 * to switch to a new game mode.  If not, the update proceeds
-	 * normally.
-	 *
-	 * @param dt	Number of seconds since last animation frame
-	 *
-	 * @return whether to process the update loop
-	 */
-	private boolean preUpdateHelper(float dt){
-		InputController input = InputController.getInstance();
-		input.readInput(bounds, scale);
-		if (listener == null) {
-			return true;
-		}
-
-		// Toggle debug
-		if (input.didDebug()) {
-			debug = !debug;
-		}
-
-		// Handle resets
-		if (input.didReset()) {
-			reset();
-		}
-		if(input.didAdvance()) {
-			avatar.decrementHealth();
-		}
-		if(input.didRetreat()) {
-			killChickens();
-		}
-
-		// Now it is time to maybe switch screens.
-		if (input.didExit()) {
-			pause();
-			listener.exitScreen(this, EXIT_QUIT);
-			return false;
-		} else if (countdown > 0) {
-			countdown--;
-		} else if (countdown == 0) {
-			if (failed) {
-				reset();
-			} else if (complete) {
-				pause();
-				listener.exitScreen(this, EXIT_NEXT);
-				return false;
-			}
-		}
-		return true;
-	}
-
-
-	/**
-	 * The core gameplay loop of this world.
-	 *
-	 * This method contains the specific update code for this mini-game. It does
-	 * not handle collisions, as those are managed by the parent class WorldController.
-	 * This method is called after input is read, but before collisions are resolved.
-	 * The very last thing that it should do is apply forces to the appropriate objects.
-	 *
-	 * @param dt	Number of seconds since last animation frame
-	 */
-	public void update(float dt) {
-		// Process actions in object model
-		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
-		avatar.setVertMovement(InputController.getInstance().getVertical()*avatar.getForce());
-		avatar.setShooting(InputController.getInstance().didSecondary());
-		avatar.setTrap(InputController.getInstance().didTrap());
-
-		if(InputController.getInstance().didMute()){
-			muted = !muted;
-		}
-		if (muted) {
-			volume = 0;
-		} else {
-			volume = DEFAULT_VOL;
-		}
-
-		// Rotate through player's available traps
-		if (InputController.getInstance().didRotateTrapLeft()){
-			if (trapTypeSelected == Trap.type.LURE){
-				trapTypeSelected = Trap.type.FIRE;
-			} else if (trapTypeSelected == Trap.type.SLOW){
-				trapTypeSelected = Trap.type.LURE;
-			} else {
-				trapTypeSelected = Trap.type.SLOW;
-			}
-		} else if (InputController.getInstance().didRotateTrapRight()){
-			if (trapTypeSelected == Trap.type.LURE) {
-				trapTypeSelected = Trap.type.SLOW;
-			} else if (trapTypeSelected == Trap.type.SLOW){
-				trapTypeSelected = Trap.type.FIRE;
-			} else {
-				trapTypeSelected = Trap.type.LURE;
-			}
-		}
-
-		// Change the parameter currently selected
-		if (InputController.getInstance().didParameterToggle()){
-			if (parameterSelected < parameterList.length-1){
-				parameterSelected += 1;
-			} else {
-				parameterSelected = 0;
-			}
-		}
-		// Increase the current parameter
-		if (InputController.getInstance().didParameterIncreased()){
-			if (parameterSelected == 12) {
-				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+1, 1);
-			} else {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] + 1);
-			}
-		}
-		// Decrease the current parameter
-		if (InputController.getInstance().didParameterDecreased()){
-			parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected]-1);
-		}
-
-		
-		// Add a bullet if we fire
-		if (avatar.isShooting()) {
-			createSlap(InputController.getInstance().getSlapDirection());
-		}
-
-		// Add a trap if trying to press
-		if (avatar.isTrapping()) {
-			createTrap();
-		}
-
-		//random chance of spawning a chicken
-		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			spawnChicken();
-		}
-		for (Obstacle obj : objects) {
-			//Remove a bullet if slap is complete
-			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {
-				removeBullet(obj);
-			}
-			if (obj.getName().equals("chicken")){
-				ChickenModel chick = ((ChickenModel) obj);
-				if (chick.isAttacking() && chick.getSoundCheck()) {
-					chickAttack.stop();
-					chickAttack.play(volume*0.5f);
-				}
-			}
-		}
-
-		avatar.applyForce();
-
-		//update temperature
-		if (cooking && (avatar.getMovement() == 0f
-						&& avatar.getVertMovement() == 0f
-						&& !avatar.isShooting())) {
-			//avatar.cook(true);
-			temp.cook(true);
-		}else {
-			//avatar.cook(false);
-			temp.cook(false);
-		}
-
-		temp.update(dt);
-	}
-
-	/**
-	 * Spawn a chicken somewhere in the world, then increments the number of chickens
-	 */
-	private void spawnChicken(){
-		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
-		float dheight = chickenTexture.getRegionHeight()/scale.y;
-		float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
-		float y = ((float)Math.random() * (spawn_ymax - spawn_ymin) + spawn_ymin);
-		float rand = (float)Math.random();
-		// Spawn chicken at the border of the world
-		if (rand < 0.25){
-			x = spawn_xmin;
-		}
-		else if (rand < 0.5){
-			x = spawn_xmax;
-		}
-		else if (rand < 0.75){
-			y = spawn_ymin;
-		}
-		else{
-			y = spawn_ymax;
-		}
-
-		ChickenModel enemy;
-		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1]);
-		enemy.setDrawScale(scale);
-		enemy.setTexture(nuggetTexture);
-		enemy.setBarTexture(enemyHealthBarTexture);
-		addObject(enemy);
-		chickens ++;
-	}
-
-	/**
-	 * Removes the given chicken from the world, then decrements the number of chickens
-	 * @param chicken	 the chicken to remove
-	 */
-	private void removeChicken(Obstacle chicken){
-		if(!chicken.isRemoved()) {
-			chicken.markRemoved(true);
-			chickens--;
-		}
-	}
-	/**
-	 * Add a new bullet to the world and send it in the right direction.
-	 *
-	 */
-	private void createSlap(int direction) {
-		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
-		if (temp.getTemperature() == 0){
-			return;
-		} else{
-			temp.reduceTemp(1);
-		}
-
-		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
-		float offset = 1f;
-		float angvel = 6f;
-		float ofratio = 0.7f;
-		BoxObstacle slap;
-		if (direction == 2 || direction == 4) {
-			slap = new BoxObstacle(avatar.getX(), avatar.getY(), radius, 0.1f);
-			slap.setSensor(true);
-			offset *= (direction == 2 ? 1 : -1);
-			slap.setX(avatar.getX() + offset);
-			slap.setY(avatar.getY() - offset*ofratio);
-			slap.setAngle((float)(-1*Math.PI/24));
-			slap.setAngularVelocity(angvel);
-		} else {
-			slap = new BoxObstacle(avatar.getX(), avatar.getY(), 0.1f, radius);
-			slap.setSensor(true);
-			offset *= (direction == 1 ? 1 : -1);
-			slap.setY(avatar.getY() + offset);
-			slap.setX(avatar.getX() - offset*ofratio);
-			slap.setAngle((float)(1*Math.PI/24));
-			slap.setAngularVelocity(-1*angvel);
-		}
-
-
-	    slap.setName("bullet");
-		slap.setDensity(0);
-	    slap.setDrawScale(scale);
-	    slap.setTexture(bulletTexture);
-	    Filter bulletFilter = new Filter();
-	    bulletFilter.groupIndex = -1;
-	    bulletFilter.categoryBits = 0x0002;
-	    slap.setFilterData(bulletFilter);
-	    slap.setBullet(true);
-	    slap.setGravityScale(0);
-		
-		// Compute position and velocity
-		float speed = 175;
-		if (direction == 2 || direction == 4) {
-			speed *= (direction == 2 ? 0.1f : -0.1f);
-			slap.setVY(speed);
-		} else {
-			speed *= (direction == 1 ? 0.1f : -0.1f);
-			slap.setVX(speed);
-		}
-		addQueuedObject(slap);
-		emptySlap.play(volume);
-
-	}
-	
-	/**
-	 * Remove a new bullet from the world.
-	 *
-	 * @param  bullet   the bullet to remove
-	 */
-	public void removeBullet(Obstacle bullet) {
-		//TODO: may need to alter similar to createBullet()
-	    bullet.markRemoved(true);
-	}
-
-	public void createTrap() {
-		//spawn test traps
-		trapHelper(avatar.getX(), avatar.getY(), trapTypeSelected);
-
-	}
-
-	public void trapHelper(float x, float y, Trap.type t){
-		float twidth = trapTexture.getRegionWidth()/scale.x;
-		float theight = trapTexture.getRegionHeight()/scale.y;
-		Trap trap = new Trap(constants.get("trap"), avatar.getX(), avatar.getY(), twidth, theight, trapTypeSelected, Trap.shape.CIRCLE);
-		trap.setDrawScale(scale);
-		trap.setTexture(trapTexture);
-		addObject(trap);
-//		trap = new Trap(constants.get("trap"), 20, 4, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.SQUARE);
-//		trap.setDrawScale(scale);
-//		trap.setTexture(trapTexture);
-//		addObject(trap);
-	}
-	/**
-	 *  decrement the trap durability, and remove the trap if it breaks.
-	 *
-	 * @param trap   the trap to decrement durability and possibly remove
-	 */
-	public void decrementTrap(Trap trap){
-		if(!trap.isRemoved() && trap.decrementDurability()){
-			trap.markRemoved(true);
-		}
-	}
-
-	public float damageCalc(){
-		return avatar.getDamage() + 2*avatar.getDamage()*temp.getPercentCooked();
-	}
 	/**
 	 * Callback method for the start of a collision
 	 *
-	 * This method is called when we first get a collision between two objects.  We use 
+	 * This method is called when we first get a collision between two objects.  We use
 	 * this method to test if it is the "right" kind of collision.  In particular, we
 	 * use it to test if we made it to the win door.
 	 *
@@ -843,7 +493,7 @@ public class WorldController implements ContactListener, Screen {
 
 		Object fd1 = fix1.getUserData();
 		Object fd2 = fix2.getUserData();
-		
+
 		try {
 			Obstacle bd1 = (Obstacle)body1.getUserData();
 			Obstacle bd2 = (Obstacle)body2.getUserData();
@@ -854,7 +504,7 @@ public class WorldController implements ContactListener, Screen {
 			//cook if player is near stove and not doing anything
 			if ((bd1 == avatar && bd2 == stove)
 					|| (bd2 == avatar && bd1 == stove)) {
-				cooking = true;
+				avatar.setCanCook(true);
 			}
 
 			//bullet collision with chicken eliminates chicken
@@ -1031,7 +681,7 @@ public class WorldController implements ContactListener, Screen {
 	 * This method is called when two objects cease to touch.  The main use of this method
 	 * is to determine when the characer is NOT on the ground.  This is how we prevent
 	 * double jumping.
-	 */ 
+	 */
 	public void endContact(Contact contact) {
 		//TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
 		Fixture fix1 = contact.getFixtureA();
@@ -1042,7 +692,7 @@ public class WorldController implements ContactListener, Screen {
 
 		Object fd1 = fix1.getUserData();
 		Object fd2 = fix2.getUserData();
-		
+
 		Object bd1 = body1.getUserData();
 		Object bd2 = body2.getUserData();
 
@@ -1050,13 +700,13 @@ public class WorldController implements ContactListener, Screen {
 		Obstacle b2 = (Obstacle) bd2;
 
 		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-			(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
+				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
 			sensorFixtures.remove((avatar == bd1) ? fix2 : fix1);
 		}
 
 		if (avatar.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
 				avatar.getSensorName().equals(fd1) && stove.getSensorName().equals(fd2)){
-			cooking = false;
+			avatar.setCanCook(false);
 		}
 		if (b1.getName().equals("trap") && b2.getName().equals("chicken")) {
 			switch (((Trap) b1).getTrapType()){
@@ -1116,6 +766,368 @@ public class WorldController implements ContactListener, Screen {
 			}
 		}
 	}
+	/*******************************************************************************************
+	 * UPDATING LOGIC
+	 ******************************************************************************************/
+	/**
+	 * Returns whether to process the update loop
+	 *
+	 * At the start of the update loop, we check if it is time
+	 * to switch to a new game mode.  If not, the update proceeds
+	 * normally.
+	 *
+	 * @param dt	Number of seconds since last animation frame
+	 *
+	 * @return whether to process the update loop
+	 */
+	public boolean preUpdate(float dt) {
+		if (!preUpdateHelper(dt)) {
+			return false;
+		}
+
+		//set failure if avatar's health is 0
+		if (!isFailure() && !avatar.isAlive()) {
+			setFailure(true);
+			return false;
+		}
+
+		if (temp.isCooked()){
+			setComplete(true);
+			return false;
+		}
+
+		if (InputController.getInstance().didPause()){
+			paused = !paused;
+		}
+
+		return !paused;
+	}
+	/**
+	 * Returns whether to process the update loop
+	 *
+	 * At the start of the update loop, we check if it is time
+	 * to switch to a new game mode.  If not, the update proceeds
+	 * normally.
+	 *
+	 * @param dt	Number of seconds since last animation frame
+	 *
+	 * @return whether to process the update loop
+	 */
+	private boolean preUpdateHelper(float dt){
+		InputController input = InputController.getInstance();
+		input.readInput(bounds, scale);
+		if (listener == null) {
+			return true;
+		}
+
+		// Toggle debug
+		if (input.didDebug()) {
+			debug = !debug;
+		}
+
+		// Handle resets
+		if (input.didReset()) {
+			reset();
+		}
+		if(input.didAdvance()) {
+			avatar.decrementHealth();
+		}
+		if(input.didRetreat()) {
+			killChickens();
+		}
+
+		// Now it is time to maybe switch screens.
+		if (input.didExit()) {
+			pause();
+			listener.exitScreen(this, EXIT_QUIT);
+			return false;
+		} else if (countdown > 0) {
+			countdown--;
+		} else if (countdown == 0) {
+			if (failed) {
+				reset();
+			} else if (complete) {
+				pause();
+				listener.exitScreen(this, EXIT_NEXT);
+				return false;
+			}
+		}
+		return true;
+	}
+
+
+	/**
+	 * The core gameplay loop of this world.
+	 *
+	 * This method contains the specific update code for this mini-game. It does
+	 * not handle collisions, as those are managed by the parent class WorldController.
+	 * This method is called after input is read, but before collisions are resolved.
+	 * The very last thing that it should do is apply forces to the appropriate objects.
+	 *
+	 * @param dt	Number of seconds since last animation frame
+	 */
+	public void update(float dt) {
+		// Process actions in object model
+		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
+		avatar.setVertMovement(InputController.getInstance().getVertical()*avatar.getForce());
+		avatar.setShooting(InputController.getInstance().didSecondary());
+		avatar.setTrap(InputController.getInstance().didTrap());
+
+		if(InputController.getInstance().didMute()){
+			muted = !muted;
+		}
+		if (muted) {
+			volume = 0;
+		} else {
+			volume = DEFAULT_VOL;
+		}
+
+		// Rotate through player's available traps
+		if (InputController.getInstance().didRotateTrapLeft()){
+			if (trapTypeSelected == Trap.type.LURE){
+				trapTypeSelected = Trap.type.FIRE;
+			} else if (trapTypeSelected == Trap.type.SLOW){
+				trapTypeSelected = Trap.type.LURE;
+			} else {
+				trapTypeSelected = Trap.type.SLOW;
+			}
+		} else if (InputController.getInstance().didRotateTrapRight()){
+			if (trapTypeSelected == Trap.type.LURE) {
+				trapTypeSelected = Trap.type.SLOW;
+			} else if (trapTypeSelected == Trap.type.SLOW){
+				trapTypeSelected = Trap.type.FIRE;
+			} else {
+				trapTypeSelected = Trap.type.LURE;
+			}
+		}
+
+		// Change the parameter currently selected
+		if (InputController.getInstance().didParameterToggle()){
+			if (parameterSelected < parameterList.length-1){
+				parameterSelected += 1;
+			} else {
+				parameterSelected = 0;
+			}
+		}
+		// Increase the current parameter
+		if (InputController.getInstance().didParameterIncreased()){
+			if (parameterSelected == 12) {
+				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+1, 1);
+			} else {
+				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] + 1);
+			}
+		}
+		// Decrease the current parameter
+		if (InputController.getInstance().didParameterDecreased()){
+			parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected]-1);
+		}
+
+		
+		// Add a bullet if we fire
+		if (avatar.isShooting()) {
+			createSlap(InputController.getInstance().getSlapDirection());
+		}
+
+		// Add a trap if trying to press
+		if (avatar.isTrapping()) {
+			createTrap();
+		}
+
+		//random chance of spawning a chicken
+		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
+			spawnChicken();
+		}
+		for (Obstacle obj : objects) {
+			//Remove a bullet if slap is complete
+			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {
+				removeBullet(obj);
+			}
+			if (obj.getName().equals("chicken")){
+				ChickenModel chick = ((ChickenModel) obj);
+				if (chick.isAttacking() && chick.getSoundCheck()) {
+					chickAttack.stop();
+					chickAttack.play(volume*0.5f);
+				}
+			}
+		}
+
+		avatar.applyForce();
+
+		//update temperature
+		if (avatar.canCook() && (avatar.getMovement() == 0f
+						&& avatar.getVertMovement() == 0f
+						&& !avatar.isShooting())) {
+			//avatar.cook(true);
+			temp.cook(true);
+		}else {
+			//avatar.cook(false);
+			temp.cook(false);
+		}
+
+		temp.update(dt);
+	}
+
+	/*******************************************************************************************
+	 * UPDATE HELPERS
+	 ******************************************************************************************/
+
+	/**
+	 * Kills all chickens in the world
+	 */
+	public void killChickens(){
+		chickens = 0;
+		for (Obstacle obstacle: objects){
+			if (obstacle.getName().equals("chicken")){
+				removeChicken(obstacle);
+			}
+		}
+	}
+	/**
+	 * Spawn a chicken somewhere in the world, then increments the number of chickens
+	 */
+	private void spawnChicken(){
+		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
+		float dheight = chickenTexture.getRegionHeight()/scale.y;
+		float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
+		float y = ((float)Math.random() * (spawn_ymax - spawn_ymin) + spawn_ymin);
+		float rand = (float)Math.random();
+		// Spawn chicken at the border of the world
+		if (rand < 0.25){
+			x = spawn_xmin;
+		}
+		else if (rand < 0.5){
+			x = spawn_xmax;
+		}
+		else if (rand < 0.75){
+			y = spawn_ymin;
+		}
+		else{
+			y = spawn_ymax;
+		}
+
+		ChickenModel enemy;
+		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1]);
+		enemy.setDrawScale(scale);
+		enemy.setTexture(nuggetTexture);
+		enemy.setBarTexture(enemyHealthBarTexture);
+		addObject(enemy);
+		chickens ++;
+	}
+
+	/**
+	 * Removes the given chicken from the world, then decrements the number of chickens
+	 * @param chicken	 the chicken to remove
+	 */
+	private void removeChicken(Obstacle chicken){
+		if(!chicken.isRemoved()) {
+			chicken.markRemoved(true);
+			chickens--;
+		}
+	}
+	/**
+	 * Add a new bullet to the world and send it in the right direction.
+	 *
+	 */
+	private void createSlap(int direction) {
+		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
+		if (temp.getTemperature() == 0){
+			return;
+		} else{
+			temp.reduceTemp(1);
+		}
+
+		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
+		float offset = 1f;
+		float angvel = 6f;
+		float ofratio = 0.7f;
+		BoxObstacle slap;
+		if (direction == 2 || direction == 4) {
+			slap = new BoxObstacle(avatar.getX(), avatar.getY(), radius, 0.1f);
+			slap.setSensor(true);
+			offset *= (direction == 2 ? 1 : -1);
+			slap.setX(avatar.getX() + offset);
+			slap.setY(avatar.getY() - offset*ofratio);
+			slap.setAngle((float)(-1*Math.PI/24));
+			slap.setAngularVelocity(angvel);
+		} else {
+			slap = new BoxObstacle(avatar.getX(), avatar.getY(), 0.1f, radius);
+			slap.setSensor(true);
+			offset *= (direction == 1 ? 1 : -1);
+			slap.setY(avatar.getY() + offset);
+			slap.setX(avatar.getX() - offset*ofratio);
+			slap.setAngle((float)(1*Math.PI/24));
+			slap.setAngularVelocity(-1*angvel);
+		}
+
+
+	    slap.setName("bullet");
+		slap.setDensity(0);
+	    slap.setDrawScale(scale);
+	    slap.setTexture(bulletTexture);
+	    Filter bulletFilter = new Filter();
+	    bulletFilter.groupIndex = -1;
+	    bulletFilter.categoryBits = 0x0002;
+	    slap.setFilterData(bulletFilter);
+	    slap.setBullet(true);
+	    slap.setGravityScale(0);
+		
+		// Compute position and velocity
+		float speed = 175;
+		if (direction == 2 || direction == 4) {
+			speed *= (direction == 2 ? 0.1f : -0.1f);
+			slap.setVY(speed);
+		} else {
+			speed *= (direction == 1 ? 0.1f : -0.1f);
+			slap.setVX(speed);
+		}
+		addQueuedObject(slap);
+		emptySlap.play(volume);
+
+	}
+	
+	/**
+	 * Remove a new bullet from the world.
+	 *
+	 * @param  bullet   the bullet to remove
+	 */
+	public void removeBullet(Obstacle bullet) {
+		//TODO: may need to alter similar to createBullet()
+	    bullet.markRemoved(true);
+	}
+
+	public void createTrap() {
+		//spawn test traps
+		trapHelper(avatar.getX(), avatar.getY(), trapTypeSelected);
+
+	}
+
+	public void trapHelper(float x, float y, Trap.type t){
+		float twidth = trapTexture.getRegionWidth()/scale.x;
+		float theight = trapTexture.getRegionHeight()/scale.y;
+		Trap trap = new Trap(constants.get("trap"), avatar.getX(), avatar.getY(), twidth, theight, trapTypeSelected, Trap.shape.CIRCLE);
+		trap.setDrawScale(scale);
+		trap.setTexture(trapTexture);
+		addObject(trap);
+//		trap = new Trap(constants.get("trap"), 20, 4, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.SQUARE);
+//		trap.setDrawScale(scale);
+//		trap.setTexture(trapTexture);
+//		addObject(trap);
+	}
+	/**
+	 *  decrement the trap durability, and remove the trap if it breaks.
+	 *
+	 * @param trap   the trap to decrement durability and possibly remove
+	 */
+	public void decrementTrap(Trap trap){
+		if(!trap.isRemoved() && trap.decrementDurability()){
+			trap.markRemoved(true);
+		}
+	}
+
+	public float damageCalc(){
+		return avatar.getDamage() + 2*avatar.getDamage()*temp.getPercentCooked();
+	}
+
 
 	/**
 	 *
@@ -1156,11 +1168,6 @@ public class WorldController implements ContactListener, Screen {
 		boolean vert  = (bounds.y <= obj.getY() && obj.getY() <= bounds.y+bounds.height);
 		return horiz && vert;
 	}
-	
-	/** Unused ContactListener method */
-	public void postSolve(Contact contact, ContactImpulse impulse) {}
-	/** Unused ContactListener method */
-	public void preSolve(Contact contact, Manifold oldManifold) {}
 
 	/**
 	 * Called when the Screen is paused.
@@ -1264,7 +1271,7 @@ public class WorldController implements ContactListener, Screen {
 				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
 		}
-		if ((cooking && (avatar.getMovement() == 0f
+		if ((avatar.canCook() && (avatar.getMovement() == 0f
 				&& avatar.getVertMovement() == 0f
 				&& !avatar.isShooting()))){
 			stove.setLit(true);

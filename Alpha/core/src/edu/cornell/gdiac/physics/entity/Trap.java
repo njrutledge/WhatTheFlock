@@ -1,4 +1,4 @@
-package edu.cornell.gdiac.physics.platform;
+package edu.cornell.gdiac.physics.entity;
 
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
