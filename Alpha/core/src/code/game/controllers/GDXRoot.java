@@ -17,8 +17,6 @@ import code.assets.AssetDirectory;
 import code.game.views.GameCanvas;
 import code.util.ScreenListener;
 import com.badlogic.gdx.*;
-import edu.cornell.gdiac.util.*;
-import edu.cornell.gdiac.assets.*;
 //import edu.cornell.gdiac.game.rocket.*;
 //import edu.cornell.gdiac.game.ragdoll.*;
 

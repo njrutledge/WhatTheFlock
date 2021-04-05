@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
-import edu.cornell.gdiac.game.models.obstacle.*;
 import code.game.views.GameCanvas;
 
 public class TrapSpot extends BoxObstacle {

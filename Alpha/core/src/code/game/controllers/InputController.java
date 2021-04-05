@@ -19,7 +19,6 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.math.*;
 
 import com.badlogic.gdx.utils.Array;
-import edu.cornell.gdiac.util.*;
 
 /**
  * Class for reading player input. 

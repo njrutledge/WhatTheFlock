@@ -35,9 +35,6 @@ import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.ControllerMapping;
 
-import edu.cornell.gdiac.assets.*;
-import edu.cornell.gdiac.util.*;
-
 /**
  * Class that provides a loading screen for the state of the game.
  *
