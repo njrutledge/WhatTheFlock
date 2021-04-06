@@ -48,12 +48,13 @@ public class CollisionController {
 
             //fd1 has a sensor
             if (fd1 != null) {
+                //bd1, bd2, fd1
                 //handleCollision(fd1, bd2);
             }
 
             //fd2 has a sensor
             if (fd2 != null) {
-
+                //bd1, bd2, fd2
             }
 
             //trap collision with chicken eliminates chicken
@@ -153,8 +154,12 @@ public class CollisionController {
                 e.printStackTrace();
             }
         }
+    /**
+     * Handles the interaction between the chicken and the trap
+     * */
+    private void handleCollision(ChickenModel chick, Trap trap){
 
-
+    }
     /**
      * Activates ability to cook when the chef is near the stove
      * @param avatar
@@ -226,12 +231,7 @@ public class CollisionController {
         chick.hitPlayer();
     }
 
-    /**
-     * Handles the interaction between the chicken and the trap
-     * */
-    private void handleCollision(ChickenModel chick, Trap trap){
 
-    }
 
     /**
      * Callback method for the start of a collision
