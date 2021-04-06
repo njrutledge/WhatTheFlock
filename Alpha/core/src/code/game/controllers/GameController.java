@@ -48,8 +48,6 @@ public class GameController implements ContactListener, Screen {
 	/** The font for giving messages to the player */
 	protected BitmapFont displayFont;
 
-	/** Texture asset for character avatar */
-	private TextureRegion avatarTexture;
 	/** Texture asset for the bullet */
 	private TextureRegion bulletTexture;
 
@@ -148,7 +146,7 @@ public class GameController implements ContactListener, Screen {
 	/** Physics constants for initialization */
 	private JsonValue constants;
 	/** Reference to the character avatar */
-	private ChefModel avatar;
+	private ChefModel chef;
 	/** Reference to the temperature*/
 	private TemperatureBar temp;
 	///** Reference to the goalDoor (for collision detection) */
@@ -290,8 +288,6 @@ public class GameController implements ContactListener, Screen {
 		trapTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
 			//characters
-			//TODO: WHY DO WE HAVE AVATAR AND CHEF?? CONFUSING
-		avatarTexture  = new TextureRegion(directory.getEntry("char:dude",Texture.class));
 		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("char:chicken",Texture.class));
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("char:nuggetBar", Texture.class));
@@ -437,14 +433,15 @@ public class GameController implements ContactListener, Screen {
 		volume = constants.getFloat("volume", 1.0f);
 
 		// Create dude
-		float dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		float dheight = avatarTexture.getRegionHeight()/scale.y;
-		avatar = new ChefModel(constants.get("dude"), dwidth, dheight, parameterList[0]);
-		avatar.setDrawScale(scale);
-		avatar.setTexture(chefTexture);
-		avatar.setHealthTexture(healthTexture);
-		avatar.setNoHealthTexture(noHealthTexture);
-		avatar.setName("chef");
+		//TODO: FIX AFTER WE HAVE FILMSTRIP!
+		float dwidth  = 32/scale.x;
+		float dheight = 32/scale.y;
+		chef = new ChefModel(constants.get("dude"), dwidth, dheight, parameterList[0]);
+		chef.setDrawScale(scale);
+		chef.setTexture(chefTexture);
+		chef.setHealthTexture(healthTexture);
+		chef.setNoHealthTexture(noHealthTexture);
+		chef.setName("chef");
 
 		//Set temperature based on difficulty of the level
 		temp = new TemperatureBar(tempBackground, tempForeground,30);
@@ -452,7 +449,7 @@ public class GameController implements ContactListener, Screen {
 
 		//avatar.setMaxTemp(30);
 
-		addObject(avatar);
+		addObject(chef);
 
 		// Create some chickens
 		spawn_xmin = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[0];
@@ -789,7 +786,7 @@ public class GameController implements ContactListener, Screen {
 		}
 
 		//set failure if avatar's health is 0
-		if (!isFailure() && !avatar.isAlive()) {
+		if (!isFailure() && !chef.isAlive()) {
 			setFailure(true);
 			return false;
 		}
@@ -833,7 +830,7 @@ public class GameController implements ContactListener, Screen {
 			reset();
 		}
 		if(input.didAdvance()) {
-			avatar.decrementHealth();
+			chef.decrementHealth();
 		}
 		if(input.didRetreat()) {
 			killChickens();
@@ -871,10 +868,10 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void update(float dt) {
 		// Process actions in object model
-		avatar.setMovement(InputController.getInstance().getHorizontal() *avatar.getForce());
-		avatar.setVertMovement(InputController.getInstance().getVertical()*avatar.getForce());
-		avatar.setShooting(InputController.getInstance().didSecondary());
-		avatar.setTrap(InputController.getInstance().didTrap());
+		chef.setMovement(InputController.getInstance().getHorizontal() * chef.getForce());
+		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
+		chef.setShooting(InputController.getInstance().didSecondary());
+		chef.setTrap(InputController.getInstance().didTrap());
 
 		if(InputController.getInstance().didMute()){
 			muted = !muted;
@@ -927,12 +924,12 @@ public class GameController implements ContactListener, Screen {
 
 		
 		// Add a bullet if we fire
-		if (avatar.isShooting()) {
+		if (chef.isShooting()) {
 			createSlap(InputController.getInstance().getSlapDirection());
 		}
 
 		// Add a trap if trying to press
-		if (avatar.isTrapping()) {
+		if (chef.isTrapping()) {
 			createTrap();
 		}
 
@@ -954,12 +951,12 @@ public class GameController implements ContactListener, Screen {
 			}
 		}
 
-		avatar.applyForce();
+		chef.applyForce();
 
 		//update temperature
-		if (avatar.canCook() && (avatar.getMovement() == 0f
-						&& avatar.getVertMovement() == 0f
-						&& !avatar.isShooting())) {
+		if (chef.canCook() && (chef.getMovement() == 0f
+						&& chef.getVertMovement() == 0f
+						&& !chef.isShooting())) {
 			//avatar.cook(true);
 			temp.cook(true);
 		}else {
@@ -1018,7 +1015,7 @@ public class GameController implements ContactListener, Screen {
 		}
 
 		ChickenModel enemy;
-		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1]);
+		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, chef, parameterList[1]);
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
@@ -1044,19 +1041,19 @@ public class GameController implements ContactListener, Screen {
 		float ofratio = 0.7f;
 		BoxObstacle slap;
 		if (direction == 2 || direction == 4) {
-			slap = new BoxObstacle(avatar.getX(), avatar.getY(), radius, 0.1f);
+			slap = new BoxObstacle(chef.getX(), chef.getY(), radius, 0.1f);
 			slap.setSensor(true);
 			offset *= (direction == 2 ? 1 : -1);
-			slap.setX(avatar.getX() + offset);
-			slap.setY(avatar.getY() - offset*ofratio);
+			slap.setX(chef.getX() + offset);
+			slap.setY(chef.getY() - offset*ofratio);
 			slap.setAngle((float)(-1*Math.PI/24));
 			slap.setAngularVelocity(angvel);
 		} else {
-			slap = new BoxObstacle(avatar.getX(), avatar.getY(), 0.1f, radius);
+			slap = new BoxObstacle(chef.getX(), chef.getY(), 0.1f, radius);
 			slap.setSensor(true);
 			offset *= (direction == 1 ? 1 : -1);
-			slap.setY(avatar.getY() + offset);
-			slap.setX(avatar.getX() - offset*ofratio);
+			slap.setY(chef.getY() + offset);
+			slap.setX(chef.getX() - offset*ofratio);
 			slap.setAngle((float)(1*Math.PI/24));
 			slap.setAngularVelocity(-1*angvel);
 		}
@@ -1099,14 +1096,14 @@ public class GameController implements ContactListener, Screen {
 
 	public void createTrap() {
 		//spawn test traps
-		trapHelper(avatar.getX(), avatar.getY(), trapTypeSelected);
+		trapHelper(chef.getX(), chef.getY(), trapTypeSelected);
 
 	}
 
 	public void trapHelper(float x, float y, Trap.type t){
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
-		Trap trap = new Trap(constants.get("trap"), avatar.getX(), avatar.getY(), twidth, theight, trapTypeSelected, Trap.shape.CIRCLE);
+		Trap trap = new Trap(constants.get("trap"), chef.getX(), chef.getY(), twidth, theight, trapTypeSelected, Trap.shape.CIRCLE);
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
 		addObject(trap);
@@ -1127,7 +1124,7 @@ public class GameController implements ContactListener, Screen {
 	}
 
 	public float damageCalc(){
-		return avatar.getDamage() + 2*avatar.getDamage()*temp.getPercentCooked();
+		return chef.getDamage() + 2* chef.getDamage()*temp.getPercentCooked();
 	}
 
 
@@ -1273,9 +1270,9 @@ public class GameController implements ContactListener, Screen {
 				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
 		}
-		if ((avatar.canCook() && (avatar.getMovement() == 0f
-				&& avatar.getVertMovement() == 0f
-				&& !avatar.isShooting()))){
+		if ((chef.canCook() && (chef.getMovement() == 0f
+				&& chef.getVertMovement() == 0f
+				&& !chef.isShooting()))){
 			stove.setLit(true);
 		}else{
 			stove.setLit(false);
