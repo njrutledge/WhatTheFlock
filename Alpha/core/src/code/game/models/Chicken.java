@@ -31,10 +31,8 @@ public class Chicken extends GameObject implements ChickenInterface {
      * pretty simple for the prototype */
     private Obstacle target;
     /** The maximum enemy speed */
-    //TODO: make final after technical
-    private float maxspeed;
+    private final float maxspeed;
     /** The speed that the enemy chases the player */
-    //TODO: make final after technical
     private float chaseSpeed;
     /** The amount to slow the character down */
     private final float damping;

@@ -5,12 +5,18 @@ import code.game.models.Chicken;
 import code.game.models.Stove;
 import code.game.models.Trap;
 import code.game.models.obstacle.Obstacle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.JsonValue;
 
 public class CollisionController {
     /**The damage for this round of contact*/
     private float dmg;
-    public CollisionController(){
+
+    private TrapController trapController;
+
+    public CollisionController(Vector2 scale, JsonValue constants){
+        trapController = new TrapController(scale, constants);
     }
     /**
      * Callback method for the start of a collision
@@ -189,7 +195,7 @@ public class CollisionController {
      * @param fd2
      */
     private void handleChickenTrap(Chicken c1, Object fd1, Trap t2, Object fd2){
-        //TODO add trap controller stuff here
+        trapController.applyTrap(t2, c1);
     }
 
 

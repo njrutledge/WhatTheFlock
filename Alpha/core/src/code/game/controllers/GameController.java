@@ -249,7 +249,7 @@ public class GameController implements ContactListener, Screen {
 		setFailure(false);
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
-		collisionController = new CollisionController();
+		collisionController = new CollisionController(scale, constants);
 		//chickens = 0;
 		//cooking = false;
 	}
