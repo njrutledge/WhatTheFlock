@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
 
-public class Stove extends BoxObstacle {
+public class Stove extends GameObject {
 
     private JsonValue data;
 
