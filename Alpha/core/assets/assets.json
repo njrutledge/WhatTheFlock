@@ -9,7 +9,6 @@
         "enviro:trap:spike": "enviro/spiketrap.png",
         "enviro:trap:spot": "enviro/trapspot.png",
 
-        "char:dude": "characters/dude.png",
         "char:chicken": "characters/chicken.png",
         "char:chef":"characters/chef.png",
         "char:bullet": "characters/bullet.png",
