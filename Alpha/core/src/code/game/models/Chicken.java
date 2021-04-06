@@ -1,7 +1,6 @@
 package code.game.models;
 
 import code.game.interfaces.ChickenInterface;
-import code.game.models.obstacle.CapsuleObstacle;
 import code.game.models.obstacle.Obstacle;
 import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -96,16 +95,6 @@ public class Chicken extends GameObject implements ChickenInterface {
 
     private float CHICK_HIT_BOX = 0.8f;
 
-    /**
-     * Returns the name of the ground sensor
-     *
-     * This is used by ContactListener
-     *
-     * @return the name of the ground sensor
-     */
-    public String getSensorName() {
-        return sensorName;
-    }
 
     /**
      * Creates a new chicken avatar with the given game data
@@ -197,7 +186,7 @@ public class Chicken extends GameObject implements ChickenInterface {
     }
 
     /**
-     * Applies the force to the body of this dude
+     * Applies the force to the body of this chicken
      *
      * This method should be called after the force attribute is set.
      */
@@ -292,9 +281,6 @@ public class Chicken extends GameObject implements ChickenInterface {
             if (!cookin) {
                 status_timer = Math.max(status_timer - dt, -1f);
             }
-            //TODO: delete after technical
-            setMaxHealth(plist[1]);
-            setChaseSpeed(plist[10]);
         }
     }
 
