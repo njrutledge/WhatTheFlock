@@ -58,6 +58,8 @@ public class WorldController implements ContactListener, Screen {
 	private TextureRegion trapTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
+	/** Texture asset for trap spot*/
+	private TextureRegion trapSpotTexture;
 
 	/** Texture asset for the chef*/
 	private Texture chefTexture;
@@ -85,6 +87,7 @@ public class WorldController implements ContactListener, Screen {
 	private SoundBuffer emptySlap;
 	private SoundBuffer chickOnFire;
 	private SoundBuffer slowSquelch;
+	private SoundBuffer chefOof;
 
 
 	private final float DEFAULT_VOL = 0.5F;
@@ -107,6 +110,13 @@ public class WorldController implements ContactListener, Screen {
 	public static final int EXIT_PREV = 2;
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
+
+	/** Exit code for starting in Easy */
+	public static final int EASY = 0;
+	/** Exit code for starting in Medium */
+	public static final int MED = 1;
+	/** Exit code for starting in Hard */
+	public static final int HARD = 2;
 
 	/** Width of the game world in Box2d units */
 	protected static final float DEFAULT_WIDTH  = 32.0f;
@@ -145,7 +155,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3, 5, 2, 200, 2, 3, 30, 10, 5, 5, 2, 5, 0};
+	private int[] parameterList = {3, 5, 2, 100, 2, 6, 30, 10, 5, 5, 5, 5, 0};
 
 
 
@@ -182,6 +192,13 @@ public class WorldController implements ContactListener, Screen {
 
 	/** Whether or not mute is toggled */
 	private boolean muted = false;
+
+	/** Whether or not pause is toggled */
+	private boolean paused = false;
+
+	/** Whether or not the cooldown effect is enabled */
+	private boolean cooldown;
+
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -263,6 +280,7 @@ public class WorldController implements ContactListener, Screen {
 		stoveTexture = new TextureRegion(directory.getEntry("platform:stove",Texture.class));
 		earthTile = new TextureRegion(directory.getEntry( "shared:earth", Texture.class ));
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("platform:nuggetBar", Texture.class));
+		trapSpotTexture = new TextureRegion(directory.getEntry("platform:trapSpot", Texture.class));
 
 		chefTexture = directory.getEntry("platform:chef", Texture.class);
 		nuggetTexture = directory.getEntry("platform:nugget", Texture.class);
@@ -281,6 +299,7 @@ public class WorldController implements ContactListener, Screen {
 		emptySlap = directory.getEntry( "platform:emptySlap", SoundBuffer.class );
 		chickOnFire = directory.getEntry( "platform:chickOnFire", SoundBuffer.class );
 		slowSquelch = directory.getEntry("platform:squelch", SoundBuffer.class);
+		chefOof = directory.getEntry("platform:chefOof", SoundBuffer.class);
 
 
 
@@ -309,6 +328,20 @@ public class WorldController implements ContactListener, Screen {
 		setFailure(false);
 		chickens = 0;
 		populateLevel();
+	}
+	public void initEasy(){
+		parameterList = new int []{5, 5, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
+		cooldown = false;
+	}
+
+	public void initMed(){
+		parameterList = new int []{4, 5, 2, 100, 3, 6, 30, 10, 5, 5, 4, 5, 0};
+		cooldown = false;
+	}
+
+	public void initHard(){
+		parameterList = new int []{3, 5, 2, 100, 4, 6, 30, 10, 5, 5, 5, 5, 0};
+		cooldown = true;
 	}
 
 	/**
@@ -348,22 +381,29 @@ public class WorldController implements ContactListener, Screen {
 			obj.setName(pname+ii);
 			addObject(obj);
 	    }
+		//TODO add stove to JSON
+
+		//trap places
+		String trpname = "trap_place";
+		JsonValue placejv = constants.get("trapplace");
+		for (int ii = 0; ii < placejv.size; ii++) {
+			TrapSpot obj;
+			float[] coors = placejv.get(ii).asFloatArray();
+			obj = new TrapSpot(coors[0], coors[1]);
+			obj.setBodyType(BodyDef.BodyType.StaticBody);
+			obj.setDensity(defaults.getFloat( "density", 0.0f ));
+			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+			obj.setDrawScale(scale);
+			obj.setTexture(trapSpotTexture);
+			obj.setName(trpname+ii);
+			addObject(obj);
+		}
 
 	    // This world is heavier
 		world.setGravity( new Vector2(0,0) );
 
-		// Create dude
-		float dwidth  = avatarTexture.getRegionWidth()/scale.x;
-		float dheight = avatarTexture.getRegionHeight()/scale.y;
-		avatar = new ChefModel(constants.get("dude"), dwidth, dheight, parameterList[0]);
-		avatar.setDrawScale(scale);
-		avatar.setTexture(chefTexture);
-		//Set temperature based on difficulty of the level
-		temp = new TemperatureBar(30);
 
-		//avatar.setMaxTemp(30);
-
-		addObject(avatar);
 
 		// Add stove
 		float swidth = stoveTexture.getRegionWidth()/scale.x;
@@ -374,6 +414,20 @@ public class WorldController implements ContactListener, Screen {
 		addObject(stove);
 
 		volume = constants.getFloat("volume", 1.0f);
+
+		// Create dude
+		float dwidth  = avatarTexture.getRegionWidth()/scale.x;
+		float dheight = avatarTexture.getRegionHeight()/scale.y;
+		avatar = new ChefModel(constants.get("dude"), dwidth, dheight, parameterList[0]);
+		avatar.setDrawScale(scale);
+		avatar.setTexture(chefTexture);
+		//Set temperature based on difficulty of the level
+		temp = new TemperatureBar(30);
+		temp.setUseCooldown(cooldown);
+
+		//avatar.setMaxTemp(30);
+
+		addObject(avatar);
 
 		// Create some chickens
 		spawn_xmin = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[0];
@@ -386,6 +440,7 @@ public class WorldController implements ContactListener, Screen {
 
 		// Get initial values for parameters in the list
 		//parameterList[0] = avatar.getMaxHealth();
+
 
 	}
 
@@ -428,7 +483,11 @@ public class WorldController implements ContactListener, Screen {
 			return false;
 		}
 
-		return true;
+		if (InputController.getInstance().didPause()){
+			paused = !paused;
+		}
+
+		return !paused;
 	}
 
 	/**
@@ -575,6 +634,13 @@ public class WorldController implements ContactListener, Screen {
 			//Remove a bullet if slap is complete
 			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {
 				removeBullet(obj);
+			}
+			if (obj.getName().equals("chicken")){
+				ChickenModel chick = ((ChickenModel) obj);
+				if (chick.isAttacking() && chick.getSoundCheck()) {
+					chickAttack.stop();
+					chickAttack.play(volume*0.5f);
+				}
 			}
 		}
 
@@ -765,19 +831,6 @@ public class WorldController implements ContactListener, Screen {
 
 
 			//reduce health if chicken collides with avatar
-			if (bd1 == avatar && bd2.getName().equals("chicken") && !((ChickenModel)bd2).isStunned()) {
-				if (parameterList[12] != 1) { avatar.decrementHealth(); }
-				((ChickenModel) bd2).hitPlayer();
-				chickAttack.stop();
-				chickAttack.play(volume*0.5f);
-			}
-
-			if ((bd2 == avatar && bd1.getName().equals("chicken"))&& !((ChickenModel)bd1).isStunned()){
-				if (parameterList[12] != 1) { avatar.decrementHealth(); }
-				((ChickenModel) bd1).hitPlayer();
-				chickAttack.stop();
-				chickAttack.play(volume*0.5f);
-			}
 
 			//cook if player is near stove and not doing anything
 			if ((bd1 == avatar && bd2 == stove)
@@ -799,6 +852,27 @@ public class WorldController implements ContactListener, Screen {
 						removeChicken(bd1);
 					}
 				}
+
+				if (bd2 == avatar && fd1.equals("chickenSensor")) {
+					ChickenModel chick = (ChickenModel) bd1;
+					if (chick.chasingPlayer()) {
+						chick.startAttack();
+					}
+
+				}
+
+				if ((bd2 == avatar && fd1.equals("nugAttack"))&& !((ChickenModel)bd1).isAttacking()){
+					if (!avatar.isStunned()) {
+						chefOof.stop();
+						chefOof.play(volume);
+					}
+					if (parameterList[12] != 1) { avatar.decrementHealth(); }
+					((ChickenModel) bd1).hitPlayer();
+
+
+				}
+
+
 			}
 
 			if (fd2 != null) {
@@ -813,6 +887,22 @@ public class WorldController implements ContactListener, Screen {
 						removeChicken(bd2);
 					}
 				}
+
+				if (bd1 == avatar && fd2.equals("chickenSensor")) {
+					ChickenModel chick = (ChickenModel) bd2;
+					if (chick.chasingPlayer()) {
+						chick.startAttack();
+					}
+				}
+
+				if (bd1 == avatar && fd2.equals("nugAttack") && ((ChickenModel)bd2).isAttacking()) {
+					if (!avatar.isStunned()) {
+						chefOof.stop();
+						chefOof.play(volume);
+					}
+					if (parameterList[12] != 1) { avatar.decrementHealth(); }
+					((ChickenModel) bd2).hitPlayer();
+				}
 			}
 
 			//trap collision with chicken eliminates chicken
@@ -820,12 +910,20 @@ public class WorldController implements ContactListener, Screen {
 
 			if (fd1 != null && fd2 != null) {
 
-				if (fd1.equals("lureHurt") && bd2.getName().equals("chicken")) {
+				if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
+					((ChickenModel) bd2).startAttack();
+				}
+
+				if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
+					((ChickenModel) bd1).startAttack();
+				}
+
+				if (fd1.equals("lureHurt") && fd2.equals("nugAttack") && ((ChickenModel) bd2).isAttacking()) {
 					decrementTrap((Trap) bd1);
 					lureCrumb.play(volume);
 				}
 
-				if (fd2.equals("lureHurt") && bd1.getName().equals("chicken")){
+				if (fd2.equals("lureHurt") && fd1.equals("nugAttack") && ((ChickenModel) bd1).isAttacking()){
 					decrementTrap((Trap) bd2);
 					lureCrumb.play(volume);
 				}
@@ -886,7 +984,14 @@ public class WorldController implements ContactListener, Screen {
 							chickOnFire.play(volume*0.5f);
 					}
 				}
+				if (fd1.equals("placeRadius") && bd2==avatar){
+					avatar.setCanPlaceTrap(true);
+				}
+				if (fd2.equals("placeRadius") && bd1==avatar){
+					avatar.setCanPlaceTrap(true);
+				}
 			}
+
 			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
 				((ChickenModel)bd2).hitWall();
 			}
@@ -960,6 +1065,35 @@ public class WorldController implements ContactListener, Screen {
 					break;
 				case FIRE_LINGER:
 					((ChickenModel) b1).letItBurn();
+			}
+		}
+
+		if (fd1 != null && fd2 != null) {
+			if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
+				((ChickenModel) bd2).stopAttack();
+			}
+
+			if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
+				((ChickenModel) bd1).stopAttack();
+			}
+
+			if (fd1.equals("placeRadius") && bd2 == avatar) {
+				avatar.setCanPlaceTrap(false);
+			}
+			if (fd2.equals("placeRadius") && bd1 == avatar) {
+				avatar.setCanPlaceTrap(false);
+			}
+		}
+
+		if (fd1 != null) {
+			if (bd2 == avatar && fd1.equals("chickenSensor")){
+				((ChickenModel) bd1).stopAttack();
+			}
+		}
+
+		if (fd2 != null) {
+			if (bd1 == avatar && fd2.equals("chickenSensor")) {
+				((ChickenModel) bd2).stopAttack();
 			}
 		}
 	}
@@ -1111,15 +1245,18 @@ public class WorldController implements ContactListener, Screen {
 				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
 		}
+		if ((cooking && (avatar.getMovement() == 0f
+				&& avatar.getVertMovement() == 0f
+				&& !avatar.isShooting()))){
+			stove.setLit(true);
+		}else{
+			stove.setLit(false);
+		}
 
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}
-		if ((cooking && (avatar.getMovement() == 0f
-				&& avatar.getVertMovement() == 0f
-				&& !avatar.isShooting()))){
-			stove.drawLit(canvas);
-		}
+
 		canvas.end();
 
 		if (debug) {
@@ -1140,6 +1277,12 @@ public class WorldController implements ContactListener, Screen {
 		temp.draw(canvas);
 		canvas.end();
 
+		if (paused){
+			displayFont.setColor(Color.GREEN);
+			canvas.begin();
+			canvas.drawTextCentered("PAUSED!", displayFont, 0.0f);
+			canvas.end();
+		}
 		// Final message
 		if (complete && !failed) {
 			displayFont.setColor(Color.YELLOW);
@@ -1202,7 +1345,7 @@ public class WorldController implements ContactListener, Screen {
 	 *
 	 * @return true if the level is completed.
 	 */
-	public boolean isComplete( ) {
+	public boolean isComplete() {
 		return complete;
 	}
 

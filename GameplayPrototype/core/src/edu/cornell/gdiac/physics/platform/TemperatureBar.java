@@ -36,6 +36,8 @@ public class TemperatureBar {
     private float temperatureCounter = 0f;
     private final float COOL_DOWN_TIMER = 3f;
     private float cooldownCounter = 0f;
+    /** boolean to enable the cooldown counter */
+    private boolean useCooldown = false;
 
     /**The amount of heat the stove gives the player for standing by it (per second) */
     private int stoveHeat = 2;
@@ -80,6 +82,12 @@ public class TemperatureBar {
         return (float) temperature/ (float) maxTemperature;
     }
 
+    /** enables or disables the cooldown effect
+     *
+     * @param val is true to enable the cooldown
+     */
+    public void setUseCooldown(boolean val){ useCooldown = val; }
+
     /**Returns true if the chicken is cooked (temp > max) and false otherwise
      *
      * @return true if chicken is cooked and false otherwise
@@ -102,7 +110,7 @@ public class TemperatureBar {
             cooldownCounter = 0;
             temperature += temperatureCounter*stoveHeat;
         } else {
-            if (cooldownCounter > COOL_DOWN_TIMER) {
+            if (cooldownCounter > COOL_DOWN_TIMER && useCooldown) {
                 temperature = MathUtils.clamp(temperature-COOLDOWN_RATE, 0, maxTemperature);
             }
         }

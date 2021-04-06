@@ -25,11 +25,12 @@
 	"chicken" : {
 		"shrink": [0.7, 0.7],
 		"force": 20.0,
-		"damping": 10.0,
-		"density": 1.0,
+		"damping": 1.0,
+		"density": 0.1,
 		"friction": 0.0,
 		"maxspeed": 5.0,
 		"chasespeed": 2.0,
+		"knockback": 100.0,
 		"jump_force": 5.5,
 		"jump_cool": 30,
 		"shot_cool": 40,
@@ -45,7 +46,15 @@
 			"shrink" : 1.69,
 			"height" : 1.69
 		}
-	}, "bridge" : {
+	},
+	"trap" : {
+		"shrink": [0.1, 0.1],
+		"sensor":  {
+			"radius": 2.0,
+			"height": 1.69
+		}
+	},
+	"bridge" : {
 		"pos": [9.0, 3.8],
 	    "width": 14.0,
 		"density": 1.0,
@@ -76,9 +85,6 @@
 		                [23.0, 5.0, 24.0, 5.0, 24.0, 6.0, 23.0, 6.0],
 						[ 4.0, 7.0,  5.0, 6.5,  6.5, 10.0, 5.5,10.5],
 	                 	[ 6.0, 11.5,  7.0, 11,  9.0, 14.0, 8.0,14.5]
-<<<<<<< Updated upstream
-					]
-=======
 					],
 	"trapplace": [
 		[10.5, 14.0],
@@ -86,5 +92,4 @@
 		[20.0, 7.0],
 		[22.5, 13.0]
 	]
->>>>>>> Stashed changes
 }

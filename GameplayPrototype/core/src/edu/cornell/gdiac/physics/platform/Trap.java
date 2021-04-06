@@ -1,6 +1,5 @@
 package edu.cornell.gdiac.physics.platform;
 
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
@@ -18,7 +17,7 @@ public class Trap extends BoxObstacle {
         LURE,
         SLOW,
         FIRE,
-        FIRE_LINGER
+        FIRE_LINGER,
     }
 
     /**
@@ -37,8 +36,6 @@ public class Trap extends BoxObstacle {
     private String sensorName;
     /** The physics shape of this object */
     private Shape sensorShape;
-    /** The second physics shape of this object, if used */
-    private Shape lingerSensorShape;
     /** true if using the second physics shape */
     private boolean linger;
     /** The type of this trap */
@@ -57,15 +54,15 @@ public class Trap extends BoxObstacle {
     private Shape lHShape;
 
     /** Radius which chickens get lured to the trap */
-    private static final float LURE_RADIUS = 5f;
+    private static final float LURE_RADIUS = 6f;
     /** Radius which chickens get slowed near the trap */
-    private static final float SLOW_RADIUS = 3F;
+    private static final float SLOW_RADIUS = 3.5F;
     /** Radius which chickens can trigger the fire trap */
     private static final float FIRE_TRIGGER_RADIUS = 2f;
     /** Radius which chickens get set on fire */
     private static final float FIRE_LINGER_RADIUS = 4f;
     /** Radius for the Lure hurtbox */
-    private static final float LURE_HURT = 1.5f;
+    private static final float LURE_HURT = 1.3f;
     /** Colors of Fire trap */
     private static final Color fireColor = Color.RED;
     /** Colors of slow trap */
@@ -74,7 +71,7 @@ public class Trap extends BoxObstacle {
     private static final Color lureColor = Color.YELLOW;
 
 
-    private float lure_ammount=3;
+    private float lure_ammount=6;
     /** Lure Durability */
     private float LURE_CRUMBS = MAX_DURABILITY / lure_ammount;
     /** Slow effect strength */
@@ -213,7 +210,10 @@ public class Trap extends BoxObstacle {
 
         return durability == 0;
     }
-
+    /**Whether the trap is still active or not*/
+    public boolean isActive(){
+        return durability > 0;
+    }
     /**
      * Updates the object's physics state (NOT GAME LOGIC).
      *
@@ -310,15 +310,21 @@ public class Trap extends BoxObstacle {
      */
     public void draw(GameCanvas canvas) {
         Color c = fireColor.cpy();
-        switch (trapType){
-            case FIRE: c = fireColor.cpy();
-            break;
-            case LURE: c = lureColor.cpy();
-            break;
-            case SLOW: c = slowColor.cpy();
-            break;
+        switch (trapType) {
+            case FIRE:
+                c = fireColor.cpy();
+                break;
+            case LURE:
+                c = lureColor.cpy();
+                break;
+            case SLOW:
+                c = slowColor.cpy();
+                break;
+            case FIRE_LINGER:
+                c = Color.FIREBRICK.cpy();
+                break;
         }
-        c.a = durability/MAX_DURABILITY;
+        c.a = durability / MAX_DURABILITY;
         canvas.draw(texture, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
     }
 

@@ -19,6 +19,9 @@ public class StoveModel extends BoxObstacle {
 
     private String sensorName;
 
+    /** Whether or not the stove is lit */
+    private boolean lit = false;
+
     /** The font used to draw text on the screen*/
     private static final BitmapFont font = new BitmapFont();
 
@@ -63,21 +66,15 @@ public class StoveModel extends BoxObstacle {
         return true;
     }
 
+    public void setLit(boolean val){lit = val;}
+
     /**
      * Draws the unlit stove
      *
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.draw(texture, Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
-    }
-
-    /**
-     * Draws the physics object, lit
-     * @param canvas
-     */
-    public void drawLit(GameCanvas canvas){
-        canvas.draw(texture, new Color(Color.RED),origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
+        canvas.draw(texture, (lit ? Color.RED : Color.WHITE),origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
     }
 
     /**

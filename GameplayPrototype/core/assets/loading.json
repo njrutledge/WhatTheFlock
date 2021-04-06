@@ -2,6 +2,7 @@
 	"textures": {
         "background": "shared/loading.png",
 		"play": "shared/play.png",
+        "skull": "shared/skull.png",
         "progress": {
             "file":      "shared/progressbar.png",
             "atlas":     {
