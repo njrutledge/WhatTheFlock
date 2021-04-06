@@ -168,7 +168,7 @@ public class GameController implements ContactListener, Screen {
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
 	private int[] parameterList = {3, 5, 2, 100, 2, 6, 30, 10, 5, 5, 5, 5, 0};
-
+	//TODO MAKE CONSTANT
 
 
 	/** Reference to the game canvas */
