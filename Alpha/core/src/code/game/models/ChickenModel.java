@@ -1,24 +1,24 @@
 package code.game.models;
 
-import code.game.models.obstacle.CapsuleObstacle;
-import code.game.models.obstacle.Obstacle;
-import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.JsonValue;
+//import edu.cornell.gdiac.physics.*;
+import code.game.models.obstacle.*;
+import code.util.FilmStrip;
 import code.game.views.GameCanvas;
 
-public class ChickenModel extends CapsuleObstacle {
+public class ChickenModel extends GameObject {
     //TODO: Implement the Enemy Chicken and its methods, feel free to add or remove methods as needed
     ///////// Currently only dude methods which I thought were important are included, they will likely need to be
     ///////// altered or removed, but should provide a good base to start with.
 
     /** The initializing data (to avoid magic numbers) */
     private JsonValue data;
-    /** The game shape of this object */
+    /** The physics shape of this object */
     private CircleShape sensorShape;
     /** Identifier to allow us to track the sensor in ContactListener */
     private String sensorName;
@@ -95,6 +95,12 @@ public class ChickenModel extends CapsuleObstacle {
 
     private float CHICK_HIT_BOX = 0.8f;
 
+    /** Whether the chicken movement is beign controlled by a force (otherwise a velocity)*/
+    private Boolean isBeingForced = false;
+    /** Whether the chicken is currently in hitstun */
+    private Boolean isStunned = false;
+    /** Whether the chicken is invisible due to hitstun*/
+    private Boolean isInvisible = false;
     /**
      * Returns the name of the ground sensor
      *
@@ -107,17 +113,17 @@ public class ChickenModel extends CapsuleObstacle {
     }
 
     /**
-     * Creates a new chicken avatar with the given game data
+     * Creates a new chicken avatar with the given physics data
      *
-     * The size is expressed in game units NOT pixels.  In order for
+     * The size is expressed in physics units NOT pixels.  In order for
      * drawing to work properly, you MUST set the drawScale. The drawScale
-     * converts the game units to pixels.
+     * converts the physics units to pixels.
      *
-     * @param data  	The game constants for this dude
+     * @param data  	The physics constants for this dude
      * @param x         The x axis location of this chicken
      * @param y         The y axis location of this chicken
-     * @param width		The object width in game units
-     * @param height	The object width in game units
+     * @param width		The object width in physics units
+     * @param height	The object width in physics units
      * @param player    The target player
      * @param mh        The max health of the chicken
      */
@@ -146,6 +152,11 @@ public class ChickenModel extends CapsuleObstacle {
 
     }
 
+    /** Returns the json data for this chicken */
+    public JsonValue getJsonData(){
+        return data;
+    }
+
     /**
      * Sets the current chicken max health
      * @param h - the number to set the max health of the chicken to
@@ -163,7 +174,7 @@ public class ChickenModel extends CapsuleObstacle {
     public int getMaxHealth(){ return max_health;}
 
     /**
-     * Creates the game Body(s) for this object, adding them to the world.
+     * Creates the physics Body(s) for this object, adding them to the world.
      *
      * This method overrides the base method to keep your ship from spinning.
      *
@@ -204,29 +215,39 @@ public class ChickenModel extends CapsuleObstacle {
         if (!isActive()) {
             return;
         }
-
-        if (hit){
-            hit = false;
+        /**
+         if (hit){
+         hit = false;
+         }
+         else {
+         forceCache.set(-damping * getVX(), -damping * getVY());
+         }
+         */
+        if (isBeingForced) {
+            if (isStunned){
+                forceCache.set(-damping * getVX(), -damping * getVY());
+            }
+            body.applyForce(forceCache,getPosition(),true);
         }
-        else {
-            forceCache.set(-damping * getVX(), -damping * getVY());
-        }
-        body.applyForce(forceCache,getPosition(),true);
-
-        // Velocity too high, clamp it
-        if (Math.abs(getVX()) >= maxspeed) {
-            setVX(Math.signum(getVX())*maxspeed);
+        else{
+            setLinearVelocity(forceCache);
         }
 
-        // Velocity too high, clamp it
-        if (Math.abs(getVY()) >= maxspeed) {
-            setVY(Math.signum(getVY())*maxspeed);
-        }
+        /**
+         // Velocity too high, clamp it
+         if (Math.abs(getVX()) >= maxspeed) {
+         setVX(Math.signum(getVX())*maxspeed);
+         }
 
+         // Velocity too high, clamp it
+         if (Math.abs(getVY()) >= maxspeed) {
+         setVY(Math.signum(getVY())*maxspeed);
+         }
+         */
     }
 
     /**
-     * Updates the object's game state (NOT GAME LOGIC).
+     * Updates the object's physics state (NOT GAME LOGIC).
      *
      * We use this method to reset cooldowns.
      *
@@ -234,75 +255,79 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void update(float dt, int[] plist) {
         super.update(dt, plist);
-        invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
-        sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
-        stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
-        if (attack_timer >= 0 && attack_charge >= 0f) {
-            body.setLinearVelocity(new Vector2());
-            forceCache.setZero();
-            attack_charge = MathUtils.clamp(attack_charge + dt,0, ATTACK_CHARGE);
-            if (attack_charge == ATTACK_CHARGE){
-                attack_timer = MathUtils.clamp(attack_timer - dt, 0, ATTACK_DUR);
-                if (!hitboxOut) {
-                    FixtureDef attack = new FixtureDef();
-                    attack.density = 0.1f;
-                    attack.isSensor = true;
-                    attackHit = new CircleShape();
-                    attackHit.setRadius(ATTACK_RADIUS);
-                    attack.shape = attackHit;
+        applyForce();
+        /**
+         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
+         sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
+         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
+         if (attack_timer >= 0 && attack_charge >= 0f) {
+         body.setLinearVelocity(new Vector2());
+         forceCache.setZero();
+         attack_charge = MathUtils.clamp(attack_charge + dt,0, ATTACK_CHARGE);
+         if (attack_charge == ATTACK_CHARGE){
+         attack_timer = MathUtils.clamp(attack_timer - dt, 0, ATTACK_DUR);
+         if (!hitboxOut) {
+         FixtureDef attack = new FixtureDef();
+         attack.density = 0.1f;
+         attack.isSensor = true;
+         attackHit = new CircleShape();
+         attackHit.setRadius(ATTACK_RADIUS);
+         attack.shape = attackHit;
 
-                    Fixture chickAttack = body.createFixture(attack);
-                    chickAttack.setUserData("nugAttack");
+         Fixture chickAttack = body.createFixture(attack);
+         chickAttack.setUserData("nugAttack");
 
-                    hitboxOut = true;
-                }
-            }
-            if (attack_timer == 0f) {
-                attack_charge = 0f;
-                attack_timer = ATTACK_DUR;
-                hitboxOut = false;
-                soundCheck = true;
-                if (finishA){
-                    attack_timer = -1f;
-                    attack_charge = -1f;
-                    finishA = false;
-                }
-            }
+         hitboxOut = true;
+         }
+         }
+         if (attack_timer == 0f) {
+         attack_charge = 0f;
+         attack_timer = ATTACK_DUR;
+         hitboxOut = false;
+         soundCheck = true;
+         if (finishA){
+         attack_timer = -1f;
+         attack_charge = -1f;
+         finishA = false;
+         }
+         }
 
-        } else if (target.isActive()) {
-            forceCache.set(target.getPosition().sub(getPosition()));
-            forceCache.nor();
-            forceCache.scl(chaseSpeed * slow);
-            if (isStunned()) {
-                forceCache.scl(-knockback);
-                applyForce();
-            }
-            else{
-                if (sideways_counter < SIDEWAYS_TIME){
-                    forceCache.rotate90(0);
-                }
-                if (stop_counter < STOP_TIME){
-                    forceCache.setZero();
-                }
-                setVX(forceCache.x);
-                setVY(forceCache.y);
+         } else if (target.isActive()) {
+         forceCache.set(target.getPosition().sub(getPosition()));
+         forceCache.nor();
+         forceCache.scl(chaseSpeed * slow);
+         if (isStunned()) {
+         forceCache.scl(-knockback);
+         applyForce();
+         }
+         else{
+         if (sideways_counter < SIDEWAYS_TIME){
+         forceCache.rotate90(0);
+         }
+         if (stop_counter < STOP_TIME){
+         forceCache.setZero();
+         }
+         setVX(forceCache.x);
+         setVY(forceCache.y);
 
-            }
-            if (!cookin) {
-                status_timer = Math.max(status_timer - dt, -1f);
-            }
-            //TODO: delete after technical
-            setMaxHealth(plist[1]);
-            setChaseSpeed(plist[10]);
-        }
+         }
+         if (!cookin) {
+         status_timer = Math.max(status_timer - dt, -1f);
+         }
+         //TODO: delete after technical
+         setMaxHealth(plist[1]);
+         setChaseSpeed(plist[10]);
+         }
+         */
     }
+
 
     public boolean getSoundCheck() {
         if (soundCheck) {
             soundCheck = false;
             return true;
         } else
-        return false;
+            return false;
     }
 
     public void startAttack() {
@@ -334,12 +359,12 @@ public class ChickenModel extends CapsuleObstacle {
     }
 
     /**
-     * Draws the game object.
+     * Draws the physics object.
      *
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
+        if (!isInvisible) {
             canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f, 0.025f);
             canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f*(health/max_health), 0.025f);
             canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f, 0.25f);
@@ -347,7 +372,7 @@ public class ChickenModel extends CapsuleObstacle {
     }
 
     /**
-     * Draws the outline of the game body.
+     * Draws the outline of the physics body.
      *
      * This method can be helpful for understanding issues with collisions.
      *
@@ -367,7 +392,7 @@ public class ChickenModel extends CapsuleObstacle {
      * @param damage The amount of damage to this chicken's health
      */
     public void takeDamage(float damage) {
-        if (!isStunned()) {
+        if (!isStunned) {
             if (status_timer >= 0) {
                 health -= damage * FIRE_MULT;
             } else {
@@ -431,12 +456,13 @@ public class ChickenModel extends CapsuleObstacle {
     }
 
     /**
-     * Whether the chicken is currently in hitstun
+     * updates the isStunned condition for the chicken
+     * updates the isStunned condition for the chicken
      *
-     * @return true if the chicken is currently stunned
+     * @param stun  whether the chicken is stunned
      */
-    public Boolean isStunned(){
-        return invuln_counter < INVULN_TIME;
+    public void setStunned(Boolean stun){
+        isStunned = stun;
     }
 
     /** If the enemy is still alive
@@ -449,7 +475,7 @@ public class ChickenModel extends CapsuleObstacle {
      * The chicken has collided with a wall and will move perpendicularly to get around the wall
      */
     public void hitWall(){
-        if (!isStunned()){
+        if (!isStunned){
             sideways_counter = 0;
         }
     }
@@ -459,6 +485,26 @@ public class ChickenModel extends CapsuleObstacle {
      */
     public void hitPlayer(){
         stop_counter = 0;
+    }
+
+    /**
+     * Set the value of the forceCache
+     *
+     * @param newForce     the new value of the forceCache
+     * @param isForce       whether the new force is a force (otherwise it is a velocity)
+     * */
+    public void setForceCache(Vector2 newForce, Boolean isForce){
+        forceCache.set(newForce);
+        this.isBeingForced = isForce;
+    }
+
+    /**
+     * Set the isInvisible boolean, which determines whether to draw the chicken on the screen
+     *
+     * @param invisible
+     */
+    public void setInvisible(Boolean invisible){
+        isInvisible = invisible;
     }
 
 }
