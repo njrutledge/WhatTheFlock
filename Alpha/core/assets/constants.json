@@ -6,7 +6,7 @@
     	"restitution": 0.1,
     	"volume": 0.8
 	},
-	"dude" : {
+	"chef" : {
 		"pos": [10, 8.0],
 		"shrink": [0.95, 0.7],
 		"force": 20.0,

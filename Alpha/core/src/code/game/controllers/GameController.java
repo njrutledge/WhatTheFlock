@@ -436,7 +436,7 @@ public class GameController implements ContactListener, Screen {
 		//TODO: FIX AFTER WE HAVE FILMSTRIP!
 		float dwidth  = 32/scale.x;
 		float dheight = 32/scale.y;
-		chef = new ChefModel(constants.get("dude"), dwidth, dheight, parameterList[0]);
+		chef = new ChefModel(constants.get("chef"), dwidth, dheight, parameterList[0]);
 		chef.setDrawScale(scale);
 		chef.setTexture(chefTexture);
 		chef.setHealthTexture(healthTexture);
