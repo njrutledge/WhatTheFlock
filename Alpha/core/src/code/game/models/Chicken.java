@@ -11,7 +11,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
 
-public class ChickenModel extends CapsuleObstacle {
+public class Chicken extends CapsuleObstacle {
     //TODO: Implement the Enemy Chicken and its methods, feel free to add or remove methods as needed
     ///////// Currently only dude methods which I thought were important are included, they will likely need to be
     ///////// altered or removed, but should provide a good base to start with.
@@ -58,7 +58,7 @@ public class ChickenModel extends CapsuleObstacle {
     /** True if the chicken has just been hit and the knockback has not yet been applied*/
     private boolean hit = false;
 
-    private ChefModel player;
+    private Chef player;
 
     private final int FIRE_MULT = 2;
 
@@ -121,7 +121,7 @@ public class ChickenModel extends CapsuleObstacle {
      * @param player    The target player
      * @param mh        The max health of the chicken
      */
-    public ChickenModel(JsonValue data, float x, float y, float width, float height, ChefModel player, int mh) {
+    public Chicken(JsonValue data, float x, float y, float width, float height, Chef player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
         super(/*data.get("pos").getFloat(0),
                 data.get("pos").getFloat(1),*/

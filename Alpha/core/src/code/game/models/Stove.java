@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
 
-public class StoveModel extends BoxObstacle {
+public class Stove extends BoxObstacle {
 
     private JsonValue data;
 
@@ -33,7 +33,7 @@ public class StoveModel extends BoxObstacle {
         return name;
     }
 
-    public StoveModel(JsonValue jv, float x, float y, float width, float height) {
+    public Stove(JsonValue jv, float x, float y, float width, float height) {
         super(x, y,
                 width * jv.get("shrink").getFloat(0),
                 height * jv.get("shrink").getFloat(1));

@@ -1,13 +1,15 @@
 package code.game.controllers;
 
-import code.game.models.ChefModel;
-import code.game.models.ChickenModel;
-import code.game.models.StoveModel;
+import code.game.models.Chef;
+import code.game.models.Chicken;
+import code.game.models.Stove;
 import code.game.models.Trap;
 import code.game.models.obstacle.Obstacle;
 import com.badlogic.gdx.physics.box2d.*;
 
 public class CollisionController {
+    /**The damage for this round of contact*/
+    private float dmg;
     public CollisionController(){
     }
     /**
@@ -20,6 +22,7 @@ public class CollisionController {
      * @param contact The two bodies that collided
      */
     public void beginContact(Contact contact, float potential_dmg) {
+        dmg = potential_dmg;
         //TODO: Detect if a collision is with an enemy and have an appropriate interaction
         //hitbox
         Fixture fix1 = contact.getFixtureA();
@@ -31,204 +34,162 @@ public class CollisionController {
         Object fd1 = fix1.getUserData();
         Object fd2 = fix2.getUserData();
 
+        //
         try {
             Obstacle bd1 = (Obstacle) body1.getUserData();
             Obstacle bd2 = (Obstacle) body2.getUserData();
 
-            //reduce health if chicken collides with avatar
-            //cook if player is near stove and not doing anything
-            if ((bd1.getName().equals("chef") && bd2.getName().equals("stove"))
-                    || (bd2.getName().equals("chef") && bd1.getName().equals("stove"))) {
-                if (bd1.getName().equals("chef")) {
-                    handleCollision((ChefModel) bd1, (StoveModel) bd2);
-                } else {
-                    handleCollision((ChefModel) bd2, (StoveModel) bd1);
-                }
-            }
-
-            //fd1 has a sensor
-            if (fd1 != null) {
-                //bd1, bd2, fd1
-                //handleCollision(fd1, bd2);
-            }
-
-            //fd2 has a sensor
-            if (fd2 != null) {
-                //bd1, bd2, fd2
-            }
-
-            //trap collision with chicken eliminates chicken
-            if (fd1 != null && fd2 != null) {
-                /*
-                if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
-                    ((ChickenModel) bd2).startAttack();
-                }
-
-                if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
-                    ((ChickenModel) bd1).startAttack();
-                }
-
-                if (fd1.equals("lureHurt") && fd2.equals("nugAttack") && ((ChickenModel) bd2).isAttacking()) {
-                    decrementTrap((Trap) bd1);
-                    lureCrumb.play(volume);
-                }
-
-                if (fd2.equals("lureHurt") && fd1.equals("nugAttack") && ((ChickenModel) bd1).isAttacking()){
-                    decrementTrap((Trap) bd2);
-                    lureCrumb.play(volume);
-                }
-
-                if (fd1.equals("trapSensor") && bd2.getName().equals("chicken")) {
-                    switch (((Trap) bd1).getTrapType()){
-                        case LURE: //damage
-                            ((ChickenModel) bd2).trapTarget((Trap) bd1);
-                            break;
-                        case SLOW:
-                            ((ChickenModel) bd2).applySlow(((Trap) bd1).getEffect());
-                            decrementTrap((Trap) bd1);
-                            slowSquelch.stop();
-                            slowSquelch.play(volume);
-                            break;
-                        case FIRE :
-                            float twidth = trapTexture.getRegionWidth()/scale.x;
-                            float theight = trapTexture.getRegionHeight()/scale.y;
-                            trapCache = new Trap(constants.get("trap"), bd1.getX(), bd1.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE);
-                            trapCache.setDrawScale(scale);
-                            trapCache.setTexture(trapTexture);
-                            addQueuedObject(trapCache);
-                            decrementTrap((Trap) bd1);
-                            fireTrig.play(volume);
-                            fireLinger.play(volume*0.5f);
-                            break;
-                        case FIRE_LINGER:
-                            ((ChickenModel) bd2).applyFire(((Trap) bd1).getEffect());
-                            chickOnFire.stop();
-                            chickOnFire.play(volume*0.5f);
-                    }*/
-                }
-                if (fd2.equals("trapSensor") && bd1.getName().equals("chicken")) {
-                    /*switch (((Trap) bd2).getTrapType()){
-                        case LURE: //damage
-                            ((ChickenModel) bd1).trapTarget((Trap) bd2);
-                            break;
-                        case SLOW:
-                            ((ChickenModel) bd1).applySlow(((Trap) bd2).getEffect());
-                            decrementTrap((Trap) bd2);
-                            slowSquelch.stop();
-                            slowSquelch.play(volume);
-                            break;
-                        case FIRE:
-                            float twidth = trapTexture.getRegionWidth()/scale.x;
-                            float theight = trapTexture.getRegionHeight()/scale.y;
-                            trapCache = new Trap(constants.get("trap"), bd2.getX(), bd2.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE);
-                            trapCache.setDrawScale(scale);
-                            trapCache.setTexture(trapTexture);
-                            addQueuedObject(trapCache);
-                            decrementTrap((Trap) bd2);
-                            fireTrig.play(volume);
-                            fireLinger.play(volume*0.5f);
-                            break;
-                        case FIRE_LINGER:
-                            ((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
-                            chickOnFire.stop();
-                            chickOnFire.play(volume*0.5f);
-                    }*/
-                }
-                /*
-                if (fd1.equals("placeRadius") && bd2==avatar){
-                    avatar.setCanPlaceTrap(true);
-                }
-                if (fd2.equals("placeRadius") && bd1==avatar){
-                    avatar.setCanPlaceTrap(true);
-                }*/
-            /*
-            if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
-                ((ChickenModel)bd2).hitWall();
-            }
-            if ((bd2.getName().contains("platform") || (bd2.getName().equals("stove") && !fix2.isSensor())) && bd1.getName().equals("chicken")){
-                ((ChickenModel)bd1).hitWall();
-
-            }*/
+            handleCollision(bd1, fd1, bd2, fd2);
+            //handleCollision(bd2, fd2, bd1, fd1);
 
             } catch(Exception e){
                 e.printStackTrace();
             }
         }
-    /**
-     * Handles the interaction between the chicken and the trap
-     * */
-    private void handleCollision(ChickenModel chick, Trap trap){
 
-    }
-    /**
-     * Activates ability to cook when the chef is near the stove
-     * @param avatar
-     * @param stove
-     */
-    private void handleCollision(ChefModel avatar, StoveModel stove){
-        avatar.setCanCook(true);
-    }
-
-    private void handleCollision(Obstacle bd1, Obstacle bd2, Fixture fd2){
-        if (bd1.getName().equals("bullet") && fd2.equals("chickenSensor")) {
-                    /*chickHurt.stop();
-                    chickHurt.play(volume);
-                    fireSound.stop();
-                    fireSound.play(volume);*/
-            //TODO uncomment
-            //handleSlapCollision((ChickenModel) bd1, potential_dmg);
-
-            //ChickenModel chick = (ChickenModel) bd1;
-        }
-        if (bd1.getName().equals("chef")) {
-            if  (fd2.equals("chickenSensor")){
-                makeChickenAttack((ChickenModel) bd1);
+        private void handleCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
+            //special platform case
+            if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
+                ((Chicken)bd2).hitWall();
             }
-            else if (fd2.equals("nugAttack") && !((ChickenModel)bd1).isAttacking()){
-                        /*if (!avatar.isStunned()) {
-                            chefOof.stop();
-                            chefOof.play(volume);
-                        }*/
-                //if (parameterList[12] != 1) { avatar.decrementHealth(); }
-                //((ChickenModel) bd1).hitPlayer();
-                handleChickenAttack((ChickenModel)bd1, (ChefModel)bd2);
+            else if (bd2.getName().contains("platform") && bd1.getName().equals("chicken")){
+                ((Chicken)bd2).hitWall();
+            }
+
+            else {
+                //otherwise check collisions between objects
+                switch (bd1.getName()) {
+                    case "chicken":
+                        chickenCollision((Chicken) bd1, fd1, bd2, fd2);
+                        break;
+                    case "chef":
+                        chefCollision((Chef) bd1, fd1, bd2, fd2);
+                        break;
+                    case "stove":
+                        stoveCollision((Stove) bd1, fd1, bd2, fd2);
+                        break;
+                    case "bullet":
+                        slapCollision(bd1, fd1, bd2, fd2);
+                        break;
+                    case "trap":
+                        trapCollision((Trap) bd1, fd1, bd2, fd2);
+                        break;
+                }
             }
         }
-    }
 
-    /**
-     * Slaps the chicken
-     * @param chick the chicken to slap
-     * @param dmg   the damage to the chicken
-     * */
-    private void handleSlapCollision(ChickenModel chick, float dmg){
-        chick.takeDamage(dmg);
-        if (!chick.isAlive()) {
-            chick.markRemoved(true); //was originally removeChicken(), idk if this breaks anything
+        private void chickenCollision(Chicken c1, Object fd1, Obstacle bd2, Object fd2){
+            switch(bd2.getName()){
+                case "stove": c1.hitWall();
+                    break;
+                case "chicken":
+                    break;
+                case "chef": handleChefChicken((Chef)bd2, fd2, c1, fd1);
+                    break;
+                case "bullet": handleChickenSlap(c1, fd1, bd2, fd2);
+                    break;
+                case "trap": handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
+                    break;
+            }
         }
+
+        private void chefCollision(Chef c1, Object fd1, Obstacle bd2, Object fd2){
+            switch(bd2.getName()){
+                case "stove": handleStoveChef((Stove)bd2, c1);
+                    break;
+                case "chicken": handleChefChicken(c1, fd1, (Chicken)bd2, fd2);
+                    break;
+                case "chef":
+                case "bullet":
+                case "trap":
+                    break;
+            }
+        }
+
+        private void stoveCollision(Stove s1, Object fd1, Obstacle bd2, Object fd2){
+            switch(bd2.getName()){
+                case "stove":
+                    break;
+                case "chicken": ((Chicken)bd2).hitWall();
+                    break;
+                case "chef": handleStoveChef(s1, (Chef)bd2);
+                    break;
+                case "bullet":
+                case "trap":
+                    break;
+            }
     }
 
+
+        private void slapCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
+        //TODO make slap class
+            if(bd2.getName().equals("chicken")){
+                handleChickenSlap((Chicken)bd2, fd2, bd1, fd1);
+            }
+        }
+
+        private void trapCollision(Trap t1, Object fd1, Obstacle bd2, Object fd2){
+            if(bd2.getName().equals("chicken")){
+                handleChickenTrap((Chicken)bd2, fd2, t1, fd1);
+            }
+        }
+
+    /****************************************
+     * HELPER METHODS
+     ****************************************/
     /**
-     * Activates ability to cook when the chef is near the stove
-     * @param avatar    the chef
-     * @param chick     the chicken
+     * Handles an interaction between a stove and a chef
+     * @param stove     a given stove
+     * @param chef      a chef
      */
-    private void handleCollision(ChefModel avatar, ChickenModel chick){
-
+    private void handleStoveChef(Stove stove, Chef chef){
+        chef.setCanCook(true);
     }
 
-    /**Makes the chicken attack*/
-    private void makeChickenAttack(ChickenModel chick){
-        if (chick.chasingPlayer()) {
-            chick.startAttack();
+    /**
+     * Handles an interaction between a given chef and a chicken
+     * @param chef
+     * @param fd1
+     * @param chicken
+     * @param fd2
+     */
+    private void handleChefChicken(Chef chef, Object fd1, Chicken chicken, Object fd2){
+        if(fd2 != null) {
+            if (fd2.equals("chickenSensor")) {
+                if (chicken.chasingPlayer()) {
+                    chicken.startAttack();
+                }
+            } else if (fd2.equals("nugAttack")) {
+                //TODO fix call to parameter?? should check
+                chef.decrementHealth();
+                chicken.hitPlayer();
+            }
         }
     }
 
-    private void handleChickenAttack(ChickenModel chick, ChefModel avatar){
-        //if (parameterList[12] != 1) { avatar.decrementHealth(); }
-        //TODO what does this do??
-        avatar.decrementHealth();
-        chick.hitPlayer();
+    /**
+     * Handles an interaction between a chicken and a slap
+     * @param c1
+     * @param fd1
+     * @param bd2
+     * @param fd2
+     */
+    private void handleChickenSlap(Chicken c1, Object fd1, Obstacle bd2, Object fd2){
+        c1.takeDamage(dmg);
+        if(!c1.isAlive()){
+            c1.markRemoved(true);
+        }
+    }
+
+    /**
+     * Handles an interaction between a chicken and a trap
+     * @param c1
+     * @param fd1
+     * @param t2
+     * @param fd2
+     */
+    private void handleChickenTrap(Chicken c1, Object fd1, Trap t2, Object fd2){
+        //TODO add trap controller stuff here
     }
 
 
@@ -242,7 +203,7 @@ public class CollisionController {
      */
     public void endContact(Contact contact) {
         //TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
-        /*Fixture fix1 = contact.getFixtureA();
+        Fixture fix1 = contact.getFixtureA();
         Fixture fix2 = contact.getFixtureB();
 
         Body body1 = fix1.getBody();
@@ -257,71 +218,5 @@ public class CollisionController {
         Obstacle b1 = (Obstacle) bd1;
         Obstacle b2 = (Obstacle) bd2;
 
-        if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-                (avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-            sensorFixtures.remove((avatar == bd1) ? fix2 : fix1);
-        }
-
-        if (avatar.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
-                avatar.getSensorName().equals(fd1) && stove.getSensorName().equals(fd2)){
-            avatar.setCanCook(false);
-        }
-        if (b1.getName().equals("trap") && b2.getName().equals("chicken")) {
-            switch (((Trap) b1).getTrapType()){
-                case LURE:
-                    ((ChickenModel) b2).resetTarget();
-                    break;
-                case SLOW:
-                    ((ChickenModel) b2).removeSlow();
-                    break;
-                case FIRE :
-                    break;
-                case FIRE_LINGER:
-                    ((ChickenModel) b2).letItBurn();
-            }
-        }
-        if (b2.getName().equals("trap") && b1.getName().equals("chicken")) {
-            switch (((Trap) b2).getTrapType()){
-                case LURE: //damage
-                    ((ChickenModel) b1).resetTarget();
-                    break;
-                case SLOW:
-                    ((ChickenModel) b1).removeSlow();
-                    break;
-                case FIRE :
-                    break;
-                case FIRE_LINGER:
-                    ((ChickenModel) b1).letItBurn();
-            }
-        }
-
-        if (fd1 != null && fd2 != null) {
-            if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
-                ((ChickenModel) bd2).stopAttack();
-            }
-
-            if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
-                ((ChickenModel) bd1).stopAttack();
-            }
-
-            if (fd1.equals("placeRadius") && bd2 == avatar) {
-                avatar.setCanPlaceTrap(false);
-            }
-            if (fd2.equals("placeRadius") && bd1 == avatar) {
-                avatar.setCanPlaceTrap(false);
-            }
-        }
-
-        if (fd1 != null) {
-            if (bd2 == avatar && fd1.equals("chickenSensor")){
-                ((ChickenModel) bd1).stopAttack();
-            }
-        }
-
-        if (fd2 != null) {
-            if (bd1 == avatar && fd2.equals("chickenSensor")) {
-                ((ChickenModel) bd2).stopAttack();
-            }
-        }*/
     }
 }
