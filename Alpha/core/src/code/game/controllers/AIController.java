@@ -84,21 +84,21 @@ public class AIController {
 
 
 
-
+    /** The chicken being controlled by this controller */
     private Chicken chicken;
-
+    /** The chef that this chicken is targeting*/
     private Chef chef;
-
+    /** The states of the finite state machine for chicken AI*/
     public static enum FSM{
-        CHASE,
-        KNOCKBACK,
-        STUNNED,
-        ATTACK
+        CHASE, /** Chicken is chasing the player, but not in attack range yet*/
+        KNOCKBACK,/** The chicken has just taken damage and is receiving a knockback force*/
+        STUNNED,/** The chicken has recently taken damage, but not receiving a knockback force*/
+        ATTACK /** The chicken is attacking the chef */
     }
+    /** Vector2 used for calculations to avoid making Vector2's every frame */
+    private Vector2 temp = new Vector2();
 
-    Vector2 temp = new Vector2();
-
-
+    /** The current state of the AI FSM */
     private FSM state;
     /** Creates a new AIController
      *
@@ -124,7 +124,7 @@ public class AIController {
     private void changeState(){
         switch(state){
             case CHASE:
-                if (Math.random()<0.005){// TODO if the chicken just got hit
+                if (false){// TODO if the chicken just got hit
                     state = FSM.KNOCKBACK;
                 }
                 break;

@@ -93,7 +93,7 @@ public class Chicken extends CapsuleObstacle {
     private float status_timer = 0f;
 
     private boolean cookin = false;
-
+    /** Texture for chicken healthbar */
     private TextureRegion healthBar;
 
     private float CHICK_HIT_BOX = 0.8f;
@@ -259,6 +259,10 @@ public class Chicken extends CapsuleObstacle {
     public void update(float dt, int[] plist) {
         super.update(dt, plist);
         applyForce();
+
+        if (!cookin) {
+            status_timer = Math.max(status_timer - dt, -1f);
+        }
         /**
          invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
          sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
@@ -314,9 +318,7 @@ public class Chicken extends CapsuleObstacle {
          setVY(forceCache.y);
 
          }
-         if (!cookin) {
-         status_timer = Math.max(status_timer - dt, -1f);
-         }
+
          //TODO: delete after technical
          setMaxHealth(plist[1]);
          setChaseSpeed(plist[10]);
