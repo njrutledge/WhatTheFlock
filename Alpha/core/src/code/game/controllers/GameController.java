@@ -1112,16 +1112,8 @@ public class GameController implements ContactListener, Screen {
 //		trap.setTexture(trapTexture);
 //		addObject(trap);
 	}
-	/**
-	 *  decrement the trap durability, and remove the trap if it breaks.
-	 *
-	 * @param trap   the trap to decrement durability and possibly remove
-	 */
-	public void decrementTrap(Trap trap){
-		if(!trap.isRemoved() && trap.decrementDurability()){
-			trap.markRemoved(true);
-		}
-	}
+
+
 
 	public float damageCalc(){
 		return chef.getDamage() + 2* chef.getDamage()*temp.getPercentCooked();
