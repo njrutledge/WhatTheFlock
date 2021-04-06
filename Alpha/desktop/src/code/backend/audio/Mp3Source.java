@@ -15,7 +15,6 @@ import code.audio.AudioStream;
 import code.audio.MusicBuffer;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import edu.cornell.gdiac.audio.*;
 import javazoom.jl.decoder.*;
 
 import java.io.ByteArrayOutputStream;

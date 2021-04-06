@@ -28,7 +28,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.*;
 import com.badlogic.gdx.assets.loaders.*;
 import com.badlogic.gdx.assets.loaders.resolvers.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import edu.cornell.gdiac.audio.*;
 import code.util.FilmStrip;
 
 /**

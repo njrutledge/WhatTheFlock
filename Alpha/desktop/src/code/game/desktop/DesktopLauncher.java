@@ -15,7 +15,6 @@ package code.game.desktop;
 import code.backend.GDXApp;
 import code.backend.GDXAppSettings;
 import code.game.controllers.GDXRoot;
-import edu.cornell.gdiac.backend.*;
 
 /**
  * The main class of the game.

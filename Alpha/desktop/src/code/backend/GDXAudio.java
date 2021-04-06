@@ -21,8 +21,6 @@ import com.badlogic.gdx.backends.lwjgl.audio.*;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.*;
-import edu.cornell.gdiac.audio.*;
-import edu.cornell.gdiac.backend.audio.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.*;
 
