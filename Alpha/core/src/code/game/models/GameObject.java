@@ -1,24 +1,59 @@
 package code.game.models;
 
-import code.game.views.GameCanvas;
 import code.game.models.obstacle.BoxObstacle;
+import code.game.views.GameCanvas;
+import com.badlogic.gdx.utils.JsonValue;
 
-// Not sure if we want this to extend BoxObstacle
+public abstract class GameObject extends BoxObstacle {
+    /** Identifier to allow us to track the sensor in ContactListener */
+    private String sensorName;
+    /** A name for debugging purposes */
+    private String name;
 
+    public GameObject(float x, float y, float width, float height){
+        super(x,y,width,height);
+    }
 
-public abstract class GameObject extends BoxObstacle{
     /**
-     * Abstract class for objects in the game. This includes the chef, the
-     * enemies, the stove, and the traps
+     * Returns the name of the ground sensor
      *
-     * @param x         The x position of this object in the world
-     * @param y         The y position of this object in the world
-     * @param width		The object width in physics units
-     * @param height	The object width in physics units
+     * This is used by ContactListener
+     *
+     * @return the name of the ground sensor
      */
-    public GameObject(float x, float y, float width, float height) {
-        super(x, y, width, height);
+    public String getSensorName() {
+        return sensorName;
+    }
+
+    /**
+     * Returns the name tag of the trap
+     *
+     * This is used by ContactListener
+     *
+     * @return the name tag of the trap
+     */
+    public String getName() {
+        return name;
+    }
+
+    public void setSensorName(String sensorName) {
+        this.sensorName = sensorName;
+    }
+
+    /**
+     * Sets the game object tag.
+     *
+     * A tag is a string attached to an object, in order to identify it in debugging.
+     *
+     * @param  value    the game object tag
+     */
+    public void setName(String value) {
+        name = value;
     }
 
     public abstract void draw(GameCanvas canvas);
+
+    public void drawDebug(GameCanvas canvas){
+        super.drawDebug(canvas);
+    }
 }

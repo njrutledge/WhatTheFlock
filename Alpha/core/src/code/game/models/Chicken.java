@@ -1,5 +1,6 @@
 package code.game.models;
 
+import code.game.interfaces.ChickenInterface;
 import code.game.models.obstacle.CapsuleObstacle;
 import code.game.models.obstacle.Obstacle;
 import code.util.FilmStrip;
@@ -14,7 +15,7 @@ import code.game.models.obstacle.*;
 import code.util.FilmStrip;
 import code.game.views.GameCanvas;
 
-public class Chicken extends CapsuleObstacle {
+public class Chicken extends GameObject implements ChickenInterface {
     //TODO: Implement the Enemy Chicken and its methods, feel free to add or remove methods as needed
     ///////// Currently only dude methods which I thought were important are included, they will likely need to be
     ///////// altered or removed, but should provide a good base to start with.
@@ -506,7 +507,7 @@ public class Chicken extends CapsuleObstacle {
     /**
      * Set the isInvisible boolean, which determines whether to draw the chicken on the screen
      *
-     * @param invisible
+     * @param invisible whether the chicken should be invisible
      */
     public void setInvisible(Boolean invisible){
         isInvisible = invisible;

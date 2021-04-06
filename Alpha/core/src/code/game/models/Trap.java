@@ -1,5 +1,6 @@
 package code.game.models;
 
+import code.game.interfaces.TrapInterface;
 import code.game.models.obstacle.BoxObstacle;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
@@ -8,7 +9,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
 
-public class Trap extends GameObject {
+public class Trap extends GameObject implements TrapInterface {
 
     /**
      *  Enumeration to encode the trap type
@@ -32,8 +33,7 @@ public class Trap extends GameObject {
 
     /** The initializing data (to avoid magic numbers) */
     private JsonValue data;
-    /** Identifier to allow us to track the sensor in ContactListenr */
-    private String sensorName;
+
     /** The game shape of this object */
     private Shape sensorShape;
     /** true if using the second game shape */
@@ -42,13 +42,11 @@ public class Trap extends GameObject {
     private type trapType;
     /** The game shape of this trap */
     private shape trapShape;
-    /** A name for debugging purposes */
-    private String name;
+
     /** The durability of this trap */
     private float durability;
     /** The max durability */
-    //TODO: make final after technical
-    private static float MAX_DURABILITY = 30.0f;
+    private static final float MAX_DURABILITY = 30.0f;
 
     /** Hurt box shape for the Lure trap. Null for all other traps */
     private Shape lHShape;
@@ -106,7 +104,7 @@ public class Trap extends GameObject {
         setName("trap");
         trapType = t;
         trapShape = s;
-        sensorName = "trapSensor";
+        setSensorName("trapSensor");
         setSensor(true);
         durability = MAX_DURABILITY;
         linger = false;
@@ -129,29 +127,6 @@ public class Trap extends GameObject {
     }
 
     /**
-     * Returns the name of the ground sensor
-     *
-     * This is used by ContactListener
-     *
-     * @return the name of the ground sensor
-     */
-    public String getSensorName() {
-        return sensorName;
-    }
-
-    /**
-     * Returns the name tag of the trap
-     *
-     * This is used by ContactListener
-     *
-     * @return the name tag of the trap
-     */
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    /**
      *  Returns the enum type that represents this trap
      *
      * @return the type of this trap
@@ -166,24 +141,6 @@ public class Trap extends GameObject {
      * @return true if linger is enabled
      */
     public boolean getLinger(){ return linger; }
-
-    /**
-     * Sets the trapType of this trap.
-     *
-     * @param t is the type to switch to.
-     */
-    public void setTrapType(type t){ trapType=t;}
-
-    /**
-     * Sets the game object tag.
-     *
-     * A tag is a string attached to an object, in order to identify it in debugging.
-     *
-     * @param  value    the game object tag
-     */
-    public void setName(String value) {
-        name = value;
-    }
 
     /** enables or disables the linger effect for fire traps
      *
@@ -231,33 +188,6 @@ public class Trap extends GameObject {
                 this.markRemoved(true);
             }
         }
-
-        //TODO: delete after technical
-        float next_val = 0f;
-        float diff = 0f;
-        switch (trapType){
-            case LURE:
-                next_val = plist[5];
-                diff = next_val - lure_ammount;
-                durability += diff * LURE_CRUMBS;
-                lure_ammount = next_val;
-            break;
-            case SLOW:
-                next_val = plist[6];
-                diff = next_val - MAX_DURABILITY;
-                durability += diff;
-                MAX_DURABILITY = next_val;
-            break;
-            case FIRE_LINGER:
-                next_val = plist[7];
-                diff = next_val - FIRE_DUR;
-                durability = MathUtils.clamp(durability+ MAX_DURABILITY*diff * delta, 0, MAX_DURABILITY);
-                FIRE_DUR = next_val;
-                FIRE_DAM_DUR = plist[8];
-            break;
-        }
-
-
     }
 
     /**
