@@ -27,7 +27,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import java.util.Iterator;
-
+import java.util.HashMap;
 /**
  * Gameplay specific controller for the platformer game.  
  *
@@ -145,8 +145,8 @@ public class GameController implements ContactListener, Screen {
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
-	/** Reference to the character avatar */
-	private ChefModel chef;
+	/** Reference to the character chef */
+	private Chef chef;
 	/** Reference to the temperature*/
 	private TemperatureBar temp;
 	///** Reference to the goalDoor (for collision detection) */
@@ -159,8 +159,10 @@ public class GameController implements ContactListener, Screen {
 	private static float spawn_ymin;
 	/** The maximum y position of a spawned chicken */
 	private static float spawn_ymax;
+	/** maps chickens to their corresponding AI controllers*/
+	private HashMap<Chicken, AIController> ai = new HashMap<>();
 	/** Reference to the stove object */
-	private StoveModel stove;
+	private Stove stove;
 
 	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.LURE;
@@ -168,7 +170,7 @@ public class GameController implements ContactListener, Screen {
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
 	private int[] parameterList = {3, 5, 2, 100, 2, 6, 30, 10, 5, 5, 5, 5, 0};
-
+	//TODO MAKE CONSTANT
 
 
 	/** Reference to the game canvas */
@@ -211,6 +213,8 @@ public class GameController implements ContactListener, Screen {
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
 
+	/**The collision controller for this level*/
+	private CollisionController collisionController;
 	/**
 	 * Returns true if debug mode is active.
 	 *
@@ -245,6 +249,7 @@ public class GameController implements ContactListener, Screen {
 		setFailure(false);
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
+		collisionController = new CollisionController();
 		//chickens = 0;
 		//cooking = false;
 	}
@@ -425,7 +430,7 @@ public class GameController implements ContactListener, Screen {
 		// Add stove
 		float swidth = stoveTexture.getRegionWidth()/scale.x;
 		float sheight = stoveTexture.getRegionHeight()/scale.y;
-		stove = new StoveModel(constants.get("stove"),16,9,swidth,sheight);
+		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
 		stove.setDrawScale(scale);
 		stove.setTexture(stoveTexture);
 		addObject(stove);
@@ -436,7 +441,7 @@ public class GameController implements ContactListener, Screen {
 		//TODO: FIX AFTER WE HAVE FILMSTRIP!
 		float dwidth  = 32/scale.x;
 		float dheight = 32/scale.y;
-		chef = new ChefModel(constants.get("dude"), dwidth, dheight, parameterList[0]);
+		chef = new Chef(constants.get("chef"), dwidth, dheight, parameterList[0]);
 		chef.setDrawScale(scale);
 		chef.setTexture(chefTexture);
 		chef.setHealthTexture(healthTexture);
@@ -447,7 +452,7 @@ public class GameController implements ContactListener, Screen {
 		temp = new TemperatureBar(tempBackground, tempForeground,30);
 		temp.setUseCooldown(cooldown);
 
-		//avatar.setMaxTemp(30);
+		//chef.setMaxTemp(30);
 
 		addObject(chef);
 
@@ -461,7 +466,7 @@ public class GameController implements ContactListener, Screen {
 		}
 
 		// Get initial values for parameters in the list
-		//parameterList[0] = avatar.getMaxHealth();
+		//parameterList[0] = chef.getMaxHealth();
 
 
 	}
@@ -483,9 +488,12 @@ public class GameController implements ContactListener, Screen {
 	 *
 	 * @param contact The two bodies that collided
 	 */
-	public void beginContact(Contact contact) {
+	public void beginContact(Contact contact){
+		collisionController.beginContact(contact, damageCalc());
+	}/* {
+
 		//TODO: Detect if a collision is with an enemy and have an appropriate interaction
-		/*Fixture fix1 = contact.getFixtureA();
+		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
 		Body body1 = fix1.getBody();
@@ -499,44 +507,40 @@ public class GameController implements ContactListener, Screen {
 			Obstacle bd2 = (Obstacle)body2.getUserData();
 
 
-			//reduce health if chicken collides with avatar
+			//reduce health if chicken collides with chef
 
 			//cook if player is near stove and not doing anything
-			if ((bd1 == avatar && bd2 == stove)
-					|| (bd2 == avatar && bd1 == stove)) {
-				avatar.setCanCook(true);
+			if ((bd1 == chef && bd2 == stove)
+					|| (bd2 == chef && bd1 == stove)) {
+				chef.setCanCook(true);
 			}
 
 			//bullet collision with chicken eliminates chicken
 
 			if (fd1 != null){
 				if (bd2.getName().equals("bullet") && fd1.equals("chickenSensor")) {
-					chickHurt.stop();
-					chickHurt.play(volume);
-					fireSound.stop();
-					fireSound.play(volume);
-					ChickenModel chick = (ChickenModel) bd1;
+					Chicken chick = (Chicken) bd1;
 					chick.takeDamage(damageCalc());
 					if (!chick.isAlive()) {
 						removeChicken(bd1);
 					}
 				}
 
-				if (bd2 == avatar && fd1.equals("chickenSensor")) {
-					ChickenModel chick = (ChickenModel) bd1;
+				if (bd2 == chef && fd1.equals("chickenSensor")) {
+					Chicken chick = (Chicken) bd1;
 					if (chick.chasingPlayer()) {
 						chick.startAttack();
 					}
 
 				}
 
-				if ((bd2 == avatar && fd1.equals("nugAttack"))&& !((ChickenModel)bd1).isAttacking()){
-					if (!avatar.isStunned()) {
+				if ((bd2 == chef && fd1.equals("nugAttack"))&& !((Chicken)bd1).isAttacking()){
+					if (!chef.isStunned()) {
 						chefOof.stop();
 						chefOof.play(volume);
 					}
-					if (parameterList[12] != 1) { avatar.decrementHealth(); }
-					((ChickenModel) bd1).hitPlayer();
+					if (parameterList[12] != 1) { chef.decrementHealth(); }
+					((Chicken) bd1).hitPlayer();
 
 
 				}
@@ -546,31 +550,23 @@ public class GameController implements ContactListener, Screen {
 
 			if (fd2 != null) {
 				if (bd1.getName().equals("bullet") && fd2.equals("chickenSensor")) {
-					chickHurt.stop();
-					chickHurt.play(volume);
-					fireSound.stop();
-					fireSound.play(volume);
-					ChickenModel chick = (ChickenModel) bd2;
+					Chicken chick = (Chicken) bd2;
 					chick.takeDamage(damageCalc());
 					if (!chick.isAlive()) {
 						removeChicken(bd2);
 					}
 				}
 
-				if (bd1 == avatar && fd2.equals("chickenSensor")) {
-					ChickenModel chick = (ChickenModel) bd2;
+				if (bd1 == chef && fd2.equals("chickenSensor")) {
+					Chicken chick = (Chicken) bd2;
 					if (chick.chasingPlayer()) {
 						chick.startAttack();
 					}
 				}
 
-				if (bd1 == avatar && fd2.equals("nugAttack") && ((ChickenModel)bd2).isAttacking()) {
-					if (!avatar.isStunned()) {
-						chefOof.stop();
-						chefOof.play(volume);
-					}
-					if (parameterList[12] != 1) { avatar.decrementHealth(); }
-					((ChickenModel) bd2).hitPlayer();
+				if (bd1 == chef && fd2.equals("nugAttack") && ((Chicken)bd2).isAttacking()) {
+					if (parameterList[12] != 1) { chef.decrementHealth(); }
+					((Chicken) bd2).hitPlayer();
 				}
 			}
 
@@ -580,30 +576,28 @@ public class GameController implements ContactListener, Screen {
 			if (fd1 != null && fd2 != null) {
 
 				if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
-					((ChickenModel) bd2).startAttack();
+					((Chicken) bd2).startAttack();
 				}
 
 				if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
-					((ChickenModel) bd1).startAttack();
+					((Chicken) bd1).startAttack();
 				}
 
-				if (fd1.equals("lureHurt") && fd2.equals("nugAttack") && ((ChickenModel) bd2).isAttacking()) {
+				if (fd1.equals("lureHurt") && fd2.equals("nugAttack") && ((Chicken) bd2).isAttacking()) {
 					decrementTrap((Trap) bd1);
-					lureCrumb.play(volume);
 				}
 
-				if (fd2.equals("lureHurt") && fd1.equals("nugAttack") && ((ChickenModel) bd1).isAttacking()){
+				if (fd2.equals("lureHurt") && fd1.equals("nugAttack") && ((Chicken) bd1).isAttacking()){
 					decrementTrap((Trap) bd2);
-					lureCrumb.play(volume);
 				}
 
 				if (fd1.equals("trapSensor") && bd2.getName().equals("chicken")) {
 					switch (((Trap) bd1).getTrapType()){
 						case LURE: //damage
-							((ChickenModel) bd2).trapTarget((Trap) bd1);
+							((Chicken) bd2).trapTarget((Trap) bd1);
 							break;
 						case SLOW:
-							((ChickenModel) bd2).applySlow(((Trap) bd1).getEffect());
+							((Chicken) bd2).applySlow(((Trap) bd1).getEffect());
 							decrementTrap((Trap) bd1);
 							slowSquelch.stop();
 							slowSquelch.play(volume);
@@ -620,7 +614,7 @@ public class GameController implements ContactListener, Screen {
 							fireLinger.play(volume*0.5f);
 							break;
 						case FIRE_LINGER:
-							((ChickenModel) bd2).applyFire(((Trap) bd1).getEffect());
+							((Chicken) bd2).applyFire(((Trap) bd1).getEffect());
 							chickOnFire.stop();
 							chickOnFire.play(volume*0.5f);
 					}
@@ -628,10 +622,10 @@ public class GameController implements ContactListener, Screen {
 				if (fd2.equals("trapSensor") && bd1.getName().equals("chicken")) {
 					switch (((Trap) bd2).getTrapType()){
 						case LURE: //damage
-							((ChickenModel) bd1).trapTarget((Trap) bd2);
+							((Chicken) bd1).trapTarget((Trap) bd2);
 							break;
 						case SLOW:
-							((ChickenModel) bd1).applySlow(((Trap) bd2).getEffect());
+							((Chicken) bd1).applySlow(((Trap) bd2).getEffect());
 							decrementTrap((Trap) bd2);
 							slowSquelch.stop();
 							slowSquelch.play(volume);
@@ -648,33 +642,33 @@ public class GameController implements ContactListener, Screen {
 							fireLinger.play(volume*0.5f);
 							break;
 						case FIRE_LINGER:
-							((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
+							((Chicken) bd1).applyFire(((Trap) bd2).getEffect());
 							chickOnFire.stop();
 							chickOnFire.play(volume*0.5f);
 					}
 				}
-				if (fd1.equals("placeRadius") && bd2==avatar){
-					avatar.setCanPlaceTrap(true);
+				if (fd1.equals("placeRadius") && bd2==chef){
+					chef.setCanPlaceTrap(true);
 				}
-				if (fd2.equals("placeRadius") && bd1==avatar){
-					avatar.setCanPlaceTrap(true);
+				if (fd2.equals("placeRadius") && bd1==chef){
+					chef.setCanPlaceTrap(true);
 				}
 			}
 
 			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
-				((ChickenModel)bd2).hitWall();
+				((Chicken)bd2).hitWall();
 			}
 			if ((bd2.getName().contains("platform") || (bd2.getName().equals("stove") && !fix2.isSensor())) && bd1.getName().equals("chicken")){
-				((ChickenModel)bd1).hitWall();
+				((Chicken)bd1).hitWall();
 
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 
 	}
-
+*/
 	/**
 	 * Callback method for the start of a collision
 	 *
@@ -684,7 +678,7 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void endContact(Contact contact) {
 		//TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
-		/*Fixture fix1 = contact.getFixtureA();
+		Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
 		Body body1 = fix1.getBody();
@@ -699,72 +693,72 @@ public class GameController implements ContactListener, Screen {
 		Obstacle b1 = (Obstacle) bd1;
 		Obstacle b2 = (Obstacle) bd2;
 
-		if ((avatar.getSensorName().equals(fd2) && avatar != bd1) ||
-				(avatar.getSensorName().equals(fd1) && avatar != bd2)) {
-			sensorFixtures.remove((avatar == bd1) ? fix2 : fix1);
+		if ((chef.getSensorName().equals(fd2) && chef != bd1) ||
+				(chef.getSensorName().equals(fd1) && chef != bd2)) {
+			sensorFixtures.remove((chef == bd1) ? fix2 : fix1);
 		}
 
-		if (avatar.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
-				avatar.getSensorName().equals(fd1) && stove.getSensorName().equals(fd2)){
-			avatar.setCanCook(false);
+		if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
+				chef.getSensorName().equals(fd1) && stove.getSensorName().equals(fd2)){
+			chef.setCanCook(false);
 		}
 		if (b1.getName().equals("trap") && b2.getName().equals("chicken")) {
 			switch (((Trap) b1).getTrapType()){
 				case LURE:
-					((ChickenModel) b2).resetTarget();
+					((Chicken) b2).resetTarget();
 					break;
 				case SLOW:
-					((ChickenModel) b2).removeSlow();
+					((Chicken) b2).removeSlow();
 					break;
 				case FIRE :
 					break;
 				case FIRE_LINGER:
-					((ChickenModel) b2).letItBurn();
+					((Chicken) b2).letItBurn();
 			}
 		}
 		if (b2.getName().equals("trap") && b1.getName().equals("chicken")) {
 			switch (((Trap) b2).getTrapType()){
 				case LURE: //damage
-					((ChickenModel) b1).resetTarget();
+					((Chicken) b1).resetTarget();
 					break;
 				case SLOW:
-					((ChickenModel) b1).removeSlow();
+					((Chicken) b1).removeSlow();
 					break;
 				case FIRE :
 					break;
 				case FIRE_LINGER:
-					((ChickenModel) b1).letItBurn();
+					((Chicken) b1).letItBurn();
 			}
 		}
 
 		if (fd1 != null && fd2 != null) {
 			if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
-				((ChickenModel) bd2).stopAttack();
+				((Chicken) bd2).stopAttack();
 			}
 
 			if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
-				((ChickenModel) bd1).stopAttack();
+				((Chicken) bd1).stopAttack();
 			}
 
-			if (fd1.equals("placeRadius") && bd2 == avatar) {
-				avatar.setCanPlaceTrap(false);
+			if (fd1.equals("placeRadius") && bd2 == chef) {
+				chef.setCanPlaceTrap(false);
 			}
-			if (fd2.equals("placeRadius") && bd1 == avatar) {
-				avatar.setCanPlaceTrap(false);
+			if (fd2.equals("placeRadius") && bd1 == chef) {
+				chef.setCanPlaceTrap(false);
 			}
 		}
 
 		if (fd1 != null) {
-			if (bd2 == avatar && fd1.equals("chickenSensor")){
-				((ChickenModel) bd1).stopAttack();
+			if (bd2 == chef && fd1.equals("chickenSensor")){
+				((Chicken) bd1).stopAttack();
 			}
 		}
 
 		if (fd2 != null) {
-			if (bd1 == avatar && fd2.equals("chickenSensor")) {
-				((ChickenModel) bd2).stopAttack();
+			if (bd1 == chef && fd2.equals("chickenSensor")) {
+				((Chicken) bd2).stopAttack();
 			}
-		}*/
+		}
 	}
 	/*******************************************************************************************
 	 * UPDATING LOGIC
@@ -785,7 +779,7 @@ public class GameController implements ContactListener, Screen {
 			return false;
 		}
 
-		//set failure if avatar's health is 0
+		//set failure if chef's health is 0
 		if (!isFailure() && !chef.isAlive()) {
 			setFailure(true);
 			return false;
@@ -799,7 +793,9 @@ public class GameController implements ContactListener, Screen {
 		if (InputController.getInstance().didPause()){
 			paused = !paused;
 		}
-
+		for (AIController enemyAI: ai.values()){
+			enemyAI.update(dt);
+		}
 		return !paused;
 	}
 	/**
@@ -943,7 +939,7 @@ public class GameController implements ContactListener, Screen {
 				removeBullet(obj);
 			}
 			if (obj.getName().equals("chicken")){
-				ChickenModel chick = ((ChickenModel) obj);
+				Chicken chick = ((Chicken) obj);
 				if (chick.isAttacking() && chick.getSoundCheck()) {
 					chickAttack.stop();
 					chickAttack.play(volume*0.5f);
@@ -957,10 +953,10 @@ public class GameController implements ContactListener, Screen {
 		if (chef.canCook() && (chef.getMovement() == 0f
 						&& chef.getVertMovement() == 0f
 						&& !chef.isShooting())) {
-			//avatar.cook(true);
+			//chef.cook(true);
 			temp.cook(true);
 		}else {
-			//avatar.cook(false);
+			//chef.cook(false);
 			temp.cook(false);
 		}
 
@@ -1014,12 +1010,13 @@ public class GameController implements ContactListener, Screen {
 			y = spawn_ymax;
 		}
 
-		ChickenModel enemy;
-		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, chef, parameterList[1]);
+		Chicken enemy;
+		enemy = new Chicken(constants.get("chicken"), x, y, dwidth, dheight, chef, parameterList[1]);
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy);
+		ai.put(enemy, new AIController(enemy, chef));
 		//chickens ++;
 	}
 
@@ -1112,19 +1109,11 @@ public class GameController implements ContactListener, Screen {
 //		trap.setTexture(trapTexture);
 //		addObject(trap);
 	}
-	/**
-	 *  decrement the trap durability, and remove the trap if it breaks.
-	 *
-	 * @param trap   the trap to decrement durability and possibly remove
-	 */
-	public void decrementTrap(Trap trap){
-		if(!trap.isRemoved() && trap.decrementDurability()){
-			trap.markRemoved(true);
-		}
-	}
+
+
 
 	public float damageCalc(){
-		return chef.getDamage() + 2* chef.getDamage()*temp.getPercentCooked();
+		return chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
 	}
 
 
