@@ -142,7 +142,7 @@ public class Chef extends CapsuleObstacle {
 		//gatherHealthAssets();
 		shootCooldown = 0;
 		trapCooldown = 0;
-		setName("dude");
+		//setName("dude");
 		isTrap = false;
 		canCook = false;
 	}
