@@ -1,8 +1,8 @@
 package code.game.controllers;
 
-import code.game.models.ChefModel;
-import code.game.models.ChickenModel;
-import code.game.models.StoveModel;
+import code.game.models.Chef;
+import code.game.models.Chicken;
+import code.game.models.Stove;
 import code.game.models.Trap;
 import code.game.models.obstacle.Obstacle;
 import com.badlogic.gdx.physics.box2d.*;
@@ -41,9 +41,9 @@ public class CollisionController {
             if ((bd1.getName().equals("chef") && bd2.getName().equals("stove"))
                     || (bd2.getName().equals("chef") && bd1.getName().equals("stove"))) {
                 if (bd1.getName().equals("chef")) {
-                    handleCollision((ChefModel) bd1, (StoveModel) bd2);
+                    handleCollision((Chef) bd1, (Stove) bd2);
                 } else {
-                    handleCollision((ChefModel) bd2, (StoveModel) bd1);
+                    handleCollision((Chef) bd2, (Stove) bd1);
                 }
             }
 
@@ -56,7 +56,7 @@ public class CollisionController {
                     chickHurt.play(volume);
                     fireSound.stop();
                     fireSound.play(volume);*/
-                    handleSlapCollision((ChickenModel) bd1, potential_dmg);
+                    handleSlapCollision((Chicken) bd1, potential_dmg);
                     //ChickenModel chick = (ChickenModel) bd1;
 
                 }
@@ -189,6 +189,7 @@ public class CollisionController {
                             ((ChickenModel) bd1).applyFire(((Trap) bd2).getEffect());
                             chickOnFire.stop();
                             chickOnFire.play(volume*0.5f);
+                            break;
                     }*/
                 }
                 /*
@@ -218,7 +219,7 @@ public class CollisionController {
      * @param avatar
      * @param stove
      */
-    private void handleCollision(ChefModel avatar, StoveModel stove){
+    private void handleCollision(Chef avatar, Stove stove){
         avatar.setCanCook(true);
     }
     /**
@@ -226,18 +227,18 @@ public class CollisionController {
      * @param avatar
      * @param chick
      */
-    private void handleCollision(ChefModel avatar, ChickenModel chick){
+    private void handleCollision(Chef avatar, Chicken chick){
 
     }
 
-    private void handleSlapCollision(ChickenModel chick, float dmg){
+    private void handleSlapCollision(Chicken chick, float dmg){
         chick.takeDamage(dmg);
         if (!chick.isAlive()) {
             chick.markRemoved(true); //was originally removeChicken(), idk if this breaks anything
         }
     }
 
-    private void handleCollision(ChickenModel chick, Trap trap){
+    private void handleCollision(Chicken chick, Trap trap){
 
     }
 

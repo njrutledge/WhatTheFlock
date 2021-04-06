@@ -146,7 +146,7 @@ public class GameController implements ContactListener, Screen {
 	/** Physics constants for initialization */
 	private JsonValue constants;
 	/** Reference to the character avatar */
-	private ChefModel chef;
+	private Chef chef;
 	/** Reference to the temperature*/
 	private TemperatureBar temp;
 	///** Reference to the goalDoor (for collision detection) */
@@ -160,7 +160,7 @@ public class GameController implements ContactListener, Screen {
 	/** The maximum y position of a spawned chicken */
 	private static float spawn_ymax;
 	/** Reference to the stove object */
-	private StoveModel stove;
+	private Stove stove;
 
 	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.LURE;
@@ -425,7 +425,7 @@ public class GameController implements ContactListener, Screen {
 		// Add stove
 		float swidth = stoveTexture.getRegionWidth()/scale.x;
 		float sheight = stoveTexture.getRegionHeight()/scale.y;
-		stove = new StoveModel(constants.get("stove"),16,9,swidth,sheight);
+		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
 		stove.setDrawScale(scale);
 		stove.setTexture(stoveTexture);
 		addObject(stove);
@@ -436,7 +436,7 @@ public class GameController implements ContactListener, Screen {
 		//TODO: FIX AFTER WE HAVE FILMSTRIP!
 		float dwidth  = 32/scale.x;
 		float dheight = 32/scale.y;
-		chef = new ChefModel(constants.get("chef"), dwidth, dheight, parameterList[0]);
+		chef = new Chef(constants.get("chef"), dwidth, dheight, parameterList[0]);
 		chef.setDrawScale(scale);
 		chef.setTexture(chefTexture);
 		chef.setHealthTexture(healthTexture);
@@ -943,7 +943,7 @@ public class GameController implements ContactListener, Screen {
 				removeBullet(obj);
 			}
 			if (obj.getName().equals("chicken")){
-				ChickenModel chick = ((ChickenModel) obj);
+				Chicken chick = ((Chicken) obj);
 				if (chick.isAttacking() && chick.getSoundCheck()) {
 					chickAttack.stop();
 					chickAttack.play(volume*0.5f);
@@ -1014,8 +1014,8 @@ public class GameController implements ContactListener, Screen {
 			y = spawn_ymax;
 		}
 
-		ChickenModel enemy;
-		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, chef, parameterList[1]);
+		Chicken enemy;
+		enemy = new Chicken(constants.get("chicken"), x, y, dwidth, dheight, chef, parameterList[1]);
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);

@@ -27,7 +27,7 @@ import code.game.views.GameCanvas;
  * Note that this class returns to static loading.  That is because there are
  * no other subclasses that we might loop through.
  */
-public class ChefModel extends CapsuleObstacle {
+public class Chef extends CapsuleObstacle {
 	///TODO: Any gameplay or design adjustments to the player will be altered here.
 	//////////// Nothing explicit is needed now but may be when altering other files. /////
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ public class ChefModel extends CapsuleObstacle {
 	 * @param height	The object width in game units
 	 * @param maxHealth The maximum health of the chef
 	 */
-	public ChefModel(JsonValue data, float width, float height, int maxHealth) {
+	public Chef(JsonValue data, float width, float height, int maxHealth) {
 		// The shrink factors fit the image to a tigher hitbox
 		super(	data.get("pos").getFloat(0),
 				data.get("pos").getFloat(1),
