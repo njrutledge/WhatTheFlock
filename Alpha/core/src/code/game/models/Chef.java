@@ -27,7 +27,7 @@ import code.game.views.GameCanvas;
  * Note that this class returns to static loading.  That is because there are
  * no other subclasses that we might loop through.
  */
-public class Chef extends CapsuleObstacle {
+public class Chef extends GameObject {
 	///TODO: Any gameplay or design adjustments to the player will be altered here.
 	//////////// Nothing explicit is needed now but may be when altering other files. /////
 	//////////////////////////////////////////////////////////////////////////////////////

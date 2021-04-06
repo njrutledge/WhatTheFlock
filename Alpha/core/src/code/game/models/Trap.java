@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
 
-public class Trap extends BoxObstacle {
+public class Trap extends GameObject {
 
     /**
      *  Enumeration to encode the trap type

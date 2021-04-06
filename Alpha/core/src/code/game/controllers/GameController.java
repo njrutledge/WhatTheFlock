@@ -27,7 +27,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
 import java.util.Iterator;
-
+import java.util.HashMap;
 /**
  * Gameplay specific controller for the platformer game.  
  *
@@ -159,6 +159,8 @@ public class GameController implements ContactListener, Screen {
 	private static float spawn_ymin;
 	/** The maximum y position of a spawned chicken */
 	private static float spawn_ymax;
+	/** maps chickens to their corresponding AI controllers*/
+	private HashMap<Chicken, AIController> ai = new HashMap<>();
 	/** Reference to the stove object */
 	private Stove stove;
 
@@ -799,7 +801,9 @@ public class GameController implements ContactListener, Screen {
 		if (InputController.getInstance().didPause()){
 			paused = !paused;
 		}
-
+		for (AIController enemyAI: ai.values()){
+			enemyAI.update(dt);
+		}
 		return !paused;
 	}
 	/**
@@ -1020,6 +1024,7 @@ public class GameController implements ContactListener, Screen {
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy);
+		ai.put(enemy, new AIController(enemy, chef));
 		//chickens ++;
 	}
 
