@@ -11,6 +11,10 @@ import edu.cornell.gdiac.physics.*;
 import edu.cornell.gdiac.physics.obstacle.*;
 import edu.cornell.gdiac.util.FilmStrip;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
 public class ChickenModel extends CapsuleObstacle {
     //TODO: Implement the Enemy Chicken and its methods, feel free to add or remove methods as needed
     ///////// Currently only dude methods which I thought were important are included, they will likely need to be
@@ -22,6 +26,8 @@ public class ChickenModel extends CapsuleObstacle {
     private CircleShape sensorShape;
     /** Identifier to allow us to track the sensor in ContactListener */
     private String sensorName;
+
+    // Path finding
     /** The player character that the enemy will follow
      * We would probably want an AI Controller to handle this, but enemy movement is
      * pretty simple for the prototype */
@@ -29,11 +35,17 @@ public class ChickenModel extends CapsuleObstacle {
     /** The grid */
     private Grid grid;
     /** Goal tiles */
-    private Queue<Vector2> goals;
-    /** Row and col of the tile the chicken is currently on */
-    private Vector2 curr_tile;
-    /** Whether the target tile has been found */
-    private boolean found;
+    private PriorityQueue<Grid.Tile> open;
+    /** Closed tiles / tiles already evaluated */
+    private ArrayList<Grid.Tile> closed;
+    /** The tile that the chicken is on */
+    private Grid.Tile start_tile;
+    /** The tile that the target is on */
+    private Grid.Tile target_tile;
+    /** The tile that the chicken will move to */
+    private Grid.Tile move_tile;
+    /** The tile that is the child of move_tile */
+    private Grid.Tile child_tile;
 
     /** The maximum enemy speed */
     //TODO: make final after technical
@@ -50,6 +62,7 @@ public class ChickenModel extends CapsuleObstacle {
     /** The max health of the chicken nugget */
     private int max_health;
     /** Health of the chicken*/
+
     // All of these variables will be put into a FSM in AIController eventually
     private float health;
     /** Time until invulnerability after getting hit wears off */
@@ -133,7 +146,8 @@ public class ChickenModel extends CapsuleObstacle {
         max_health = mh;
         health = max_health;
         this.data = data;
-        goals = new Queue<>();
+        open = new PriorityQueue<>(4, new TileComparator());
+        closed = new ArrayList<>();
     }
 
     /**
@@ -213,43 +227,67 @@ public class ChickenModel extends CapsuleObstacle {
 
     }
 
-    /** Determines the direction of the force that will move the chicken forward
-     *  based on the closest possible path towards the target
+    /** Returns the distance between Vectors a and b
      *
-     * @param parent     Whether the goal tile is directly next to the chicken
-     * @param iterations Iterations of BFS since the start of the search
+     * @param a The first vector
+     * @param b The second vector
+     * @return  The distance between a and b
      */
-    public boolean BFS(boolean parent, int iterations) {
-        if (goals.isEmpty()) { return false; }
-        else if (found) { return false; }
-        Vector2 goal = goals.removeFirst();
-        if (!grid.inBounds((int)goal.x, (int)goal.y)) { BFS(iterations < 8, iterations++); }
-        else if (grid.isVisited((int)goal.x, (int)goal.y)) { BFS(false, iterations++); }
-        else if (grid.isObstacle((int)goal.x, (int)goal.y)) { BFS(false, iterations++); }
-        else if (grid.sameTile(target.getX(),target.getY(),goal.x,goal.y)) {
-            found = true;
-            if (parent) {
-                forceCache.set(grid.getPosition(goal.x, goal.y).sub(getPosition()));
-            }
-            return true;
-        } else {
-            grid.setVisited((int)goal.x,(int)goal.y);
-            for (int i = -1; i < 2; i++) {
-                for (int j = -1; j < 2; j++) {
-                    goals.addLast(new Vector2(goal.x+i, goal.y+j));
-                }
-            }
-            if (BFS(iterations < 8, iterations++)) {
-                if (parent) {
-                    forceCache.set(grid.getPosition(goal.x, goal.y).sub(getPosition()));
-                }
-                return true;
-            };
-        }
-        // Should never get to this line
-        return false;
+    private float distance(Vector2 a, Vector2 b) {
+        float xdiff = b.x - a.x;
+        float ydiff = b.y - a.y;
+        return (float)Math.sqrt(Math.pow(xdiff,2) + Math.pow(ydiff,2));
     }
 
+    /** Determines the direction of the force that will move the chicken forward
+     *  based on the closest possible path towards the target
+     */
+    public Grid.Tile AStar() {
+        while (!open.isEmpty()) {
+            Grid.Tile curr = open.peek();
+            if (curr == target_tile) {
+                if (curr.getParent() == null) { return curr; }
+                child_tile = curr;
+                Grid.Tile parent = curr.getParent();
+                while (parent.getParent() != null) {
+                    child_tile = curr;
+                    curr = curr.getParent();
+                    parent = curr.getParent();
+                }
+                return curr;
+            }
+            for (Grid.Tile neighbor: curr.getNeighbors()) {
+                if (!neighbor.isObstacle()) {
+                    float hcost = distance(grid.getPosition(target_tile.row, target_tile.col), grid.getPosition(neighbor.row,neighbor.col));
+                    // ndist = distance between curr and neighbor
+                    float ndist = distance(grid.getPosition(curr.row, curr.col), grid.getPosition(neighbor.row, neighbor.col));
+                    float gcost = ndist + curr.getGcost();
+                    float fcost = hcost + gcost;
+
+                    if (!closed.contains(neighbor) && !open.contains(neighbor)) {
+                        neighbor.setParent(curr);
+                        neighbor.setGcost(gcost);
+                        neighbor.setHcost(hcost);
+                        neighbor.setFcost(neighbor.getGcost() + distance(grid.getPosition(neighbor.row, neighbor.col), grid.getPosition(target_tile.row, target_tile.col)));
+                        open.add(neighbor);
+                    } else {
+                        if (fcost < neighbor.getGcost()) {
+                            neighbor.setGcost(ndist + curr.getGcost());
+                            neighbor.setFcost(fcost);
+                            neighbor.setParent(curr);
+                            if (closed.contains(neighbor)) {
+                                closed.remove(neighbor);
+                                if (!open.contains(neighbor)) { open.add(neighbor); }
+                            }
+                        }
+                    }
+                }
+            }
+            closed.add(curr);
+            open.remove(curr);
+        }
+        return null;
+    }
 
     /**
      * Updates the object's physics state (NOT GAME LOGIC).
@@ -259,23 +297,31 @@ public class ChickenModel extends CapsuleObstacle {
      * @param dt	Number of seconds since last animation frame
      */
     public void update(float dt, int[] plist) {
-        goals.clear();
-        found = false;
         super.update(dt, plist);
+        open.clear();
+        closed.clear();
+        grid.clearCosts();
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
-        if (target.isActive()) {
+
+       if (target.isActive()) {
             if (grid.sameTile(target.getX(), target.getY(), getX(), getY())) {
                 forceCache.set(target.getPosition().sub(getPosition()));
             } else {
-                curr_tile = grid.getTileRowCol(getX(), getY());
-                for (int i = -1; i < 2; i++) {
-                    for (int j = -1; j < 2; j++) {
-                        goals.addLast(new Vector2(curr_tile.x+i, curr_tile.y+j));
-                    }
+                start_tile = grid.getTile(getPosition().x, getPosition().y);
+                start_tile.setGcost(0);
+                start_tile.setHcost(distance(target.getPosition(), grid.getPosition(start_tile.row, start_tile.col)));
+                start_tile.setFcost(start_tile.getHcost());
+                open.add(start_tile);
+                target_tile = grid.getTile(target.getX(),target.getY());
+                move_tile = AStar();
+                // Moving in a straight line?
+                if (child_tile.row == start_tile.row || child_tile.col == start_tile.col || move_tile == target_tile) {
+                    forceCache.set(grid.getPosition(move_tile.row, move_tile.col).sub(getPosition()));
+                } else {
+                    forceCache.set(grid.getPosition(child_tile.row, child_tile.col).sub(getPosition()));
                 }
-                BFS(true, 0);
             }
             //forceCache.set(target.getPosition().sub(getPosition()));
             forceCache.nor();
@@ -285,9 +331,9 @@ public class ChickenModel extends CapsuleObstacle {
                 applyForce();
             }
             else{
-                //if (sideways_counter < SIDEWAYS_TIME){
-                    //forceCache.rotate90(0);
-                //}
+/*                if (sideways_counter < SIDEWAYS_TIME) {
+                    forceCache.rotate90(0);
+                }*/
                 if (stop_counter < STOP_TIME){
                     forceCache.setZero();
                 }
@@ -426,10 +472,10 @@ public class ChickenModel extends CapsuleObstacle {
      * The chicken has collided with a wall and will move perpendicularly to get around the wall
      */
     public void hitWall(){
-/*        if (!isStunned()){
+        if (!isStunned()){
             sideways_counter = 0;
-        }*/
-        grid.setObstacle(getX(),getY());
+        }
+        //grid.setObstacle(getX(),getY());
     }
 
     /**
@@ -439,4 +485,17 @@ public class ChickenModel extends CapsuleObstacle {
         stop_counter = 0;
     }
 
+    /**
+     * Comparator for Tile class that have the following rules:
+     *
+     * If Tile1's FCost < Tile2's FCost : -1
+     * If Tile1's FCost > Tile2's FCost : 1
+     * Otherwise, 0
+     */
+    public class TileComparator implements Comparator<Grid.Tile> {
+        @Override
+        public int compare(Grid.Tile tile1, Grid.Tile tile2) {
+            return tile1.getFcost() < tile2.getFcost() ? -1: tile1.getFcost() > tile2.getFcost()? 1: 0;
+        }
+    }
 }

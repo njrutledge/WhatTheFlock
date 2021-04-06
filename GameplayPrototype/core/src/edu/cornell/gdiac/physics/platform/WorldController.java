@@ -175,6 +175,8 @@ public class WorldController implements ContactListener, Screen {
 	private boolean failed;
 	/** Whether or not debug mode is active */
 	private boolean debug;
+	/** Whether or not the grid should be displayed */
+	private boolean grid_toggle;
 	/** Countdown active for winning or losing */
 	private int countdown;
 
@@ -314,7 +316,7 @@ public class WorldController implements ContactListener, Screen {
 	 */
 	private void populateLevel() {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)
-		grid = new Grid(canvas.getWidth(), canvas.getHeight());
+		grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
 		String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 		JsonValue defaults = constants.get("defaults");
@@ -450,6 +452,11 @@ public class WorldController implements ContactListener, Screen {
 		// Toggle debug
 		if (input.didDebug()) {
 			debug = !debug;
+		}
+
+		// Toggle grid
+		if (input.didGridToggle()) {
+			grid_toggle = !grid_toggle;
 		}
 
 		// Handle resets
@@ -610,13 +617,13 @@ public class WorldController implements ContactListener, Screen {
 			y = spawn_ymax;
 		}
 
-		ChickenModel enemy;
-		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1],grid);
+		ChickenModel enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1], grid);
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy);
 		chickens ++;
+
 	}
 
 	/**
@@ -1119,6 +1126,9 @@ public class WorldController implements ContactListener, Screen {
 			canvas.beginDebug();
 			for(Obstacle obj : objects) {
 				obj.drawDebug(canvas);
+			}
+			if (grid_toggle) {
+				grid.drawDebug(canvas);
 			}
 			canvas.endDebug();
 		}

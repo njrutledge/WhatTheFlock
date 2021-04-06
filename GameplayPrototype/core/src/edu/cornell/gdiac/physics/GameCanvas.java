@@ -1170,7 +1170,19 @@ public class GameCanvas {
     	debugRender.setColor(color);
     	debugRender.ellipse(x0-w, y0-h, 2*w, 2*h, 12);
     }
-    
+
+	/**	Draws a line from start to end
+	 *
+	 * @param start	The point where the line will begin
+	 * @param end	The point where the line will end
+	 */
+	public void drawLine(Vector2 start, Vector2 end) {
+		Gdx.gl.glLineWidth(1);
+		debugRender.setProjectionMatrix(camera.combined);
+		debugRender.setColor(Color.WHITE);
+		debugRender.line(start, end);
+	}
+
 	/**
 	 * Compute the affine transform (and store it in local) for this image.
 	 * 
