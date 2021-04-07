@@ -1,14 +1,13 @@
 package code.game.models;
 
-import code.game.models.obstacle.BoxObstacle;
+import code.game.interfaces.StoveInterface;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
-
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
 
-public class Stove extends GameObject {
+public class Stove extends GameObject implements StoveInterface {
 
     private JsonValue data;
 
@@ -24,15 +23,7 @@ public class Stove extends GameObject {
     /** The font used to draw text on the screen*/
     private static final BitmapFont font = new BitmapFont();
 
-    public String getSensorName() {
-        return sensorName;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
+    //TODO: add comment
     public Stove(JsonValue jv, float x, float y, float width, float height) {
         super(x, y,
                 width * jv.get("shrink").getFloat(0),
@@ -45,6 +36,13 @@ public class Stove extends GameObject {
         sensorName = "cookRadius";
     }
 
+    /**
+     * Creates the game Body(s) for this object, adding them to the world.
+     *
+     * @param world Box2D world to store body
+     *
+     * @return true if object allocation succeeded
+     */
     public boolean activatePhysics(World world) {
         // create the box from our superclass
         if (!super.activatePhysics(world)) {
@@ -65,6 +63,12 @@ public class Stove extends GameObject {
         return true;
     }
 
+    /** enables or disables the stove lighting.
+     *
+     * This should be enabled if the chef is cooking, and disabled otherwise.
+     *
+     * @param val is true to enable, false to disable.
+     */
     public void setLit(boolean val){lit = val;}
 
     /**

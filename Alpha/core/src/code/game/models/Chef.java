@@ -1,16 +1,7 @@
-/*
- * DudeModel.java
- *
- * You SHOULD NOT need to modify this file.  However, you may learn valuable lessons
- * for the rest of the lab by looking at it.
- *
- * Author: Walker M. White
- * Based on original PhysicsDemo Lab by Don Holden, 2007
- * Updated asset version, 2/6/2021
- */
+
 package code.game.models;
 
-import code.game.models.obstacle.CapsuleObstacle;
+import code.game.interfaces.ChefInterface;
 import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -27,7 +18,7 @@ import code.game.views.GameCanvas;
  * Note that this class returns to static loading.  That is because there are
  * no other subclasses that we might loop through.
  */
-public class Chef extends GameObject {
+public class Chef extends GameObject implements ChefInterface {
 	///TODO: Any gameplay or design adjustments to the player will be altered here.
 	//////////// Nothing explicit is needed now but may be when altering other files. /////
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -46,8 +37,6 @@ public class Chef extends GameObject {
 	//TODO: make final after technical
 	private float maxspeed;
 
-	/** Identifier to allow us to track the sensor in ContactListener */
-	private final String sensorName;
 	/** Cooldown (in animation frames) for shooting */
 	private final int shotLimit;
 	/** Cooldown (in animation frames) for trapping */
@@ -61,6 +50,7 @@ public class Chef extends GameObject {
 	private boolean faceRight;
 	/** How long until we can shoot again */
 	private int shootCooldown;
+	//TODO: change to slapping?
 	/** Whether we are actively shooting */
 	private boolean isShooting;
 	/** How long until we can place another trap */
@@ -106,13 +96,13 @@ public class Chef extends GameObject {
 	protected Vector2 origin;
 
 	/**
-	 * Creates a new dude avatar with the given game data
+	 * Creates a new chef avatar with the given game data
 	 *
 	 * The size is expressed in game units NOT pixels.  In order for
 	 * drawing to work properly, you MUST set the drawScale. The drawScale
 	 * converts the game units to pixels.
 	 *
-	 * @param data  	The game constants for this dude
+	 * @param data  	The game constants for this chef
 	 * @param width		The object width in game units
 	 * @param height	The object width in game units
 	 * @param maxHealth The maximum health of the chef
@@ -132,7 +122,7 @@ public class Chef extends GameObject {
 		force = data.getFloat("force", 0);
 		shotLimit = data.getInt( "shot_cool", 0 );
 		trapLimit = 120;
-		sensorName = "DudeGroundSensor";
+		setSensorName("chefSensor");
 		this.data = data;
 		// Gameplay attributes
 		isShooting = false;
@@ -142,7 +132,7 @@ public class Chef extends GameObject {
 		//gatherHealthAssets();
 		shootCooldown = 0;
 		trapCooldown = 0;
-		//setName("dude");
+		setName("chef");
 		isTrap = false;
 		canCook = false;
 	}
@@ -162,7 +152,7 @@ public class Chef extends GameObject {
 	/**
 	 * Returns left/right movement of this character.
 	 *
-	 * This is the result of input times dude force.
+	 * This is the result of input times chef force.
 	 *
 	 * @return left/right movement of this character.
 	 */
@@ -170,12 +160,19 @@ public class Chef extends GameObject {
 		return movement;
 	}
 
+	/**
+	 * Returns up/down movement of this character.
+	 *
+	 * This is the result of input times chef force.
+	 *
+	 * @return up/down movement of this character.
+	 */
 	public float getVertMovement() { return vertmovement; }
 
 	/**
 	 * Sets left/right movement of this character.
 	 *
-	 * This is the result of input times dude force.
+	 * This is the result of input times chef force.
 	 *
 	 * @param value left/right movement of this character.
 	 */
@@ -203,29 +200,31 @@ public class Chef extends GameObject {
 	public void setCanPlaceTrap(boolean value) {canPlaceTrap = value;}
 
 	/**
-	 * Returns true if the dude is actively firing.
+	 * Returns true if the chef is actively firing.
 	 *
-	 * @return true if the dude is actively firing.
+	 * @return true if the chef is actively firing.
 	 */
 	public boolean isShooting() {
 		return isShooting && shootCooldown <= 0;
 	}
 
 	/**
-	 * Returns true if the dud is trying to place a trap.
+	 * Returns true if the chef is trying to place a trap.
 	 *
-	 * @return true if the dud is trying to place a trap.
+	 * @return true if the chef is trying to place a trap.
 	 */
 	public boolean isTrapping() { return isTrap && trapCooldown <= 0 && canPlaceTrap; }
 
+
 	/**
-	 * Sets whether the dude is actively firing.
+	 * Sets whether the chef is actively firing.
 	 *
-	 * @param value whether the dude is actively firing.
+	 * @param value whether the chef is actively firing.
 	 */
 	public void setShooting(boolean value) {
 		isShooting = value;
 	}
+
 
 	/**
 	 * Sets whether or not the chef is trying to place a trap
@@ -234,7 +233,7 @@ public class Chef extends GameObject {
 	 */
 	public void setTrap(boolean bln) { isTrap = bln; }
 
-	/** */
+	//TODO: comment
 	public void setTexture(Texture texture) {
 		animator = new FilmStrip(texture, 2, 5);
 		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
@@ -247,7 +246,7 @@ public class Chef extends GameObject {
 	 */
 	public boolean isAlive(){ return health > 0; }
 
-	/** Reduces the dude's health by one. */
+	/** Reduces the chef's health by one. */
 	public void decrementHealth() {
 		if (!isStunned()) {
 			health --;
@@ -255,7 +254,8 @@ public class Chef extends GameObject {
 		}
 	}
 
-	/**Returns true if the character has recently taken damage and is not invulnerable
+	/**
+	 * Returns true if the character has recently taken damage and is not invulnerable
 	 *
 	 * @return true if the character is stunned, false otherwise
 	 */
@@ -299,45 +299,34 @@ public class Chef extends GameObject {
 	public int getHealth(){ return health;}
 
 	/**
-	 * Returns how much force to apply to get the dude moving
+	 * Returns how much force to apply to get the chef moving
 	 *
 	 * Multiply this by the input to get the movement value.
 	 *
-	 * @return how much force to apply to get the dude moving
+	 * @return how much force to apply to get the chef moving
 	 */
 	public float getForce() {
 		return force;
 	}
 
 	/**
-	 * Returns ow hard the brakes are applied to get a dude to stop moving
+	 * Returns ow hard the brakes are applied to get a chef to stop moving
 	 *
-	 * @return ow hard the brakes are applied to get a dude to stop moving
+	 * @return ow hard the brakes are applied to get a chef to stop moving
 	 */
-	public float getDamping() {
+	private float getDamping() {
 		return damping;
 	}
 
 	/**
-	 * Returns the upper limit on dude left-right movement.
+	 * Returns the upper limit on chef left-right movement.
 	 *
 	 * This does NOT apply to vertical movement.
 	 *
-	 * @return the upper limit on dude left-right movement.
+	 * @return the upper limit on chef left-right movement.
 	 */
-	public float getMaxSpeed() {
+	private float getMaxSpeed() {
 		return maxspeed;
-	}
-
-	/**
-	 * Returns the name of the ground sensor
-	 *
-	 * This is used by ContactListener
-	 *
-	 * @return the name of the ground sensor
-	 */
-	public String getSensorName() {
-		return sensorName;
 	}
 
 	/**
@@ -356,16 +345,17 @@ public class Chef extends GameObject {
 		return faceRight;
 	}
 
+	//TODO: comment
 	public void setHealthTexture(TextureRegion t){
 		healthTexture = t;
 	}
+
+	//TODO: comment
 	public void setNoHealthTexture(TextureRegion t){
 		noHealthTexture = t;
 	}
 	/**
 	 * Creates the game Body(s) for this object, adding them to the world.
-	 *
-	 * This method overrides the base method to keep your ship from spinning.
 	 *
 	 * @param world Box2D world to store body
 	 *
@@ -401,7 +391,7 @@ public class Chef extends GameObject {
 	
 
 	/**
-	 * Applies the force to the body of this dude
+	 * Applies the force to the body of this chef
 	 *
 	 * This method should be called after the force attribute is set.
 	 */
@@ -446,7 +436,8 @@ public class Chef extends GameObject {
 	 *
 	 * @param dt	Number of seconds since last animation frame
 	 */
-	public void update(float dt, int[] plist) {
+	@Override
+	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 		if (isShooting()) {
 			shootCooldown = shotLimit;
@@ -458,18 +449,7 @@ public class Chef extends GameObject {
 		} else {
 			trapCooldown = Math.max(0, trapCooldown - 1);
 		}
-		super.update(dt, plist);
-
-		//TODO: remove after technical
-		setMaxHealth(plist[0]);
-		BASE_DAMAGE = plist[2];
-		setMaxSpeed(plist[9]);
-		float next_max = (float) plist[11] / 5;
-		if(next_max != INVULN_TIME){
-			invuln_counter = next_max;
-		}
-		INVULN_TIME = next_max;
-
+		super.update(dt);
 	}
 	/**
 	 * Draws the game object.

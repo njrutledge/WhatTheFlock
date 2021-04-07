@@ -3,7 +3,6 @@ package code.game.models;
 import code.game.models.obstacle.BoxObstacle;
 import code.game.views.GameCanvas;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.JsonValue;
 
 public abstract class GameObject extends BoxObstacle {
     /** Identifier to allow us to track the sensor in ContactListener */

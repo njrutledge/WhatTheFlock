@@ -1209,7 +1209,7 @@ public class GameController implements ContactListener, Screen {
 					obj.activatePhysics(world);
 				}
 				// Note that update is called last!
-				obj.update(dt, parameterList);
+				obj.update(dt);
 			}
 		}
 	}

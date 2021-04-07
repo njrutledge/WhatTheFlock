@@ -17,8 +17,6 @@ public class TrapSpot extends GameObject {
     private boolean hasTrap;
     /** the trap at this spot */
     private Trap trap;
-    /** The font used to draw text on the screen*/
-    private static final BitmapFont font = new BitmapFont();
 
     /**Place where the player can put a trap*/
     public TrapSpot(float x, float y) {
@@ -34,7 +32,13 @@ public class TrapSpot extends GameObject {
         hasTrap = false;
         trap = null;
     }
-
+    /**
+     * Creates the game Body(s) for this object, adding them to the world.
+     *
+     * @param world Box2D world to store body
+     *
+     * @return true if object allocation succeeded
+     */
     public boolean activatePhysics(World world) {
         // create the box from our superclass
         if (!super.activatePhysics(world)) {
@@ -57,6 +61,7 @@ public class TrapSpot extends GameObject {
 
 
     /** places the trap t at this location */
+    //TODO: remove?
     public void placeTrap(Trap t){
         if (!hasTrap){
             trap = t;
@@ -77,6 +82,7 @@ public class TrapSpot extends GameObject {
 
 
     /** whether you can place a trap here, based on the specified location @param x and @param y */
+    //TODO: remove?
     public boolean canPlace(float x, float y) {
         //check within bounds
         if (getX() <= x && x <= getX() + getWidth() && isEmpty()){

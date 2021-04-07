@@ -1,5 +1,6 @@
 package code.game.controllers;
 
+import code.game.interfaces.CollisionControllerInterface;
 import code.game.models.Chef;
 import code.game.models.Chicken;
 import code.game.models.Stove;
@@ -9,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 
-public class CollisionController {
+public class CollisionController implements CollisionControllerInterface {
     /**The damage for this round of contact*/
     private float dmg;
 

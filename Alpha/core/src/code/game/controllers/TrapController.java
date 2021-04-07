@@ -1,12 +1,13 @@
 package code.game.controllers;
 
+import code.game.interfaces.TrapControllerInterface;
 import code.game.models.Chicken;
 import code.game.models.Trap;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
 
-public class TrapController{
+public class TrapController implements TrapControllerInterface {
 
     /** The world scale */
     private Vector2 drawscale;
