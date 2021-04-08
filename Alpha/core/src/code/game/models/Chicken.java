@@ -324,6 +324,7 @@ public class Chicken extends GameObject implements ChickenInterface {
     public void startAttack() {
         attack_timer = ATTACK_DUR;
         attack_charge = 0f;
+        hitboxOut = true;
     }
     //TODO: comment
     public void stopAttack() {
@@ -334,7 +335,7 @@ public class Chicken extends GameObject implements ChickenInterface {
         return hitboxOut;
     }
     //TODO: comment
-    public boolean chasingPlayer() { return target.equals(player); }
+    public boolean chasingPlayer(Chef p) { return target.equals(p); }
     //TODO: comment
     public void setChaseSpeed(float spd){
         chaseSpeed = spd;

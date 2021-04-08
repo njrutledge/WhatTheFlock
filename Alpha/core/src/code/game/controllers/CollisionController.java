@@ -163,17 +163,26 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void handleChefChicken(Chef chef, Object fd1, Chicken chicken, Object fd2){
+        if(chicken.isAttacking()){
+            chef.decrementHealth();
+            chicken.hitPlayer();
+        }
+        else if (chicken.chasingPlayer(chef)){
+            chicken.startAttack();
+        }
+        //else {chicken.startAttack();}
+        /*
         if(fd2 != null) {
             if (fd2.equals("chickenSensor")) {
                 if (chicken.chasingPlayer()) {
                     chicken.startAttack();
                 }
-            } else if (fd2.equals("nugAttack") && !chicken.isAttacking()) {
+            } else if (fd2.equals("nugAttack") && chicken.isAttacking()) {
                 //TODO fix call to parameter?? should check
                 chef.decrementHealth();
                 chicken.hitPlayer();
             }
-        }
+        }*/
     }
 
     /**
@@ -317,14 +326,12 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
     private void endChickenChef(Chicken chicken, Object fd1, Chef chef, Object fd2){
-
         chicken.stopAttack();
     }
 
     private void endStoveChef(Stove stove, Object fd1, Chef chef, Object fd2){
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
         chef.setCanCook(false);
-
     }
 
 
