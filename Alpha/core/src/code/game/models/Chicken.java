@@ -214,8 +214,11 @@ public class Chicken extends GameObject implements ChickenInterface {
          }
          */
         if (isBeingForced) {
-            if (isStunned){
+            if (!hit){
                 forceCache.set(-damping * getVX(), -damping * getVY());
+            }
+            else{
+                hit = false;
             }
             body.applyForce(forceCache,getPosition(),true);
         }
@@ -393,9 +396,10 @@ public class Chicken extends GameObject implements ChickenInterface {
             finishA = true;
             attack_timer = -1f;
             attack_charge = -1f;
-            invuln_counter = 0;
+            //invuln_counter = 0;
             hitboxOut = false;
             hit = true;
+            isStunned = true;
         }
     }
 
@@ -498,6 +502,19 @@ public class Chicken extends GameObject implements ChickenInterface {
      */
     public void setInvisible(Boolean invisible){
         isInvisible = invisible;
+    }
+    /** accessor for hit
+     * @return  hit */
+    public Boolean getHit(){
+        return hit;
+    }
+
+    /**
+     * setter for hit
+     * @param hit   new value for hit
+     */
+    public void setHit(Boolean hit){
+        this.hit = hit;
     }
 
 }

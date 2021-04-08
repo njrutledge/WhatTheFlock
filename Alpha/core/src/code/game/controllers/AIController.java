@@ -124,7 +124,7 @@ public class AIController {
     private void changeState(){
         switch(state){
             case CHASE:
-                if (false){// TODO if the chicken just got hit
+                if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
                 break;
@@ -132,7 +132,6 @@ public class AIController {
                 chicken.setStunned(true);
                 invuln_counter = 0;
                 state = FSM.STUNNED;
-
                 break;
             case STUNNED:
                 chicken.setInvisible(((int)(invuln_counter * 10)) % 2 == 0);
@@ -156,8 +155,9 @@ public class AIController {
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
-        changeState();
         setForceCache();
+        changeState();
+
     }
 
     /**
