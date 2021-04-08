@@ -954,9 +954,11 @@ public class GameController implements ContactListener, Screen {
 						&& chef.getVertMovement() == 0f
 						&& !chef.isShooting())) {
 			//chef.cook(true);
+			stove.setLit(true);
 			temp.cook(true);
 		}else {
 			//chef.cook(false);
+			stove.setLit(false);
 			temp.cook(false);
 		}
 
@@ -1031,7 +1033,7 @@ public class GameController implements ContactListener, Screen {
 		} else{
 			temp.reduceTemp(1);
 		}
-
+		/*
 		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
 		float offset = 1f;
 		float angvel = 6f;
@@ -1066,7 +1068,17 @@ public class GameController implements ContactListener, Screen {
 	    slap.setFilterData(bulletFilter);
 	    slap.setBullet(true);
 	    slap.setGravityScale(0);
-		
+		*/
+
+		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
+		Slap slap;
+		if(direction == 2 || direction == 4) {
+			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), radius, 0.1f, direction);
+		}else {
+			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), 0.1f, radius, direction);
+		}
+		slap.setTexture(bulletTexture);
+		slap.setDrawScale(scale);
 		// Compute position and velocity
 		float speed = 175;
 		if (direction == 2 || direction == 4) {
@@ -1204,10 +1216,6 @@ public class GameController implements ContactListener, Screen {
 				obj.deactivatePhysics(world);
 				entry.remove();
 			} else {
-				if(obj.isDirty()){
-					obj.deactivatePhysics(world);
-					obj.activatePhysics(world);
-				}
 				// Note that update is called last!
 				obj.update(dt);
 			}
@@ -1259,13 +1267,13 @@ public class GameController implements ContactListener, Screen {
 				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
 		}
-		if ((chef.canCook() && (chef.getMovement() == 0f
+		/*if ((chef.canCook() && (chef.getMovement() == 0f
 				&& chef.getVertMovement() == 0f
 				&& !chef.isShooting()))){
 			stove.setLit(true);
 		}else{
 			stove.setLit(false);
-		}
+		}*/
 
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
