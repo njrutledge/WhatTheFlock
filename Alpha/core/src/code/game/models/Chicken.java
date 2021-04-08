@@ -375,9 +375,11 @@ public class Chicken extends GameObject implements ChickenInterface {
      */
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
-        canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
-        if (hitboxOut) {
-            canvas.drawPhysics(attackHit,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
+        if (sensorShape != null) {
+            canvas.drawPhysics(sensorShape, Color.RED, getX(), getY(), drawScale.x, drawScale.y);
+            if (hitboxOut && attackHit != null) {
+                canvas.drawPhysics(attackHit, Color.RED, getX(), getY(), drawScale.x, drawScale.y);
+            }
         }
     }
 

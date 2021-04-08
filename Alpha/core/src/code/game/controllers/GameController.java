@@ -188,6 +188,10 @@ public class GameController implements ContactListener, Screen {
 	protected Rectangle bounds;
 	/** The world scale */
 	protected Vector2 scale;
+	/** The grid */
+	protected Grid grid;
+	/** Whether or not the grid should be displayed */
+	private boolean grid_toggle;
 
 	/** Whether or not this is an active controller */
 	private boolean active;
@@ -379,7 +383,7 @@ public class GameController implements ContactListener, Screen {
 	 */
 	private void populateLevel() {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)
-
+		grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
 		String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 		JsonValue defaults = constants.get("defaults");
@@ -653,7 +657,10 @@ public class GameController implements ContactListener, Screen {
 		if (input.didDebug()) {
 			debug = !debug;
 		}
-
+		// Toggle grid
+		if (input.didGridToggle()) {
+			grid_toggle = !grid_toggle;
+		}
 		// Handle resets
 		if (input.didReset()) {
 			reset();
@@ -849,7 +856,8 @@ public class GameController implements ContactListener, Screen {
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy);
-		ai.put(enemy, new AIController(enemy, chef));
+		Grid grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
+		ai.put(enemy, new AIController(enemy, chef, grid));
 		//chickens ++;
 	}
 
@@ -1110,6 +1118,9 @@ public class GameController implements ContactListener, Screen {
 			canvas.beginDebug();
 			for(Obstacle obj : objects) {
 				obj.drawDebug(canvas);
+			}
+			if (grid_toggle) {
+				grid.drawDebug(canvas);
 			}
 			canvas.endDebug();
 		}

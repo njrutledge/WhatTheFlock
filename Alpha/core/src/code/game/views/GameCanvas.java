@@ -1234,4 +1234,16 @@ public class GameCanvas {
 		local.scale(sx,sy);
 		local.translate(-ox,-oy);
 	}
+
+	/**	Draws a line from start to end
+	 *
+	 * @param start	The point where the line will begin
+	 * @param end	The point where the line will end
+	 */
+	public void drawLine(Vector2 start, Vector2 end) {
+		Gdx.gl.glLineWidth(1);
+		debugRender.setProjectionMatrix(camera.combined);
+		debugRender.setColor(Color.WHITE);
+		debugRender.line(start, end);
+	}
 }

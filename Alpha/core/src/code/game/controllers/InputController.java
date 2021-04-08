@@ -100,7 +100,11 @@ public class InputController {
 	private boolean paraIncPrevious;
 	private boolean paraDecPressed;
 	private boolean paraDecPrevious;
-	
+
+	/** Whether grid was toggled */
+	private boolean gridToggled;
+	private boolean gridPrevious;
+
 	/** How much did we move horizontally? */
 	private float horizontal;
 	/** How much did we move vertically? */
@@ -271,6 +275,15 @@ public class InputController {
 	public boolean didParameterDecreased() {return paraDecPressed && !paraDecPrevious; }
 
 	/**
+	 * Returns true if the parameter decreased button is pressed.
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
+	 *
+	 * 	@return true if the parameter decreased button was pressed
+	 */
+	public boolean didGridToggle() { return gridToggled && !gridPrevious; }
+
+	/**
 	 * Returns true if the reset button was pressed.
 	 *
 	 * @return true if the reset button was pressed.
@@ -360,6 +373,7 @@ public class InputController {
 		paraIncPrevious = paraIncPressed;
 		paraDecPrevious = paraDecPressed;
 		mutePrevious = mutePressed;
+		gridPrevious = gridToggled;
 		pausePrevious = pausePressed;
 		
 		// Check to see if a GamePad is connected
@@ -435,6 +449,7 @@ public class InputController {
 		paraDecPressed = (Gdx.input.isKeyPressed(Input.Keys.I));
 		paraIncPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		mutePressed = (Gdx.input.isKeyPressed(Input.Keys.M));
+		gridToggled = (Gdx.input.isKeyPressed(Input.Keys.G));
 		pausePressed = (Gdx.input.isKeyPressed(Input.Keys.TAB));
 		
 		// Directional controls
