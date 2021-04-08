@@ -168,7 +168,7 @@ public class CollisionController implements CollisionControllerInterface {
                 if (chicken.chasingPlayer()) {
                     chicken.startAttack();
                 }
-            } else if (fd2.equals("nugAttack")) {
+            } else if (fd2.equals("nugAttack") && !chicken.isAttacking()) {
                 //TODO fix call to parameter?? should check
                 chef.decrementHealth();
                 chicken.hitPlayer();
@@ -222,16 +222,19 @@ public class CollisionController implements CollisionControllerInterface {
         Obstacle bd1 = (Obstacle) body1.getUserData();
         Obstacle bd2 = (Obstacle) body2.getUserData();
 
+        if(bd1.getName().equals("chef") || bd2.getName().equals("chef")){
+            Chef chef = (Chef)(bd1.getName().equals("chef") ? bd1 : bd2);
+            if ((chef.getSensorName().equals(fd2) && chef != bd1)
+                    ||(chef.getSensorName().equals(fd1) && chef != bd2) ){
+                sensorFixtures.remove((chef.equals(bd1)) ? fix2 : fix1);
+            }
+        }
+
         switch (bd1.getName()) {
             case "chicken":
                 endChickenCollision((Chicken) bd1, fd1, bd2, fd2);
                 break;
             case "chef":
-                Chef chef = (Chef) bd1;
-                if ((chef.getSensorName().equals(fd2) && chef != bd1) ||
-                        (chef.getSensorName().equals(fd1) && chef != bd2)) {
-                    sensorFixtures.remove((chef == bd1) ? fix2 : fix1);
-                }
                 endChefCollision((Chef) bd1, fd1, bd2, fd2);
                 break;
             case "stove":
@@ -261,11 +264,11 @@ public class CollisionController implements CollisionControllerInterface {
         }
     }
 
-    private void endChefCollision(Chef c1, Object fd1, Obstacle bd2, Object fd2){
+    private void endChefCollision(Chef chef, Object fd1, Obstacle bd2, Object fd2){
         switch(bd2.getName()){
             case "stove":
                 break;
-            case "chicken": endChickenChef((Chicken)bd2, fd2, c1, fd1);
+            case "chicken": endChickenChef((Chicken)bd2, fd2, chef, fd1);
                 break;
             case "chef":
             case "bullet":
@@ -314,13 +317,14 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
     private void endChickenChef(Chicken chicken, Object fd1, Chef chef, Object fd2){
+
         chicken.stopAttack();
     }
 
     private void endStoveChef(Stove stove, Object fd1, Chef chef, Object fd2){
-        if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
-            chef.setCanCook(false);
-        }
+        //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
+        chef.setCanCook(false);
+
     }
 
 
