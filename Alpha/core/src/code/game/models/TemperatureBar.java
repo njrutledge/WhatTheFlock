@@ -128,8 +128,9 @@ public class TemperatureBar {
     public void draw(GameCanvas canvas){
         //draw temperature
         float scale = 1.5f;
+        //0.045 bottom, 0.965 top
         canvas.draw(tempBackground, Color.WHITE, 960f, 250f,  tempBackground.getRegionWidth()/scale, tempBackground.getRegionHeight()/scale);
-        canvas.draw(tempForeground, (temperature / maxTemperature), Color.WHITE,
+        canvas.draw(tempForeground, 0.045f+((temperature*0.92f)/maxTemperature), Color.WHITE,
                 tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale, 960f, 250f,
                 tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale);
         //tempBar.draw(canvas, temperature);

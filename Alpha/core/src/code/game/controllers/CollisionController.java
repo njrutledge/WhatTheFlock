@@ -48,7 +48,7 @@ public class CollisionController implements CollisionControllerInterface {
             Obstacle bd1 = (Obstacle) body1.getUserData();
             Obstacle bd2 = (Obstacle) body2.getUserData();
 
-            handleCollision(bd1, fd1, bd2, fd2);
+            handleCollision(bd1, fd1, fix1, bd2, fd2, fix2);
             //handleCollision(bd2, fd2, bd1, fd1);
 
             } catch(Exception e){
@@ -56,7 +56,7 @@ public class CollisionController implements CollisionControllerInterface {
             }
         }
 
-        private void handleCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
+        private void handleCollision(Obstacle bd1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
             //special platform case
             if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
                 ((Chicken)bd2).hitWall();
@@ -69,10 +69,10 @@ public class CollisionController implements CollisionControllerInterface {
                 //otherwise check collisions between objects
                 switch (bd1.getName()) {
                     case "chicken":
-                        chickenCollision((Chicken) bd1, fd1, bd2, fd2);
+                        chickenCollision((Chicken) bd1, fd1, fix1, bd2, fd2, fix2);
                         break;
                     case "chef":
-                        chefCollision((Chef) bd1, fd1, bd2, fd2);
+                        chefCollision((Chef) bd1, fd1, fix1, bd2, fd2, fix2);
                         break;
                     case "stove":
                         stoveCollision((Stove) bd1, fd1, bd2, fd2);
@@ -87,13 +87,13 @@ public class CollisionController implements CollisionControllerInterface {
             }
         }
 
-        private void chickenCollision(Chicken c1, Object fd1, Obstacle bd2, Object fd2){
+        private void chickenCollision(Chicken c1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
             switch(bd2.getName()){
                 case "stove": c1.hitWall();
                     break;
                 case "chicken":
                     break;
-                case "chef": handleChefChicken((Chef)bd2, fd2, c1, fd1);
+                case "chef": handleChefChicken((Chef)bd2, fd2, fix2, c1, fd1, fix1);
                     break;
                 case "bullet": handleChickenSlap(c1, fd1, bd2, fd2);
                     break;
@@ -102,11 +102,11 @@ public class CollisionController implements CollisionControllerInterface {
             }
         }
 
-        private void chefCollision(Chef c1, Object fd1, Obstacle bd2, Object fd2){
+        private void chefCollision(Chef c1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
             switch(bd2.getName()){
                 case "stove": handleStoveChef((Stove)bd2, c1);
                     break;
-                case "chicken": handleChefChicken(c1, fd1, (Chicken)bd2, fd2);
+                case "chicken": handleChefChicken(c1, fd1, fix1, (Chicken)bd2, fd2, fix2);
                     break;
                 case "chef":
                 case "bullet":
@@ -163,8 +163,8 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chicken
      * @param fd2
      */
-    private void handleChefChicken(Chef chef, Object fd1, Chicken chicken, Object fd2){
-        if(chicken.isAttacking()){
+    private void handleChefChicken(Chef chef, Object fd1, Fixture fix1, Chicken chicken, Object fd2, Fixture fix2){
+        if(chicken.getHitboxOut() && (fix1.getUserData() == "basicattack" || fix2.getUserData() == "basicattack")){
             chef.decrementHealth();
             chicken.hitPlayer();
         }

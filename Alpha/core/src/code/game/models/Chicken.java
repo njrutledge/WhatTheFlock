@@ -15,19 +15,35 @@ import code.game.models.obstacle.*;
 import code.util.FilmStrip;
 import code.game.views.GameCanvas;
 
-public class Chicken extends GameObject implements ChickenInterface {
+import java.util.ArrayList;
+import java.util.PriorityQueue;
+
+public abstract class Chicken extends GameObject implements ChickenInterface {
     //TODO: Implement the Enemy Chicken and its methods, feel free to add or remove methods as needed
     ///////// Currently only dude methods which I thought were important are included, they will likely need to be
     ///////// altered or removed, but should provide a good base to start with.
 
     /** The initializing data (to avoid magic numbers) */
     private JsonValue data;
+    /** The initializing data (to avoid magic numbers) */
+    protected JsonValue unique;
     /** The physics shape of this object */
-    private CircleShape sensorShape;
+    protected CircleShape sensorShape;
+
+    /** The type of chicken */
+    public enum Type {
+        Nugget,
+        DinoNugget,
+        Buffalo,
+        Shredded
+    }
+
+    // Path finding
     /** The player character that the enemy will follow
      * We would probably want an AI Controller to handle this, but enemy movement is
      * pretty simple for the prototype */
-    private Obstacle target;
+    protected Obstacle target;
+
     /** The maximum enemy speed */
     private final float maxspeed;
     /** The speed that the enemy chases the player */
@@ -46,7 +62,7 @@ public class Chicken extends GameObject implements ChickenInterface {
     /** Time until invulnerability after getting hit wears off */
     private final float INVULN_TIME = 1f;
     /** Counter for Invulnerability timer*/
-    private float invuln_counter = INVULN_TIME;
+    protected float invuln_counter = INVULN_TIME;
     /** Time to move perpendicular to a wall upon collision before returning to normal AI */
     private final float SIDEWAYS_TIME = 0.1f;
     /** Counter for sideways movement timer*/
@@ -62,20 +78,20 @@ public class Chicken extends GameObject implements ChickenInterface {
 
     private final int FIRE_MULT = 2;
 
-    private boolean finishA = false;
+    protected boolean finishA = false;
 
-    private boolean soundCheck = true;
+    protected boolean soundCheck = false;
 
-    private float attack_timer = -1f;
+    protected float attack_timer = -1f;
 
-    private float attack_charge = 0f;
+    protected float attack_charge = -1f;
 
-    private float ATTACK_CHARGE = 0.4f;
+    protected float ATTACK_CHARGE = 0.4f;
 
-    private boolean hitboxOut = false;
+    protected boolean hitboxOut = false;
 
 
-    private float ATTACK_DUR = 0.2f;
+    protected float ATTACK_DUR = 0.2f;
 
     private CircleShape attackHit;
 
@@ -87,7 +103,7 @@ public class Chicken extends GameObject implements ChickenInterface {
 
     private float slow = 1f;
 
-    private float status_timer = -1.0f;
+    protected float status_timer = -1.0f;
 
     private boolean cookin = false;
     /** Texture for chicken healthbar */
@@ -96,11 +112,11 @@ public class Chicken extends GameObject implements ChickenInterface {
     private float CHICK_HIT_BOX = 0.8f;
 
     /** Whether the chicken movement is beign controlled by a force (otherwise a velocity)*/
-    private Boolean isBeingForced = false;
+    protected Boolean isBeingForced = false;
     /** Whether the chicken is currently in hitstun */
-    private Boolean isStunned = false;
+    protected Boolean isStunned = false;
     /** Whether the chicken is invisible due to hitstun*/
-    private Boolean isInvisible = false;
+    protected Boolean isInvisible = false;
 
     /**
      * Creates a new chicken avatar with the given physics data
@@ -117,34 +133,35 @@ public class Chicken extends GameObject implements ChickenInterface {
      * @param player    The target player
      * @param mh        The max health of the chicken
      */
-    public Chicken(JsonValue data, float x, float y, float width, float height, Chef player, int mh) {
+    public Chicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
-        super(/*data.get("pos").getFloat(0),
-                data.get("pos").getFloat(1),*/
-                x, y,
-                width * data.get("shrink").getFloat(0),
-                height * data.get("shrink").getFloat(1));
-        setDensity(data.getFloat("density", 0));
+        super(x, y, width * unique.get("shrink").getFloat(0),
+                height * unique.get("shrink").getFloat(1));
+        setDensity(unique.getFloat("density", 0));
         setFriction(data.getFloat("friction", 0));  /// IT WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true);
         setName("chicken");
         setSensorName("chickenSensor");
         this.target = player;
         this.player = player;
-        maxspeed = data.getFloat("maxspeed", 0);
-        damping = data.getFloat("damping", 0);
-        chaseSpeed = data.getFloat("chasespeed", 0);
-        knockback = data.getFloat("knockback", 0);
-        max_health = mh;
+        maxspeed = unique.getFloat("maxspeed", 0);
+        damping = unique.getFloat("damping", 0);
+        chaseSpeed = unique.getFloat("chasespeed", 0);
+        knockback = unique.getFloat("knockback", 0);
+        max_health = (int)(unique.getFloat("maxhealth",0) * (mh/100));
         health = max_health;
         this.data = data;
-        this.setName("chicken");
-
+        this.unique = unique;
     }
 
     /** Returns the json data for this chicken */
     public JsonValue getJsonData(){
         return data;
+    }
+
+    /** Returns the unique json data for this chicken */
+    public JsonValue getJsonUnique(){
+        return unique;
     }
 
     /**
@@ -251,66 +268,10 @@ public class Chicken extends GameObject implements ChickenInterface {
         if (!cookin) {
             status_timer = Math.max(status_timer - dt, -1f);
         }
-        /**
-         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
-         sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
-         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
-         if (attack_timer >= 0 && attack_charge >= 0f) {
-         body.setLinearVelocity(new Vector2());
-         forceCache.setZero();
-         attack_charge = MathUtils.clamp(attack_charge + dt,0, ATTACK_CHARGE);
-         if (attack_charge == ATTACK_CHARGE){
-         attack_timer = MathUtils.clamp(attack_timer - dt, 0, ATTACK_DUR);
-         if (!hitboxOut) {
-         FixtureDef attack = new FixtureDef();
-         attack.density = 0.1f;
-         attack.isSensor = true;
-         attackHit = new CircleShape();
-         attackHit.setRadius(ATTACK_RADIUS);
-         attack.shape = attackHit;
-
-         Fixture chickAttack = body.createFixture(attack);
-         chickAttack.setUserData("nugAttack");
-
-         hitboxOut = true;
-         }
-         }
-         if (attack_timer == 0f) {
-         attack_charge = 0f;
-         attack_timer = ATTACK_DUR;
-         hitboxOut = false;
-         soundCheck = true;
-         if (finishA){
-         attack_timer = -1f;
-         attack_charge = -1f;
-         finishA = false;
-         }
-         }
-
-         } else if (target.isActive()) {
-         forceCache.set(target.getPosition().sub(getPosition()));
-         forceCache.nor();
-         forceCache.scl(chaseSpeed * slow);
-         if (isStunned()) {
-         forceCache.scl(-knockback);
-         applyForce();
-         }
-         else{
-         if (sideways_counter < SIDEWAYS_TIME){
-         forceCache.rotate90(0);
-         }
-         if (stop_counter < STOP_TIME){
-         forceCache.setZero();
-         }
-         setVX(forceCache.x);
-         setVY(forceCache.y);
-
-         }
-
-         }
-         */
     }
 
+    /** Perform an attack on the target. */
+    public abstract void attack(float dt);
 
     //TODO: comment
     public boolean getSoundCheck() {
@@ -324,16 +285,23 @@ public class Chicken extends GameObject implements ChickenInterface {
     public void startAttack() {
         attack_timer = ATTACK_DUR;
         attack_charge = 0f;
-        hitboxOut = true;
     }
+
     //TODO: comment
     public void stopAttack() {
         finishA = true;
     }
-    //TODO: comment
-    public boolean isAttacking(){
+
+    /** Whether or not the chicken is charging up an attack */
+    public boolean isAttacking() {
+        return attack_charge >= 0;
+    }
+
+    /** Whether or not the chicken's attack hitbox has been created */
+    public boolean getHitboxOut() {
         return hitboxOut;
     }
+
     //TODO: comment
     public boolean chasingPlayer(Chef p) { return target.equals(p); }
     //TODO: comment
@@ -359,7 +327,6 @@ public class Chicken extends GameObject implements ChickenInterface {
         if (!isInvisible) {
             canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f, 0.025f);
             canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f*(health/max_health), 0.025f);
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f, 0.25f);
         }
     }
 
@@ -373,9 +340,6 @@ public class Chicken extends GameObject implements ChickenInterface {
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
         canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
-        if (hitboxOut) {
-            canvas.drawPhysics(attackHit,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
-        }
     }
 
     /**

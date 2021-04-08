@@ -59,6 +59,8 @@ public class Chef extends GameObject implements ChefInterface {
 	private boolean isTrap;
 	/** Can the player cook */
 	private boolean canCook;
+	/** Whether the player is invincible */
+	private boolean invincible;
 
 	/** The game shape of this object */
 	private PolygonShape sensorShape;
@@ -107,7 +109,7 @@ public class Chef extends GameObject implements ChefInterface {
 	 * @param height	The object width in game units
 	 * @param maxHealth The maximum health of the chef
 	 */
-	public Chef(JsonValue data, float width, float height, int maxHealth) {
+	public Chef(JsonValue data, float width, float height, int maxHealth, int invincible) {
 		// The shrink factors fit the image to a tigher hitbox
 		super(	data.get("pos").getFloat(0),
 				data.get("pos").getFloat(1),
@@ -135,6 +137,7 @@ public class Chef extends GameObject implements ChefInterface {
 		setName("chef");
 		isTrap = false;
 		canCook = false;
+		this.invincible = invincible == 1 ? true:false;
 	}
 
 	/**Sets the chef's cooking status
@@ -248,7 +251,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/** Reduces the chef's health by one. */
 	public void decrementHealth() {
-		if (!isStunned()) {
+		if (!isStunned() && !invincible) {
 			health --;
 			invuln_counter = 0f;
 		}

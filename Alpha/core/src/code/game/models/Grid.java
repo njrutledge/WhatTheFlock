@@ -1,9 +1,8 @@
-package edu.cornell.gdiac.physics.platform;
+package code.game.models;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import edu.cornell.gdiac.physics.GameCanvas;
+import code.game.views.GameCanvas;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -278,7 +277,7 @@ public class Grid {
      */
     public class TileComparator implements Comparator<Tile> {
         @Override
-        public int compare(Grid.Tile tile1, Grid.Tile tile2) {
+        public int compare(Tile tile1, Tile tile2) {
             return tile1.getFcost() < tile2.getFcost() ? -1: tile1.getFcost() > tile2.getFcost()? 1: 0;
         }
     }

@@ -357,14 +357,14 @@ public abstract class ChickenModel extends CapsuleObstacle {
         open.add(start_tile);
         target_tile = grid.getTile(target.getX(),target.getY());
         move_tile = AStar();
+
         // Moving in a straight line?
         if (child_tile.row == start_tile.row || child_tile.col == start_tile.col || move_tile == target_tile) {
             forceCache.set(grid.getPosition(move_tile.row, move_tile.col).sub(getPosition()));
         } else {
             forceCache.set(grid.getPosition(child_tile.row, child_tile.col).sub(getPosition()));
         }
-
-        //forceCache.set(target.getPosition().sub(getPosition()));
+        System.out.println(forceCache.x + " " + forceCache.y);
         forceCache.nor();
         forceCache.scl(chaseSpeed * slow);
         if (isStunned()) {
@@ -372,12 +372,7 @@ public abstract class ChickenModel extends CapsuleObstacle {
             applyForce();
         }
         else{
-            /*if (sideways_counter < SIDEWAYS_TIME) {
-                forceCache.rotate90(0);
-            }*/
-            if (stop_counter < STOP_TIME){
-                forceCache.setZero();
-            }
+            if (stop_counter < STOP_TIME){ forceCache.setZero(); }
             setVX(forceCache.x);
             setVY(forceCache.y);
         }
