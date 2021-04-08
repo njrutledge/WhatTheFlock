@@ -161,8 +161,8 @@ public class GameController implements ContactListener, Screen {
 	private static float spawn_ymax;
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
-	/** Reference to the stove object */
-	private Stove stove;
+//	/** Reference to the stove object */
+//	private Stove stove;
 
 	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.LURE;
@@ -213,8 +213,12 @@ public class GameController implements ContactListener, Screen {
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
 
-	/**The collision controller for this level*/
+	/**The collision controller for this game*/
 	private CollisionController collisionController;
+	/**The trap controller for this game*/
+
+
+	private TrapController trapController;
 	/**
 	 * Returns true if debug mode is active.
 	 *
@@ -249,6 +253,8 @@ public class GameController implements ContactListener, Screen {
 		setFailure(false);
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
+		//trapController = new TrapController(scale, constants);
+		//collisionController = new CollisionController(trapController);
 		collisionController = new CollisionController(scale, constants);
 		//chickens = 0;
 		//cooking = false;
@@ -428,6 +434,7 @@ public class GameController implements ContactListener, Screen {
 		world.setGravity( new Vector2(0,0) );
 
 		// Add stove
+		Stove stove;
 		float swidth = stoveTexture.getRegionWidth()/scale.x;
 		float sheight = stoveTexture.getRegionHeight()/scale.y;
 		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
@@ -493,182 +500,7 @@ public class GameController implements ContactListener, Screen {
 	}/* {
 
 		//TODO: Detect if a collision is with an enemy and have an appropriate interaction
-		Fixture fix1 = contact.getFixtureA();
-		Fixture fix2 = contact.getFixtureB();
 
-		Body body1 = fix1.getBody();
-		Body body2 = fix2.getBody();
-
-		Object fd1 = fix1.getUserData();
-		Object fd2 = fix2.getUserData();
-
-		try {
-			Obstacle bd1 = (Obstacle)body1.getUserData();
-			Obstacle bd2 = (Obstacle)body2.getUserData();
-
-
-			//reduce health if chicken collides with chef
-
-			//cook if player is near stove and not doing anything
-			if ((bd1 == chef && bd2 == stove)
-					|| (bd2 == chef && bd1 == stove)) {
-				chef.setCanCook(true);
-			}
-
-			//bullet collision with chicken eliminates chicken
-
-			if (fd1 != null){
-				if (bd2.getName().equals("bullet") && fd1.equals("chickenSensor")) {
-					Chicken chick = (Chicken) bd1;
-					chick.takeDamage(damageCalc());
-					if (!chick.isAlive()) {
-						removeChicken(bd1);
-					}
-				}
-
-				if (bd2 == chef && fd1.equals("chickenSensor")) {
-					Chicken chick = (Chicken) bd1;
-					if (chick.chasingPlayer()) {
-						chick.startAttack();
-					}
-
-				}
-
-				if ((bd2 == chef && fd1.equals("nugAttack"))&& !((Chicken)bd1).isAttacking()){
-					if (!chef.isStunned()) {
-						chefOof.stop();
-						chefOof.play(volume);
-					}
-					if (parameterList[12] != 1) { chef.decrementHealth(); }
-					((Chicken) bd1).hitPlayer();
-
-
-				}
-
-
-			}
-
-			if (fd2 != null) {
-				if (bd1.getName().equals("bullet") && fd2.equals("chickenSensor")) {
-					Chicken chick = (Chicken) bd2;
-					chick.takeDamage(damageCalc());
-					if (!chick.isAlive()) {
-						removeChicken(bd2);
-					}
-				}
-
-				if (bd1 == chef && fd2.equals("chickenSensor")) {
-					Chicken chick = (Chicken) bd2;
-					if (chick.chasingPlayer()) {
-						chick.startAttack();
-					}
-				}
-
-				if (bd1 == chef && fd2.equals("nugAttack") && ((Chicken)bd2).isAttacking()) {
-					if (parameterList[12] != 1) { chef.decrementHealth(); }
-					((Chicken) bd2).hitPlayer();
-				}
-			}
-
-			//trap collision with chicken eliminates chicken
-
-
-			if (fd1 != null && fd2 != null) {
-
-				if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
-					((Chicken) bd2).startAttack();
-				}
-
-				if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
-					((Chicken) bd1).startAttack();
-				}
-
-				if (fd1.equals("lureHurt") && fd2.equals("nugAttack") && ((Chicken) bd2).isAttacking()) {
-					decrementTrap((Trap) bd1);
-				}
-
-				if (fd2.equals("lureHurt") && fd1.equals("nugAttack") && ((Chicken) bd1).isAttacking()){
-					decrementTrap((Trap) bd2);
-				}
-
-				if (fd1.equals("trapSensor") && bd2.getName().equals("chicken")) {
-					switch (((Trap) bd1).getTrapType()){
-						case LURE: //damage
-							((Chicken) bd2).trapTarget((Trap) bd1);
-							break;
-						case SLOW:
-							((Chicken) bd2).applySlow(((Trap) bd1).getEffect());
-							decrementTrap((Trap) bd1);
-							slowSquelch.stop();
-							slowSquelch.play(volume);
-							break;
-						case FIRE :
-							float twidth = trapTexture.getRegionWidth()/scale.x;
-							float theight = trapTexture.getRegionHeight()/scale.y;
-							trapCache = new Trap(constants.get("trap"), bd1.getX(), bd1.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE);
-							trapCache.setDrawScale(scale);
-							trapCache.setTexture(trapTexture);
-							addQueuedObject(trapCache);
-							decrementTrap((Trap) bd1);
-							fireTrig.play(volume);
-							fireLinger.play(volume*0.5f);
-							break;
-						case FIRE_LINGER:
-							((Chicken) bd2).applyFire(((Trap) bd1).getEffect());
-							chickOnFire.stop();
-							chickOnFire.play(volume*0.5f);
-					}
-				}
-				if (fd2.equals("trapSensor") && bd1.getName().equals("chicken")) {
-					switch (((Trap) bd2).getTrapType()){
-						case LURE: //damage
-							((Chicken) bd1).trapTarget((Trap) bd2);
-							break;
-						case SLOW:
-							((Chicken) bd1).applySlow(((Trap) bd2).getEffect());
-							decrementTrap((Trap) bd2);
-							slowSquelch.stop();
-							slowSquelch.play(volume);
-							break;
-						case FIRE:
-							float twidth = trapTexture.getRegionWidth()/scale.x;
-							float theight = trapTexture.getRegionHeight()/scale.y;
-							trapCache = new Trap(constants.get("trap"), bd2.getX(), bd2.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE);
-							trapCache.setDrawScale(scale);
-							trapCache.setTexture(trapTexture);
-							addQueuedObject(trapCache);
-							decrementTrap((Trap) bd2);
-							fireTrig.play(volume);
-							fireLinger.play(volume*0.5f);
-							break;
-						case FIRE_LINGER:
-							((Chicken) bd1).applyFire(((Trap) bd2).getEffect());
-							chickOnFire.stop();
-							chickOnFire.play(volume*0.5f);
-					}
-				}
-				if (fd1.equals("placeRadius") && bd2==chef){
-					chef.setCanPlaceTrap(true);
-				}
-				if (fd2.equals("placeRadius") && bd1==chef){
-					chef.setCanPlaceTrap(true);
-				}
-			}
-
-			if ((bd1.getName().contains("platform")|| (bd1.getName().equals("stove") && !fix1.isSensor())) && bd2.getName().equals("chicken")){
-				((Chicken)bd2).hitWall();
-			}
-			if ((bd2.getName().contains("platform") || (bd2.getName().equals("stove") && !fix2.isSensor())) && bd1.getName().equals("chicken")){
-				((Chicken)bd1).hitWall();
-
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-*/
 	/**
 	 * Callback method for the start of a collision
 	 *
@@ -678,7 +510,8 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void endContact(Contact contact) {
 		//TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
-		Fixture fix1 = contact.getFixtureA();
+		collisionController.endContact(contact, sensorFixtures);
+		/*Fixture fix1 = contact.getFixtureA();
 		Fixture fix2 = contact.getFixtureB();
 
 		Body body1 = fix1.getBody();
@@ -758,7 +591,7 @@ public class GameController implements ContactListener, Screen {
 			if (bd1 == chef && fd2.equals("chickenSensor")) {
 				((Chicken) bd2).stopAttack();
 			}
-		}
+		}*/
 	}
 	/*******************************************************************************************
 	 * UPDATING LOGIC
@@ -954,11 +787,9 @@ public class GameController implements ContactListener, Screen {
 						&& chef.getVertMovement() == 0f
 						&& !chef.isShooting())) {
 			//chef.cook(true);
-			stove.setLit(true);
 			temp.cook(true);
 		}else {
 			//chef.cook(false);
-			stove.setLit(false);
 			temp.cook(false);
 		}
 

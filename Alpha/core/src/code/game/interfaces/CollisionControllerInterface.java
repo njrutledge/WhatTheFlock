@@ -1,6 +1,8 @@
 package code.game.interfaces;
 
 import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.utils.ObjectSet;
 
 public interface CollisionControllerInterface {
     /**
@@ -21,5 +23,5 @@ public interface CollisionControllerInterface {
      * is to determine when the characer is NOT on the ground.  This is how we prevent
      * double jumping.
      */
-    public void endContact(Contact contact);
+    public void endContact(Contact contact, ObjectSet<Fixture> sensorFixtures);
 }

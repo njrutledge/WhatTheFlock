@@ -1,5 +1,6 @@
 package code.game.interfaces;
 
+import code.game.models.Chef;
 import code.game.models.Trap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -45,7 +46,7 @@ public interface ChickenInterface {
 
     public boolean isAttacking();
 
-    public boolean chasingPlayer();
+    public boolean chasingPlayer(Chef player);
 
     public void setChaseSpeed(float spd);
 
