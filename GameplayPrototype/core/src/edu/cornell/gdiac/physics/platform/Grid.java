@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import edu.cornell.gdiac.physics.GameCanvas;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Grid {
 
@@ -19,6 +20,7 @@ public class Grid {
     private float canvas_height;
 
     private Tile[][] grid;
+    private TileComparator comparator;
 
     /**
      * Initializes the grid
@@ -32,6 +34,8 @@ public class Grid {
 
         canvas_width = width;
         canvas_height = height;
+
+        comparator = new TileComparator();
 
         grid = new Tile[ROWS][COLS];
         for (int i = 0; i < ROWS; i++) {
@@ -53,6 +57,14 @@ public class Grid {
                 tile.setParent(null);
             }
         }
+    }
+
+    /** Returns the comparator used for comparing Tile FCosts.
+     *
+     * @return  comparator
+     */
+    public TileComparator getComparator() {
+        return comparator;
     }
 
     /**
@@ -268,5 +280,19 @@ public class Grid {
          * @return  obstacle?
          */
         public boolean isObstacle() { return obstacle; }
+    }
+
+    /**
+     * Comparator for Tile class that have the following rules:
+     *
+     * If Tile1's FCost < Tile2's FCost : -1
+     * If Tile1's FCost > Tile2's FCost : 1
+     * Otherwise, 0
+     */
+    public class TileComparator implements Comparator<Tile> {
+        @Override
+        public int compare(Grid.Tile tile1, Grid.Tile tile2) {
+            return tile1.getFcost() < tile2.getFcost() ? -1: tile1.getFcost() > tile2.getFcost()? 1: 0;
+        }
     }
 }
