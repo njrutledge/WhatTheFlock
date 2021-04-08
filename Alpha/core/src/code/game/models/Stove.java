@@ -13,10 +13,6 @@ public class Stove extends GameObject implements StoveInterface {
 
     private CircleShape sensorShape;
 
-    private String name;
-
-    private String sensorName;
-
     /** Whether or not the stove is lit */
     private boolean lit = false;
 
@@ -32,8 +28,7 @@ public class Stove extends GameObject implements StoveInterface {
         setFixedRotation(true);
         data = jv;
         setName("stove");
-        name = "stove";
-        sensorName = "cookRadius";
+        setSensorName("cookRadius");
     }
 
     /**

@@ -15,7 +15,6 @@ public class CollisionController implements CollisionControllerInterface {
     /**The damage for this round of contact*/
     private float dmg;
 
-
     private TrapController trapController;
 
     public CollisionController(Vector2 scale, JsonValue constants){
@@ -48,7 +47,9 @@ public class CollisionController implements CollisionControllerInterface {
             Obstacle bd1 = (Obstacle) body1.getUserData();
             Obstacle bd2 = (Obstacle) body2.getUserData();
 
-            handleCollision(bd1, fd1, fix1, bd2, fd2, fix2);
+            if(fd1 != null && fd2 != null) {
+                handleCollision(bd1, fd1, fix1, bd2, fd2, fix2);
+            }
             //handleCollision(bd2, fd2, bd1, fd1);
 
             } catch(Exception e){
@@ -67,17 +68,17 @@ public class CollisionController implements CollisionControllerInterface {
 
             else {
                 //otherwise check collisions between objects
-                switch (bd1.getName()) {
-                    case "chicken":
+                switch (fd1.toString()) {
+                    case "chickenSensor":
                         chickenCollision((Chicken) bd1, fd1, fix1, bd2, fd2, fix2);
                         break;
-                    case "chef":
+                    case "chefSensor":
                         chefCollision((Chef) bd1, fd1, fix1, bd2, fd2, fix2);
                         break;
-                    case "stove":
+                    case "cookRadius":
                         stoveCollision((Stove) bd1, fd1, bd2, fd2);
                         break;
-                    case "bullet":
+                    case "slapSensor":
                         slapCollision(bd1, fd1, bd2, fd2);
                         break;
                     case "trap":
@@ -88,14 +89,14 @@ public class CollisionController implements CollisionControllerInterface {
         }
 
         private void chickenCollision(Chicken c1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
-            switch(bd2.getName()){
+            switch(fd2.toString()){
                 case "stove": c1.hitWall();
                     break;
                 case "chicken":
                     break;
-                case "chef": handleChefChicken((Chef)bd2, fd2, fix2, c1, fd1, fix1);
+                case "chefSensor": handleChefChicken((Chef)bd2, fd2, fix2, c1, fd1, fix1);
                     break;
-                case "bullet": handleChickenSlap(c1, fd1, bd2, fd2);
+                case "slapSensor": handleChickenSlap(c1, fd1, bd2, fd2);
                     break;
                 case "trap": handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
                     break;
@@ -103,13 +104,18 @@ public class CollisionController implements CollisionControllerInterface {
         }
 
         private void chefCollision(Chef c1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
-            switch(bd2.getName()){
-                case "stove": handleStoveChef((Stove)bd2, c1);
+            switch(bd2.getName()) {
+                case "stove":
+                    handleStoveChef((Stove) bd2, c1);
                     break;
-                case "chicken": handleChefChicken(c1, fd1, fix1, (Chicken)bd2, fd2, fix2);
+                case "chicken":
+                    handleChefChicken(c1, fd1, fix1, (Chicken) bd2, fd2, fix2);
                     break;
-                case "chef":
-                case "bullet":
+                case "trapSpot":
+                    c1.setCanPlaceTrap(true);
+                    break;
+                case "chefSensor":
+                case "slapSensor":
                 case "trap":
                     break;
             }
@@ -121,10 +127,10 @@ public class CollisionController implements CollisionControllerInterface {
                     break;
                 case "chicken": ((Chicken)bd2).hitWall();
                     break;
-                case "chef": handleStoveChef(s1, (Chef)bd2);
-                    s1.setLit(true);
+                case "chefSensor":
+                    handleStoveChef(s1, (Chef)bd2);
                     break;
-                case "bullet":
+                case "slapSensor":
                 case "trap":
                     break;
             }
@@ -154,6 +160,7 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleStoveChef(Stove stove, Chef chef){
         chef.setCanCook(true);
+        stove.setLit(true);
     }
 
     /**
