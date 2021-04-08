@@ -122,6 +122,7 @@ public class CollisionController implements CollisionControllerInterface {
                 case "chicken": ((Chicken)bd2).hitWall();
                     break;
                 case "chef": handleStoveChef(s1, (Chef)bd2);
+                    s1.setLit(true);
                     break;
                 case "bullet":
                 case "trap":
@@ -275,7 +276,7 @@ public class CollisionController implements CollisionControllerInterface {
 
     private void endChefCollision(Chef chef, Object fd1, Obstacle bd2, Object fd2){
         switch(bd2.getName()){
-            case "stove":
+            case "stove": endStoveChef((Stove) bd2, fd2, chef, fd1);
                 break;
             case "chicken": endChickenChef((Chicken)bd2, fd2, chef, fd1);
                 break;
@@ -332,6 +333,7 @@ public class CollisionController implements CollisionControllerInterface {
     private void endStoveChef(Stove stove, Object fd1, Chef chef, Object fd2){
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
         chef.setCanCook(false);
+        stove.setLit(false);
     }
 
 

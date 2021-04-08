@@ -161,8 +161,8 @@ public class GameController implements ContactListener, Screen {
 	private static float spawn_ymax;
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
-	/** Reference to the stove object */
-	private Stove stove;
+//	/** Reference to the stove object */
+//	private Stove stove;
 
 	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.LURE;
@@ -434,6 +434,7 @@ public class GameController implements ContactListener, Screen {
 		world.setGravity( new Vector2(0,0) );
 
 		// Add stove
+		Stove stove;
 		float swidth = stoveTexture.getRegionWidth()/scale.x;
 		float sheight = stoveTexture.getRegionHeight()/scale.y;
 		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
@@ -1091,13 +1092,13 @@ public class GameController implements ContactListener, Screen {
 				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
 		}
-		if ((chef.canCook() && (chef.getMovement() == 0f
-				&& chef.getVertMovement() == 0f
-				&& !chef.isShooting()))){
-			stove.setLit(true);
-		}else{
-			stove.setLit(false);
-		}
+//		if ((chef.canCook() && (chef.getMovement() == 0f
+//				&& chef.getVertMovement() == 0f
+//				&& !chef.isShooting()))){
+//			stove.setLit(true);
+//		}else{
+//			stove.setLit(false);
+//		}
 
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
