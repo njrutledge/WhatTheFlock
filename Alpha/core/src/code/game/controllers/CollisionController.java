@@ -127,8 +127,8 @@ public class CollisionController implements CollisionControllerInterface {
                     break;
                 case "chicken": ((Chicken)bd2).hitWall();
                     break;
-                case "chefSensor": handleStoveChef(s1, (Chef)bd2);
-                    s1.setLit(true);
+                case "chefSensor":
+                    handleStoveChef(s1, (Chef)bd2);
                     break;
                 case "slapSensor":
                 case "trap":
@@ -160,6 +160,7 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleStoveChef(Stove stove, Chef chef){
         chef.setCanCook(true);
+        stove.setLit(true);
     }
 
     /**
