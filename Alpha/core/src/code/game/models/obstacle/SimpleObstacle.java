@@ -879,7 +879,7 @@ public abstract class SimpleObstacle extends Obstacle {
 	 *
 	 * @param delta Timing values from parent loop
 	 */
-	public void update(float delta, int[] plist) {
+	public void update(float delta) {
 		// Recreate the fixture object if dimensions changed.
 		if (isDirty()) {
 			createFixtures();

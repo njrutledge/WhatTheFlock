@@ -24,17 +24,13 @@ public class Chicken extends GameObject implements ChickenInterface {
     private JsonValue data;
     /** The physics shape of this object */
     private CircleShape sensorShape;
-    /** Identifier to allow us to track the sensor in ContactListener */
-    private String sensorName;
     /** The player character that the enemy will follow
      * We would probably want an AI Controller to handle this, but enemy movement is
      * pretty simple for the prototype */
     private Obstacle target;
     /** The maximum enemy speed */
-    //TODO: make final after technical
-    private float maxspeed;
+    private final float maxspeed;
     /** The speed that the enemy chases the player */
-    //TODO: make final after technical
     private float chaseSpeed;
     /** The amount to slow the character down */
     private final float damping;
@@ -91,7 +87,7 @@ public class Chicken extends GameObject implements ChickenInterface {
 
     private float slow = 1f;
 
-    private float status_timer = 0f;
+    private float status_timer = -1.0f;
 
     private boolean cookin = false;
     /** Texture for chicken healthbar */
@@ -132,7 +128,7 @@ public class Chicken extends GameObject implements ChickenInterface {
         setFriction(data.getFloat("friction", 0));  /// IT WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true);
         setName("chicken");
-        sensorName = "chickenSensor";
+        setSensorName("chickenSensor");
         this.target = player;
         this.player = player;
         maxspeed = data.getFloat("maxspeed", 0);
@@ -247,8 +243,9 @@ public class Chicken extends GameObject implements ChickenInterface {
      *
      * @param dt	Number of seconds since last animation frame
      */
-    public void update(float dt, int[] plist) {
-        super.update(dt, plist);
+    @Override
+    public void update(float dt) {
+        super.update(dt);
         applyForce();
 
         if (!cookin) {
@@ -315,6 +312,7 @@ public class Chicken extends GameObject implements ChickenInterface {
     }
 
 
+    //TODO: comment
     public boolean getSoundCheck() {
         if (soundCheck) {
             soundCheck = false;
@@ -322,31 +320,31 @@ public class Chicken extends GameObject implements ChickenInterface {
         } else
             return false;
     }
-
+    //TODO: comment
     public void startAttack() {
         attack_timer = ATTACK_DUR;
         attack_charge = 0f;
     }
-
+    //TODO: comment
     public void stopAttack() {
         finishA = true;
     }
-
+    //TODO: comment
     public boolean isAttacking(){
         return hitboxOut;
     }
-
+    //TODO: comment
     public boolean chasingPlayer() { return target.equals(player); }
-
+    //TODO: comment
     public void setChaseSpeed(float spd){
         chaseSpeed = spd;
     }
-
+    //TODO: comment
     public void setTexture(Texture texture) {
         animator = new FilmStrip(texture, 3, 5);
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
     }
-
+    //TODO: comment
     public void setBarTexture(TextureRegion texture){
         healthBar = texture;
     }
@@ -427,6 +425,7 @@ public class Chicken extends GameObject implements ChickenInterface {
         cookin = true;
     }
 
+    //TODO: comment
     public void letItBurn() {
         cookin = false;
     }

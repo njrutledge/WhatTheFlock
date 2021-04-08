@@ -13,7 +13,7 @@ public interface TrapControllerInterface {
      * @param t the trap interacting with a chicken
      * @param c the chicken in question
      */
-    public void applyTrap(Trap t, Chicken c);
+    public boolean applyTrap(Trap t, Chicken c);
 
     /**
      * Stops the application of the current trap t to chicken c. The effects depend on the type of trap.
@@ -22,5 +22,5 @@ public interface TrapControllerInterface {
      * @param t the trap interacting with a chicken
      * @param c the chicken in question
      */
-    public void StopTrap(Trap t, Chicken c);
+    public void stopTrap(Trap t, Chicken c);
 }

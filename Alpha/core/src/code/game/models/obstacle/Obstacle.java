@@ -980,7 +980,7 @@ public abstract class Obstacle {
 	 *
 	 * @param delta Timing values from parent loop
 	 */
-	public void update(float delta, int[] plist) {
+	public void update(float delta) {
 	}
 
 	/**

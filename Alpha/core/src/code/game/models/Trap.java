@@ -179,9 +179,9 @@ public class Trap extends GameObject implements TrapInterface {
      * @param delta	Number of seconds since last animation frame
      */
     @Override
-    public void update(float delta, int[] plist) {
+    public void update(float delta) {
 
-        super.update(delta, plist);
+        super.update(delta);
         if (trapType == type.FIRE_LINGER) {
             durability = durability - (MAX_DURABILITY / FIRE_DUR * delta);
             if (durability <= 0) {

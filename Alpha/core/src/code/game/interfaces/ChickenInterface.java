@@ -1,12 +1,11 @@
 package code.game.interfaces;
 
+import code.game.models.Trap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
+
 public interface ChickenInterface {
-    /**
-     * Sets the current chicken max health
-     * @param h - the number to set the max health of the chicken to
-     *
-     */
-    public void setMaxHealth(int h);
 
     /**
      * Returns current chicken max health.
@@ -15,4 +14,122 @@ public interface ChickenInterface {
      */
     public int getMaxHealth();
 
+    /**
+     * Sets the current chicken max health
+     * @param h - the number to set the max health of the chicken to
+     *
+     */
+    public void setMaxHealth(int h);
+
+    /**
+     * Applies the force to the body of this chicken
+     *
+     * This method should be called after the force attribute is set.
+     */
+    public void applyForce();
+
+    /**
+     * Updates the object's physics state (NOT GAME LOGIC).
+     *
+     * We use this method to reset cooldowns.
+     *
+     * @param dt	Number of seconds since last animation frame
+     */
+    public void update(float dt);
+
+    public boolean getSoundCheck();
+
+    public void startAttack();
+
+    public void stopAttack();
+
+    public boolean isAttacking();
+
+    public boolean chasingPlayer();
+
+    public void setChaseSpeed(float spd);
+
+    public void setTexture(Texture texture);
+
+    public void setBarTexture(TextureRegion texture);
+
+    /**
+     * The chicken takes damage
+     *
+     * @param damage The amount of damage to this chicken's health
+     */
+    public void takeDamage(float damage);
+
+
+    /**
+     * Applies a slowdown modifier to the chicken's speed
+     *
+     * @param strength a slowdown multiplier (1f for normal speed)
+     */
+    public void applySlow(float strength);
+
+    /**
+     * Removes any slowdown modifiers to the chicken's speed
+     */
+    public void removeSlow();
+
+    /**
+     * Applies the fire effect by giving the chicken a countdown timer
+     * representing the remaining time of the fire effect
+     *
+     * @param duration a duration for the fire effect in seconds.
+     */
+    public void applyFire(float duration);
+
+    public void letItBurn();
+
+    /**
+     * Sets the chicken's target to the specific Lure trap
+     *
+     * @param t a Lure trap target
+     */
+    public void trapTarget(Trap t);
+
+    /**
+     * Resets the chicken's target to the player
+     *
+     */
+    public void resetTarget();
+
+    /**
+     * updates the isStunned condition for the chicken
+     * updates the isStunned condition for the chicken
+     *
+     * @param stun  whether the chicken is stunned
+     */
+    public void setStunned(Boolean stun);
+
+    /** If the enemy is still alive
+     * @return true if chicken health > 0*/
+    public boolean isAlive();
+
+    /**
+     * The chicken has collided with a wall and will move perpendicularly to get around the wall
+     */
+    public void hitWall();
+
+    /**
+     * The chicken has collided with the player and will remain stationary for some time
+     */
+    public void hitPlayer();
+
+    /**
+     * Set the value of the forceCache
+     *
+     * @param newForce     the new value of the forceCache
+     * @param isForce       whether the new force is a force (otherwise it is a velocity)
+     * */
+    public void setForceCache(Vector2 newForce, Boolean isForce);
+
+    /**
+     * Set the isInvisible boolean, which determines whether to draw the chicken on the screen
+     *
+     * @param invisible whether the chicken should be invisible
+     */
+    public void setInvisible(Boolean invisible);
 }

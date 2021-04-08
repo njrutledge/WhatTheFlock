@@ -254,7 +254,8 @@ public class GameController implements ContactListener, Screen {
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
 		//trapController = new TrapController(scale, constants);
-		collisionController = new CollisionController(trapController);
+		//collisionController = new CollisionController(trapController);
+		collisionController = new CollisionController(scale, constants);
 		//chickens = 0;
 		//cooking = false;
 	}
@@ -1040,7 +1041,7 @@ public class GameController implements ContactListener, Screen {
 					obj.activatePhysics(world);
 				}
 				// Note that update is called last!
-				obj.update(dt, parameterList);
+				obj.update(dt);
 			}
 		}
 	}

@@ -2,7 +2,7 @@ package code.game.models;
 
 import code.game.models.obstacle.BoxObstacle;
 import code.game.views.GameCanvas;
-import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.physics.box2d.World;
 
 public abstract class GameObject extends BoxObstacle {
     /** Identifier to allow us to track the sensor in ContactListener */
@@ -52,6 +52,8 @@ public abstract class GameObject extends BoxObstacle {
     }
 
     public abstract void draw(GameCanvas canvas);
+
+    public boolean activatePhysics(World world){ return super.activatePhysics(world); }
 
     public void drawDebug(GameCanvas canvas){
         super.drawDebug(canvas);
