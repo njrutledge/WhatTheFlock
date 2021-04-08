@@ -5,12 +5,18 @@ import code.game.models.Chicken;
 import code.game.models.Stove;
 import code.game.models.Trap;
 import code.game.models.obstacle.Obstacle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.ObjectSet;
 
 public class CollisionController {
     /**The damage for this round of contact*/
     private float dmg;
-    public CollisionController(){
+    /**The trapController for this collisionController*/
+    private TrapController trapController;
+    public CollisionController(TrapController t){
+        trapController = t;
     }
     /**
      * Callback method for the start of a collision
@@ -189,10 +195,8 @@ public class CollisionController {
      * @param fd2
      */
     private void handleChickenTrap(Chicken c1, Object fd1, Trap t2, Object fd2){
-        //TODO add trap controller stuff here
+        //trapController.applyTrap(t2, c1);
     }
-
-
 
     /**
      * Callback method for the start of a collision
@@ -201,22 +205,120 @@ public class CollisionController {
      * is to determine when the characer is NOT on the ground.  This is how we prevent
      * double jumping.
      */
-    public void endContact(Contact contact) {
+    public void endContact(Contact contact, ObjectSet<Fixture> sensorFixtures) {
         //TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
         Fixture fix1 = contact.getFixtureA();
         Fixture fix2 = contact.getFixtureB();
-
+        //game body
         Body body1 = fix1.getBody();
         Body body2 = fix2.getBody();
-
+        //the object
         Object fd1 = fix1.getUserData();
         Object fd2 = fix2.getUserData();
 
-        Object bd1 = body1.getUserData();
-        Object bd2 = body2.getUserData();
+        Obstacle bd1 = (Obstacle) body1.getUserData();
+        Obstacle bd2 = (Obstacle) body2.getUserData();
 
-        Obstacle b1 = (Obstacle) bd1;
-        Obstacle b2 = (Obstacle) bd2;
-
+        switch (bd1.getName()) {
+            case "chicken":
+                endChickenCollision((Chicken) bd1, fd1, bd2, fd2);
+                break;
+            case "chef":
+                Chef chef = (Chef) bd1;
+                if ((chef.getSensorName().equals(fd2) && chef != bd1) ||
+                        (chef.getSensorName().equals(fd1) && chef != bd2)) {
+                    sensorFixtures.remove((chef == bd1) ? fix2 : fix1);
+                }
+                endChefCollision((Chef) bd1, fd1, bd2, fd2);
+                break;
+            case "stove":
+                endStoveCollision((Stove) bd1, fd1, bd2, fd2);
+                break;
+            case "bullet":
+                endSlapCollision(bd1, fd1, bd2, fd2);
+                break;
+            case "trap":
+                endTrapCollision((Trap) bd1, fd1, bd2, fd2);
+                break;
+        }
     }
+
+    private void endChickenCollision(Chicken c1, Object fd1, Obstacle bd2, Object fd2){
+        switch(bd2.getName()){
+            case "stove":
+                break;
+            case "chicken":
+                break;
+            case "chef": endChickenChef(c1, fd1, (Chef)bd2, fd2);
+                break;
+            case "bullet":
+                break;
+            case "trap": endChickenTrap(c1, fd1, (Trap)bd2, fd2);
+                break;
+        }
+    }
+
+    private void endChefCollision(Chef c1, Object fd1, Obstacle bd2, Object fd2){
+        switch(bd2.getName()){
+            case "stove":
+                break;
+            case "chicken": endChickenChef((Chicken)bd2, fd2, c1, fd1);
+                break;
+            case "chef":
+            case "bullet":
+            case "trap":
+                break;
+        }
+    }
+
+    private void endStoveCollision(Stove s1, Object fd1, Obstacle bd2, Object fd2){
+        switch(bd2.getName()){
+            case "stove":
+                break;
+            case "chicken":
+                break;
+            case "chef": endStoveChef(s1, fd1, (Chef)bd2, fd2);
+                break;
+            case "bullet":
+            case "trap":
+                break;
+        }
+    }
+
+
+    private void endSlapCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
+        //TODO make slap class
+        if(bd2.getName().equals("chicken")){
+
+        }
+    }
+
+    private void endTrapCollision(Trap t1, Object fd1, Obstacle bd2, Object fd2){
+        if(bd2.getName().equals("chicken")){
+            endChickenTrap((Chicken)bd2, fd2, t1, fd1);
+        }
+    }
+
+    /**
+     * Handles the end of an interaction between a chicken and a trap
+     * @param c1
+     * @param fd1
+     * @param t2
+     * @param fd2
+     */
+    private void endChickenTrap(Chicken c1, Object fd1, Trap t2, Object fd2){
+        //trapController.applyTrap(t2, c1);
+    }
+
+    private void endChickenChef(Chicken chicken, Object fd1, Chef chef, Object fd2){
+        chicken.stopAttack();
+    }
+
+    private void endStoveChef(Stove stove, Object fd1, Chef chef, Object fd2){
+        if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
+            chef.setCanCook(false);
+        }
+    }
+
+
 }
