@@ -110,11 +110,6 @@ public interface ChickenInterface {
     public boolean isAlive();
 
     /**
-     * The chicken has collided with a wall and will move perpendicularly to get around the wall
-     */
-    public void hitWall();
-
-    /**
      * The chicken has collided with the player and will remain stationary for some time
      */
     public void hitPlayer();

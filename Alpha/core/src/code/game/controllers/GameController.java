@@ -702,8 +702,10 @@ public class GameController implements ContactListener, Screen {
 		if (InputController.getInstance().didPause()){
 			paused = !paused;
 		}
-		for (AIController enemyAI: ai.values()){
-			enemyAI.update(dt);
+		for (Chicken chick: ai.keySet()){
+			if(chick.isActive()){
+				ai.get(chick).update(dt);
+			}
 		}
 		return !paused;
 	}
@@ -893,6 +895,7 @@ public class GameController implements ContactListener, Screen {
 	private void removeChicken(Obstacle chicken){
 		if(!chicken.isRemoved()) {
 			chicken.markRemoved(true);
+			ai.remove(chicken);
 		}
 	}
 

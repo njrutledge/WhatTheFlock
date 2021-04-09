@@ -58,39 +58,31 @@ public class CollisionController implements CollisionControllerInterface {
         }
 
         private void handleCollision(Obstacle bd1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
-            //special platform case
-            if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
-                ((Chicken)bd2).hitWall();
-            }
-            else if (bd2.getName().contains("platform") && bd1.getName().equals("chicken")){
-                ((Chicken)bd2).hitWall();
+
+            // check collisions between objects
+            switch (fd1.toString()) {
+                case "chickenSensor":
+                    chickenCollision((Chicken) bd1, fd1, fix1, bd2, fd2, fix2);
+                    break;
+                case "chefSensor":
+                    chefCollision((Chef) bd1, fd1, fix1, bd2, fd2, fix2);
+                    break;
+                case "cookRadius":
+                    stoveCollision((Stove) bd1, fd1, bd2, fd2);
+                    break;
+                case "slapSensor":
+                    slapCollision(bd1, fd1, bd2, fd2);
+                    break;
+                case "trap":
+                    trapCollision((Trap) bd1, fd1, bd2, fd2);
+                    break;
             }
 
-            else {
-                //otherwise check collisions between objects
-                switch (fd1.toString()) {
-                    case "chickenSensor":
-                        chickenCollision((Chicken) bd1, fd1, fix1, bd2, fd2, fix2);
-                        break;
-                    case "chefSensor":
-                        chefCollision((Chef) bd1, fd1, fix1, bd2, fd2, fix2);
-                        break;
-                    case "cookRadius":
-                        stoveCollision((Stove) bd1, fd1, bd2, fd2);
-                        break;
-                    case "slapSensor":
-                        slapCollision(bd1, fd1, bd2, fd2);
-                        break;
-                    case "trap":
-                        trapCollision((Trap) bd1, fd1, bd2, fd2);
-                        break;
-                }
-            }
         }
 
         private void chickenCollision(Chicken c1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
             switch(fd2.toString()){
-                case "stove": c1.hitWall();
+                case "stove":
                     break;
                 case "chicken":
                     break;
@@ -125,7 +117,7 @@ public class CollisionController implements CollisionControllerInterface {
             switch(bd2.getName()){
                 case "stove":
                     break;
-                case "chicken": ((Chicken)bd2).hitWall();
+                case "chicken":
                     break;
                 case "chefSensor":
                     handleStoveChef(s1, (Chef)bd2);

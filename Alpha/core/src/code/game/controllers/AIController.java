@@ -28,67 +28,19 @@ public class AIController {
     protected JsonValue unique;
     /** The player character that the enemy will follow */
     private GameObject target;
-    /** The maximum enemy speed */
-    //TODO: make final after technical
-    private float maxspeed;
     /** The speed that the enemy chases the player */
     //TODO: make final after technical
     private float chaseSpeed;
-    /** The amount to slow the character down */
-    private final float damping;
     /** The strength of the knockback force the chicken receives after getting slapped*/
     private final float knockback;
     /** Time until invulnerability after getting hit wears off */
     private final float INVULN_TIME = 1f;
     /** Counter for Invulnerability timer*/
     private float invuln_counter = INVULN_TIME;
-    /** Time to move perpendicular to a wall upon collision before returning to normal AI */
-    private final float SIDEWAYS_TIME = 0.1f;
-    /** Counter for sideways movement timer*/
-    private float sideways_counter = SIDEWAYS_TIME;
-    /** Time to remain stationary after hitting the player */
-    private final float STOP_TIME = 1f;
-    /** Counter for stop movement timer*/
-    private float stop_counter = STOP_TIME;
-    /** True if the chicken has just been hit and the knockback has not yet been applied*/
-    private boolean hit = false;
-
-    private final int FIRE_MULT = 2;
-
-    private boolean finishA = false;
-
-    private boolean soundCheck = true;
-
-    private float attack_timer = -1f;
-
-    private float attack_charge = 0f;
-
-    private float ATTACK_CHARGE = 0.4f;
-
-    private boolean hitboxOut = false;
-
-
-    private float ATTACK_DUR = 0.2f;
-
-    private CircleShape attackHit;
-
-    private float ATTACK_RADIUS = 1.5f;
-
-    protected FilmStrip animator;
     /** Reference to texture origin */
     protected Vector2 origin;
-
+    /** The slowness modifier */
     private float slow = 1f;
-
-    private float status_timer = 0f;
-
-    private boolean cookin = false;
-
-    private TextureRegion healthBar;
-
-    private float CHICK_HIT_BOX = 0.8f;
-
-
 
     /** The chicken being controlled by this controller */
     private Chicken chicken;
@@ -136,8 +88,6 @@ public class AIController {
         this.unique = chicken.getJsonUnique();
         this.state = FSM.CHASE;
         this.grid = grid;
-        maxspeed = unique.getFloat("maxspeed", 0);
-        damping = data.getFloat("damping", 0);
         chaseSpeed = unique.getFloat("chasespeed", 0);
         knockback = unique.getFloat("knockback", 0);
         open = new PriorityQueue<>(4, grid.getComparator());
@@ -151,7 +101,7 @@ public class AIController {
     private void changeState(){
         switch(state){
             case CHASE:
-                if (false){// TODO if the chicken just got hit
+                if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 } else if (chicken.isAttacking()) {
                     state = FSM.ATTACK;
@@ -169,10 +119,15 @@ public class AIController {
                     chicken.setStunned(false);
                     chicken.setInvisible(false);
                 }
+                break;
             case ATTACK:
-                if (!chicken.isAttacking()) {
+                if (chicken.getHit()) {
+                    state = FSM.KNOCKBACK;
+                }
+                else if (!chicken.isAttacking()) {
                    state = FSM.CHASE;
                 }
+
                 break;
             default: // This shouldn't happen
                 break;
@@ -185,13 +140,11 @@ public class AIController {
      * */
     public void update(float dt){
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
-        sideways_counter = MathUtils.clamp(sideways_counter+=dt,0f,SIDEWAYS_TIME);
-        stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_TIME);
-        changeState();
-        setForceCache();
         if (state == FSM.ATTACK && target.isActive()) {
             chicken.attack(dt);
         }
+        setForceCache();
+        changeState();
     }
 
     /**
@@ -213,7 +166,11 @@ public class AIController {
                 temp.scl(-knockback);
                 chicken.setForceCache(temp, true);
                 break;
-            case STUNNED: case ATTACK:
+            case STUNNED:
+                temp.setZero();
+                chicken.setForceCache(temp, true);
+                break;
+            case ATTACK:
                 temp.setZero();
                 chicken.setForceCache(temp, false);
                 break;
