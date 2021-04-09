@@ -86,12 +86,12 @@ public class Slap extends GameObject {
     }
 
     /**
-     * Draws the unlit stove
+     * Draws the slap
      *
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.x,getAngle(),2,2);
+        canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),2,2);
     }
 
     /**

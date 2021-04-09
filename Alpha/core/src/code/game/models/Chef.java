@@ -105,14 +105,15 @@ public class Chef extends GameObject implements ChefInterface {
 	 * converts the game units to pixels.
 	 *
 	 * @param data  	The game constants for this chef
+	 * @param x			The object x position in game units
+	 * @param y			The object y posiiton in game units
 	 * @param width		The object width in game units
 	 * @param height	The object width in game units
-	 * @param maxHealth The maximum health of the chef
 	 */
-	public Chef(JsonValue data, float width, float height, int maxHealth, int invincible) {
+	public Chef(JsonValue data, float x, float y, float width, float height) {
 		// The shrink factors fit the image to a tigher hitbox
-		super(	data.get("pos").getFloat(0),
-				data.get("pos").getFloat(1),
+		super(	x,
+				y,
 				width*data.get("shrink").getFloat( 0 ),
 				height*data.get("shrink").getFloat( 1 ));
 		setDensity(data.getFloat("density", 0));
@@ -129,7 +130,7 @@ public class Chef extends GameObject implements ChefInterface {
 		// Gameplay attributes
 		isShooting = false;
 		faceRight = true;
-		max_health = maxHealth;
+		max_health = data.getInt("maxhealth",0);
 		health = max_health;
 		//gatherHealthAssets();
 		shootCooldown = 0;
@@ -137,7 +138,6 @@ public class Chef extends GameObject implements ChefInterface {
 		setName("chef");
 		isTrap = false;
 		canCook = false;
-		this.invincible = invincible == 1 ? true:false;
 	}
 
 	/**Sets the chef's cooking status

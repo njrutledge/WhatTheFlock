@@ -126,6 +126,26 @@ public class Grid {
     }
 
     /**
+     * Returns the row of the tile with respect to the grid
+     *
+     * @return row
+     */
+    public int getRowCount() { return ROWS; }
+
+    /**
+     * Returns the col of the tile with respect to the grid
+     *
+     * @return col
+     */
+    public int getColCount() { return COLS; }
+
+    /**
+     * Returns the gcost of the tile
+     *
+     * @return gcost
+     */
+
+    /**
      * Draws the outline of the grid.
      *
      * @param canvas Drawing context

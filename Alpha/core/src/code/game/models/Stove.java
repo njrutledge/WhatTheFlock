@@ -67,7 +67,7 @@ public class Stove extends GameObject implements StoveInterface {
     public void setLit(boolean val){lit = val;}
 
     /**
-     * Draws the unlit stove
+     * Draws the stove
      *
      * @param canvas Drawing context
      */
