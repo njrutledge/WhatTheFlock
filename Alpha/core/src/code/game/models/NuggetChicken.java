@@ -46,7 +46,7 @@ public class NuggetChicken extends Chicken {
             attack_timer = MathUtils.clamp(attack_timer - dt, 0, ATTACK_DUR);
             if (!hitboxOut) {
                 FixtureDef attack = new FixtureDef();
-                attack.density = 0.1f;
+                attack.density = 0.0f;
                 attack.isSensor = true;
                 hitbox = new CircleShape();
                 hitbox.setRadius(ATTACK_RADIUS);

@@ -59,64 +59,44 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Health of the chicken*/
     // All of these variables will be put into a FSM in AIController eventually
     private float health;
-    /** Time until invulnerability after getting hit wears off */
-    private final float INVULN_TIME = 1f;
-    /** Counter for Invulnerability timer*/
-    protected float invuln_counter = INVULN_TIME;
-    /** Time to move perpendicular to a wall upon collision before returning to normal AI */
-    private final float SIDEWAYS_TIME = 0.1f;
-    /** Counter for sideways movement timer*/
-    private float sideways_counter = SIDEWAYS_TIME;
     /** Time to remain stationary after hitting the player */
     private final float STOP_TIME = 1f;
     /** Counter for stop movement timer*/
     private float stop_counter = STOP_TIME;
     /** True if the chicken has just been hit and the knockback has not yet been applied*/
     private boolean hit = false;
-
+    /** The chef that the chicken is targeting */
     private Chef player;
-
+    /** The damage modifier from being on fire*/
     private final int FIRE_MULT = 2;
-
+    //TODO comments
     protected boolean finishA = false;
-
     protected boolean soundCheck = false;
-
     protected float attack_timer = -1f;
-
     protected float attack_charge = -1f;
-
     protected float ATTACK_CHARGE = 0.4f;
-
     protected boolean hitboxOut = false;
-
-
     protected float ATTACK_DUR = 0.2f;
-
-    private CircleShape attackHit;
-
-    private float ATTACK_RADIUS = 1.5f;
-
+    private float CHICK_HIT_BOX = 0.8f;
+    /** Filmstrip for drawing this chicken */
     protected FilmStrip animator;
     /** Reference to texture origin */
     protected Vector2 origin;
-
+    /** slowness modifier for chicken speed */
     private float slow = 1f;
-
+    /** Timer used to keep track of trap effects */
     protected float status_timer = -1.0f;
-
+    /** True iff the chicken is currently on fire from the fire trap */
     private boolean cookin = false;
     /** Texture for chicken healthbar */
     private TextureRegion healthBar;
-
-    private float CHICK_HIT_BOX = 0.8f;
-
     /** Whether the chicken movement is beign controlled by a force (otherwise a velocity)*/
     protected Boolean isBeingForced = false;
     /** Whether the chicken is currently in hitstun */
     protected Boolean isStunned = false;
     /** Whether the chicken is invisible due to hitstun*/
     protected Boolean isInvisible = false;
+
 
     /**
      * Creates a new chicken avatar with the given physics data
@@ -222,35 +202,19 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         if (!isActive()) {
             return;
         }
-        /**
-         if (hit){
-         hit = false;
-         }
-         else {
-         forceCache.set(-damping * getVX(), -damping * getVY());
-         }
-         */
         if (isBeingForced) {
-            if (isStunned){
+            if (!hit){
                 forceCache.set(-damping * getVX(), -damping * getVY());
+                forceCache.set(-damping * getVX(), -damping * getVY());
+            }
+            else{
+                hit = false;
             }
             body.applyForce(forceCache,getPosition(),true);
         }
         else{
             setLinearVelocity(forceCache);
         }
-
-        /**
-         // Velocity too high, clamp it
-         if (Math.abs(getVX()) >= maxspeed) {
-         setVX(Math.signum(getVX())*maxspeed);
-         }
-
-         // Velocity too high, clamp it
-         if (Math.abs(getVY()) >= maxspeed) {
-         setVY(Math.signum(getVY())*maxspeed);
-         }
-         */
     }
 
     /**
@@ -357,9 +321,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             finishA = true;
             attack_timer = -1f;
             attack_charge = -1f;
-            invuln_counter = 0;
             hitboxOut = false;
             hit = true;
+            isStunned = true;
         }
     }
 
@@ -427,16 +391,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public boolean isAlive() {return health > 0;}
 
 
-
-    /**
-     * The chicken has collided with a wall and will move perpendicularly to get around the wall
-     */
-    public void hitWall(){
-        if (!isStunned){
-            sideways_counter = 0;
-        }
-    }
-
     /**
      * The chicken has collided with the player and will remain stationary for some time
      */
@@ -464,4 +418,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         isInvisible = invisible;
     }
 
+    /**
+     * Accessor for hit
+     * @return  the value of hit
+     */
+    public Boolean getHit(){
+        return hit;
+    }
 }
