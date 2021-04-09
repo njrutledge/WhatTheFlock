@@ -19,6 +19,7 @@ import code.game.models.obstacle.PolygonObstacle;
 import code.game.views.GameCanvas;
 import code.util.PooledList;
 import code.util.ScreenListener;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
@@ -26,10 +27,14 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.List;
+
+import static com.badlogic.gdx.net.HttpRequestBuilder.json;
 
 /**
  * Gameplay specific controller for the platformer game.  
@@ -45,6 +50,10 @@ public class GameController implements ContactListener, Screen {
 	////////////// This file puts together a lot of data, be sure that you do not modify something without knowing fully
 	////////////// its purpose or you may break someone else's work, further comments are below ////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
+	private final String DEFAULT_LEVEL = "level01";
+
 
 	/** The texture for walls and platforms */
 	protected TextureRegion earthTile;
@@ -134,9 +143,9 @@ public class GameController implements ContactListener, Screen {
 	public static final int HARD = 2;
 
 	/** Width of the game world in Box2d units */
-	protected static final float DEFAULT_WIDTH  = 40.0f;
+	protected static final float DEFAULT_WIDTH  = 48.0f;
 	/** Height of the game world in Box2d units */
-	protected static final float DEFAULT_HEIGHT = 30.0f;
+	protected static final float DEFAULT_HEIGHT = 27.0f;
 	/** The default value of gravity (going down) */
 	protected static final float DEFAULT_GRAVITY = -4.9f;
 
@@ -396,7 +405,10 @@ public class GameController implements ContactListener, Screen {
 		volume = constants.getFloat("volume", 1.0f);
 		temp = new TemperatureBar(tempBackground, tempForeground,30);
 		temp.setUseCooldown(cooldown);
-		doNewPopulate(levels.get("level01"));
+
+		JsonReader json = new JsonReader();
+		JsonValue level = json.parse(Gdx.files.internal(levels.getString(DEFAULT_LEVEL)));
+		doNewPopulate(level);
 		//add chef here!
 		addObject(chef);
 		/*String wname = "wall";

@@ -163,6 +163,7 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void handleChefChicken(Chef chef, Object fd1, Fixture fix1, Chicken chicken, Object fd2, Fixture fix2){
+        //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
         if(chicken.getHitboxOut() && (fix1.getUserData() == "basicattack" || fix2.getUserData() == "basicattack")){
             chef.decrementHealth();
             chicken.hitPlayer();

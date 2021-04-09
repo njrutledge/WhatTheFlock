@@ -9,8 +9,8 @@ import java.util.Comparator;
 
 public class Grid {
 
-    private final int ROWS = 30;
-    private final int COLS = 40;
+    private final int ROWS = 27;
+    private final int COLS = 48;
 
     private float cell_width;
     private float cell_height;
