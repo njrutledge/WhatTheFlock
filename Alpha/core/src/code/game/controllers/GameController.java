@@ -149,6 +149,21 @@ public class GameController implements ContactListener, Screen {
 	/** The default value of gravity (going down) */
 	protected static final float DEFAULT_GRAVITY = -4.9f;
 
+	/** Name of wall in level files */
+	protected static final String LEVEL_WALL = "wall";
+	/** Name of spawnpoint in level files */
+	protected static final String LEVEL_SPAWN = "spawn";
+	/** Name of stove in level files */
+	protected static final String LEVEL_STOVE = "stove";
+	/** Name of slow trap in level files */
+	protected static final String LEVEL_SLOW = "slow";
+	/** Name of lure trap in level files */
+	protected static final String LEVEL_LURE = "lure";
+	/** Name of fire trap in level files */
+	protected static final String LEVEL_FIRE = "fire";
+	/** Name of chef in level files */
+	protected static final String LEVEL_CHEF = "chef";
+
 	///** Whether or not the player is cooking, true is they are and false otherwise*/
 	//private boolean cooking;
 
@@ -167,14 +182,6 @@ public class GameController implements ContactListener, Screen {
 	private TemperatureBar temp;
 	///** Reference to the goalDoor (for collision detection) */
 	//private BoxObstacle goalDoor;
-	/** The minimum x position of a spawned chicken*/
-	private static float spawn_xmin;
-	/** The maximum x position of a spawned chicken*/
-	private static float spawn_xmax;
-	/** The minimum y position of a spawned chicken*/
-	private static float spawn_ymin;
-	/** The maximum y position of a spawned chicken */
-	private static float spawn_ymax;
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
 //	/** Reference to the stove object */
@@ -407,8 +414,13 @@ public class GameController implements ContactListener, Screen {
 		temp.setUseCooldown(cooldown);
 
 		JsonReader json = new JsonReader();
-		JsonValue level = json.parse(Gdx.files.internal(levels.getString(DEFAULT_LEVEL)));
-		doNewPopulate(level);
+		try{
+			JsonValue level = json.parse(Gdx.files.internal(levels.getString(DEFAULT_LEVEL)));
+			doNewPopulate(level);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
 		//add chef here!
 		addObject(chef);
 		/*String wname = "wall";
@@ -425,10 +437,10 @@ public class GameController implements ContactListener, Screen {
 			obj.setTexture(earthTile);
 			obj.setName(wname+ii);
 			addObject(obj);
-	    }*/
+	    }
 
 	    //put some other platforms in the world
-	    /*String pname = "platform";
+	    String pname = "platform";
 		JsonValue platjv = constants.get("platforms");
 	    for (int ii = 0; ii < platjv.size; ii++) {
 	        PolygonObstacle obj;
@@ -441,11 +453,11 @@ public class GameController implements ContactListener, Screen {
 			obj.setTexture(earthTile);
 			obj.setName(pname+ii);
 			addObject(obj);
-	    }*/
+	    }
 		//TODO add stove to JSON
 
 		//trap places
-		/*String trpname = "trap_place";
+		String trpname = "trap_place";
 		JsonValue placejv = constants.get("trapplace");
 		for (int ii = 0; ii < placejv.size; ii++) {
 			TrapSpot obj;
@@ -459,22 +471,22 @@ public class GameController implements ContactListener, Screen {
 			obj.setTexture(trapSpotTexture);
 			obj.setName(trpname+ii);
 			addObject(obj);
-		}*/
+		}
 
 
 		// Add stove
-		/*Stove stove;
+		Stove stove;
 		float swidth = stoveTexture.getRegionWidth()/scale.x;
 		float sheight = stoveTexture.getRegionHeight()/scale.y;
 		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
 		stove.setDrawScale(scale);
 		stove.setTexture(stoveTexture);
-		addObject(stove);*/
+		addObject(stove);
 
 
 		// Create chef
 		//TODO: FIX AFTER WE HAVE FILMSTRIP!
-		/*
+
 		float cwidth  = 32/scale.x;
 		float cheight = 32/scale.y;
 		chef = new Chef(constants.get("chef"), constants.get("chef").get("pos").getFloat(0), constants.get("chef").get("pos").getFloat(1), cwidth, cheight, parameterList[0], parameterList[12]);
@@ -483,7 +495,7 @@ public class GameController implements ContactListener, Screen {
 		chef.setHealthTexture(healthTexture);
 		chef.setNoHealthTexture(noHealthTexture);
 		chef.setName("chef");
-		 */
+
 
 
 
@@ -497,6 +509,7 @@ public class GameController implements ContactListener, Screen {
 		spawn_xmax = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[1];
 		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
+		*/
 		for (int i = 0; i < parameterList[4]; i++){
 			spawnChicken(Chicken.Type.Nugget);
 		}
@@ -508,58 +521,62 @@ public class GameController implements ContactListener, Screen {
 	}
 
 	public void doNewPopulate(JsonValue level){
-		//JsonValue test = level.get("level01");
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
-		String wname = "wall";
 		for(int ii = 0; ii < stuff.length; ii++){
 			int x = ii % grid.getColCount();
 			int y = ii / grid.getColCount();
 			switch(stuff[ii]){
-				case "wall":
+				case LEVEL_WALL:
 					//add wall
-					PolygonObstacle obj;
-					obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
+					PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
 					obj.setBodyType(BodyDef.BodyType.StaticBody);
 					obj.setDensity(defaults.getFloat( "density", 0.0f ));
 					obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 					obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 					obj.setDrawScale(scale);
 					obj.setTexture(earthTile);
-					obj.setName(wname+ii);
+					obj.setName(LEVEL_WALL);//+ii); If we need to specify name further, its here
 					addObject(obj);
 					break;
-				case "stove":
+				case LEVEL_STOVE:
 					// Add stove
-					Stove stove;
 					float swidth = stoveTexture.getRegionWidth()/scale.x;
 					float sheight = stoveTexture.getRegionHeight()/scale.y;
-					stove = new Stove(constants.get("stove"),x,y,swidth,sheight);
+					Stove stove = new Stove(constants.get(LEVEL_STOVE),x,y,swidth,sheight);
 					stove.setDrawScale(scale);
 					stove.setTexture(stoveTexture);
 					addObject(stove);
 					break;
-				case "chef":
+				case LEVEL_CHEF:
 					// Create chef
 					//TODO: FIX AFTER WE HAVE FILMSTRIP!
 					float cwidth  = 32/scale.x;
 					float cheight = 32/scale.y;
-					chef = new Chef(constants.get("chef"), x, y, cwidth, cheight);
+					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
 					chef.setTexture(chefTexture);
 					chef.setHealthTexture(healthTexture);
 					chef.setNoHealthTexture(noHealthTexture);
-					//dont add chef here! add it later so its on top easier
+					//don't add chef here! add it later so its on top easier
 					break;
-				case "spawn":
-					PolygonObstacle spawn;
-					spawn = new PolygonObstacle(new float[] {0, 0, 1, 0, 1, 1, 0, 1},x, y);
+				case LEVEL_SPAWN:
+					PolygonObstacle spawn = new PolygonObstacle(new float[] {0, 0, 1, 0, 1, 1, 0, 1},x, y);
 					spawn.setSensor(true);
 					spawn.setDrawScale(scale);
 					//spawn.setTexture(trapSpotTexture);
-					spawn.setName("spawn");
+					spawn.setName(LEVEL_SPAWN);
 					addObject(spawn);
 					spawnPoints.add(spawn);
+					break;
+				case LEVEL_SLOW:
+					trapHelper(x, y, Trap.type.SLOW);
+					break;
+				case LEVEL_LURE:
+					trapHelper(x, y, Trap.type.LURE);
+					break;
+				case LEVEL_FIRE:
+					trapHelper(x, y, Trap.type.FIRE);
 					break;
 			}
 		}
@@ -1055,7 +1072,7 @@ public class GameController implements ContactListener, Screen {
 	public void trapHelper(float x, float y, Trap.type t){
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
-		Trap trap = new Trap(constants.get("trap"), chef.getX(), chef.getY(), twidth, theight, trapTypeSelected, Trap.shape.CIRCLE);
+		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t, Trap.shape.CIRCLE);
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
 		addObject(trap);
