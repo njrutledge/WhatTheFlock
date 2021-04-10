@@ -58,7 +58,7 @@ public class Chef extends GameObject implements ChefInterface {
 	/** Is the player trying to set a trap*/
 	private boolean isTrap;
 	/** Can the player cook */
-	private boolean canCook;
+	private boolean isCooking;
 	/** Whether the player is invincible */
 	private boolean invincible;
 
@@ -137,23 +137,23 @@ public class Chef extends GameObject implements ChefInterface {
 		trapCooldown = 0;
 		setName("chef");
 		isTrap = false;
-		canCook = false;
+		isCooking = false;
 	}
 
 	/**Sets the chef's cooking status
 	 * @param b the boolean, whether cooking is true or false*/
-	public void setCanCook(boolean b){
-		canCook = b;
+	public void setCooking(boolean b){
+		isCooking = b;
 	}
 
 	/**Returns whether the chef is cooking.
 	 * @return the cooking status of the chef. */
-	public boolean canCook(){
-		return canCook;
+	public boolean isCooking(){
+		return isCooking;
 	}
 
 	/**
-	 * Returns left/right movement of this character.
+	 * Returns left/right movement of this character. 0 if the chef is cooking
 	 *
 	 * This is the result of input times chef force.
 	 *
@@ -164,7 +164,7 @@ public class Chef extends GameObject implements ChefInterface {
 	}
 
 	/**
-	 * Returns up/down movement of this character.
+	 * Returns up/down movement of this character. 0 if the chef is cooking
 	 *
 	 * This is the result of input times chef force.
 	 *
@@ -258,7 +258,7 @@ public class Chef extends GameObject implements ChefInterface {
 	}
 
 	/**
-	 * Returns true if the character has recently taken damage and is not invulnerable
+	 * Returns true if the character has recently taken damage and is invulnerable
 	 *
 	 * @return true if the character is stunned, false otherwise
 	 */

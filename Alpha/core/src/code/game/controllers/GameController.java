@@ -13,7 +13,6 @@ package code.game.controllers;
 import code.assets.AssetDirectory;
 import code.audio.SoundBuffer;
 import code.game.models.*;
-import code.game.models.obstacle.BoxObstacle;
 import code.game.models.obstacle.Obstacle;
 import code.game.models.obstacle.PolygonObstacle;
 import code.game.views.GameCanvas;
@@ -27,14 +26,10 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.List;
-
-import static com.badlogic.gdx.net.HttpRequestBuilder.json;
 
 /**
  * Gameplay specific controller for the platformer game.  
@@ -52,7 +47,7 @@ public class GameController implements ContactListener, Screen {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level01";
+	private final String DEFAULT_LEVEL = "level02";
 
 
 	/** The texture for walls and platforms */
@@ -900,14 +895,16 @@ public class GameController implements ContactListener, Screen {
 
 		chef.applyForce();
 
+		// if the chef tries to perform an action, move or gets hit, stop cooking
+		if (chef.isCooking() && (InputController.getInstance().didMovementKey()|| InputController.getInstance().didSecondary()
+		|| chef.isStunned())){
+			chef.setCooking(false);
+		}
+
 		//update temperature
-		if (chef.canCook() && (chef.getMovement() == 0f
-						&& chef.getVertMovement() == 0f
-						&& !chef.isShooting())) {
-			//chef.cook(true);
+		if (chef.isCooking()) {
 			temp.cook(true);
 		}else {
-			//chef.cook(false);
 			temp.cook(false);
 		}
 

@@ -151,7 +151,9 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chef      a chef
      */
     private void handleStoveChef(Stove stove, Chef chef){
-        chef.setCanCook(true);
+        chef.setCooking(true);
+        chef.setMovement(0);
+        chef.setVertMovement(0);
         stove.setLit(true);
     }
 
@@ -332,7 +334,7 @@ public class CollisionController implements CollisionControllerInterface {
 
     private void endStoveChef(Stove stove, Object fd1, Chef chef, Object fd2){
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
-        chef.setCanCook(false);
+        chef.setCooking(false);
         stove.setLit(false);
     }
 

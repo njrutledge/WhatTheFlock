@@ -68,6 +68,9 @@ public class InputController {
 	private boolean secondPrevious;
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
+	/** Whether a movement key was pressed*/
+	private boolean movementPressed;
+	private boolean movementPrevious;
 	/** Whether the trap placement button ws pressed */
 	private boolean trapPressed;
 	private boolean trapPrevious;
@@ -188,6 +191,14 @@ public class InputController {
 	public boolean didSecondary() {
 		return secondPressed && !secondPrevious;
 	}
+
+	/**
+	 * Returns true if a movement key was pressed
+	 *
+	 *
+	 * @return true if a movement button was pressed.
+	 */
+	public boolean didMovementKey() { return movementPressed && !movementPrevious; }
 
 	/**
 	 * Returns true if the tertiary action button was pressed.
@@ -374,6 +385,7 @@ public class InputController {
 		mutePrevious = mutePressed;
 		pausePrevious = pausePressed;
 		gridPrevious = gridToggled;
+		movementPrevious = movementPressed;
 		
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -441,6 +453,8 @@ public class InputController {
 						(Gdx.input.isKeyPressed(Input.Keys.DOWN));
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
 		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
+		movementPressed = ((Gdx.input.isKeyPressed(Input.Keys.W)) || (Gdx.input.isKeyPressed(Input.Keys.A)) ||
+				(Gdx.input.isKeyPressed(Input.Keys.S)) || (Gdx.input.isKeyPressed(Input.Keys.D)));
 		trapPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
 		trapRotateLeftPressed = (Gdx.input.isKeyPressed(Input.Keys.Q));
 		trapRotateRightPressed = (Gdx.input.isKeyPressed(Input.Keys.E));
