@@ -985,9 +985,7 @@ public class GameController implements ContactListener, Screen {
 	 */
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
-		if (temp.getTemperature() == 0){
-			return;
-		} else{
+		if (temp.getTemperature() > 0){
 			temp.reduceTemp(1);
 		}
 		/*
@@ -1082,7 +1080,7 @@ public class GameController implements ContactListener, Screen {
 
 
 	public float damageCalc(){
-		return chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
+		return (temp.getTemperature() == 0) ? 0 : chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
 	}
 
 
