@@ -59,8 +59,6 @@ public class Chef extends GameObject implements ChefInterface {
 	private boolean isTrap;
 	/** Can the player cook */
 	private boolean isCooking;
-	/** Whether the player is invincible */
-	private boolean invincible;
 
 	/** The game shape of this object */
 	private PolygonShape sensorShape;
@@ -112,13 +110,12 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public Chef(JsonValue data, float x, float y, float width, float height) {
 		// The shrink factors fit the image to a tigher hitbox
-		super(	x,
-				y,
-				width*data.get("shrink").getFloat( 0 ),
-				height*data.get("shrink").getFloat( 1 ));
+		super(	x, y, width*0.3f, 0.1f);
 		setDensity(data.getFloat("density", 0));
 		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
 		setFixedRotation(true);
+	/*		sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
+				sensorjv.getFloat("height",0), sensorCenter, 0.0f);*/
 
 		maxspeed = data.getFloat("maxspeed", 0);
 		damping = data.getFloat("damping", 0);
@@ -138,6 +135,12 @@ public class Chef extends GameObject implements ChefInterface {
 		setName("chef");
 		isTrap = false;
 		isCooking = false;
+		Filter filter = new Filter();
+		//0x0001 = player
+		filter.categoryBits = 0x0001;
+		//0x0002 = chickens, 0x0004 walls, 0x0016 buffalo's headbutt
+		filter.maskBits = 0x0002 | 0x0004 | 0x0016;
+		setFilterData(filter);
 	}
 
 	/**Sets the chef's cooking status
@@ -238,7 +241,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 	//TODO: comment
 	public void setTexture(Texture texture) {
-		animator = new FilmStrip(texture, 2, 5);
+		animator = new FilmStrip(texture, 1, 4);
 		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
 	}
 
@@ -251,7 +254,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/** Reduces the chef's health by one. */
 	public void decrementHealth() {
-		if (!isStunned() && !invincible) {
+		if (!isStunned()) {
 			health --;
 			invuln_counter = 0f;
 		}
@@ -373,7 +376,8 @@ public class Chef extends GameObject implements ChefInterface {
 		// Ground Sensor
 		// -------------
 		// Previously used to detect double-jumps, but also allows us to see hitboxes
-		Vector2 sensorCenter = new Vector2(0, -getHeight() / 2);
+		Vector2 sensorCenter = new Vector2(0, getHeight());
+		System.out.println(getHeight());
 		FixtureDef sensorDef = new FixtureDef();
 		sensorDef.density = data.getFloat("density",0);
 		sensorDef.isSensor = true;
@@ -381,8 +385,7 @@ public class Chef extends GameObject implements ChefInterface {
 		sensorDef.filter.categoryBits =  0x0002;
 		sensorShape = new PolygonShape();
 		JsonValue sensorjv = data.get("sensor");
-		sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
-				sensorjv.getFloat("height",0), sensorCenter, 0.0f);
+		sensorShape.setAsBox(getWidth(), getHeight(), sensorCenter, 0.0f);
 		sensorDef.shape = sensorShape;
 
 		// Ground sensor to represent our feet

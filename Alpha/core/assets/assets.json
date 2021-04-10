@@ -10,9 +10,10 @@
         "enviro:trap:spot": "enviro/trapspot.png",
 
         "char:chicken": "characters/chicken.png",
-        "char:chef":"characters/chef.png",
+        "char:chef": "characters/chef_stand.png",
         "char:bullet": "characters/bullet.png",
         "char:nugget": "characters/nugget.png",
+        "char:buffalo": "characters/buffalo.png",
         "char:nuggetBar": "characters/nuggetBar.png",
 
         "ui:tempBar": {

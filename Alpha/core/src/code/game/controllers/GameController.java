@@ -73,6 +73,8 @@ public class GameController implements ContactListener, Screen {
 	private Texture chefTexture;
 	/** Texture asset for the nugget */
 	private Texture nuggetTexture;
+	/** Texture asset for the buffalo */
+	private Texture buffaloTexture;
 
 	///** Texture asset for temp bar*/
 	//private Texture tempTexture;
@@ -239,6 +241,7 @@ public class GameController implements ContactListener, Screen {
 	private CollisionController collisionController;
 	/**The trap controller for this game*/
 
+	boolean done = false;
 
 	private TrapController trapController;
 	/**
@@ -326,6 +329,7 @@ public class GameController implements ContactListener, Screen {
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("char:nuggetBar", Texture.class));
 		chefTexture = directory.getEntry("char:chef", Texture.class);
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
+		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 
 		//ui
 		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
@@ -421,6 +425,13 @@ public class GameController implements ContactListener, Screen {
 		/*String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 		JsonValue defaults = constants.get("defaults");
+		// Obstacle filter: 0x0001 = players, 0x0002 = chickens, 0x0004 = walls, 0x0008 = traps
+		Filter obsfilter = new Filter();
+		obsfilter.categoryBits = 0x0004;
+		obsfilter.maskBits = 0x0001 | 0x0002 | 0x0016;
+		Filter trapfilter = new Filter();
+		trapfilter.categoryBits = 0x0008;
+		trapfilter.maskBits = 0x0002;
 		for (int ii = 0; ii < walljv.size; ii++) {
 	        PolygonObstacle obj;
 	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
@@ -431,6 +442,7 @@ public class GameController implements ContactListener, Screen {
 			obj.setDrawScale(scale);
 			obj.setTexture(earthTile);
 			obj.setName(wname+ii);
+			obj.setFilterData(obsfilter);
 			addObject(obj);
 	    }
 
@@ -447,6 +459,7 @@ public class GameController implements ContactListener, Screen {
 			obj.setDrawScale(scale);
 			obj.setTexture(earthTile);
 			obj.setName(pname+ii);
+			obj.setFilterData(obsfilter);
 			addObject(obj);
 	    }
 		//TODO add stove to JSON
@@ -465,6 +478,7 @@ public class GameController implements ContactListener, Screen {
 			obj.setDrawScale(scale);
 			obj.setTexture(trapSpotTexture);
 			obj.setName(trpname+ii);
+			obj.setFilterData(trapfilter);
 			addObject(obj);
 		}
 
@@ -476,6 +490,7 @@ public class GameController implements ContactListener, Screen {
 		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
 		stove.setDrawScale(scale);
 		stove.setTexture(stoveTexture);
+		stove.setFilterData(obsfilter);
 		addObject(stove);
 
 
@@ -506,7 +521,7 @@ public class GameController implements ContactListener, Screen {
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
 		*/
 		for (int i = 0; i < parameterList[4]; i++){
-			spawnChicken(Chicken.Type.Nugget);
+			spawnChicken(Chicken.ChickenType.Nugget);
 		}
 
 		// Get initial values for parameters in the list
@@ -877,7 +892,7 @@ public class GameController implements ContactListener, Screen {
 
 		//random chance of spawning a chicken
 		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			spawnChicken(Chicken.Type.Nugget);
+			spawnChicken(Chicken.ChickenType.Nugget);
 		}
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
@@ -885,10 +900,25 @@ public class GameController implements ContactListener, Screen {
 				removeBullet(obj);
 			}
 			if (obj.getName().equals("chicken")){
-				Chicken chick = ((Chicken) obj);
-				if (chick.isAttacking() && chick.getSoundCheck()) {
-					chickAttack.stop();
-					chickAttack.play(volume*0.5f);
+				Chicken chicken = ((Chicken) obj);
+				if (chicken.makeAttack()) {
+					switch(chicken.getAttackType()) {
+						case Basic:
+						case Charge:
+							createChickenAttack(chicken, chicken.getAttackType());
+							if (chicken.getSoundCheck()) {
+								chickAttack.stop();
+								chickAttack.play(volume * 0.5f);
+							}
+							break;
+						case Explosion:
+							break;
+					}
+				}
+			} else if (obj.getName().equals("chickenAttack")) {
+				ChickenAttack attack = (ChickenAttack)obj;
+				if (attack.atDestination(dt)) {
+					attack.markRemoved(true);
 				}
 			}
 		}
@@ -939,7 +969,7 @@ public class GameController implements ContactListener, Screen {
 	/**
 	 * Spawn a chicken somewhere in the world, then increments the number of chickens
 	 */
-	private void spawnChicken(Chicken.Type type){
+	private void spawnChicken(Chicken.ChickenType type){
 		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
 		float dheight = chickenTexture.getRegionHeight()/scale.y;
 		int index = (int) (Math.random() * spawnPoints.size());
@@ -963,20 +993,36 @@ public class GameController implements ContactListener, Screen {
 			y = spawn_ymax;
 		}*/
 
-		Chicken enemy;
-		if (type == Chicken.Type.Nugget) {
-			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"),x, y, dwidth, dheight, chef, parameterList[1]);
-		} else {
-			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"),x, y, dwidth, dheight, chef, parameterList[1]);
+		if (!done) {
+			Chicken enemy;
+			Chicken enemy2;
+			done = true;
+/*			if (type == Chicken.Type.Nugget) {
+				enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+			} else {
+				enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+			}*/
+			if (type == Chicken.ChickenType.Nugget) {
+				enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
+			} else {
+				enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
 
+			}
+
+			enemy.setDrawScale(scale);
+			enemy.setTexture(buffaloTexture);
+			enemy.setBarTexture(enemyHealthBarTexture);
+			addObject(enemy);
+			ai.put(enemy, new AIController(enemy, chef, grid));
+
+/*			enemy2 = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef,parameterList[1]);
+			enemy2.setDrawScale(scale);
+			enemy2.setTexture(nuggetTexture);
+			enemy2.setBarTexture(enemyHealthBarTexture);
+			addObject(enemy2);
+			ai.put(enemy2, new AIController(enemy2, chef, grid));*/
+			//chickens ++;
 		}
-
-		enemy.setDrawScale(scale);
-		enemy.setTexture(nuggetTexture);
-		enemy.setBarTexture(enemyHealthBarTexture);
-		addObject(enemy);
-		ai.put(enemy, new AIController(enemy, chef, grid));
-		//chickens ++;
 	}
 
 	/**
@@ -1049,7 +1095,15 @@ public class GameController implements ContactListener, Screen {
 		emptySlap.play(volume);
 
 	}
-	
+
+	/** Adds a chickenAttack to the world */
+	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
+		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
+				ChickenAttack.getHEIGHT(), chef, chicken, type);
+		attack.setDrawScale(scale);
+		addQueuedObject(attack);
+	}
+
 	/**
 	 * Remove a new bullet from the world.
 	 *
