@@ -1080,7 +1080,7 @@ public class GameController implements ContactListener, Screen {
 
 
 	public float damageCalc(){
-		return (temp.getTemperature() == 0) ? 0 : chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
+		return (temp.getTemperature() <= 0) ? 0 : chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
 	}
 
 

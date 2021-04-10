@@ -86,7 +86,13 @@ public class Chef extends GameObject implements ChefInterface {
 	private float INVULN_TIME = 1;
 	//TODO: make final after technical
 	private float BASE_DAMAGE = 2;
+	/** How fast we change frames (one frame per 4 calls to update */
+	private static final float ANIMATION_SPEED = 0.25f;
+	/** The number of animation frames in our filmstrip */
+	private static final int NUM_ANIM_FRAMES = 8;
 
+	/** Current animation frame for this shell */
+	private float animeframe;
 	/** Counter for Invulnerability timer*/
 	private float invuln_counter = INVULN_TIME;
 	/** Cache for internal force calculations */
@@ -138,6 +144,7 @@ public class Chef extends GameObject implements ChefInterface {
 		setName("chef");
 		isTrap = false;
 		isCooking = false;
+		animeframe = 0.0f;
 	}
 
 	/**Sets the chef's cooking status
@@ -236,9 +243,13 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void setTrap(boolean bln) { isTrap = bln; }
 
-	//TODO: comment
+	/**
+	 * Animates the texture (moves along the filmstrip)
+	 *
+	 * @param texture
+	 */
 	public void setTexture(Texture texture) {
-		animator = new FilmStrip(texture, 2, 5);
+		animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
 		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
 	}
 
@@ -435,13 +446,20 @@ public class Chef extends GameObject implements ChefInterface {
 	/**
 	 * Updates the object's game state (NOT GAME LOGIC).
 	 *
-	 * We use this method to reset cooldowns.
+	 * We use this method to reset cooldowns, and control animations
 	 *
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	@Override
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
+
+		if (getVertMovement() != 0 || getMovement() != 0) {
+			animeframe += ANIMATION_SPEED;
+			if (animeframe >= NUM_ANIM_FRAMES) {
+				animeframe -= NUM_ANIM_FRAMES;
+			}
+		}
 		if (isShooting()) {
 			shootCooldown = shotLimit;
 		} else {
@@ -461,8 +479,9 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
+		animator.setFrame((int)animeframe);
 		if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
-			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), effect / 10, 0.1f);
+			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
 		}
 
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
