@@ -373,7 +373,7 @@ public class Chef extends GameObject implements ChefInterface {
 		// Ground Sensor
 		// -------------
 		// Previously used to detect double-jumps, but also allows us to see hitboxes
-		Vector2 sensorCenter = new Vector2(0, -getHeight() / 2);
+		Vector2 sensorCenter = new Vector2(0, -getHeight()/4);
 		FixtureDef sensorDef = new FixtureDef();
 		sensorDef.density = data.getFloat("density",0);
 		sensorDef.isSensor = true;

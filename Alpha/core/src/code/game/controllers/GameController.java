@@ -546,7 +546,7 @@ public class GameController implements ContactListener, Screen {
 				case LEVEL_CHEF:
 					// Create chef
 					//TODO: FIX AFTER WE HAVE FILMSTRIP!
-					float cwidth  = 32/scale.x;
+					float cwidth  = 16/scale.x;
 					float cheight = 32/scale.y;
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
