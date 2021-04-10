@@ -52,7 +52,7 @@ public class GameController implements ContactListener, Screen {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level01";
+	private final String DEFAULT_LEVEL = "level02";
 
 
 	/** The texture for walls and platforms */
@@ -282,7 +282,7 @@ public class GameController implements ContactListener, Screen {
 		sensorFixtures = new ObjectSet<Fixture>();
 		//trapController = new TrapController(scale, constants);
 		//collisionController = new CollisionController(trapController);
-		collisionController = new CollisionController(scale, constants);
+		collisionController = new CollisionController(scale);
 		//chickens = 0;
 		//cooking = false;
 	}
@@ -361,6 +361,7 @@ public class GameController implements ContactListener, Screen {
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
+		collisionController.setConstants(constants);
 		levels = directory.getEntry("levels", JsonValue.class );
 	}
 
@@ -538,6 +539,8 @@ public class GameController implements ContactListener, Screen {
 					obj.setTexture(earthTile);
 					obj.setName(LEVEL_WALL);//+ii); If we need to specify name further, its here
 					addObject(obj);
+
+					grid.setObstacle(x,y);
 					break;
 				case LEVEL_STOVE:
 					// Add stove
@@ -547,6 +550,10 @@ public class GameController implements ContactListener, Screen {
 					stove.setDrawScale(scale);
 					stove.setTexture(stoveTexture);
 					addObject(stove);
+					grid.setObstacle(x,y);
+					grid.setObstacle(x-1,y);
+					grid.setObstacle(x,y-1);
+					grid.setObstacle(x-1,y-1);
 					break;
 				case LEVEL_CHEF:
 					// Create chef
@@ -570,13 +577,13 @@ public class GameController implements ContactListener, Screen {
 					spawnPoints.add(spawn);
 					break;
 				case LEVEL_SLOW:
-					trapHelper(x, y, Trap.type.SLOW);
+					trapHelper(x, y, Trap.type.SLOW, true);
 					break;
 				case LEVEL_LURE:
-					trapHelper(x, y, Trap.type.LURE);
+					trapHelper(x, y, Trap.type.LURE, true);
 					break;
 				case LEVEL_FIRE:
-					trapHelper(x, y, Trap.type.FIRE);
+					trapHelper(x, y, Trap.type.FIRE, true);
 					break;
 			}
 		}
@@ -1065,21 +1072,21 @@ public class GameController implements ContactListener, Screen {
 
 	public void createTrap() {
 		//spawn test traps
-		trapHelper(chef.getX(), chef.getY(), trapTypeSelected);
+		trapHelper(chef.getX(), chef.getY(), trapTypeSelected, false);
 
 	}
 
-	public void trapHelper(float x, float y, Trap.type t){
+	public void trapHelper(float x, float y, Trap.type t, boolean env){
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
-		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t, Trap.shape.CIRCLE);
+		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t, Trap.shape.CIRCLE, env);
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
-		addObject(trap);
-//		trap = new Trap(constants.get("trap"), 20, 4, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.SQUARE);
-//		trap.setDrawScale(scale);
-//		trap.setTexture(trapTexture);
-//		addObject(trap);
+		if (env){
+			addEnvironmentalObject(trap);
+		}else {
+			addObject(trap);
+		}
 	}
 
 
@@ -1112,6 +1119,12 @@ public class GameController implements ContactListener, Screen {
 		assert inBounds(obj) : "Object is not in bounds";
 		objects.add(obj);
 		obj.activatePhysics(world);
+	}
+
+	protected void addEnvironmentalObject(Trap trap) {
+		assert inBounds(trap) : "Object is not in bounds";
+		objects.add(trap);
+		trap.activateInitialPhysics(world);
 	}
 
 	/**
@@ -1178,6 +1191,15 @@ public class GameController implements ContactListener, Screen {
 			} else {
 				// Note that update is called last!
 				obj.update(dt);
+			}
+
+			if(obj.getClass().equals(Trap.class)){
+				Trap t = (Trap) obj;
+				if(t.isActive() && t.needsActivation()){
+					t.activatePhysics(world);
+				}else if(t.needsDeactivation()){
+					t.partialDeactivatePhysics(world);
+				}
 			}
 		}
 	}

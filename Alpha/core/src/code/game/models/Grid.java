@@ -1,5 +1,7 @@
 package code.game.models;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import code.game.views.GameCanvas;
@@ -161,6 +163,19 @@ public class Grid {
         for (int j = 1; j < COLS; j++) {
             canvas.drawLine(new Vector2(ccw*j,0), new Vector2(ccw*j, cch*ROWS));
         }
+        BitmapFont pFont = new BitmapFont();
+        pFont.setColor(Color.RED);
+        canvas.endDebug();
+        canvas.begin();
+        for(Tile[] r : grid){
+            for (Tile t : r){
+                if (t.isObstacle()){
+                    canvas.drawText("X",pFont, ccw*t.getCol(), cch*(t.getRow()+1));
+                }
+            }
+        }
+        canvas.end();
+        canvas.beginDebug();
     }
 
     public class Tile {

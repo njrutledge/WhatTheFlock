@@ -96,6 +96,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected Boolean isStunned = false;
     /** Whether the chicken is invisible due to hitstun*/
     protected Boolean isInvisible = false;
+    /** Whether the chicken is being slowed */
+    private boolean inSlow = false;
+    /** Ammount to increase or decrease the slow modifier */
+    private float SLOW_EFFECT = 0.25f;
+
 
 
     /**
@@ -159,6 +164,13 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @return the current chicken max health.
      */
     public int getMaxHealth(){ return max_health;}
+
+    /**
+     * Returns current chicken slowing modifier.
+     *
+     * @return the current chicken slowing modifier.
+     */
+    public float getSlow(){ return slow;}
 
     /**
      * Creates the physics Body(s) for this object, adding them to the world.
@@ -231,6 +243,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
         if (!cookin) {
             status_timer = Math.max(status_timer - dt, -1f);
+        }
+        if(inSlow){
+            applySlow(SLOW_EFFECT*dt);
+        }else {
+            removeSlow(SLOW_EFFECT*dt);
         }
     }
 
@@ -329,19 +346,27 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /**
      * Applies a slowdown modifier to the chicken's speed
-     *
-     * @param strength a slowdown multiplier (1f for normal speed)
+     * slowing effect at 1f means normal speed, 0f means stopped
+     * @param strength amount to decrease the slow multiplier, > 0
      */
     public void applySlow(float strength) {
-        slow = strength;
+        slow = Math.max(0, slow - strength);
     }
 
     /**
-     * Removes any slowdown modifiers to the chicken's speed
+     * Removes a slowdown modifier to the chicken's speed
+     * slowing effect at 1f means normal speed, 0f means stopped
+     * @param strength amount to increase the slow multiplier, > 0
      */
-    public void removeSlow() {
-        slow = 1f;
+    public void removeSlow(float strength) {
+        slow = Math.min(1, slow + strength);
     }
+
+    /**
+     * Sets whether the chicken is currently in a slow trap or not
+     * @param bool is true if the chicken is being slowed
+     */
+    public void inSlow(boolean bool) { inSlow = bool;}
 
     /**
      * Applies the fire effect by giving the chicken a countdown timer

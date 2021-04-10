@@ -1,10 +1,7 @@
 package code.game.controllers;
 
 import code.game.interfaces.CollisionControllerInterface;
-import code.game.models.Chef;
-import code.game.models.Chicken;
-import code.game.models.Stove;
-import code.game.models.Trap;
+import code.game.models.*;
 import code.game.models.obstacle.Obstacle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -17,8 +14,16 @@ public class CollisionController implements CollisionControllerInterface {
 
     private TrapController trapController;
 
-    public CollisionController(Vector2 scale, JsonValue constants){
-        trapController = new TrapController(scale, constants);
+    public CollisionController(Vector2 scale){
+        trapController = new TrapController(scale);
+    }
+
+    /**
+     *  sets the constants parameter of trapController
+     * @param constants the jsonValue to be set
+     */
+    public void setConstants(JsonValue constants){
+        trapController.setConstants(constants);
     }
     /**
      * Callback method for the start of a collision
@@ -71,13 +76,23 @@ public class CollisionController implements CollisionControllerInterface {
                     stoveCollision((Stove) bd1, fd1, bd2, fd2);
                     break;
                 case "slapSensor":
-                    slapCollision(bd1, fd1, bd2, fd2);
+                    slapCollision((Slap) bd1, fd1, bd2, fd2);
                     break;
-                case "trap":
+                case "trapSensor":
                     trapCollision((Trap) bd1, fd1, bd2, fd2);
+                    break;
+                case "trapActivationRadius":
+                    trapActivationCollision((Trap) bd1, fd1, bd2, fd2);
                     break;
             }
 
+        }
+
+        private void trapActivationCollision(Trap t1, Object fd1, Obstacle bd2, Object fd2){
+          switch(fd2.toString()){
+              case "slapSensor": handleTrapSlap(t1, fd1, (Slap) bd2, fd2);
+                break;
+          }
         }
 
         private void chickenCollision(Chicken c1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
@@ -90,7 +105,7 @@ public class CollisionController implements CollisionControllerInterface {
                     break;
                 case "slapSensor": handleChickenSlap(c1, fd1, bd2, fd2);
                     break;
-                case "trap": handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
+                case "trapSensor": handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
                     break;
             }
         }
@@ -129,10 +144,13 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
 
-        private void slapCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
+        private void slapCollision(Slap s1, Object fd1, Obstacle bd2, Object fd2){
         //TODO make slap class
             if(bd2.getName().equals("chicken")){
-                handleChickenSlap((Chicken)bd2, fd2, bd1, fd1);
+                handleChickenSlap((Chicken)bd2, fd2, s1, fd1);
+            }
+            if(fd2.toString().equals("trapActivationRadius")){
+                handleTrapSlap((Trap) bd2,fd2, s1, fd1);
             }
         }
 
@@ -153,6 +171,10 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleStoveChef(Stove stove, Chef chef){
         chef.setCanCook(true);
         stove.setLit(true);
+    }
+
+    private void handleTrapSlap(Trap t1, Object fd1, Slap s2, Object fd2){
+        t1.markActive(true);
     }
 
     /**
@@ -208,7 +230,9 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void handleChickenTrap(Chicken c1, Object fd1, Trap t2, Object fd2){
-        trapController.applyTrap(t2, c1);
+        if(trapController.applyTrap(t2, c1)){
+            //need to add new trap to trap creation queue
+        }
     }
 
     /**
@@ -323,7 +347,7 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void endChickenTrap(Chicken c1, Object fd1, Trap t2, Object fd2){
-        //trapController.applyTrap(t2, c1);
+        trapController.stopTrap(t2,c1);
     }
 
     private void endChickenChef(Chicken chicken, Object fd1, Chef chef, Object fd2){

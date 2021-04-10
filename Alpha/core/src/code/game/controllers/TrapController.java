@@ -18,8 +18,11 @@ public class TrapController implements TrapControllerInterface {
     /** trap to return if applyTrap is true */
     private Trap trapCache;
 
-    public TrapController(Vector2 scale, JsonValue cnst){
+    public TrapController(Vector2 scale){
         drawscale = scale;
+    }
+
+    public void setConstants (JsonValue cnst){
         constants = cnst;
     }
 
@@ -28,6 +31,7 @@ public class TrapController implements TrapControllerInterface {
      * This should be called on a contact starting between a trap and a chicken.
      * @param t the trap interacting with a chicken
      * @param c the chicken in question
+     * @return true if a new trap is being created
      */
     public boolean applyTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
@@ -35,22 +39,17 @@ public class TrapController implements TrapControllerInterface {
                 c.trapTarget(t);
                 break;
             case SLOW:
-                c.applySlow(t.getEffect());
-                decrementTrap(t);
+                c.inSlow(true);
                 break;
             case FIRE:
                 TextureRegion trapTexture = t.getTexture();
                 float twidth = trapTexture.getRegionWidth()/drawscale.x;
                 float theight = trapTexture.getRegionHeight()/drawscale.y;
-                trapCache = new Trap(constants.get("trap"), t.getX(), t.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE);
+                trapCache = new Trap(constants.get("trap"), t.getX(), t.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE, true);
                 trapCache.setDrawScale(drawscale);
                 trapCache.setTexture(trapTexture);
-                decrementTrap(t);
                 //We need to let GameController know that a trap needs to be created
                 return true;
-            case FIRE_LINGER:
-                c.applyFire(t.getEffect());
-                break;
         }
         trapCache = null;
         return false;
@@ -69,7 +68,7 @@ public class TrapController implements TrapControllerInterface {
                 c.resetTarget();
                 break;
             case SLOW:
-                c.removeSlow();
+                c.inSlow(false);
                 break;
             case FIRE :
                 break;
