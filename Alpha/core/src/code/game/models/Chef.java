@@ -58,7 +58,7 @@ public class Chef extends GameObject implements ChefInterface {
 	/** Is the player trying to set a trap*/
 	private boolean isTrap;
 	/** Can the player cook */
-	private boolean canCook;
+	private boolean isCooking;
 	/** Whether the player is invincible */
 	private boolean invincible;
 
@@ -76,7 +76,7 @@ public class Chef extends GameObject implements ChefInterface {
 	/** The font used to draw text on the screen*/
 	private static final BitmapFont font = new BitmapFont();
 	/** X offset for health display */
-	private final float X_HEALTH = 935;
+	private final float X_HEALTH = 1200;
 	/** Y offset for health display */
 	private final float Y_HEALTH = 450;
 	/** size of each heart */
@@ -86,7 +86,13 @@ public class Chef extends GameObject implements ChefInterface {
 	private float INVULN_TIME = 1;
 	//TODO: make final after technical
 	private float BASE_DAMAGE = 2;
+	/** How fast we change frames (one frame per 4 calls to update */
+	private static final float ANIMATION_SPEED = 0.25f;
+	/** The number of animation frames in our filmstrip */
+	private static final int NUM_ANIM_FRAMES = 8;
 
+	/** Current animation frame for this shell */
+	private float animeframe;
 	/** Counter for Invulnerability timer*/
 	private float invuln_counter = INVULN_TIME;
 	/** Cache for internal force calculations */
@@ -137,23 +143,24 @@ public class Chef extends GameObject implements ChefInterface {
 		trapCooldown = 0;
 		setName("chef");
 		isTrap = false;
-		canCook = false;
+		isCooking = false;
+		animeframe = 0.0f;
 	}
 
 	/**Sets the chef's cooking status
 	 * @param b the boolean, whether cooking is true or false*/
-	public void setCanCook(boolean b){
-		canCook = b;
+	public void setCooking(boolean b){
+		isCooking = b;
 	}
 
 	/**Returns whether the chef is cooking.
 	 * @return the cooking status of the chef. */
-	public boolean canCook(){
-		return canCook;
+	public boolean isCooking(){
+		return isCooking;
 	}
 
 	/**
-	 * Returns left/right movement of this character.
+	 * Returns left/right movement of this character. 0 if the chef is cooking
 	 *
 	 * This is the result of input times chef force.
 	 *
@@ -164,7 +171,7 @@ public class Chef extends GameObject implements ChefInterface {
 	}
 
 	/**
-	 * Returns up/down movement of this character.
+	 * Returns up/down movement of this character. 0 if the chef is cooking
 	 *
 	 * This is the result of input times chef force.
 	 *
@@ -236,9 +243,13 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void setTrap(boolean bln) { isTrap = bln; }
 
-	//TODO: comment
+	/**
+	 * Animates the texture (moves along the filmstrip)
+	 *
+	 * @param texture
+	 */
 	public void setTexture(Texture texture) {
-		animator = new FilmStrip(texture, 2, 5);
+		animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
 		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
 	}
 
@@ -258,7 +269,7 @@ public class Chef extends GameObject implements ChefInterface {
 	}
 
 	/**
-	 * Returns true if the character has recently taken damage and is not invulnerable
+	 * Returns true if the character has recently taken damage and is invulnerable
 	 *
 	 * @return true if the character is stunned, false otherwise
 	 */
@@ -373,7 +384,7 @@ public class Chef extends GameObject implements ChefInterface {
 		// Ground Sensor
 		// -------------
 		// Previously used to detect double-jumps, but also allows us to see hitboxes
-		Vector2 sensorCenter = new Vector2(0, -getHeight() / 2);
+		Vector2 sensorCenter = new Vector2(0, -getHeight()/4);
 		FixtureDef sensorDef = new FixtureDef();
 		sensorDef.density = data.getFloat("density",0);
 		sensorDef.isSensor = true;
@@ -435,13 +446,20 @@ public class Chef extends GameObject implements ChefInterface {
 	/**
 	 * Updates the object's game state (NOT GAME LOGIC).
 	 *
-	 * We use this method to reset cooldowns.
+	 * We use this method to reset cooldowns, and control animations
 	 *
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	@Override
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
+
+		if (getVertMovement() != 0 || getMovement() != 0) {
+			animeframe += ANIMATION_SPEED;
+			if (animeframe >= NUM_ANIM_FRAMES) {
+				animeframe -= NUM_ANIM_FRAMES;
+			}
+		}
 		if (isShooting()) {
 			shootCooldown = shotLimit;
 		} else {
@@ -461,8 +479,9 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
+		animator.setFrame((int)animeframe);
 		if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
-			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), effect / 10, 0.1f);
+			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
 		}
 
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);

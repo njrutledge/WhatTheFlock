@@ -10,7 +10,7 @@
         "enviro:trap:spot": "enviro/trapspot.png",
 
         "char:chicken": "characters/chicken.png",
-        "char:chef":"characters/chef.png",
+        "char:chef":"characters/chef_animation_run.png",
         "char:bullet": "characters/bullet.png",
         "char:nugget": "characters/nugget.png",
         "char:nuggetBar": "characters/nuggetBar.png",

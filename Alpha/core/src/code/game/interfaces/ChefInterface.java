@@ -6,11 +6,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public interface ChefInterface {
     /**Sets the chef's cooking status
      * @param b the boolean, whether cooking is true or false*/
-    void setCanCook(boolean b);
+    void setCooking(boolean b);
 
     /**Returns whether the chef is cooking.
      * @return the cooking status of the chef. */
-    boolean canCook();
+    boolean isCooking();
 
     /**
      * Returns left/right movement of this character.

@@ -109,7 +109,7 @@ public class TemperatureBar {
      * @param amt - the amount to decrease by
      */
     public void reduceTemp(int amt) {
-        temperature -= amt;
+        temperature -= Math.max(0,amt);
     }
 
     /**
@@ -129,9 +129,9 @@ public class TemperatureBar {
         //draw temperature
         float scale = 1.5f;
         //0.045 bottom, 0.965 top
-        canvas.draw(tempBackground, Color.WHITE, 960f, 250f,  tempBackground.getRegionWidth()/scale, tempBackground.getRegionHeight()/scale);
+        canvas.draw(tempBackground, Color.WHITE, 1220f, 250f,  tempBackground.getRegionWidth()/scale, tempBackground.getRegionHeight()/scale);
         canvas.draw(tempForeground, 0.045f+((temperature*0.92f)/maxTemperature), Color.WHITE,
-                tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale, 960f, 250f,
+                tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale, 1220f, 250f,
                 tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale);
         //tempBar.draw(canvas, temperature);
         //canvas.drawText("Temp: "+tempBar.getValue(), font, 500,565);

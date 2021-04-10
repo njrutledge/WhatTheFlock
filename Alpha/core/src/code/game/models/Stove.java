@@ -49,7 +49,7 @@ public class Stove extends GameObject implements StoveInterface {
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         sensorShape = new CircleShape();
-        sensorShape.setRadius(3f);
+        sensorShape.setRadius(1.6f);
         sensorDef.shape = sensorShape;
 
         // Ground sensor to represent our feet

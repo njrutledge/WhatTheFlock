@@ -13,7 +13,6 @@ package code.game.controllers;
 import code.assets.AssetDirectory;
 import code.audio.SoundBuffer;
 import code.game.models.*;
-import code.game.models.obstacle.BoxObstacle;
 import code.game.models.obstacle.Obstacle;
 import code.game.models.obstacle.PolygonObstacle;
 import code.game.views.GameCanvas;
@@ -27,14 +26,10 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
 import java.util.List;
-
-import static com.badlogic.gdx.net.HttpRequestBuilder.json;
 
 /**
  * Gameplay specific controller for the platformer game.  
@@ -558,7 +553,7 @@ public class GameController implements ContactListener, Screen {
 				case LEVEL_CHEF:
 					// Create chef
 					//TODO: FIX AFTER WE HAVE FILMSTRIP!
-					float cwidth  = 32/scale.x;
+					float cwidth  = 16/scale.x;
 					float cheight = 32/scale.y;
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
@@ -907,14 +902,16 @@ public class GameController implements ContactListener, Screen {
 
 		chef.applyForce();
 
+		// if the chef tries to perform an action, move or gets hit, stop cooking
+		if (chef.isCooking() && (InputController.getInstance().didMovementKey()|| InputController.getInstance().didSecondary()
+		|| chef.isStunned())){
+			chef.setCooking(false);
+		}
+
 		//update temperature
-		if (chef.canCook() && (chef.getMovement() == 0f
-						&& chef.getVertMovement() == 0f
-						&& !chef.isShooting())) {
-			//chef.cook(true);
+		if (chef.isCooking()) {
 			temp.cook(true);
 		}else {
-			//chef.cook(false);
 			temp.cook(false);
 		}
 
@@ -995,9 +992,7 @@ public class GameController implements ContactListener, Screen {
 	 */
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
-		if (temp.getTemperature() == 0){
-			return;
-		} else{
+		if (temp.getTemperature() > 0){
 			temp.reduceTemp(1);
 		}
 		/*
@@ -1092,7 +1087,7 @@ public class GameController implements ContactListener, Screen {
 
 
 	public float damageCalc(){
-		return chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
+		return (temp.getTemperature() <= 0) ? 0 : chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
 	}
 
 
