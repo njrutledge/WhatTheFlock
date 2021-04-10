@@ -76,7 +76,7 @@ public class Chef extends GameObject implements ChefInterface {
 	/** The font used to draw text on the screen*/
 	private static final BitmapFont font = new BitmapFont();
 	/** X offset for health display */
-	private final float X_HEALTH = 935;
+	private final float X_HEALTH = 1200;
 	/** Y offset for health display */
 	private final float Y_HEALTH = 450;
 	/** size of each heart */
