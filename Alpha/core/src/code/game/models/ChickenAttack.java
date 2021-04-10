@@ -53,8 +53,8 @@ public class ChickenAttack extends GameObject {
         this.type = type;
         this.chicken = chicken;
         this.target = new Vector2(chicken.getDestination());
-        setSensorName("chickenAttackSensor");
         setName("chickenAttack");
+        setSensorName("chickenAttackSensor");
         setDensity(0f);
         Filter filter;
         switch(type) {
@@ -102,7 +102,11 @@ public class ChickenAttack extends GameObject {
     public static float getHEIGHT() { return HEIGHT; }
 
     public void collideObject(Chicken chicken) {
-        if (type == AttackType.Charge && chicken != this.chicken) { collideObject(); }
+        if (type == AttackType.Charge && chicken != this.chicken) {
+            System.out.println("Chicken colliding with another chicken");
+
+            collideObject();
+        }
     }
 
     public void collideObject() {
@@ -117,7 +121,10 @@ public class ChickenAttack extends GameObject {
         age += dt;
         if (remove) { return true; }
         if (distance(getX(), getY(), destination.x, destination.y) < 0.5f && age > ATTACK_DUR) {
-            if (type == AttackType.Charge) { chicken.interruptAttack(); }
+            if (type == AttackType.Charge) {
+                //setLinearVelocity(destination.setZero());
+                remove = true;
+                chicken.interruptAttack(); }
             return true;
         }
         return false;

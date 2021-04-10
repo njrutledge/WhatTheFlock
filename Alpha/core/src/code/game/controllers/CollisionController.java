@@ -43,73 +43,123 @@ public class CollisionController implements CollisionControllerInterface {
         try {
             Obstacle bd1 = (Obstacle) body1.getUserData();
             Obstacle bd2 = (Obstacle) body2.getUserData();
+            handleCollision(bd1, fd1, bd2, fd2);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
 
-            if(fd1 != null && fd2 != null) {
-                handleCollision(bd1, fd1, bd2, fd2);
+    }
+
+    private void handleCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
+        if ((bd1.getName().contains("platform") || bd1.getName().contains("wall"))) {
+            if (fd2 != null && fd2.toString().equals("chickenAttackSensor")) {
+                System.out.println("Attack colliding with wall");
+                ((ChickenAttack)bd2).collideObject();
             }
-
-            } catch(Exception e){
-                e.printStackTrace();
+        }
+        else if ((bd2.getName().contains("platform") || bd2.getName().contains("wall"))){
+            if (fd1 != null && fd1.toString().equals("chickenAttackSensor")) {
+                System.out.println("Attack colliding with wall");
+                ((ChickenAttack)bd1).collideObject();
+            }
+        }
+        if (fd1 != null && fd2 != null) {
+            switch (fd1.toString()) {
+                case "chickenSensor":
+                    chickenCollision((Chicken) bd1, fd1, bd2, fd2);
+                    break;
+                case "chickenHitbox":
+                    chickenHitboxCollision((Chicken) bd1, fd1, bd2, fd2);
+                    break;
+                case "chickenAttackSensor":
+                    chickenAttackCollision((ChickenAttack) bd1, fd1, bd2, fd2);
+                    break;
+                case "chefSensor":
+                    chefCollision((Chef) bd1, fd1, bd2, fd2);
+                    break;
+                case "cookRadius":
+                    stoveCollision((Stove) bd1, fd1, bd2, fd2);
+                    break;
+                case "slapSensor":
+                    slapCollision(bd1, fd1, bd2, fd2);
+                    break;
+                case "trap":
+                    trapCollision((Trap) bd1, fd1, bd2, fd2);
+                    break;
             }
         }
 
-        private void handleCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
-            if ((bd1.getName().contains("platform") || bd1.getName().contains("wall"))) {
-                if (fd2 != null && fd2.toString().equals("chickenAttackSensor")) {
-                    ((ChickenAttack)bd2).collideObject();
-                }
-            }
-            else if ((bd2.getName().contains("platform") || bd2.getName().contains("wall"))){
-                if (fd1 != null && fd1.toString().equals("chickenAttackSensor")) {
-                    ((ChickenAttack)bd1).collideObject();
-                }
-            }
-        switch (fd1.toString()) {
-            case "chickenSensor":
-                chickenCollision((Chicken) bd1, fd1, bd2, fd2);
-                break;
-            case "chickenAttackSensor":
-                chickenAttackCollision((ChickenAttack) bd1, fd1, bd2, fd2);
-                break;
-            case "chefSensor":
-                chefCollision((Chef) bd1, fd1, bd2, fd2);
-                break;
-            case "cookRadius":
-                stoveCollision((Stove) bd1, fd1, bd2, fd2);
-                break;
-            case "slapSensor":
-                slapCollision(bd1, fd1, bd2, fd2);
-                break;
-            case "trap":
-                trapCollision((Trap) bd1, fd1, bd2, fd2);
-                break;
-            }
-
         }
 
+        /** This method handles collision with a chicken's sensor
+         *
+         * The chicken should produce a response when a relevant target comes into
+         * their attack range.
+         *
+         * @param c1
+         * @param fd1
+         * @param bd2
+         * @param fd2
+         * */
         private void chickenCollision(Chicken c1, Object fd1, Obstacle bd2, Object fd2){
             switch(fd2.toString()){
                 case "stove":
-                    break;
                 case "chicken":
                     break;
-                case "chickenAttackSensor": handleChickenChickenAttack(c1, fd1, (ChickenAttack) bd2, fd2);
+                case "chickenAttackSensor": // handleChickenChickenAttack(c1, fd1, (ChickenAttack) bd2, fd2);
                     break;
                 case "chefSensor": handleChefChicken((Chef)bd2, fd2, c1, fd1);
                     break;
-                case "slapSensor": handleChickenSlap(c1, fd1, bd2, fd2);
+                case "slapSensor":
                     break;
-                case "trap": handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
+                case "trap": // handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
                     break;
             }
         }
 
+    /** This method handles collisions with a chicken's hitbox.
+     *
+     * The chicken should take damage or have status effects applied if their hitbox
+     * has been hit by the chef or a trap.
+     *
+     * @param c1
+     * @param fd1
+     * @param bd2
+     * @param fd2
+     */
+    private void chickenHitboxCollision(Chicken c1, Object fd1, Obstacle bd2, Object fd2){
+        switch(fd2.toString()){
+            case "stove":
+            case "chicken":
+            case "chefSensor":
+                break;
+            case "chickenAttackSensor": handleChickenChickenAttack(c1, fd1, (ChickenAttack) bd2, fd2);
+                break;
+            case "slapSensor": handleChickenSlap(c1, fd1, bd2, fd2);
+                break;
+            case "trap": handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
+                break;
+        }
+    }
+
+    /** This method handles collisions with a chicken's attack.
+     *
+     * If a chef collides with a chicken's attack, the chef should take damage.
+     * If the chicken attack is a buffalo's attack, colliding with anything should
+     * cause the buffalo to stop.
+     *
+     * @param c1
+     * @param fd1
+     * @param bd2
+     * @param fd2
+     */
     private void chickenAttackCollision(ChickenAttack c1, Object fd1, Obstacle bd2, Object fd2){
         switch(fd2.toString()){
             case "stove":
             case "slapSensor": handleObstacleChickenAttack(bd2, fd2, c1, fd1);
                 break;
-            case "chicken": handleChickenChickenAttack((Chicken) bd2, fd2, c1, fd1);
+            case "chickenHitbox": handleChickenChickenAttack((Chicken) bd2, fd2, c1, fd1);
                 break;
             case "chefSensor": handleChefChickenAttack((Chef)bd2, fd2, c1, fd1);
                 break;
@@ -146,7 +196,7 @@ public class CollisionController implements CollisionControllerInterface {
                 case "chefSensor":
                     handleStoveChef(s1, (Chef)bd2);
                     break;
-                case "chickenAttackSensor":
+                case "chickenAttack":
                     handleObstacleChickenAttack(s1, fd1, (ChickenAttack) bd2, fd2);
                 break;
             }
@@ -175,6 +225,7 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chef      a chef
      */
     private void handleStoveChef(Stove stove, Chef chef){
+        System.out.println("Cooking");
         chef.setCooking(true);
         chef.setMovement(0);
         chef.setVertMovement(0);
@@ -219,6 +270,7 @@ public class CollisionController implements CollisionControllerInterface {
      * Handles an interaction between a non-chef obstacle and a chicken attack
      */
     private void handleObstacleChickenAttack(Obstacle obstacle, Object fd1, ChickenAttack attack, Object fd2){
+        System.out.println("Chicken attack colliding with obstacle " + fd1.toString());
         attack.collideObject();
     }
 
@@ -272,6 +324,12 @@ public class CollisionController implements CollisionControllerInterface {
 
         Obstacle bd1 = (Obstacle) body1.getUserData();
         Obstacle bd2 = (Obstacle) body2.getUserData();
+        if (bd1.getName() != "wall" && bd2.getName() != "wall") {
+            if (bd1.getName() != "trap" && bd2.getName() != "trap") {
+                System.out.print(bd1.getName() + "'s " + (fd1 != null ? fd1.toString() : ""));
+                System.out.println(" ending contact with " + bd2.getName() + "'s " + (fd2 != null ? fd2.toString() : ""));
+            }
+        }
 
         if(bd1.getName().equals("chef") || bd2.getName().equals("chef")){
             Chef chef = (Chef)(bd1.getName().equals("chef") ? bd1 : bd2);
@@ -281,7 +339,7 @@ public class CollisionController implements CollisionControllerInterface {
             }
         }
 
-        switch (bd1.getName()) {
+/*        switch (bd1.getName()) {
             case "chicken":
                 endChickenCollision((Chicken) bd1, fd1, bd2, fd2);
                 break;
@@ -300,11 +358,19 @@ public class CollisionController implements CollisionControllerInterface {
             case "trap":
                 endTrapCollision((Trap) bd1, fd1, bd2, fd2);
                 break;
+        }*/
+        if (fd1 != null && fd2 != null) {
+            switch (fd1.toString()) {
+                case "chickenSensor": endChickenSensorCollision((Chicken)bd1, fd1, bd2, fd2); break;
+                case "chefSensor": endChefSensorCollision((Chef)bd1, fd1, bd2, fd2); break;
+                case "cookRadius": endStoveSensorCollision((Stove)bd1, fd1, bd2, fd2); break;
+                case "default": break;
+            }
         }
     }
 
-    private void endChickenCollision(Chicken c1, Object fd1, Obstacle bd2, Object fd2){
-        switch(bd2.getName()){
+    private void endChickenSensorCollision(Chicken c1, Object fd1, Obstacle bd2, Object fd2){
+/*        switch(bd2.getName()){
             case "stove":
             case "chicken":
             case "chickenAttackSensor":
@@ -314,21 +380,15 @@ public class CollisionController implements CollisionControllerInterface {
                 break;
             case "trap": endChickenTrap(c1, fd1, (Trap)bd2, fd2);
                 break;
+        }*/
+        switch(fd2.toString()) {
+            case "chefSensor": endChickenChef(c1, fd1, (Chef)bd2, fd2);
+            case "default": break;
         }
     }
 
-    private void endChickenAttackCollision(ChickenAttack c1, Object fd1, Obstacle bd2, Object fd2){
-        switch(bd2.getName()){
-            case "stove":
-            case "chicken":
-            case "bullet":
-            case "trap":
-                break;
-        }
-    }
-
-    private void endChefCollision(Chef chef, Object fd1, Obstacle bd2, Object fd2){
-        switch(bd2.getName()){
+    private void endChefSensorCollision(Chef chef, Object fd1, Obstacle bd2, Object fd2){
+/*        switch(bd2.getName()){
             case "stove": endStoveChef((Stove) bd2, fd2, chef, fd1);
                 break;
             case "chicken": endChickenChef((Chicken)bd2, fd2, chef, fd1);
@@ -338,11 +398,16 @@ public class CollisionController implements CollisionControllerInterface {
             case "bullet":
             case "trap":
                 break;
+        }*/
+        switch (fd2.toString()) {
+            case "chickenSensor": endChickenChef((Chicken)bd2, fd2, chef, fd1); break;
+            case "cookRadius": endStoveChef((Stove)bd2, fd2, chef, fd1); break;
+            case "default": break;
         }
     }
 
-    private void endStoveCollision(Stove s1, Object fd1, Obstacle bd2, Object fd2){
-        switch(bd2.getName()){
+    private void endStoveSensorCollision(Stove s1, Object fd1, Obstacle bd2, Object fd2){
+/*        switch(bd2.getName()){
             case "stove":
             case "chicken":
             case "chickenAttackSensor":
@@ -351,6 +416,10 @@ public class CollisionController implements CollisionControllerInterface {
                 break;
             case "chef": endStoveChef(s1, fd1, (Chef)bd2, fd2);
                 break;
+        }*/
+        switch(fd2.toString()) {
+            case "chefSensor": endStoveChef(s1, fd1, (Chef)bd2, fd2); break;
+            case "default": break;
         }
     }
 

@@ -561,7 +561,7 @@ public class GameController implements ContactListener, Screen {
 				case LEVEL_CHEF:
 					// Create chef
 					//TODO: FIX AFTER WE HAVE FILMSTRIP!
-					float cwidth  = 32/scale.x;
+					float cwidth  = 16/scale.x;
 					float cheight = 32/scale.y;
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
@@ -1014,14 +1014,6 @@ public class GameController implements ContactListener, Screen {
 			enemy.setBarTexture(enemyHealthBarTexture);
 			addObject(enemy);
 			ai.put(enemy, new AIController(enemy, chef, grid));
-
-/*			enemy2 = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef,parameterList[1]);
-			enemy2.setDrawScale(scale);
-			enemy2.setTexture(nuggetTexture);
-			enemy2.setBarTexture(enemyHealthBarTexture);
-			addObject(enemy2);
-			ai.put(enemy2, new AIController(enemy2, chef, grid));*/
-			//chickens ++;
 		}
 	}
 

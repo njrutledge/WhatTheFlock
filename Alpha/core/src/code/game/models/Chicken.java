@@ -81,6 +81,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected boolean makeAttack = false;
     /** Whether or not the chicken's sensor is touching its target */
     private boolean touching = false;
+    /** Whether the chicken should stop their attack after running */
+    private boolean stopThisAttack = false;
 
     /** The type of attack that needs to be made */
     protected ChickenAttack.AttackType attackType;
@@ -332,18 +334,43 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     //TODO: comment
     public void startAttack() {
-        destination = new Vector2(target.getPosition());
-        touching = true;
-        attack_timer = 0f;
-        charge_time = 0f;
+        if (!isRunning()) {
+            hitboxOut = false;
+            destination = new Vector2(target.getPosition());
+            touching = true;
+            attack_timer = 0f;
+            charge_time = 0f;
+        } else { stopThisAttack = false; }
     }
 
     //TODO: comment
     public void stopAttack(boolean touching) {
-        attack_timer = -1f;
-        charge_time = -1f;
-        hitboxOut = false;
-        this.touching = touching;
+        if (!isRunning()) {
+            attack_timer = -1f;
+            charge_time = -1f;
+            hitboxOut = false;
+            this.touching = touching;
+        } else { stopThisAttack = true; }
+    }
+
+    /** Returns whether or not the chicken should stop their current attack.
+     *
+     * This is only applicable to buffalo chickens. When the chef moves out
+     * of range, a running buffalo should not stop running to chase the chef.
+     * Instead, they should finish their run, and then stop their attack.
+     *
+     * This function will only return true after the buffalo has finished their
+     * current run.
+     *
+     * @return stopThisAttack
+     */
+    public boolean stopThisAttack() {
+        if (stopThisAttack && !isRunning()) {
+            stopThisAttack = false;
+            stopAttack(false);
+            return true;
+        }
+        return false;
     }
 
     /** Interrupts the current attack if running */

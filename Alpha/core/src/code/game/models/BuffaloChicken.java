@@ -51,6 +51,7 @@ public class BuffaloChicken extends Chicken {
                 setAttackType(ChickenAttack.AttackType.Charge);
                 // No sounds for buffalo yet
                 //soundCheck = true;
+                System.out.println("Make new attack");
                 makeAttack = true;
             }
             hitboxOut = true;

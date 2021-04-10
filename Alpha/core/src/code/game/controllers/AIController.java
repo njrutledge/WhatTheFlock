@@ -104,6 +104,7 @@ public class AIController {
     /** The tile that is the child of move_tile */
     protected Grid.Tile child_tile;
 
+    int iter = 0;
     /** Vector2 used for calculations to avoid making Vector2's every frame */
     private Vector2 temp = new Vector2();
 
@@ -160,7 +161,6 @@ public class AIController {
                 }
             case STOP:
                 if (stop_counter >= STOP_DUR) {
-                    System.out.println("Resuming");
                     if (chicken.isTouching()) { state = FSM.ATTACK; chicken.startAttack(); }
                     else { state = FSM.CHASE; }
                 }
@@ -168,8 +168,10 @@ public class AIController {
                 if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
                 }
-                else if (!chicken.isAttacking() && !chicken.isTouching()) {
-                    System.out.println("Chasing now");
+/*                else if (!chicken.isAttacking() && !chicken.isTouching()) {
+                    state = FSM.CHASE;
+                }*/
+                else if (chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching()) {
                     state = FSM.CHASE;
                 }
                 break;
@@ -183,17 +185,16 @@ public class AIController {
      * @param dt    the number of seconds since the last animiation frame
      * */
     public void update(float dt){
+        iter++;
         if (chicken.isStopped()) { stop_counter = 0; }
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_DUR);
         changeState();
+        state = FSM.STOP;
         setForceCache();
-
         if (state == FSM.ATTACK && target.isActive()) {
             chicken.attack(dt);
         }
-        setForceCache();
-        changeState();
     }
 
     /**
