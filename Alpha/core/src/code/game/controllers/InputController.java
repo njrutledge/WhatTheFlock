@@ -68,6 +68,9 @@ public class InputController {
 	private boolean secondPrevious;
 	/** Whether the teritiary action button was pressed. */
 	private boolean tertiaryPressed;
+	/** Whether a movement key was pressed*/
+	private boolean movementPressed;
+	private boolean movementPrevious;
 	/** Whether the trap placement button ws pressed */
 	private boolean trapPressed;
 	private boolean trapPrevious;
@@ -100,7 +103,10 @@ public class InputController {
 	private boolean paraIncPrevious;
 	private boolean paraDecPressed;
 	private boolean paraDecPrevious;
-	
+	/** Whether grid was toggled */
+	private boolean gridToggled;
+	private boolean gridPrevious;
+
 	/** How much did we move horizontally? */
 	private float horizontal;
 	/** How much did we move vertically? */
@@ -187,6 +193,14 @@ public class InputController {
 	}
 
 	/**
+	 * Returns true if a movement key was pressed
+	 *
+	 *
+	 * @return true if a movement button was pressed.
+	 */
+	public boolean didMovementKey() { return movementPressed && !movementPrevious; }
+
+	/**
 	 * Returns true if the tertiary action button was pressed.
 	 *
 	 * This is a sustained button. It will returns true as long as the player
@@ -269,6 +283,15 @@ public class InputController {
 	 * 	@return true if the parameter decreased button was pressed
 	 */
 	public boolean didParameterDecreased() {return paraDecPressed && !paraDecPrevious; }
+
+	/**
+	 * Returns true if the parameter decreased button is pressed.
+	 * This is a one-press button. It only returns true at the moment it was
+	 * pressed, and returns false at any frame afterwards.
+	 *
+	 * 	@return true if the parameter decreased button was pressed
+	 */
+	public boolean didGridToggle() { return gridToggled && !gridPrevious; }
 
 	/**
 	 * Returns true if the reset button was pressed.
@@ -361,6 +384,8 @@ public class InputController {
 		paraDecPrevious = paraDecPressed;
 		mutePrevious = mutePressed;
 		pausePrevious = pausePressed;
+		gridPrevious = gridToggled;
+		movementPrevious = movementPressed;
 		
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -428,6 +453,8 @@ public class InputController {
 						(Gdx.input.isKeyPressed(Input.Keys.DOWN));
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
 		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
+		movementPressed = ((Gdx.input.isKeyPressed(Input.Keys.W)) || (Gdx.input.isKeyPressed(Input.Keys.A)) ||
+				(Gdx.input.isKeyPressed(Input.Keys.S)) || (Gdx.input.isKeyPressed(Input.Keys.D)));
 		trapPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
 		trapRotateLeftPressed = (Gdx.input.isKeyPressed(Input.Keys.Q));
 		trapRotateRightPressed = (Gdx.input.isKeyPressed(Input.Keys.E));
@@ -436,6 +463,7 @@ public class InputController {
 		paraIncPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		mutePressed = (Gdx.input.isKeyPressed(Input.Keys.M));
 		pausePressed = (Gdx.input.isKeyPressed(Input.Keys.TAB));
+		gridToggled = (Gdx.input.isKeyPressed(Input.Keys.G));
 		
 		// Directional controls
 		if (horizontal > 0 && Gdx.input.isKeyPressed(Input.Keys.D)){

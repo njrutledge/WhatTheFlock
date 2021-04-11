@@ -907,7 +907,7 @@ public abstract class Obstacle {
      * @param  value    the physics object tag
      */
     public void setName(String value) {
-     	nametag = value; 
+     	nametag = value;
 	}
 	
 	/**

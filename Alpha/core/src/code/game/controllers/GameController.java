@@ -13,12 +13,12 @@ package code.game.controllers;
 import code.assets.AssetDirectory;
 import code.audio.SoundBuffer;
 import code.game.models.*;
-import code.game.models.obstacle.BoxObstacle;
 import code.game.models.obstacle.Obstacle;
 import code.game.models.obstacle.PolygonObstacle;
 import code.game.views.GameCanvas;
 import code.util.PooledList;
 import code.util.ScreenListener;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
@@ -26,8 +26,11 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
+import java.util.List;
+
 /**
  * Gameplay specific controller for the platformer game.  
  *
@@ -42,6 +45,10 @@ public class GameController implements ContactListener, Screen {
 	////////////// This file puts together a lot of data, be sure that you do not modify something without knowing fully
 	////////////// its purpose or you may break someone else's work, further comments are below ////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
+	private final String DEFAULT_LEVEL = "level02";
+
 
 	/** The texture for walls and platforms */
 	protected TextureRegion earthTile;
@@ -131,11 +138,26 @@ public class GameController implements ContactListener, Screen {
 	public static final int HARD = 2;
 
 	/** Width of the game world in Box2d units */
-	protected static final float DEFAULT_WIDTH  = 32.0f;
+	protected static final float DEFAULT_WIDTH  = 48.0f;
 	/** Height of the game world in Box2d units */
-	protected static final float DEFAULT_HEIGHT = 18.0f;
+	protected static final float DEFAULT_HEIGHT = 27.0f;
 	/** The default value of gravity (going down) */
 	protected static final float DEFAULT_GRAVITY = -4.9f;
+
+	/** Name of wall in level files */
+	protected static final String LEVEL_WALL = "wall";
+	/** Name of spawnpoint in level files */
+	protected static final String LEVEL_SPAWN = "spawn";
+	/** Name of stove in level files */
+	protected static final String LEVEL_STOVE = "stove";
+	/** Name of slow trap in level files */
+	protected static final String LEVEL_SLOW = "slow";
+	/** Name of lure trap in level files */
+	protected static final String LEVEL_LURE = "lure";
+	/** Name of fire trap in level files */
+	protected static final String LEVEL_FIRE = "fire";
+	/** Name of chef in level files */
+	protected static final String LEVEL_CHEF = "chef";
 
 	///** Whether or not the player is cooking, true is they are and false otherwise*/
 	//private boolean cooking;
@@ -145,31 +167,27 @@ public class GameController implements ContactListener, Screen {
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
+	/** Holds all level file locations for the game */
+	private JsonValue levels;
 	/** Reference to the character chef */
 	private Chef chef;
+	/** array of chicken spawn points */
+	private List<PolygonObstacle> spawnPoints = new ArrayList<PolygonObstacle>();
 	/** Reference to the temperature*/
 	private TemperatureBar temp;
 	///** Reference to the goalDoor (for collision detection) */
 	//private BoxObstacle goalDoor;
-	/** The minimum x position of a spawned chicken*/
-	private static float spawn_xmin;
-	/** The maximum x position of a spawned chicken*/
-	private static float spawn_xmax;
-	/** The minimum y position of a spawned chicken*/
-	private static float spawn_ymin;
-	/** The maximum y position of a spawned chicken */
-	private static float spawn_ymax;
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
-	/** Reference to the stove object */
-	private Stove stove;
+//	/** Reference to the stove object */
+//	private Stove stove;
 
 	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.LURE;
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3, 5, 2, 100, 2, 6, 30, 10, 5, 5, 5, 5, 0};
+	private int[] parameterList = {3, 100, 2, 100, 2, 6, 30, 10, 5, 5, 5, 5, 0};
 	//TODO MAKE CONSTANT
 
 
@@ -188,6 +206,8 @@ public class GameController implements ContactListener, Screen {
 	protected Rectangle bounds;
 	/** The world scale */
 	protected Vector2 scale;
+	/** The grid */
+	protected Grid grid;
 
 	/** Whether or not this is an active controller */
 	private boolean active;
@@ -197,6 +217,8 @@ public class GameController implements ContactListener, Screen {
 	private boolean failed;
 	/** Whether or not debug mode is active */
 	private boolean debug;
+	/** Whether or not the grid should be displayed */
+	private boolean grid_toggle;
 	/** Countdown active for winning or losing */
 	private int countdown;
 
@@ -255,7 +277,7 @@ public class GameController implements ContactListener, Screen {
 		sensorFixtures = new ObjectSet<Fixture>();
 		//trapController = new TrapController(scale, constants);
 		//collisionController = new CollisionController(trapController);
-		collisionController = new CollisionController(scale, constants);
+		collisionController = new CollisionController(scale);
 		//chickens = 0;
 		//cooking = false;
 	}
@@ -334,6 +356,8 @@ public class GameController implements ContactListener, Screen {
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
+		collisionController.setConstants(constants);
+		levels = directory.getEntry("levels", JsonValue.class );
 	}
 
 	
@@ -360,17 +384,17 @@ public class GameController implements ContactListener, Screen {
 		populateLevel();
 	}
 	public void initEasy(){
-		parameterList = new int []{5, 5, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
+		parameterList = new int []{5, 100, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
 		cooldown = false;
 	}
 
 	public void initMed(){
-		parameterList = new int []{4, 5, 2, 100, 3, 6, 30, 10, 5, 5, 4, 5, 0};
+		parameterList = new int []{4, 100, 2, 100, 3, 6, 30, 10, 5, 5, 4, 5, 0};
 		cooldown = false;
 	}
 
 	public void initHard(){
-		parameterList = new int []{3, 5, 2, 100, 4, 6, 30, 10, 5, 5, 5, 5, 0};
+		parameterList = new int []{3, 100, 2, 100, 4, 6, 30, 10, 5, 5, 5, 5, 0};
 		cooldown = true;
 	}
 
@@ -378,9 +402,26 @@ public class GameController implements ContactListener, Screen {
 	 * Lays out the game geography.
 	 */
 	private void populateLevel() {
-		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)
+		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
+		grid.clearObstacles();
+		world.setGravity( new Vector2(0,0) );
+		volume = constants.getFloat("volume", 1.0f);
+		temp = new TemperatureBar(tempBackground, tempForeground,30);
+		temp.setUseCooldown(cooldown);
 
-		String wname = "wall";
+		JsonReader json = new JsonReader();
+		try{
+			JsonValue level = json.parse(Gdx.files.internal(levels.getString(DEFAULT_LEVEL)));
+			doNewPopulate(level);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
+		//add chef here!
+		addObject(chef);
+		//set the chef in the collision controller now that it exists
+		collisionController.setChef(chef);
+		/*String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 		JsonValue defaults = constants.get("defaults");
 		for (int ii = 0; ii < walljv.size; ii++) {
@@ -430,10 +471,9 @@ public class GameController implements ContactListener, Screen {
 			addObject(obj);
 		}
 
-	    // This world is heavier
-		world.setGravity( new Vector2(0,0) );
 
 		// Add stove
+		Stove stove;
 		float swidth = stoveTexture.getRegionWidth()/scale.x;
 		float sheight = stoveTexture.getRegionHeight()/scale.y;
 		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
@@ -441,39 +481,110 @@ public class GameController implements ContactListener, Screen {
 		stove.setTexture(stoveTexture);
 		addObject(stove);
 
-		volume = constants.getFloat("volume", 1.0f);
 
-		// Create dude
+		// Create chef
 		//TODO: FIX AFTER WE HAVE FILMSTRIP!
-		float dwidth  = 32/scale.x;
-		float dheight = 32/scale.y;
-		chef = new Chef(constants.get("chef"), dwidth, dheight, parameterList[0]);
+
+		float cwidth  = 32/scale.x;
+		float cheight = 32/scale.y;
+		chef = new Chef(constants.get("chef"), constants.get("chef").get("pos").getFloat(0), constants.get("chef").get("pos").getFloat(1), cwidth, cheight, parameterList[0], parameterList[12]);
 		chef.setDrawScale(scale);
 		chef.setTexture(chefTexture);
 		chef.setHealthTexture(healthTexture);
 		chef.setNoHealthTexture(noHealthTexture);
 		chef.setName("chef");
 
+
+
+
 		//Set temperature based on difficulty of the level
-		temp = new TemperatureBar(tempBackground, tempForeground,30);
-		temp.setUseCooldown(cooldown);
+
 
 		//chef.setMaxTemp(30);
-
-		addObject(chef);
 
 		// Create some chickens
 		spawn_xmin = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[0];
 		spawn_xmax = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[1];
 		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
+		*/
 		for (int i = 0; i < parameterList[4]; i++){
-			spawnChicken();
+			spawnChicken(Chicken.Type.Nugget);
 		}
 
 		// Get initial values for parameters in the list
 		//parameterList[0] = chef.getMaxHealth();
 
+
+	}
+
+
+	public void doNewPopulate(JsonValue level){
+		String[] stuff = level.get("items").asStringArray();
+		JsonValue defaults = constants.get("defaults");
+		for(int ii = 0; ii < stuff.length; ii++){
+			int x = ii % grid.getColCount();
+			int y = (stuff.length - 1 - ii) / grid.getColCount();
+			switch(stuff[ii]){
+				case LEVEL_WALL:
+					//add wall
+					PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
+					obj.setBodyType(BodyDef.BodyType.StaticBody);
+					obj.setDensity(defaults.getFloat( "density", 0.0f ));
+					obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+					obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+					obj.setDrawScale(scale);
+					obj.setTexture(earthTile);
+					obj.setName(LEVEL_WALL);//+ii); If we need to specify name further, its here
+					addObject(obj);
+
+					grid.setObstacle(x,y);
+					break;
+				case LEVEL_STOVE:
+					// Add stove
+					float swidth = stoveTexture.getRegionWidth()/scale.x;
+					float sheight = stoveTexture.getRegionHeight()/scale.y;
+					Stove stove = new Stove(constants.get(LEVEL_STOVE),x,y,swidth,sheight);
+					stove.setDrawScale(scale);
+					stove.setTexture(stoveTexture);
+					addObject(stove);
+					grid.setObstacle(x,y);
+					grid.setObstacle(x-1,y);
+					grid.setObstacle(x,y-1);
+					grid.setObstacle(x-1,y-1);
+					break;
+				case LEVEL_CHEF:
+					// Create chef
+					//TODO: FIX AFTER WE HAVE FILMSTRIP!
+					float cwidth  = 16/scale.x;
+					float cheight = 32/scale.y;
+					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
+					chef.setDrawScale(scale);
+					chef.setTexture(chefTexture);
+					chef.setHealthTexture(healthTexture);
+					chef.setNoHealthTexture(noHealthTexture);
+					//don't add chef here! add it later so its on top easier
+					break;
+				case LEVEL_SPAWN:
+					PolygonObstacle spawn = new PolygonObstacle(new float[] {0, 0, 1, 0, 1, 1, 0, 1},x, y);
+					spawn.setSensor(true);
+					spawn.setDrawScale(scale);
+					//spawn.setTexture(trapSpotTexture);
+					spawn.setName(LEVEL_SPAWN);
+					addObject(spawn);
+					spawnPoints.add(spawn);
+					break;
+				case LEVEL_SLOW:
+					trapHelper(x, y, Trap.type.SLOW, true);
+					break;
+				case LEVEL_LURE:
+					trapHelper(x, y, Trap.type.LURE, true);
+					break;
+				case LEVEL_FIRE:
+					trapHelper(x, y, Trap.type.FAULTY_OVEN, true);
+					break;
+			}
+		}
 
 	}
 
@@ -625,8 +736,10 @@ public class GameController implements ContactListener, Screen {
 		if (InputController.getInstance().didPause()){
 			paused = !paused;
 		}
-		for (AIController enemyAI: ai.values()){
-			enemyAI.update(dt);
+		for (Chicken chick: ai.keySet()){
+			if(chick.isActive()){
+				ai.get(chick).update(dt);
+			}
 		}
 		return !paused;
 	}
@@ -651,6 +764,10 @@ public class GameController implements ContactListener, Screen {
 		// Toggle debug
 		if (input.didDebug()) {
 			debug = !debug;
+		}
+		// Toggle grid
+		if (input.didGridToggle()) {
+			grid_toggle = !grid_toggle;
 		}
 
 		// Handle resets
@@ -741,13 +858,20 @@ public class GameController implements ContactListener, Screen {
 		if (InputController.getInstance().didParameterIncreased()){
 			if (parameterSelected == 12) {
 				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+1, 1);
-			} else {
+			} else if (parameterSelected == 1) {
+				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+20, 100);
+			}
+			else {
 				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] + 1);
 			}
 		}
 		// Decrease the current parameter
 		if (InputController.getInstance().didParameterDecreased()){
-			parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected]-1);
+			if (parameterSelected == 1) {
+				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 20);
+			} else {
+				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 1);
+			}
 		}
 
 		
@@ -763,7 +887,7 @@ public class GameController implements ContactListener, Screen {
 
 		//random chance of spawning a chicken
 		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			spawnChicken();
+			spawnChicken(Chicken.Type.Nugget);
 		}
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
@@ -781,14 +905,16 @@ public class GameController implements ContactListener, Screen {
 
 		chef.applyForce();
 
+		// if the chef tries to perform an action, move or gets hit, stop cooking
+		if (chef.isCooking() && (InputController.getInstance().didMovementKey()|| InputController.getInstance().didSecondary()
+		|| chef.isStunned())){
+			chef.setCooking(false);
+		}
+
 		//update temperature
-		if (chef.canCook() && (chef.getMovement() == 0f
-						&& chef.getVertMovement() == 0f
-						&& !chef.isShooting())) {
-			//chef.cook(true);
+		if (chef.isCooking()) {
 			temp.cook(true);
 		}else {
-			//chef.cook(false);
 			temp.cook(false);
 		}
 
@@ -805,6 +931,7 @@ public class GameController implements ContactListener, Screen {
 	private void removeChicken(Obstacle chicken){
 		if(!chicken.isRemoved()) {
 			chicken.markRemoved(true);
+			ai.remove(chicken);
 		}
 	}
 
@@ -822,14 +949,18 @@ public class GameController implements ContactListener, Screen {
 	/**
 	 * Spawn a chicken somewhere in the world, then increments the number of chickens
 	 */
-	private void spawnChicken(){
+	private void spawnChicken(Chicken.Type type){
 		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
 		float dheight = chickenTexture.getRegionHeight()/scale.y;
-		float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
-		float y = ((float)Math.random() * (spawn_ymax - spawn_ymin) + spawn_ymin);
+		int index = (int) (Math.random() * spawnPoints.size());
+		PolygonObstacle spawn = spawnPoints.get(index);
+		//float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
+		//float y = ((float)Math.random() * (spawn_ymax - spawn_ymin) + spawn_ymin);
 		float rand = (float)Math.random();
+		float x = spawn.getX();
+		float y = spawn.getY();
 		// Spawn chicken at the border of the world
-		if (rand < 0.25){
+		/*if (rand < 0.25){
 			x = spawn_xmin;
 		}
 		else if (rand < 0.5){
@@ -840,15 +971,21 @@ public class GameController implements ContactListener, Screen {
 		}
 		else{
 			y = spawn_ymax;
-		}
+		}*/
 
 		Chicken enemy;
-		enemy = new Chicken(constants.get("chicken"), x, y, dwidth, dheight, chef, parameterList[1]);
+		if (type == Chicken.Type.Nugget) {
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"),x, y, dwidth, dheight, chef, parameterList[1]);
+		} else {
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"),x, y, dwidth, dheight, chef, parameterList[1]);
+
+		}
+
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy);
-		ai.put(enemy, new AIController(enemy, chef));
+		ai.put(enemy, new AIController(enemy, chef, grid));
 		//chickens ++;
 	}
 
@@ -858,12 +995,10 @@ public class GameController implements ContactListener, Screen {
 	 */
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
-		if (temp.getTemperature() == 0){
-			return;
-		} else{
+		if (temp.getTemperature() > 0){
 			temp.reduceTemp(1);
 		}
-
+		/*
 		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
 		float offset = 1f;
 		float angvel = 6f;
@@ -898,7 +1033,17 @@ public class GameController implements ContactListener, Screen {
 	    slap.setFilterData(bulletFilter);
 	    slap.setBullet(true);
 	    slap.setGravityScale(0);
-		
+		*/
+
+		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
+		Slap slap;
+		if(direction == 2 || direction == 4) {
+			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), radius, 0.1f, direction);
+		}else {
+			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), 0.1f, radius, direction);
+		}
+		slap.setTexture(bulletTexture);
+		slap.setDrawScale(scale);
 		// Compute position and velocity
 		float speed = 175;
 		if (direction == 2 || direction == 4) {
@@ -925,27 +1070,27 @@ public class GameController implements ContactListener, Screen {
 
 	public void createTrap() {
 		//spawn test traps
-		trapHelper(chef.getX(), chef.getY(), trapTypeSelected);
+		trapHelper(chef.getX(), chef.getY(), trapTypeSelected, false);
 
 	}
 
-	public void trapHelper(float x, float y, Trap.type t){
+	public void trapHelper(float x, float y, Trap.type t, boolean env){
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
-		Trap trap = new Trap(constants.get("trap"), chef.getX(), chef.getY(), twidth, theight, trapTypeSelected, Trap.shape.CIRCLE);
+		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t, Trap.shape.CIRCLE, env);
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
-		addObject(trap);
-//		trap = new Trap(constants.get("trap"), 20, 4, twidth, theight, Trap.type.TRAP_ONE, Trap.shape.SQUARE);
-//		trap.setDrawScale(scale);
-//		trap.setTexture(trapTexture);
-//		addObject(trap);
+		if (env){
+			addEnvironmentalObject(trap);
+		}else {
+			addObject(trap);
+		}
 	}
 
 
 
 	public float damageCalc(){
-		return chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
+		return (temp.getTemperature() <= 0) ? 0 : chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
 	}
 
 
@@ -972,6 +1117,12 @@ public class GameController implements ContactListener, Screen {
 		assert inBounds(obj) : "Object is not in bounds";
 		objects.add(obj);
 		obj.activatePhysics(world);
+	}
+
+	protected void addEnvironmentalObject(Trap trap) {
+		assert inBounds(trap) : "Object is not in bounds";
+		objects.add(trap);
+		trap.activateInitialPhysics(world);
 	}
 
 	/**
@@ -1036,12 +1187,17 @@ public class GameController implements ContactListener, Screen {
 				obj.deactivatePhysics(world);
 				entry.remove();
 			} else {
-				if(obj.isDirty()){
-					obj.deactivatePhysics(world);
-					obj.activatePhysics(world);
-				}
 				// Note that update is called last!
 				obj.update(dt);
+			}
+
+			if(obj.getClass().equals(Trap.class)){
+				Trap t = (Trap) obj;
+				if(t.isActive() && t.needsActivation()){
+					t.activatePhysics(world);
+				}else if(t.needsDeactivation()){
+					t.partialDeactivatePhysics(world);
+				}
 			}
 		}
 	}
@@ -1073,7 +1229,7 @@ public class GameController implements ContactListener, Screen {
 		}
 
 		canvas.begin();
-		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
+		/*canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
 		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: ",
 				"lure durability: ", "slow durability: ", "fire linger durability: ", "fire damage durability: ", "player speed: ",
@@ -1087,6 +1243,8 @@ public class GameController implements ContactListener, Screen {
 			}
 			if (i == 12) {
 				canvas.drawText(parameters[i] + (parameterList[i] == 1? "on":"off"), pFont, 40, 520-14*i);
+			} else if (i == 1){
+				canvas.drawText(parameters[i] + parameterList[i] + "%", pFont, 40, 520 - 14 * i);
 			} else {
 				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
@@ -1097,7 +1255,7 @@ public class GameController implements ContactListener, Screen {
 			stove.setLit(true);
 		}else{
 			stove.setLit(false);
-		}
+		}*/
 
 		for(Obstacle obj : objects) {
 			obj.draw(canvas);
@@ -1109,6 +1267,9 @@ public class GameController implements ContactListener, Screen {
 			canvas.beginDebug();
 			for(Obstacle obj : objects) {
 				obj.drawDebug(canvas);
+			}
+			if (grid_toggle) {
+				grid.drawDebug(canvas);
 			}
 			canvas.endDebug();
 		}
@@ -1264,6 +1425,10 @@ public class GameController implements ContactListener, Screen {
 		this.canvas = canvas;
 		this.scale.x = canvas.getWidth()/bounds.getWidth();
 		this.scale.y = canvas.getHeight()/bounds.getHeight();
+	}
+
+	public void initGrid(){
+		grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
 	}
 
 	/**

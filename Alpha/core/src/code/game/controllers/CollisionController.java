@@ -1,10 +1,7 @@
 package code.game.controllers;
 
 import code.game.interfaces.CollisionControllerInterface;
-import code.game.models.Chef;
-import code.game.models.Chicken;
-import code.game.models.Stove;
-import code.game.models.Trap;
+import code.game.models.*;
 import code.game.models.obstacle.Obstacle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -15,11 +12,28 @@ public class CollisionController implements CollisionControllerInterface {
     /**The damage for this round of contact*/
     private float dmg;
 
-
     private TrapController trapController;
 
-    public CollisionController(Vector2 scale, JsonValue constants){
-        trapController = new TrapController(scale, constants);
+    private Chef chef;
+
+    public CollisionController(Vector2 scale){
+        trapController = new TrapController(scale);
+    }
+
+    /**
+     *  sets the constants parameter of trapController
+     * @param constants the jsonValue to be set
+     */
+    public void setConstants(JsonValue constants){
+        trapController.setConstants(constants);
+    }
+    /**
+     *  sets the current chef
+     *
+     * @param c the Chef
+     */
+    public void setChef(Chef c){
+        chef = c;
     }
     /**
      * Callback method for the start of a collision
@@ -48,7 +62,9 @@ public class CollisionController implements CollisionControllerInterface {
             Obstacle bd1 = (Obstacle) body1.getUserData();
             Obstacle bd2 = (Obstacle) body2.getUserData();
 
-            handleCollision(bd1, fd1, bd2, fd2);
+            if(fd1 != null && fd2 != null) {
+                handleCollision(bd1, fd1, fix1, bd2, fd2, fix2);
+            }
             //handleCollision(bd2, fd2, bd1, fd1);
 
             } catch(Exception e){
@@ -56,60 +72,67 @@ public class CollisionController implements CollisionControllerInterface {
             }
         }
 
-        private void handleCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
-            //special platform case
-            if (bd1.getName().contains("platform") && bd2.getName().equals("chicken")){
-                ((Chicken)bd2).hitWall();
-            }
-            else if (bd2.getName().contains("platform") && bd1.getName().equals("chicken")){
-                ((Chicken)bd2).hitWall();
+        private void handleCollision(Obstacle bd1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
+
+            // check collisions between objects
+            switch (fd1.toString()) {
+                case "chickenSensor":
+                    chickenCollision((Chicken) bd1, fd1, fix1, bd2, fd2, fix2);
+                    break;
+                case "chefSensor":
+                    chefCollision((Chef) bd1, fd1, fix1, bd2, fd2, fix2);
+                    break;
+                case "cookRadius":
+                    stoveCollision((Stove) bd1, fd1, bd2, fd2);
+                    break;
+                case "slapSensor":
+                    slapCollision((Slap) bd1, fd1, bd2, fd2);
+                    break;
+                case "trapSensor":
+                    trapCollision((Trap) bd1, fd1, bd2, fd2);
+                    break;
+                case "trapActivationRadius":
+                    trapActivationCollision((Trap) bd1, fd1, bd2, fd2);
+                    break;
             }
 
-            else {
-                //otherwise check collisions between objects
-                switch (bd1.getName()) {
-                    case "chicken":
-                        chickenCollision((Chicken) bd1, fd1, bd2, fd2);
-                        break;
-                    case "chef":
-                        chefCollision((Chef) bd1, fd1, bd2, fd2);
-                        break;
-                    case "stove":
-                        stoveCollision((Stove) bd1, fd1, bd2, fd2);
-                        break;
-                    case "bullet":
-                        slapCollision(bd1, fd1, bd2, fd2);
-                        break;
-                    case "trap":
-                        trapCollision((Trap) bd1, fd1, bd2, fd2);
-                        break;
-                }
-            }
         }
 
-        private void chickenCollision(Chicken c1, Object fd1, Obstacle bd2, Object fd2){
-            switch(bd2.getName()){
-                case "stove": c1.hitWall();
+        private void trapActivationCollision(Trap t1, Object fd1, Obstacle bd2, Object fd2){
+          switch(fd2.toString()){
+              case "slapSensor": handleTrapSlap(t1, fd1, (Slap) bd2, fd2);
+                break;
+          }
+        }
+
+        private void chickenCollision(Chicken c1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
+            switch(fd2.toString()){
+                case "stove":
                     break;
                 case "chicken":
                     break;
-                case "chef": handleChefChicken((Chef)bd2, fd2, c1, fd1);
+                case "chefSensor": handleChefChicken((Chef)bd2, fd2, fix2, c1, fd1, fix1);
                     break;
-                case "bullet": handleChickenSlap(c1, fd1, bd2, fd2);
+                case "slapSensor": handleChickenSlap(c1, fd1, bd2, fd2);
                     break;
-                case "trap": handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
+                case "trapSensor": handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
                     break;
             }
         }
 
-        private void chefCollision(Chef c1, Object fd1, Obstacle bd2, Object fd2){
-            switch(bd2.getName()){
-                case "stove": handleStoveChef((Stove)bd2, c1);
+        private void chefCollision(Chef c1, Object fd1, Fixture fix1, Obstacle bd2, Object fd2, Fixture fix2){
+            switch(bd2.getName()) {
+                case "stove":
+                    handleStoveChef((Stove) bd2, c1);
                     break;
-                case "chicken": handleChefChicken(c1, fd1, (Chicken)bd2, fd2);
+                case "chicken":
+                    handleChefChicken(c1, fd1, fix1, (Chicken) bd2, fd2, fix2);
                     break;
-                case "chef":
-                case "bullet":
+                case "trapSpot":
+                    c1.setCanPlaceTrap(true);
+                    break;
+                case "chefSensor":
+                case "slapSensor":
                 case "trap":
                     break;
             }
@@ -119,21 +142,25 @@ public class CollisionController implements CollisionControllerInterface {
             switch(bd2.getName()){
                 case "stove":
                     break;
-                case "chicken": ((Chicken)bd2).hitWall();
+                case "chicken":
                     break;
-                case "chef": handleStoveChef(s1, (Chef)bd2);
+                case "chefSensor":
+                    handleStoveChef(s1, (Chef)bd2);
                     break;
-                case "bullet":
+                case "slapSensor":
                 case "trap":
                     break;
             }
     }
 
 
-        private void slapCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
+        private void slapCollision(Slap s1, Object fd1, Obstacle bd2, Object fd2){
         //TODO make slap class
             if(bd2.getName().equals("chicken")){
-                handleChickenSlap((Chicken)bd2, fd2, bd1, fd1);
+                handleChickenSlap((Chicken)bd2, fd2, s1, fd1);
+            }
+            if(fd2.toString().equals("trapActivationRadius")){
+                handleTrapSlap((Trap) bd2,fd2, s1, fd1);
             }
         }
 
@@ -152,7 +179,17 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chef      a chef
      */
     private void handleStoveChef(Stove stove, Chef chef){
-        chef.setCanCook(true);
+        chef.setCooking(true);
+        chef.setMovement(0);
+        chef.setVertMovement(0);
+        stove.setLit(true);
+    }
+
+    private void handleTrapSlap(Trap t1, Object fd1, Slap s2, Object fd2){
+        t1.markActive(true);
+        if(t1.getTrapType().equals(Trap.type.FAULTY_OVEN)){
+            chef.setDoubleDamage(true);
+        }
     }
 
     /**
@@ -162,8 +199,9 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chicken
      * @param fd2
      */
-    private void handleChefChicken(Chef chef, Object fd1, Chicken chicken, Object fd2){
-        if(chicken.isAttacking()){
+    private void handleChefChicken(Chef chef, Object fd1, Fixture fix1, Chicken chicken, Object fd2, Fixture fix2){
+        //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
+        if(chicken.getHitboxOut() && (fix1.getUserData() == "basicattack" || fix2.getUserData() == "basicattack")){
             chef.decrementHealth();
             chicken.hitPlayer();
         }
@@ -207,7 +245,9 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void handleChickenTrap(Chicken c1, Object fd1, Trap t2, Object fd2){
-        trapController.applyTrap(t2, c1);
+        if(trapController.applyTrap(t2, c1)){
+            //need to add new trap to trap creation queue
+        }
     }
 
     /**
@@ -275,7 +315,7 @@ public class CollisionController implements CollisionControllerInterface {
 
     private void endChefCollision(Chef chef, Object fd1, Obstacle bd2, Object fd2){
         switch(bd2.getName()){
-            case "stove":
+            case "stove": endStoveChef((Stove) bd2, fd2, chef, fd1);
                 break;
             case "chicken": endChickenChef((Chicken)bd2, fd2, chef, fd1);
                 break;
@@ -322,7 +362,7 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void endChickenTrap(Chicken c1, Object fd1, Trap t2, Object fd2){
-        //trapController.applyTrap(t2, c1);
+        trapController.stopTrap(t2,c1);
     }
 
     private void endChickenChef(Chicken chicken, Object fd1, Chef chef, Object fd2){
@@ -331,7 +371,8 @@ public class CollisionController implements CollisionControllerInterface {
 
     private void endStoveChef(Stove stove, Object fd1, Chef chef, Object fd2){
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
-        chef.setCanCook(false);
+        chef.setCooking(false);
+        stove.setLit(false);
     }
 
 

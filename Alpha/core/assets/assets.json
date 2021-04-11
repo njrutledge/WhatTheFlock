@@ -10,7 +10,7 @@
         "enviro:trap:spot": "enviro/trapspot.png",
 
         "char:chicken": "characters/chicken.png",
-        "char:chef":"characters/chef.png",
+        "char:chef":"characters/chef_animation_run.png",
         "char:bullet": "characters/bullet.png",
         "char:nugget": "characters/nugget.png",
         "char:nuggetBar": "characters/nuggetBar.png",
@@ -43,7 +43,8 @@
       }
     },
     "jsons"  : {
-        "constants": "constants.json"
+        "constants": "constants.json",
+        "levels": "levels.json"
     },
     "sounds" : {
         "sound:chef:jump" : "sounds/chef/jump.mp3",

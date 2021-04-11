@@ -954,10 +954,24 @@ public class GameCanvas {
 		
 		GlyphLayout layout = new GlyphLayout(font,text);
 		float x = (getWidth()  - layout.width) / 2.0f;
+		x = 473.0f;
 		float y = (getHeight() + layout.height) / 2.0f;
+		y = 383.0f;
 		font.draw(spriteBatch, layout, x, y+offset);
     }
-    
+
+	/**	Draws a line from start to end
+	 *
+	 * @param start	The point where the line will begin
+	 * @param end	The point where the line will end
+	 */
+	public void drawLine(Vector2 start, Vector2 end) {
+		Gdx.gl.glLineWidth(1);
+		debugRender.setProjectionMatrix(camera.combined);
+		debugRender.setColor(Color.WHITE);
+		debugRender.line(start, end);
+	}
+
 	/**
 	 * Start the debug drawing sequence.
 	 *

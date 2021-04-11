@@ -13,10 +13,6 @@ public class Stove extends GameObject implements StoveInterface {
 
     private CircleShape sensorShape;
 
-    private String name;
-
-    private String sensorName;
-
     /** Whether or not the stove is lit */
     private boolean lit = false;
 
@@ -32,8 +28,7 @@ public class Stove extends GameObject implements StoveInterface {
         setFixedRotation(true);
         data = jv;
         setName("stove");
-        name = "stove";
-        sensorName = "cookRadius";
+        setSensorName("cookRadius");
     }
 
     /**
@@ -54,7 +49,7 @@ public class Stove extends GameObject implements StoveInterface {
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         sensorShape = new CircleShape();
-        sensorShape.setRadius(3f);
+        sensorShape.setRadius(1.6f);
         sensorDef.shape = sensorShape;
 
         // Ground sensor to represent our feet
@@ -72,7 +67,7 @@ public class Stove extends GameObject implements StoveInterface {
     public void setLit(boolean val){lit = val;}
 
     /**
-     * Draws the unlit stove
+     * Draws the stove
      *
      * @param canvas Drawing context
      */

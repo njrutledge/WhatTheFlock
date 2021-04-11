@@ -11,6 +11,7 @@ import code.game.views.GameCanvas;
 
 public class Trap extends GameObject implements TrapInterface {
 
+
     /**
      *  Enumeration to encode the trap type
      */
@@ -19,6 +20,7 @@ public class Trap extends GameObject implements TrapInterface {
         SLOW,
         FIRE,
         FIRE_LINGER,
+        FAULTY_OVEN
     }
 
     /**
@@ -30,6 +32,8 @@ public class Trap extends GameObject implements TrapInterface {
         /** Square trap */
         SQUARE
     }
+    /** Flag for if this is an environmental trap */
+    private boolean environmental;
 
     /** The initializing data (to avoid magic numbers) */
     private JsonValue data;
@@ -67,8 +71,7 @@ public class Trap extends GameObject implements TrapInterface {
     private static final Color slowColor = Color.CYAN;
     /** Colors of lure trap */
     private static final Color lureColor = Color.YELLOW;
-
-
+    /** durability of lure */
     private float lure_ammount=6;
     /** Lure Durability */
     private float LURE_CRUMBS = MAX_DURABILITY / lure_ammount;
@@ -76,8 +79,29 @@ public class Trap extends GameObject implements TrapInterface {
     private float SLOW_EFFECT = 0.5f;
     /** Fire duration effect */
     private float FIRE_DUR = 10.0f;
-
+    /** Fire damage duration */
     private float FIRE_DAM_DUR = 5.0f;
+    /** Activation radius for environmental traps */
+    private final float ACTIVATION_RADIUS = 1.0f;
+    /** Activation time for environmental traps */
+    private final float SLOW_ACTIVATION_TIME = 10.0f;
+    /** Activation time for environmental traps */
+    private final float FAULTY_OVEN_ACTIVATION_TIME = 2.0f;
+    /** Timer for how long the environmental trap is active */
+    private float activeTimer = 0.0f;
+    /** Time needed to reset the trap after use */
+    private float READY_TIME = 15.0f;
+    /** Timer for how long the environmental trap is not ready */
+    private float readyTimer = 0.0f;
+    /** flag for if the trap is ready to become active */
+    private boolean isReady = true;
+    /** flag for if the trap is currently active */
+    private boolean isActive = false;
+    /** flag for activating physics */
+    private boolean needsPhysics = true;
+    /** Fixture for hit box of active traps */
+    private Fixture hitFixture;
+
 
     /**
      * Creates a new Trap model with the given game data
@@ -93,8 +117,9 @@ public class Trap extends GameObject implements TrapInterface {
      * @param height	The object width in game units
      * @param t         The Trap.type of this trap
      * @param s         The Trap.shape of this trap
+     * @param env       is true if this is an environmental trap
      */
-    public Trap(JsonValue data, float x, float y, float width, float height, type t, shape s) {
+    public Trap(JsonValue data, float x, float y, float width, float height, type t, shape s, boolean env) {
         super(x, y,
                 width * data.get("shrink").getFloat(0),
                 height * data.get("shrink").getFloat(1));
@@ -108,6 +133,7 @@ public class Trap extends GameObject implements TrapInterface {
         setSensor(true);
         durability = MAX_DURABILITY;
         linger = false;
+        environmental = env;
     }
 
     /**
@@ -169,7 +195,7 @@ public class Trap extends GameObject implements TrapInterface {
     }
     /**Whether the trap is still active or not*/
     public boolean isActive(){
-        return durability > 0;
+        return isActive;
     }
     /**
      * Updates the object's game state (NOT GAME LOGIC).
@@ -188,6 +214,23 @@ public class Trap extends GameObject implements TrapInterface {
                 this.markRemoved(true);
             }
         }
+        if (!isReady){
+            readyTimer -= delta;
+            if(readyTimer <= 0){
+                isReady = true;
+            }
+        }
+
+        if(isActive){
+            activeTimer -= delta;
+            /*if(activeTimer <= 0){
+                isActive = false;
+                isReady = false;
+                readyTimer = READY_TIME;
+            }*/
+        }
+
+
     }
 
     /**
@@ -198,6 +241,104 @@ public class Trap extends GameObject implements TrapInterface {
      * @return true if object allocation succeeded
      */
     public boolean activatePhysics(World world) {
+        // create the box from our superclass
+        /*if (!super.activatePhysics(world)) {
+            return false;
+        }*/
+        FixtureDef sensorDef = new FixtureDef();
+        sensorDef.isSensor = true;
+        sensorShape = new CircleShape();
+        switch (trapType) {
+            case LURE:
+                sensorShape.setRadius(LURE_RADIUS);
+                FixtureDef sensHurt = new FixtureDef();
+                sensHurt.isSensor = true;
+                lHShape= new CircleShape();
+                lHShape.setRadius(LURE_HURT);
+                sensHurt.shape = lHShape;
+                Fixture sensorHurtF = body.createFixture(sensHurt);
+                sensorHurtF.setUserData("lureHurt");
+                break;
+            case SLOW:
+                sensorShape.setRadius(SLOW_RADIUS);
+                break;
+            case FIRE:
+                sensorShape.setRadius(FIRE_TRIGGER_RADIUS);
+                break;
+            case FIRE_LINGER:
+                sensorShape.setRadius(FIRE_LINGER_RADIUS);
+
+        }
+        sensorDef.shape = sensorShape;
+        hitFixture = body.createFixture(sensorDef);
+        hitFixture.setUserData(getSensorName());
+        needsPhysics = false;
+        return true;
+    }
+
+    public boolean activateInitialPhysics(World world){
+        if (!super.activatePhysics(world)) {
+            return false;
+        }
+        FixtureDef sensorDef = new FixtureDef();
+        sensorDef.isSensor = true;
+        sensorShape = new CircleShape();
+        sensorShape.setRadius(ACTIVATION_RADIUS);
+        sensorDef.shape = sensorShape;
+        Fixture sensorFixture = body.createFixture(sensorDef);
+        sensorFixture.setUserData("trapActivationRadius");
+        return true;
+    }
+
+    public boolean needsDeactivation(){
+        return isActive && activeTimer <= 0;
+    }
+
+    public boolean needsActivation(){
+        return isActive && needsPhysics;
+    }
+
+    public void partialDeactivatePhysics(World world){
+        //do some setup
+        isActive = false;
+        isReady = false;
+        readyTimer = READY_TIME;
+        needsPhysics = true;
+        body.destroyFixture(hitFixture);
+        hitFixture = null;
+    }
+    /**
+     * Marks the trap as active or inactive.
+     *
+     * If the trap is not ready, the trap will be marked inactive
+     * @param bool is true if the trap is to become ready.
+     */
+    public void markActive(boolean bool){
+        if(isReady){
+            isActive = bool;
+        }
+        else {
+            isActive = false;
+        }
+        if(isActive){
+            switch(trapType){
+                case SLOW:
+                    activeTimer = SLOW_ACTIVATION_TIME;
+                    break;
+                case FAULTY_OVEN:
+                    activeTimer = FAULTY_OVEN_ACTIVATION_TIME;
+            }
+        }
+    }
+
+    /**
+     * Creates the game Body(s) for this object, adding them to the world.
+     *
+     * @param world Box2D world to store body
+     *
+     * @return true if object allocation succeeded
+     */
+    public boolean activatePhysicsOLD(World world) {
         // create the box from our superclass
         if (!super.activatePhysics(world)) {
             return false;
@@ -255,7 +396,7 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
         }
         c.a = durability / MAX_DURABILITY;
-        canvas.draw(texture, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
+        canvas.draw(texture, (isReady ? (isActive ? c : Color.GRAY) : Color.BLACK), origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
     }
 
     /**

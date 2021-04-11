@@ -155,7 +155,7 @@ public class WorldController implements ContactListener, Screen {
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
-	private int[] parameterList = {3, 5, 2, 100, 2, 6, 30, 10, 5, 5, 5, 5, 0};
+	private int[] parameterList = {3, 100, 2, 100, 2, 6, 30, 10, 5, 5, 5, 5, 0};
 
 
 
@@ -174,6 +174,8 @@ public class WorldController implements ContactListener, Screen {
 	protected Rectangle bounds;
 	/** The world scale */
 	protected Vector2 scale;
+	/** The grid */
+	protected Grid grid;
 
 	/** Whether or not this is an active controller */
 	private boolean active;
@@ -183,6 +185,8 @@ public class WorldController implements ContactListener, Screen {
 	private boolean failed;
 	/** Whether or not debug mode is active */
 	private boolean debug;
+	/** Whether or not the grid should be displayed */
+	private boolean grid_toggle;
 	/** Countdown active for winning or losing */
 	private int countdown;
 
@@ -326,17 +330,17 @@ public class WorldController implements ContactListener, Screen {
 		populateLevel();
 	}
 	public void initEasy(){
-		parameterList = new int []{5, 5, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
+		parameterList = new int []{5, 100, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
 		cooldown = false;
 	}
 
 	public void initMed(){
-		parameterList = new int []{4, 5, 2, 100, 3, 6, 30, 10, 5, 5, 4, 5, 0};
+		parameterList = new int []{4, 100, 2, 100, 3, 6, 30, 10, 5, 5, 4, 5, 0};
 		cooldown = false;
 	}
 
 	public void initHard(){
-		parameterList = new int []{3, 5, 2, 100, 4, 6, 30, 10, 5, 5, 5, 5, 0};
+		parameterList = new int []{3, 100, 2, 100, 4, 6, 30, 10, 5, 5, 5, 5, 0};
 		cooldown = true;
 	}
 
@@ -345,7 +349,7 @@ public class WorldController implements ContactListener, Screen {
 	 */
 	private void populateLevel() {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)
-
+		grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
 		String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 		JsonValue defaults = constants.get("defaults");
@@ -431,7 +435,7 @@ public class WorldController implements ContactListener, Screen {
 		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
 		for (int i = 0; i < parameterList[4]; i++){
-			spawnChicken();
+			spawnChicken(ChickenModel.Type.Nugget);
 		}
 
 		// Get initial values for parameters in the list
@@ -507,6 +511,11 @@ public class WorldController implements ContactListener, Screen {
 		// Toggle debug
 		if (input.didDebug()) {
 			debug = !debug;
+		}
+
+		// Toggle grid
+		if (input.didGridToggle()) {
+			grid_toggle = !grid_toggle;
 		}
 
 		// Handle resets
@@ -597,13 +606,20 @@ public class WorldController implements ContactListener, Screen {
 		if (InputController.getInstance().didParameterIncreased()){
 			if (parameterSelected == 12) {
 				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+1, 1);
-			} else {
+			} else if (parameterSelected == 1) {
+				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+20, 100);
+			}
+			else {
 				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] + 1);
 			}
 		}
 		// Decrease the current parameter
 		if (InputController.getInstance().didParameterDecreased()){
-			parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected]-1);
+			if (parameterSelected == 1) {
+				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 20);
+			} else {
+				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 1);
+			}
 		}
 
 		
@@ -619,7 +635,7 @@ public class WorldController implements ContactListener, Screen {
 
 		//random chance of spawning a chicken
 		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			spawnChicken();
+			spawnChicken(ChickenModel.Type.Nugget);
 		}
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
@@ -628,7 +644,7 @@ public class WorldController implements ContactListener, Screen {
 			}
 			if (obj.getName().equals("chicken")){
 				ChickenModel chick = ((ChickenModel) obj);
-				if (chick.isAttacking() && chick.getSoundCheck()) {
+				if (chick.isAttacking()) {
 					chickAttack.stop();
 					chickAttack.play(volume*0.5f);
 				}
@@ -654,7 +670,7 @@ public class WorldController implements ContactListener, Screen {
 	/**
 	 * Spawn a chicken somewhere in the world, then increments the number of chickens
 	 */
-	private void spawnChicken(){
+	private void spawnChicken(ChickenModel.Type type){
 		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
 		float dheight = chickenTexture.getRegionHeight()/scale.y;
 		float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
@@ -673,14 +689,18 @@ public class WorldController implements ContactListener, Screen {
 		else{
 			y = spawn_ymax;
 		}
-
 		ChickenModel enemy;
-		enemy = new ChickenModel(constants.get("chicken"), x, y, dwidth, dheight, avatar, parameterList[1]);
+		if (type == ChickenModel.Type.Nugget) {
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, avatar, parameterList[1], grid);
+		} else {
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, avatar, parameterList[1], grid);
+		}
 		enemy.setDrawScale(scale);
 		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy);
 		chickens ++;
+
 	}
 
 	/**
@@ -1232,7 +1252,10 @@ public class WorldController implements ContactListener, Screen {
 			}
 			if (i == 12) {
 				canvas.drawText(parameters[i] + (parameterList[i] == 1? "on":"off"), pFont, 40, 520-14*i);
-			} else {
+			} else if (i == 1){
+				canvas.drawText(parameters[i] + parameterList[i] + "%", pFont, 40, 520 - 14 * i);
+			}
+			else {
 				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
 		}
@@ -1254,6 +1277,9 @@ public class WorldController implements ContactListener, Screen {
 			canvas.beginDebug();
 			for(Obstacle obj : objects) {
 				obj.drawDebug(canvas);
+			}
+			if (grid_toggle) {
+				grid.drawDebug(canvas);
 			}
 			canvas.endDebug();
 		}
