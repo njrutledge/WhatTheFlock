@@ -403,7 +403,7 @@ public class GameController implements ContactListener, Screen {
 	 */
 	private void populateLevel() {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
-		grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
+		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
 		temp = new TemperatureBar(tempBackground, tempForeground,30);
@@ -1226,7 +1226,7 @@ public class GameController implements ContactListener, Screen {
 		}
 
 		canvas.begin();
-		canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
+		/*canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
 		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: ",
 				"lure durability: ", "slow durability: ", "fire linger durability: ", "fire damage durability: ", "player speed: ",
@@ -1246,7 +1246,7 @@ public class GameController implements ContactListener, Screen {
 				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
 			}
 		}
-		/*if ((chef.canCook() && (chef.getMovement() == 0f
+		if ((chef.canCook() && (chef.getMovement() == 0f
 				&& chef.getVertMovement() == 0f
 				&& !chef.isShooting()))){
 			stove.setLit(true);
@@ -1422,6 +1422,10 @@ public class GameController implements ContactListener, Screen {
 		this.canvas = canvas;
 		this.scale.x = canvas.getWidth()/bounds.getWidth();
 		this.scale.y = canvas.getHeight()/bounds.getHeight();
+	}
+
+	public void initGrid(){
+		grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
 	}
 
 	/**
