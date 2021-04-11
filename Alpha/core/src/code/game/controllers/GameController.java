@@ -47,7 +47,7 @@ public class GameController implements ContactListener, Screen {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level02";
+	private final String DEFAULT_LEVEL = "TEST";
 
 
 	/** The texture for walls and platforms */
@@ -516,12 +516,13 @@ public class GameController implements ContactListener, Screen {
 
 	}
 
+
 	public void doNewPopulate(JsonValue level){
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
 		for(int ii = 0; ii < stuff.length; ii++){
 			int x = ii % grid.getColCount();
-			int y = ii / grid.getColCount();
+			int y = (stuff.length - 1 - ii) / grid.getColCount();
 			switch(stuff[ii]){
 				case LEVEL_WALL:
 					//add wall
