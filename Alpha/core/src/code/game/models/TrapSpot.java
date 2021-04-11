@@ -1,7 +1,5 @@
 package code.game.models;
 
-import code.game.models.obstacle.BoxObstacle;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
@@ -22,13 +20,13 @@ public class TrapSpot extends GameObject {
     public TrapSpot(float x, float y) {
         //set constants manually for the constructor
         //TODO change
-        super(x, y, 2, 2);
+        super(x, y, 2, 2, ObjectType.PLACE);
         setBodyType(BodyDef.BodyType.StaticBody);
         setFixedRotation(true);
         setSensor(true);
         //data = jv;
         setName("place");
-        setSensorName("placeRadius");
+        //setSensorName("placeRadius");
         hasTrap = false;
         trap = null;
     }
@@ -55,7 +53,7 @@ public class TrapSpot extends GameObject {
 
         // Ground sensor to represent our feet
         Fixture sensorFixture = body.createFixture(sensorDef);
-        sensorFixture.setUserData(getSensorName());
+        sensorFixture.setUserData(FixtureType.PLACE_SENSOR);//getSensorName());
         return true;
     }
 

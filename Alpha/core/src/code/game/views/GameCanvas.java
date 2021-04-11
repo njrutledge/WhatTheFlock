@@ -954,7 +954,9 @@ public class GameCanvas {
 		
 		GlyphLayout layout = new GlyphLayout(font,text);
 		float x = (getWidth()  - layout.width) / 2.0f;
+		x = 473.0f;
 		float y = (getHeight() + layout.height) / 2.0f;
+		y = 383.0f;
 		font.draw(spriteBatch, layout, x, y+offset);
     }
 

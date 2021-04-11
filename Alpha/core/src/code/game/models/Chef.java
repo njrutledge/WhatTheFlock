@@ -59,6 +59,8 @@ public class Chef extends GameObject implements ChefInterface {
 	private boolean isTrap;
 	/** Can the player cook */
 	private boolean isCooking;
+	/** Whether the player is invincible */
+	private boolean invincible;
 
 	/** The game shape of this object */
 	private PolygonShape sensorShape;
@@ -80,11 +82,22 @@ public class Chef extends GameObject implements ChefInterface {
 	/** size of each heart */
 	private final int HEART_SIZE = 30;
 	/** Time until invulnerability after getting hit wears off */
-	//TODO: make final after technical
-	private float INVULN_TIME = 1;
-	//TODO: make final after technical
-	private float BASE_DAMAGE = 2;
+	private final float INVULN_TIME = 1;
+	/** Chef base damage */
+	private final float BASE_DAMAGE = 2;
+	/** Flag for double damage */
+	private boolean doubleDamage = false;
+	/** Timer for double damage */
+	private float damageTimer = 0.0f;
+	/**max time for double damage */
+	private final float DAMAGE_TIME = 7.5f;
+	/** How fast we change frames (one frame per 4 calls to update */
+	private static final float ANIMATION_SPEED = 0.25f;
+	/** The number of animation frames in our filmstrip */
+	private static final int NUM_ANIM_FRAMES = 8;
 
+	/** Current animation frame for this shell */
+	private float animeframe;
 	/** Counter for Invulnerability timer*/
 	private float invuln_counter = INVULN_TIME;
 	/** Cache for internal force calculations */
@@ -110,19 +123,20 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public Chef(JsonValue data, float x, float y, float width, float height) {
 		// The shrink factors fit the image to a tigher hitbox
-		super(	x, y, width*0.3f, 0.1f);
+		super(	x,
+				y,
+				width*data.get("shrink").getFloat( 0 ),
+				height*data.get("shrink").getFloat( 1 ), ObjectType.CHEF);
 		setDensity(data.getFloat("density", 0));
 		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
 		setFixedRotation(true);
-	/*		sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
-				sensorjv.getFloat("height",0), sensorCenter, 0.0f);*/
 
 		maxspeed = data.getFloat("maxspeed", 0);
 		damping = data.getFloat("damping", 0);
 		force = data.getFloat("force", 0);
 		shotLimit = data.getInt( "shot_cool", 0 );
 		trapLimit = 120;
-		setSensorName("chefSensor");
+		//setSensorName("chefSensor");
 		this.data = data;
 		// Gameplay attributes
 		isShooting = false;
@@ -135,6 +149,7 @@ public class Chef extends GameObject implements ChefInterface {
 		setName("chef");
 		isTrap = false;
 		isCooking = false;
+		animeframe = 0.0f;
 		Filter filter = new Filter();
 		//0x0001 = player
 		filter.categoryBits = 0x0001;
@@ -239,9 +254,13 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void setTrap(boolean bln) { isTrap = bln; }
 
-	//TODO: comment
+	/**
+	 * Animates the texture (moves along the filmstrip)
+	 *
+	 * @param texture
+	 */
 	public void setTexture(Texture texture) {
-		animator = new FilmStrip(texture, 1, 4);
+		animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
 		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
 	}
 
@@ -254,7 +273,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/** Reduces the chef's health by one. */
 	public void decrementHealth() {
-		if (!isStunned()) {
+		if (!isStunned() && !invincible) {
 			health --;
 			invuln_counter = 0f;
 		}
@@ -340,7 +359,14 @@ public class Chef extends GameObject implements ChefInterface {
 	 *
 	 * @return the base damage value for the chef
 	 */
-	public float getDamage(){ return BASE_DAMAGE;}
+	public float getDamage(){ return doubleDamage ? BASE_DAMAGE * 2 : BASE_DAMAGE;}
+
+	/**
+	 * sets the double damage flag for the chef, and init the counter
+	 *
+	 * @param bool the value of the flag
+	 */
+	public void setDoubleDamage(boolean bool){ doubleDamage = bool; damageTimer = DAMAGE_TIME;}
 
 	/**
 	 * Returns true if this character is facing right
@@ -384,12 +410,13 @@ public class Chef extends GameObject implements ChefInterface {
 		sensorDef.filter.categoryBits =  0x0002;
 		sensorShape = new PolygonShape();
 		JsonValue sensorjv = data.get("sensor");
-		sensorShape.setAsBox(getWidth(), getHeight(), sensorCenter, 0.0f);
+		sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
+				sensorjv.getFloat("height",0), sensorCenter, 0.0f);
 		sensorDef.shape = sensorShape;
 
 		// Ground sensor to represent our feet
 		Fixture sensorFixture = body.createFixture( sensorDef );
-		sensorFixture.setUserData(getSensorName());
+		sensorFixture.setUserData(FixtureType.CHEF_SENSOR);//getSensorName());
 
 		return true;
 	}
@@ -437,13 +464,20 @@ public class Chef extends GameObject implements ChefInterface {
 	/**
 	 * Updates the object's game state (NOT GAME LOGIC).
 	 *
-	 * We use this method to reset cooldowns.
+	 * We use this method to reset cooldowns, and control animations
 	 *
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	@Override
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
+
+		if (getVertMovement() != 0 || getMovement() != 0) {
+			animeframe += ANIMATION_SPEED;
+			if (animeframe >= NUM_ANIM_FRAMES) {
+				animeframe -= NUM_ANIM_FRAMES;
+			}
+		}
 		if (isShooting()) {
 			shootCooldown = shotLimit;
 		} else {
@@ -454,6 +488,13 @@ public class Chef extends GameObject implements ChefInterface {
 		} else {
 			trapCooldown = Math.max(0, trapCooldown - 1);
 		}
+
+		if(doubleDamage){
+			damageTimer -= dt;
+			if(damageTimer <= 0){
+				doubleDamage = false;
+			}
+		}
 		super.update(dt);
 	}
 	/**
@@ -463,8 +504,9 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
+		animator.setFrame((int)animeframe);
 		if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
-			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), effect / 10, 0.1f);
+			canvas.draw(animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
 		}
 
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);

@@ -72,8 +72,6 @@ public class AIController {
     protected FilmStrip animator;
     /** Reference to texture origin */
     protected Vector2 origin;
-    /** The slowness modifier */
-    private float slow = 1f;
 
     /** The chicken being controlled by this controller */
     private Chicken chicken;
@@ -207,7 +205,7 @@ public class AIController {
                 move();
                 temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
                 temp.nor();
-                temp.scl(chaseSpeed * slow);
+                temp.scl(chaseSpeed * chicken.getSlow());
                 chicken.setForceCache(temp, false);
                 break;
             case KNOCKBACK:
@@ -333,6 +331,19 @@ public class AIController {
         AStar();
 
         // Moving in a straight line?
+        //TODO: remove after testing
+        if (child_tile == null){
+            int stop = 1;
+        }
+        if (start_tile == null){
+            int stop = 2;
+        }
+        if (move_tile == null){
+            int stop = 3;
+        }
+        if (target_tile == null){
+            int stop = 4;
+        }
         if ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile) {
             move_tile = child_tile;
         }

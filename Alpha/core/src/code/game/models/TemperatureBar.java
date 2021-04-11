@@ -109,7 +109,7 @@ public class TemperatureBar {
      * @param amt - the amount to decrease by
      */
     public void reduceTemp(int amt) {
-        temperature -= amt;
+        temperature -= Math.max(0,amt);
     }
 
     /**

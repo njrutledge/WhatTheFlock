@@ -54,12 +54,12 @@ public class ChickenAttack extends GameObject {
 
     /** Creates an instance of a basic attack */
     public ChickenAttack(float x, float y, float width, float height, Chef chef, Chicken chicken, AttackType type) {
-        super(x, y, width, height);
+        super(x, y, width, height, ObjectType.ATTACK);
         this.type = type;
         this.chicken = chicken;
         this.target = new Vector2(chicken.getDestination());
         setName("chickenAttack");
-        setSensorName("chickenAttackSensor");
+        //setSensorName("chickenAttackSensor");
         setDensity(0f);
         Filter filter;
         switch(type) {
@@ -216,7 +216,7 @@ public class ChickenAttack extends GameObject {
         sensorDef.shape = sensorShape;
 
         Fixture sensorFixture = body.createFixture(sensorDef);
-        sensorFixture.setUserData(getSensorName());
+        sensorFixture.setUserData(FixtureType.BASIC_ATTACK);
 
         return true;
     }
