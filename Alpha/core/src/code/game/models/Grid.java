@@ -47,6 +47,14 @@ public class Grid {
         populate();
     }
 
+    public void clearObstacles(){
+        for (int ii = 0; ii < ROWS; ii++){
+            for (int jj = 0; jj < COLS; jj++){
+                getTile(ii,jj).clearObstacle();
+            }
+        }
+    }
+
     /** Resets all costs for every tile to the initial starting values */
     public void clearCosts() {
         for (int i = 0; i < ROWS; i++) {
@@ -294,6 +302,10 @@ public class Grid {
          * Set obstacle to true
          */
         public void setObstacle() { obstacle = true; }
+        /**
+         * Set obstacle to false
+         */
+        public void clearObstacle() { obstacle = false; }
 
         /**
          * Whether or not this tile is contains a wall or an obstacle

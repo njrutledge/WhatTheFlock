@@ -120,6 +120,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			controller.gatherAssets(directory);
 			controller.setScreenListener(this);
 			controller.setCanvas(canvas);
+			controller.initGrid();
 			if(exitCode == GameController.EASY){
 				controller.initEasy();
 			} else if (exitCode == GameController.MED){

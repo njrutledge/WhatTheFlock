@@ -20,6 +20,7 @@ public class Trap extends GameObject implements TrapInterface {
         SLOW,
         FIRE,
         FIRE_LINGER,
+        FAULTY_OVEN
     }
 
     /**
@@ -83,7 +84,9 @@ public class Trap extends GameObject implements TrapInterface {
     /** Activation radius for environmental traps */
     private final float ACTIVATION_RADIUS = 1.0f;
     /** Activation time for environmental traps */
-    private final float ACTIVATION_TIME = 10.0f;
+    private final float SLOW_ACTIVATION_TIME = 10.0f;
+    /** Activation time for environmental traps */
+    private final float FAULTY_OVEN_ACTIVATION_TIME = 2.0f;
     /** Timer for how long the environmental trap is active */
     private float activeTimer = 0.0f;
     /** Time needed to reset the trap after use */
@@ -318,7 +321,13 @@ public class Trap extends GameObject implements TrapInterface {
             isActive = false;
         }
         if(isActive){
-            activeTimer = ACTIVATION_TIME;
+            switch(trapType){
+                case SLOW:
+                    activeTimer = SLOW_ACTIVATION_TIME;
+                    break;
+                case FAULTY_OVEN:
+                    activeTimer = FAULTY_OVEN_ACTIVATION_TIME;
+            }
         }
     }
 
