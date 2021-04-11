@@ -111,7 +111,6 @@ public class ChickenAttack extends GameObject {
 
     public void collideObject(Chicken chicken) {
         if (type == AttackType.Charge && chicken != this.chicken) {
-            System.out.println("Chicken colliding with another chicken");
 
             collideObject();
         }
@@ -230,7 +229,6 @@ public class ChickenAttack extends GameObject {
         this.texture = texture;
         origin.x = texture.getRegionWidth()/2.0f;
         origin.y = texture.getRegionHeight()/2.0f;
-        System.out.println("setting texture");
     }
 
     /**

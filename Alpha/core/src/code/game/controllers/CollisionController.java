@@ -54,13 +54,13 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleCollision(Obstacle bd1, Object fd1, Obstacle bd2, Object fd2){
         if ((bd1.getName().contains("platform") || bd1.getName().contains("wall"))) {
             if (fd2 != null && fd2.toString().equals("chickenAttackSensor")) {
-                System.out.println("Attack colliding with wall");
+                //System.out.println("Attack colliding with wall");
                 ((ChickenAttack)bd2).collideObject();
             }
         }
         else if ((bd2.getName().contains("platform") || bd2.getName().contains("wall"))){
             if (fd1 != null && fd1.toString().equals("chickenAttackSensor")) {
-                System.out.println("Attack colliding with wall");
+                //System.out.println("Attack colliding with wall");
                 ((ChickenAttack)bd1).collideObject();
             }
         }
@@ -225,7 +225,7 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chef      a chef
      */
     private void handleStoveChef(Stove stove, Chef chef){
-        System.out.println("Cooking");
+        //System.out.println("Cooking");
         chef.setCooking(true);
         chef.setMovement(0);
         chef.setVertMovement(0);
@@ -270,7 +270,7 @@ public class CollisionController implements CollisionControllerInterface {
      * Handles an interaction between a non-chef obstacle and a chicken attack
      */
     private void handleObstacleChickenAttack(Obstacle obstacle, Object fd1, ChickenAttack attack, Object fd2){
-        System.out.println("Chicken attack colliding with obstacle " + fd1.toString());
+        //System.out.println("Chicken attack colliding with obstacle " + fd1.toString());
         attack.collideObject();
     }
 
@@ -326,8 +326,8 @@ public class CollisionController implements CollisionControllerInterface {
         Obstacle bd2 = (Obstacle) body2.getUserData();
         if (bd1.getName() != "wall" && bd2.getName() != "wall") {
             if (bd1.getName() != "trap" && bd2.getName() != "trap") {
-                System.out.print(bd1.getName() + "'s " + (fd1 != null ? fd1.toString() : ""));
-                System.out.println(" ending contact with " + bd2.getName() + "'s " + (fd2 != null ? fd2.toString() : ""));
+                //System.out.print(bd1.getName() + "'s " + (fd1 != null ? fd1.toString() : ""));
+                //System.out.println(" ending contact with " + bd2.getName() + "'s " + (fd2 != null ? fd2.toString() : ""));
             }
         }
 
