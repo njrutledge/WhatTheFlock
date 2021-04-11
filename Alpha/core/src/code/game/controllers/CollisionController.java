@@ -14,6 +14,8 @@ public class CollisionController implements CollisionControllerInterface {
 
     private TrapController trapController;
 
+    private Chef chef;
+
     public CollisionController(Vector2 scale){
         trapController = new TrapController(scale);
     }
@@ -24,6 +26,14 @@ public class CollisionController implements CollisionControllerInterface {
      */
     public void setConstants(JsonValue constants){
         trapController.setConstants(constants);
+    }
+    /**
+     *  sets the current chef
+     *
+     * @param c the Chef
+     */
+    public void setChef(Chef c){
+        chef = c;
     }
     /**
      * Callback method for the start of a collision
@@ -177,6 +187,9 @@ public class CollisionController implements CollisionControllerInterface {
 
     private void handleTrapSlap(Trap t1, Object fd1, Slap s2, Object fd2){
         t1.markActive(true);
+        if(t1.getTrapType().equals(Trap.type.FAULTY_OVEN)){
+            chef.setDoubleDamage(true);
+        }
     }
 
     /**

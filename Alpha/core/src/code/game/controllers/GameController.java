@@ -419,6 +419,8 @@ public class GameController implements ContactListener, Screen {
 
 		//add chef here!
 		addObject(chef);
+		//set the chef in the collision controller now that it exists
+		collisionController.setChef(chef);
 		/*String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 		JsonValue defaults = constants.get("defaults");
@@ -579,7 +581,7 @@ public class GameController implements ContactListener, Screen {
 					trapHelper(x, y, Trap.type.LURE, true);
 					break;
 				case LEVEL_FIRE:
-					trapHelper(x, y, Trap.type.FIRE, true);
+					trapHelper(x, y, Trap.type.FAULTY_OVEN, true);
 					break;
 			}
 		}

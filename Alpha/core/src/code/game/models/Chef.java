@@ -82,10 +82,15 @@ public class Chef extends GameObject implements ChefInterface {
 	/** size of each heart */
 	private final int HEART_SIZE = 30;
 	/** Time until invulnerability after getting hit wears off */
-	//TODO: make final after technical
-	private float INVULN_TIME = 1;
-	//TODO: make final after technical
-	private float BASE_DAMAGE = 2;
+	private final float INVULN_TIME = 1;
+	/** Chef base damage */
+	private final float BASE_DAMAGE = 2;
+	/** Flag for double damage */
+	private boolean doubleDamage = false;
+	/** Timer for double damage */
+	private float damageTimer = 0.0f;
+	/**max time for double damage */
+	private final float DAMAGE_TIME = 7.5f;
 	/** How fast we change frames (one frame per 4 calls to update */
 	private static final float ANIMATION_SPEED = 0.25f;
 	/** The number of animation frames in our filmstrip */
@@ -348,7 +353,14 @@ public class Chef extends GameObject implements ChefInterface {
 	 *
 	 * @return the base damage value for the chef
 	 */
-	public float getDamage(){ return BASE_DAMAGE;}
+	public float getDamage(){ return doubleDamage ? BASE_DAMAGE * 2 : BASE_DAMAGE;}
+
+	/**
+	 * sets the double damage flag for the chef, and init the counter
+	 *
+	 * @param bool the value of the flag
+	 */
+	public void setDoubleDamage(boolean bool){ doubleDamage = bool; damageTimer = DAMAGE_TIME;}
 
 	/**
 	 * Returns true if this character is facing right
@@ -470,6 +482,13 @@ public class Chef extends GameObject implements ChefInterface {
 		} else {
 			trapCooldown = Math.max(0, trapCooldown - 1);
 		}
+
+		if(doubleDamage){
+			damageTimer -= dt;
+			if(damageTimer <= 0){
+				doubleDamage = false;
+			}
+		}
 		super.update(dt);
 	}
 	/**
@@ -481,7 +500,7 @@ public class Chef extends GameObject implements ChefInterface {
 		float effect = faceRight ? 1.0f : -1.0f;
 		animator.setFrame((int)animeframe);
 		if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
-			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
+			canvas.draw(animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
 		}
 
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
