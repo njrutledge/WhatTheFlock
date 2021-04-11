@@ -190,7 +190,7 @@ public class AIController {
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_DUR);
         changeState();
-        state = FSM.STOP;
+        //state = FSM.STOP;
         setForceCache();
         if (state == FSM.ATTACK && target.isActive()) {
             chicken.attack(dt);

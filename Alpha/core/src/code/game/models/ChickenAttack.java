@@ -2,6 +2,7 @@ package code.game.models;
 
 import code.game.views.GameCanvas;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -46,6 +47,10 @@ public class ChickenAttack extends GameObject {
     private float age;
     /** Whether this attack should be removed */
     private boolean remove;
+    /** The maximum length of time a projectile attack can exist */
+    private final float PROJECTILE_MAX_AGE = 2f;
+    /** Speed of projectiles */
+    private final float PROJECTILE_SPEED = 8f;
 
     /** Creates an instance of a basic attack */
     public ChickenAttack(float x, float y, float width, float height, Chef chef, Chicken chicken, AttackType type) {
@@ -79,6 +84,9 @@ public class ChickenAttack extends GameObject {
             case Projectile:
                 setPosition(getVector(false));
                 destination = chicken.target.getPosition();
+                setLinearVelocity(destination.sub(chicken.getPosition()).nor().scl(PROJECTILE_SPEED)); // move towards destination
+                setSensor(true); // Set sensor to avoid projectile bouncing off of chicken body
+                texture = ((ShreddedChicken)chicken).getProjectileTexture();
                 break;
             case Explosion:
                 destination = getPosition();
@@ -111,6 +119,7 @@ public class ChickenAttack extends GameObject {
 
     public void collideObject() {
         if (type == AttackType.Charge) {  chicken.setStopped(true); chicken.interruptAttack(); remove = true; }
+        //if (type == AttackType.Projectile) { remove = true; } // Delete projectile after colliding with something
     }
 
     /** Returns whether the destination has been reached
@@ -119,7 +128,7 @@ public class ChickenAttack extends GameObject {
      */
     public boolean atDestination(float dt) {
         age += dt;
-        if (remove) { return true; }
+        if ((type==AttackType.Projectile && age> PROJECTILE_MAX_AGE) || remove) { return true; }
         if (distance(getX(), getY(), destination.x, destination.y) < 0.5f && age > ATTACK_DUR) {
             if (type == AttackType.Charge) {
                 //setLinearVelocity(destination.setZero());
@@ -153,6 +162,7 @@ public class ChickenAttack extends GameObject {
      * */
     private Vector2 getVector(boolean over_extend) {
         float dist;
+        if(type == AttackType.Projectile) { return chicken.getPosition(); } // Fire from center of chicken
         if (over_extend) {
             dist = distance(chicken.getX(), chicken.getY(), target.x, target.y) + OVEREXTEND_DIST;
         }
@@ -213,6 +223,17 @@ public class ChickenAttack extends GameObject {
     }
 
     /**
+     * Set the texture for this attack
+     * @param texture   the texture for this attack
+     */
+    public void setTexture(TextureRegion texture){
+        this.texture = texture;
+        origin.x = texture.getRegionWidth()/2.0f;
+        origin.y = texture.getRegionHeight()/2.0f;
+        System.out.println("setting texture");
+    }
+
+    /**
      * Draws the unlit stove
      *
      * @param canvas Drawing context
@@ -222,8 +243,11 @@ public class ChickenAttack extends GameObject {
             case Basic:
                 break;
             case Projectile:
+                canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x - 50, getY() * drawScale.x - 60, getAngle(), 0.25f, 0.25f);
+                break;
             case Explosion:
-                canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 2, 2);
+                //canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 2, 2);
+                break;
         }
     }
 
