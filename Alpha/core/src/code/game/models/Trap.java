@@ -1,8 +1,6 @@
 package code.game.models;
 
 import code.game.interfaces.TrapInterface;
-import code.game.models.obstacle.BoxObstacle;
-import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.physics.box2d.*;
 
@@ -122,14 +120,14 @@ public class Trap extends GameObject implements TrapInterface {
     public Trap(JsonValue data, float x, float y, float width, float height, type t, shape s, boolean env) {
         super(x, y,
                 width * data.get("shrink").getFloat(0),
-                height * data.get("shrink").getFloat(1));
+                height * data.get("shrink").getFloat(1), ObjectType.TRAP);
         setBodyType(BodyDef.BodyType.StaticBody);
         setFixedRotation(true);
         this.data = data;
         setName("trap");
         trapType = t;
         trapShape = s;
-        setSensorName("trapSensor");
+        //setSensorName("trapSensor");
         setSensor(true);
         durability = MAX_DURABILITY;
         linger = false;
@@ -257,7 +255,7 @@ public class Trap extends GameObject implements TrapInterface {
                 lHShape.setRadius(LURE_HURT);
                 sensHurt.shape = lHShape;
                 Fixture sensorHurtF = body.createFixture(sensHurt);
-                sensorHurtF.setUserData("lureHurt");
+                sensorHurtF.setUserData(FixtureType.LURE_HURT);//"lureHurt");
                 break;
             case SLOW:
                 sensorShape.setRadius(SLOW_RADIUS);
@@ -271,7 +269,7 @@ public class Trap extends GameObject implements TrapInterface {
         }
         sensorDef.shape = sensorShape;
         hitFixture = body.createFixture(sensorDef);
-        hitFixture.setUserData(getSensorName());
+        hitFixture.setUserData(FixtureType.TRAP_SENSOR);//getSensorName());
         needsPhysics = false;
         return true;
     }
@@ -286,7 +284,7 @@ public class Trap extends GameObject implements TrapInterface {
         sensorShape.setRadius(ACTIVATION_RADIUS);
         sensorDef.shape = sensorShape;
         Fixture sensorFixture = body.createFixture(sensorDef);
-        sensorFixture.setUserData("trapActivationRadius");
+        sensorFixture.setUserData(FixtureType.TRAP_ACTIVATION);//"trapActivationRadius");
         return true;
     }
 
@@ -355,7 +353,7 @@ public class Trap extends GameObject implements TrapInterface {
                 lHShape.setRadius(LURE_HURT);
                 sensHurt.shape = lHShape;
                 Fixture sensorHurtF = body.createFixture(sensHurt);
-                sensorHurtF.setUserData("lureHurt");
+                sensorHurtF.setUserData(FixtureType.LURE_HURT);//"lureHurt");
                 break;
             case SLOW:
                 sensorShape.setRadius(SLOW_RADIUS);
@@ -369,7 +367,7 @@ public class Trap extends GameObject implements TrapInterface {
         }
         sensorDef.shape = sensorShape;
         Fixture sensorFixture = body.createFixture(sensorDef);
-        sensorFixture.setUserData(getSensorName());
+        sensorFixture.setUserData(FixtureType.TRAP_SENSOR);//getSensorName());
         return true;
     }
 

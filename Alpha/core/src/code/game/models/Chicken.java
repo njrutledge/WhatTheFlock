@@ -1,7 +1,6 @@
 package code.game.models;
 
 import code.game.interfaces.ChickenInterface;
-import code.game.models.obstacle.CapsuleObstacle;
 import code.game.models.obstacle.Obstacle;
 import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -11,12 +10,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.JsonValue;
 //import edu.cornell.gdiac.physics.*;
-import code.game.models.obstacle.*;
-import code.util.FilmStrip;
 import code.game.views.GameCanvas;
-
-import java.util.ArrayList;
-import java.util.PriorityQueue;
 
 public abstract class Chicken extends GameObject implements ChickenInterface {
     //TODO: Implement the Enemy Chicken and its methods, feel free to add or remove methods as needed
@@ -121,12 +115,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public Chicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
         super(x, y, width * unique.get("shrink").getFloat(0),
-                height * unique.get("shrink").getFloat(1));
+                height * unique.get("shrink").getFloat(1), ObjectType.CHICKEN);
         setDensity(unique.getFloat("density", 0));
         setFriction(data.getFloat("friction", 0));  /// IT WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true);
         setName("chicken");
-        setSensorName("chickenSensor");
+        //setSensorName("chickenSensor");
         this.target = player;
         this.player = player;
         maxspeed = unique.getFloat("maxspeed", 0);
@@ -199,7 +193,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
         // Ground sensor to represent our feet
         Fixture sensorFixture = body.createFixture( sensorDef );
-        sensorFixture.setUserData(getSensorName());
+        sensorFixture.setUserData(FixtureType.CHICKEN_SENSOR);//getSensorName());
 
 
         return true;

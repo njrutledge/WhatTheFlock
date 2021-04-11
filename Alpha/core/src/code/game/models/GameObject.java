@@ -6,12 +6,38 @@ import com.badlogic.gdx.physics.box2d.World;
 
 public abstract class GameObject extends BoxObstacle {
     /** Identifier to allow us to track the sensor in ContactListener */
-    private String sensorName;
+    //private String sensorName;
     /** A name for debugging purposes */
     private String name;
+    /** The type of Object */
+    private ObjectType type;
 
-    public GameObject(float x, float y, float width, float height){
+    /**
+     * Represents the type of GameObject
+     */
+    public enum ObjectType{
+        CHICKEN,
+        CHEF,
+        STOVE,
+        SLAP,
+        TRAP,
+        PLACE
+    }
+    /**
+     * Represents the type of Fixture
+     */
+    public enum FixtureType{
+        //traps
+        TRAP_SENSOR, TRAP_ACTIVATION, LURE_HURT,
+        //attacks
+        BASIC_ATTACK,
+        //other
+        CHEF_SENSOR, CHICKEN_SENSOR, SLAP_SENSOR, STOVE_SENSOR, PLACE_SENSOR
+    }
+
+    public GameObject(float x, float y, float width, float height, ObjectType o){
         super(x,y,width,height);
+        type = o;
     }
 
     /**
@@ -21,10 +47,13 @@ public abstract class GameObject extends BoxObstacle {
      *
      * @return the name of the ground sensor
      */
-    public String getSensorName() {
+    /*public String getSensorName() {
         return sensorName;
-    }
+    }*/
 
+    public ObjectType getObjectType(){
+        return type;
+    }
     /**
      * Returns the name tag of the trap
      *
@@ -36,9 +65,9 @@ public abstract class GameObject extends BoxObstacle {
         return name;
     }
 
-    public void setSensorName(String sensorName) {
+    /*public void setSensorName(String sensorName) {
         this.sensorName = sensorName;
-    }
+    }*/
 
     /**
      * Sets the game object tag.
@@ -59,3 +88,4 @@ public abstract class GameObject extends BoxObstacle {
         super.drawDebug(canvas);
     }
 }
+
