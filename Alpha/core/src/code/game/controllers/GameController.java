@@ -47,7 +47,7 @@ public class GameController implements ContactListener, Screen {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level02";
+	private final String DEFAULT_LEVEL = "level03";
 
 
 	/** The texture for walls and platforms */
