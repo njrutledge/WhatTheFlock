@@ -1,9 +1,7 @@
 package code.game.models;
 
-import code.game.interfaces.StoveInterface;
 import code.game.views.GameCanvas;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -21,11 +19,11 @@ public class Slap extends GameObject {
 
     //TODO: add comment
     public Slap(JsonValue jv, float x, float y, float width, float height, int direction) {
-        super(x, y, width, height);
+        super(x, y, width, height, ObjectType.SLAP);
         setFixedRotation(true);
         data = jv;
-        setName("bullet");
-        setSensorName("slapSensor");
+        setName("slap");
+        //setSensorName("slapSensor");
         setSensor(true);
         setDensity(0);
         offset = data.getFloat("offset",0);
@@ -80,7 +78,7 @@ public class Slap extends GameObject {
         sensorDef.shape = sensorShape;
 
         Fixture sensorFixture = body.createFixture( sensorDef );
-        sensorFixture.setUserData(getSensorName());
+        sensorFixture.setUserData(FixtureType.SLAP_SENSOR);//getSensorName());
 
         return true;
     }
