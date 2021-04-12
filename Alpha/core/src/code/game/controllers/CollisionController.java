@@ -187,8 +187,15 @@ public class CollisionController implements CollisionControllerInterface {
 
     private void handleTrapSlap(Trap t1, Object fd1, Slap s2, Object fd2){
         t1.markActive(true);
-        if(t1.getTrapType().equals(Trap.type.FAULTY_OVEN)){
+        switch(t1.getTrapType()){
+            case FAULTY_OVEN:
             chef.setDoubleDamage(true);
+            break;
+            case BREAD_BOMB:
+                trapController.createLures(t1.getPosition());
+                break;
+
+
         }
     }
 

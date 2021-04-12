@@ -137,6 +137,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         health = max_health;
         this.data = data;
         this.unique = unique;
+        Filter chickFilter = new Filter();
+        chickFilter.categoryBits = 0x0004;
+        chickFilter.maskBits = ~0x0010;
+        setFilterData(chickFilter);
     }
 
     /** Returns the json data for this chicken */

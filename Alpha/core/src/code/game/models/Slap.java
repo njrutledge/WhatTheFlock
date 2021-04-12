@@ -50,10 +50,10 @@ public class Slap extends GameObject {
             setAngularVelocity(-1*angvel);
         }
 
-        Filter bulletFilter = new Filter();
-        bulletFilter.groupIndex = -1;
-        bulletFilter.categoryBits = 0x0002;
-        setFilterData(bulletFilter);
+        Filter SlapFilter = new Filter();
+        SlapFilter.groupIndex = -1;
+        SlapFilter.categoryBits = 0x0002;
+        setFilterData(SlapFilter);
         setBullet(true);
         setGravityScale(0);
     }

@@ -536,6 +536,11 @@ public class GameController implements ContactListener, Screen {
 					obj.setDrawScale(scale);
 					obj.setTexture(earthTile);
 					obj.setName(LEVEL_WALL);//+ii); If we need to specify name further, its here
+					Filter WallFilter = new Filter();
+					WallFilter.groupIndex = -1;
+					WallFilter.categoryBits = 0x0001;
+					WallFilter.maskBits |= 0x0010;
+					obj.setFilterData(WallFilter);
 					addObject(obj);
 
 					grid.setObstacle(x,y);

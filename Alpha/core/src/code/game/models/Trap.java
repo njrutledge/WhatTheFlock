@@ -20,7 +20,8 @@ public class Trap extends GameObject implements TrapInterface {
         SLOW,
         FIRE,
         FIRE_LINGER,
-        FAULTY_OVEN
+        FAULTY_OVEN,
+        BREAD_BOMB
     }
 
     /**
@@ -130,7 +131,11 @@ public class Trap extends GameObject implements TrapInterface {
         trapType = t;
         trapShape = s;
         setSensorName("trapSensor");
-        setSensor(true);
+        //setSensor(true);
+        Filter TrapFilter = new Filter();
+        TrapFilter.categoryBits = 0x0010;
+        TrapFilter.maskBits = 0x0001;
+        setFilterData(TrapFilter);
         durability = MAX_DURABILITY;
         linger = false;
         environmental = env;
