@@ -557,6 +557,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         target = player;
     }
 
+    public Obstacle getTarget(){
+        return target;
+    }
+
     /**
      * updates the isStunned condition for the chicken
      * updates the isStunned condition for the chicken

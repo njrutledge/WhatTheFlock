@@ -203,6 +203,7 @@ public class AIController {
         if (state == FSM.ATTACK && target.isActive()) {
             chicken.attack(dt);
         }
+        target = (GameObject) chicken.getTarget();
     }
 
     /**
