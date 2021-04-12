@@ -13,7 +13,10 @@
         "char:chef":"characters/chef_animation_run.png",
         "char:bullet": "characters/bullet.png",
         "char:nugget": "characters/nugget.png",
+        "char:buffalo": "characters/buffalo.png",
+        "char:shredded": "characters/shredded.png",
         "char:nuggetBar": "characters/nuggetBar.png",
+        "char:egg": "characters/egg.png",
 
         "ui:tempBar": {
           "file":      "ui/tempbar.png",

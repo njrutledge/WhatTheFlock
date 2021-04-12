@@ -14,9 +14,7 @@ import code.game.models.GameObject.ObjectType;
 import code.game.models.GameObject.FixtureType;
 
 public class CollisionController implements CollisionControllerInterface {
-    /**
-     * The damage for this round of contact
-     */
+    /**The damage for this round of contact*/
     private float dmg;
 
     private TrapController trapController;
@@ -31,7 +29,6 @@ public class CollisionController implements CollisionControllerInterface {
 
     /**
      * Sets the constants parameter of trapController
-     *
      * @param constants the jsonValue to be set
      */
     public void setConstants(JsonValue constants) {
@@ -78,8 +75,16 @@ public class CollisionController implements CollisionControllerInterface {
                 if (fd1 != null && fd2 != null) {
                     handleCollision((GameObject) bd1, fd1, fix1, (GameObject) bd2, fd2, fix2);
                 }
+            } else {
+                //process Charge Attack collision with walls
+                if (bd1.getName().contains("wall") || bd2.getName().contains("wall")) {
+                    if (fd1 != null && fd1 == FixtureType.CHARGE_ATTACK) {
+                        ((ChickenAttack) bd1).collideObject();
+                    } else if (fd2 != null && fd2 == FixtureType.CHARGE_ATTACK) {
+                        ((ChickenAttack) bd2).collideObject();
+                    }
+                }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -149,10 +154,13 @@ public class CollisionController implements CollisionControllerInterface {
                 handleStoveChef((Stove) bd2, c1);
                 break;
             case CHICKEN:
-                handleChefChicken(c1, fd1, fix1, (Chicken) bd2, fd2, fix2);
+                handleChefChicken(c1, fd1, (Chicken) bd2, fd2);
                 break;
             case PLACE:
                 c1.setCanPlaceTrap(true);
+                break;
+            case ATTACK:
+                handleChefChickenAttack(c1, fd1, (ChickenAttack) bd2, fd2);
                 break;
         }
     }
@@ -163,17 +171,17 @@ public class CollisionController implements CollisionControllerInterface {
         }
     }
 
-
-    private void slapCollision(Slap s1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
-        switch (bd2.getObjectType()) {
-            case CHICKEN:
-                handleChickenSlap((Chicken) bd2, fd2, s1, fd1);
-                break;
-            case TRAP:
-                handleTrapSlap((Trap) bd2, fd2, s1, fd1);
-                break;
+        private void slapCollision(Slap s1, FixtureType fd1, GameObject bd2, FixtureType fd2){
+        //TODO make slap class
+            switch(fd2){
+                case CHICKEN_HITBOX:
+                    handleChickenSlap((Chicken)bd2, fd2, s1, fd1);
+                    break;
+                case TRAP_ACTIVATION:
+                    handleTrapSlap((Trap) bd2,fd2, s1, fd1);
+                    break;
+            }
         }
-    }
 
 
     private void trapCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
@@ -226,15 +234,31 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chicken
      * @param fd2
      */
-    private void handleChefChicken(Chef chef, FixtureType fd1, Fixture fix1, Chicken chicken, FixtureType fd2, Fixture fix2) {
+    private void handleChefChicken(Chef chef, FixtureType fd1, Chicken chicken, FixtureType fd2){
         //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
-        if (chicken.getHitboxOut() && (fd1 == FixtureType.BASIC_ATTACK
-                || fd2 == FixtureType.BASIC_ATTACK)) {//fix2.getUserData() == "basicattack")){
-            chef.decrementHealth();
-            chicken.hitPlayer();
-        } else if (chicken.chasingPlayer(chef)) {
+        if (fd2 == FixtureType.CHICKEN_SENSOR && chicken.chasingPlayer(chef)){
             chicken.startAttack();
         }
+    }
+
+    /**
+     * Handles an interaction between a given chef and a chicken attack
+     */
+    private void handleChefChickenAttack(Chef chef, Object fd1, ChickenAttack attack, Object fd2){
+        chef.decrementHealth();
+        attack.collideObject();
+    }
+
+    /**
+     * Handles an interaction between a non-chef obstacle and a chicken attack
+     */
+    private void handleObstacleChickenAttack(Obstacle obstacle, Object fd1, ChickenAttack attack, Object fd2){
+        attack.collideObject();
+    }
+
+    /** Handles an interaction between a chicken and a chicken attack */
+    private void handleChickenChickenAttack(Chicken c1, Object fd1, ChickenAttack attack, Object fd2) {
+        attack.collideObject(c1);
     }
 
     /**
@@ -387,8 +411,10 @@ public class CollisionController implements CollisionControllerInterface {
         trapController.stopTrap(t2, c1);
     }
 
-    private void endChickenChef(Chicken chicken, FixtureType fd1, Chef chef, FixtureType fd2) {
-        chicken.stopAttack();
+    private void endChickenChef(Chicken chicken, FixtureType fd1, Chef chef, FixtureType fd2){
+        if (fd1 == FixtureType.CHICKEN_SENSOR) {
+            chicken.stopAttack(false);
+        }
     }
 
     private void endStoveChef(Stove stove, FixtureType fd1, Chef chef, FixtureType fd2) {

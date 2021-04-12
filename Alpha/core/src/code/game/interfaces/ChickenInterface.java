@@ -42,7 +42,7 @@ public interface ChickenInterface {
 
     public void startAttack();
 
-    public void stopAttack();
+    public void stopAttack(boolean touching);
 
     public boolean isAttacking();
 
@@ -112,7 +112,7 @@ public interface ChickenInterface {
     /**
      * The chicken has collided with the player and will remain stationary for some time
      */
-    public void hitPlayer();
+    public void setStopped(boolean stopped);
 
     /**
      * Set the value of the forceCache

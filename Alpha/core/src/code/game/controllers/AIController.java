@@ -37,6 +37,39 @@ public class AIController {
     private final float INVULN_TIME = 1f;
     /** Counter for Invulnerability timer*/
     private float invuln_counter = INVULN_TIME;
+    /** Time to move perpendicular to a wall upon collision before returning to normal AI */
+    private final float SIDEWAYS_TIME = 0.1f;
+    /** Counter for sideways movement timer*/
+    private float sideways_counter = SIDEWAYS_TIME;
+    /** Time to remain stationary after hitting the player */
+    private final float STOP_DUR;
+    /** Counter for stop movement timer*/
+    private float stop_counter;
+    /** True if the chicken has just been hit and the knockback has not yet been applied*/
+    private boolean hit = false;
+
+    private final int FIRE_MULT = 2;
+
+    private boolean finishA = false;
+
+    private boolean soundCheck = true;
+
+    private float attack_timer = -1f;
+
+    private float attack_charge = 0f;
+
+    private float ATTACK_CHARGE = 0.4f;
+
+    private boolean hitboxOut = false;
+
+
+    private float ATTACK_DUR = 0.2f;
+
+    private CircleShape attackHit;
+
+    private float ATTACK_RADIUS = 1.5f;
+
+    protected FilmStrip animator;
     /** Reference to texture origin */
     protected Vector2 origin;
 
@@ -49,6 +82,7 @@ public class AIController {
         CHASE, /** Chicken is chasing the player, but not in attack range yet*/
         KNOCKBACK,/** The chicken has just taken damage and is receiving a knockback force*/
         STUNNED,/** The chicken has recently taken damage, but not receiving a knockback force*/
+        STOP, /** The chicken has recently attacked and is recovering before performing an action */
         ATTACK /** The chicken is attacking the chef */
     }
 
@@ -68,6 +102,7 @@ public class AIController {
     /** The tile that is the child of move_tile */
     protected Grid.Tile child_tile;
 
+    int iter = 0;
     /** Vector2 used for calculations to avoid making Vector2's every frame */
     private Vector2 temp = new Vector2();
 
@@ -86,6 +121,8 @@ public class AIController {
         this.unique = chicken.getJsonUnique();
         this.state = FSM.CHASE;
         this.grid = grid;
+        STOP_DUR = chicken.getStopDur();
+        stop_counter = STOP_DUR;
         chaseSpeed = unique.getFloat("chasespeed", 0);
         knockback = unique.getFloat("knockback", 0);
         open = new PriorityQueue<>(4, grid.getComparator());
@@ -101,7 +138,10 @@ public class AIController {
             case CHASE:
                 if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
-                } else if (chicken.isAttacking()) {
+                } else if (stop_counter < STOP_DUR) {
+                    state = FSM.STOP;
+                }
+                else if (chicken.isAttacking()) {
                     state = FSM.ATTACK;
                 }
                 break;
@@ -118,14 +158,30 @@ public class AIController {
                     chicken.setInvisible(false);
                 }
                 break;
-            case ATTACK:
-                if (chicken.getHit()) {
+            case STOP:
+                if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
-                else if (!chicken.isAttacking()) {
-                   state = FSM.CHASE;
+                else if (stop_counter >= STOP_DUR) {
+                    if (chicken.isTouching()) {
+                        state = FSM.ATTACK; chicken.startAttack();
+                    }
+                    else { state = FSM.CHASE; }
                 }
-
+                break;
+            case ATTACK:
+                if (chicken.getHit()){
+                    state = FSM.KNOCKBACK;
+                }
+                else if (stop_counter < STOP_DUR) {
+                    state = FSM.STOP;
+                }
+/*                else if (!chicken.isAttacking() && !chicken.isTouching()) {
+                    state = FSM.CHASE;
+                }*/
+                else if (chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching()) {
+                    state = FSM.CHASE;
+                }
                 break;
             default: // This shouldn't happen
                 break;
@@ -137,12 +193,16 @@ public class AIController {
      * @param dt    the number of seconds since the last animiation frame
      * */
     public void update(float dt){
+        iter++;
+        if (chicken.isStopped()) { stop_counter = 0; }
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
+        stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_DUR);
+        changeState();
+        //state = FSM.STOP;
+        setForceCache();
         if (state == FSM.ATTACK && target.isActive()) {
             chicken.attack(dt);
         }
-        setForceCache();
-        changeState();
     }
 
     /**
@@ -168,10 +228,27 @@ public class AIController {
                 temp.setZero();
                 chicken.setForceCache(temp, true);
                 break;
-            case ATTACK:
+            case STOP:
                 temp.setZero();
                 chicken.setForceCache(temp, false);
                 break;
+            case ATTACK:
+                switch(chicken.getType()) {
+                    case Buffalo:
+                        if (chicken.doneCharging()) {
+                            if (!chicken.isRunning()) {
+                                chicken.setRunning(true);
+                                temp.set(new Vector2(chicken.getDestination()).sub(chicken.getPosition()));
+                            }
+                        }
+                        else { temp.setZero(); }
+                        chicken.setForceCache(temp, false);
+                        break;
+                    default:
+                        temp.setZero();
+                        chicken.setForceCache(temp, false);
+                        break;
+                }
             default: // This shouldn't happen
                 break;
         }

@@ -150,6 +150,12 @@ public class Chef extends GameObject implements ChefInterface {
 		isTrap = false;
 		isCooking = false;
 		animeframe = 0.0f;
+		Filter filter = new Filter();
+		//0x0001 = player
+		filter.categoryBits = 0x0001;
+		//0x0002 = chickens, 0x0004 walls, 0x0016 buffalo's headbutt
+		filter.maskBits = 0x0002 | 0x0004 | 0x0016;
+		setFilterData(filter);
 	}
 
 	/**Sets the chef's cooking status
@@ -399,7 +405,7 @@ public class Chef extends GameObject implements ChefInterface {
 		Vector2 sensorCenter = new Vector2(0, -getHeight()/4);
 		FixtureDef sensorDef = new FixtureDef();
 		sensorDef.density = data.getFloat("density",0);
-		sensorDef.isSensor = true;
+		//sensorDef.isSensor = true;
 		sensorDef.filter.groupIndex = -1;
 		sensorDef.filter.categoryBits =  0x0002;
 		sensorShape = new PolygonShape();
