@@ -16,8 +16,8 @@ public class Trap extends GameObject implements TrapInterface {
     public enum type {
         LURE,
         SLOW,
-        FIRE,
-        FIRE_LINGER,
+        //FIRE,
+        //FIRE_LINGER,
         FRIDGE,
         FAULTY_OVEN,
         BREAD_BOMB
@@ -198,8 +198,8 @@ public class Trap extends GameObject implements TrapInterface {
         switch (trapType) {
             case SLOW:
                 return SLOW_EFFECT;
-            case FIRE_LINGER:
-                return FIRE_DAM_DUR;
+            //case FIRE_LINGER:
+              //  return FIRE_DAM_DUR;
         }
         return -1;
     }
@@ -242,9 +242,10 @@ public class Trap extends GameObject implements TrapInterface {
             case LURE:
                 durability = Math.max(0, durability - LURE_CRUMBS);
                 break;
-            case FIRE:
+            /*case FIRE:
                 durability = 0; //FIRE transitions into FIRE_LINGER
                 break;
+             */
             case SLOW:
                 durability = Math.max(0, --durability);
                 break;
@@ -265,12 +266,13 @@ public class Trap extends GameObject implements TrapInterface {
     public void update(float delta) {
 
         super.update(delta);
-        if (trapType == type.FIRE_LINGER) {
+        /*if (trapType == type.FIRE_LINGER) {
             durability = durability - (MAX_DURABILITY / FIRE_DUR * delta);
             if (durability <= 0) {
                 this.markRemoved(true);
             }
-        }
+        }*/
+
         switch(trapType){
             case FRIDGE:
             case BREAD_BOMB:
@@ -327,12 +329,12 @@ public class Trap extends GameObject implements TrapInterface {
                 hitFixture = body.createFixture(sensorDef);
                 hitFixture.setUserData(FixtureType.TRAP_SENSOR);
                 break;
-            case FIRE:
+            /*case FIRE:
                 sensorShape.setRadius(FIRE_TRIGGER_RADIUS);
                 break;
             case FIRE_LINGER:
                 sensorShape.setRadius(FIRE_LINGER_RADIUS);
-            case FRIDGE:
+            */case FRIDGE:
             case BREAD_BOMB:
             case FAULTY_OVEN:
                 sensorShape.setRadius(ACTIVATION_RADIUS);
@@ -384,9 +386,10 @@ public class Trap extends GameObject implements TrapInterface {
             case SLOW:
                 c = slowColor.cpy();
                 break;
-            case FIRE_LINGER:
+            /*case FIRE_LINGER:
                 c = Color.FIREBRICK.cpy();
                 break;
+                */
             case FRIDGE:
                 c = Color.BLUE.cpy();
 

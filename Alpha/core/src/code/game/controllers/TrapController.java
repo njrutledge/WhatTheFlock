@@ -46,8 +46,7 @@ public class TrapController implements TrapControllerInterface {
             case SLOW:
                 c.inSlow(true);
                 break;
-            case FIRE:
-                /*
+            /*case FIRE:
                 TextureRegion trapTexture = t.getTexture();
                 float twidth = trapTexture.getRegionWidth()/drawscale.x;
                 float theight = trapTexture.getRegionHeight()/drawscale.y;
@@ -56,8 +55,7 @@ public class TrapController implements TrapControllerInterface {
                 trapCache.setTexture(trapTexture);
                 //We need to let GameController know that a trap needs to be created
                 return true;
-                 */
-                break;
+                break;*/
         }
         return false;
     }

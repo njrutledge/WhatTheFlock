@@ -868,7 +868,7 @@ public class GameController implements ContactListener, Screen {
 		}
 
 		// Rotate through player's available traps
-		if (InputController.getInstance().didRotateTrapLeft()){
+		/*if (InputController.getInstance().didRotateTrapLeft()){
 			if (trapTypeSelected == Trap.type.LURE){
 				trapTypeSelected = Trap.type.FIRE;
 			} else if (trapTypeSelected == Trap.type.SLOW){
@@ -912,7 +912,7 @@ public class GameController implements ContactListener, Screen {
 			} else {
 				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 1);
 			}
-		}
+		}*/
 
 		
 		// Add a bullet if we fire
@@ -926,7 +926,7 @@ public class GameController implements ContactListener, Screen {
 		}
 
 		//random chance of spawning a chicken
-		/*if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
+		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
 			float rand = (float)Math.random();
 			if (rand<0.33) {
 				spawnChicken(Chicken.ChickenType.Nugget);
@@ -937,7 +937,7 @@ public class GameController implements ContactListener, Screen {
 			else{
 				spawnChicken(Chicken.ChickenType.Shredded);
 			}
-		}*/
+		}
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
 			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {
@@ -1304,7 +1304,7 @@ public class GameController implements ContactListener, Screen {
 	public void draw(float dt) {
 		canvas.clear();
 
-		String s = "";
+		/*String s = "";
 		switch (trapTypeSelected ){
 			case LURE:
 				s = "lure";
@@ -1312,10 +1312,10 @@ public class GameController implements ContactListener, Screen {
 			case SLOW:
 				s = "slow";
 				break;
-			case FIRE:
+			/*case FIRE:
 				s = "fire";
 				break;
-		}
+		}*/
 
 		canvas.begin();
 		/*canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
@@ -1349,6 +1349,8 @@ public class GameController implements ContactListener, Screen {
 		/*for(Obstacle obj : objects) {
 			obj.draw(canvas);
 		}*/
+
+
 		//priority: Walls < traps < chickens < chef
 
 		for(Obstacle obj : walls){
