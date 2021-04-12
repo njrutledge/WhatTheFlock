@@ -22,7 +22,9 @@ public abstract class GameObject extends BoxObstacle {
         SLAP,
         TRAP,
         PLACE,
-        ATTACK
+        ATTACK,
+        WALL,
+        NULL
     }
     /**
      * Represents the type of Fixture
