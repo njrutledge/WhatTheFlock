@@ -223,7 +223,6 @@ public class AIController {
                 chicken.setForceCache(temp, true);
                 break;
             case STUNNED:
-                System.out.println("stun");
                 temp.setZero();
                 chicken.setForceCache(temp, true);
                 break;

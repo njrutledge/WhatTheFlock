@@ -159,7 +159,7 @@ public class CollisionController implements CollisionControllerInterface {
         private void slapCollision(Slap s1, FixtureType fd1, GameObject bd2, FixtureType fd2){
         //TODO make slap class
             switch(fd2){
-                case CHICKEN_SENSOR:
+                case CHICKEN_HITBOX:
                     handleChickenSlap((Chicken)bd2, fd2, s1, fd1);
                     break;
                 case TRAP_ACTIVATION:

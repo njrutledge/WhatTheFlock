@@ -89,7 +89,7 @@ public class ShreddedChicken extends Chicken {
      * @param texture  the object texture for drawing purposes.
      */
     public void setTexture(Texture texture) {
-        animator = new FilmStrip(texture, 3, 5);
+        animator = new FilmStrip(texture, 1, 1);
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
     }
 

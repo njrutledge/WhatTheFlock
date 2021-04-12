@@ -272,7 +272,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         hitboxShape.setAsBox(getWidth(), getHeight()/2, sensorCenter, 0);
         hitboxDef.shape = hitboxShape;
         Fixture hitboxFixture = body.createFixture(hitboxDef);
-        hitboxFixture.setUserData(FixtureType.CHICKEN_SENSOR);
+        hitboxFixture.setUserData(FixtureType.CHICKEN_HITBOX);
 
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.density = data.getFloat("density",0);
@@ -349,7 +349,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             return false;
     }
 
-    //TODO: comment
+    /**
+     * Start an attack
+     */
     public void startAttack() {
         if (!isRunning()) {
             hitboxOut = false;
@@ -418,7 +420,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public abstract void setTexture(Texture texture);
 
-    //TODO: comment
+    /**
+     * Set texture for the chicken healthbar
+     * @param texture texture for chicken healthbar
+     */
     public void setBarTexture(TextureRegion texture){
         healthBar = texture;
     }
@@ -430,8 +435,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void draw(GameCanvas canvas) {
         if (!isInvisible) {
-            canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f, 0.025f);
-            canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f*(health/max_health), 0.025f);
+            canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
+            canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
         }
     }
 
@@ -455,7 +460,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void takeDamage(float damage) {
         if (!isStunned) {
-            System.out.println("ouchie");
 
             if (status_timer >= 0) {
                 health -= damage * FIRE_MULT;
