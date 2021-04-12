@@ -17,7 +17,6 @@ public abstract class GameObject extends BoxObstacle {
      */
     public enum ObjectType{
         CHICKEN,
-        CHICKEN_ATTACK,
         CHEF,
         STOVE,
         SLAP,

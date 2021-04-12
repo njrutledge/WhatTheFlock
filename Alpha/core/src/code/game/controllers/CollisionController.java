@@ -69,6 +69,15 @@ public class CollisionController implements CollisionControllerInterface {
                 if (fd1 != null && fd2 != null) {
                     handleCollision((GameObject) bd1, fd1, fix1, (GameObject) bd2, fd2, fix2);
                 }
+            } else {
+                //process Charge Attack collision with walls
+                if (bd1.getName().contains("wall") || bd2.getName().contains("wall")) {
+                    if (fd1 != null && fd1 == FixtureType.CHARGE_ATTACK) {
+                        ((ChickenAttack)bd1).collideObject();
+                    } else if (fd2 != null && fd2 == FixtureType.CHARGE_ATTACK) {
+                        ((ChickenAttack)bd2).collideObject();
+                    }
+                }
             }
         } catch(Exception e){
             e.printStackTrace();
@@ -103,7 +112,7 @@ public class CollisionController implements CollisionControllerInterface {
                 }
                 break;
         }
-        }
+    }
 
     /**
      * Handles a collision between a Chicken and another GameObject

@@ -214,7 +214,15 @@ public class ChickenAttack extends GameObject {
         sensorDef.shape = sensorShape;
 
         Fixture sensorFixture = body.createFixture(sensorDef);
-        sensorFixture.setUserData(FixtureType.BASIC_ATTACK);
+        if (type == AttackType.Basic) {
+            sensorFixture.setUserData(FixtureType.BASIC_ATTACK);
+        } else if (type == AttackType.Charge) {
+            sensorFixture.setUserData(FixtureType.CHARGE_ATTACK);
+        } else if (type == AttackType.Explosion) {
+            sensorFixture.setUserData(FixtureType.EXPLOSION_ATTACK);
+        } else {
+            sensorFixture.setUserData(FixtureType.BASIC_ATTACK);
+        }
 
         return true;
     }

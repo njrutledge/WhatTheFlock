@@ -530,7 +530,7 @@ public class GameController implements ContactListener, Screen {
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
 		*/
 		for (int i = 0; i < parameterList[4]-2; i++){
-			spawnChicken(Chicken.ChickenType.Shredded);
+			spawnChicken(Chicken.ChickenType.Nugget);
 		}
 
 		// Get initial values for parameters in the list
