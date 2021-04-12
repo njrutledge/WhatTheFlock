@@ -77,10 +77,11 @@ public class TrapController implements TrapControllerInterface {
             case SLOW:
                 c.inSlow(false);
                 break;
-            case FIRE :
+            case BREAD_BOMB:
+            case FAULTY_OVEN:
+            case FRIDGE:
+                //do nothing!
                 break;
-            case FIRE_LINGER:
-                c.letItBurn();
         }
 
     }

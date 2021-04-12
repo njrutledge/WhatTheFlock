@@ -47,7 +47,7 @@ public class GameController implements ContactListener, Screen {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level03";
+	private final String DEFAULT_LEVEL = "level02";
 
 
 	/** The texture for walls and platforms */
@@ -168,8 +168,6 @@ public class GameController implements ContactListener, Screen {
 
 	///** Whether or not the player is cooking, true is they are and false otherwise*/
 	//private boolean cooking;
-
-	private Trap trapCache;
 
 	// Physics objects for the game
 	/** Physics constants for initialization */
@@ -549,7 +547,7 @@ public class GameController implements ContactListener, Screen {
 		//The filter for all obstacles
 		Filter obstacle_filter = new Filter();
 		obstacle_filter.categoryBits = 0x0004;
-		obstacle_filter.maskBits = 0x0001 | 0x0002 | 0x0004 | 0x0016;
+		obstacle_filter.maskBits = 0x0001 | 0x0002 | 0x0004 | 0x0010;
 
 		Filter spawn_filter = new Filter();
 		spawn_filter.groupIndex = -1;
@@ -921,7 +919,7 @@ public class GameController implements ContactListener, Screen {
 		}
 
 		//random chance of spawning a chicken
-		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
+		/*if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
 			float rand = (float)Math.random();
 			if (rand<0.33) {
 				spawnChicken(Chicken.ChickenType.Nugget);
@@ -932,7 +930,7 @@ public class GameController implements ContactListener, Screen {
 			else{
 				spawnChicken(Chicken.ChickenType.Shredded);
 			}
-		}
+		}*/
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
 			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {

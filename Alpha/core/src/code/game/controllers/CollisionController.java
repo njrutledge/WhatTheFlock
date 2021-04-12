@@ -72,9 +72,7 @@ public class CollisionController implements CollisionControllerInterface {
 
             //process GameObject collisions
             if (bd1 instanceof GameObject && bd2 instanceof GameObject) {
-                if (fd1 != null && fd2 != null) {
-                    handleCollision((GameObject) bd1, fd1, fix1, (GameObject) bd2, fd2, fix2);
-                }
+                handleCollision((GameObject) bd1, fd1, fix1, (GameObject) bd2, fd2, fix2);
             } else {
                 //process Charge Attack collision with walls
                 if (bd1.getName().contains("wall") || bd2.getName().contains("wall")) {
@@ -127,7 +125,7 @@ public class CollisionController implements CollisionControllerInterface {
     private void chickenCollision(Chicken c1, FixtureType fd1, Fixture fix1, GameObject bd2, FixtureType fd2, Fixture fix2) {
         switch (bd2.getObjectType()) {
             case CHEF:
-                handleChefChicken((Chef) bd2, fd2, fix2, c1, fd1, fix1);
+                handleChefChicken((Chef) bd2, fd2, c1, fd1);
                 break;
             case SLAP:
                 handleChickenSlap(c1, fd1, bd2, fd2);
@@ -171,15 +169,16 @@ public class CollisionController implements CollisionControllerInterface {
         }
     }
 
-        private void slapCollision(Slap s1, FixtureType fd1, GameObject bd2, FixtureType fd2){
-        //TODO make slap class
-            switch(fd2){
-                case CHICKEN_HITBOX:
-                    handleChickenSlap((Chicken)bd2, fd2, s1, fd1);
-                    break;
-                case TRAP_ACTIVATION:
-                    handleTrapSlap((Trap) bd2,fd2, s1, fd1);
-                    break;
+        private void slapCollision(Slap s1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
+            if (fd2 != null) {
+                switch (fd2) {
+                    case CHICKEN_HITBOX:
+                        handleChickenSlap((Chicken) bd2, fd2, s1, fd1);
+                        break;
+                    case TRAP_ACTIVATION:
+                        handleTrapSlap((Trap) bd2, fd2, s1, fd1);
+                        break;
+                }
             }
         }
 
@@ -362,7 +361,9 @@ public class CollisionController implements CollisionControllerInterface {
                 endChickenChef(c1, fd1, (Chef) bd2, fd2);
                 break;
             case TRAP:
-                endChickenTrap(c1, fd1, (Trap) bd2, fd2);
+                if(fd2!= null && fd2.equals(FixtureType.TRAP_SENSOR)) {
+                    endChickenTrap(c1, fd1, (Trap) bd2, fd2);
+                }
                 break;
         }
     }
@@ -394,7 +395,7 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
     private void endTrapCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
-        if (bd2.getObjectType().equals(ObjectType.CHICKEN)) {
+        if (bd2.getObjectType().equals(ObjectType.CHICKEN) && fd1!= null && fd1.equals(FixtureType.TRAP_SENSOR)) {
             endChickenTrap((Chicken) bd2, fd2, t1, fd1);
         }
     }

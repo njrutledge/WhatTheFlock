@@ -154,10 +154,6 @@ public class Trap extends GameObject implements TrapInterface {
      */
     private boolean isReady = true;
     /**
-     * flag for activating physics
-     */
-    private boolean needsPhysics = true;
-    /**
      * Fixture for hit box of active traps
      */
     private Fixture hitFixture;
@@ -188,11 +184,6 @@ public class Trap extends GameObject implements TrapInterface {
         trapType = t;
         //setSensorName("trapSensor");
         setSensor(true);
-        //setSensor(true);
-        Filter TrapFilter = new Filter();
-        TrapFilter.categoryBits = 0x0010;
-        TrapFilter.maskBits = 0x0001;
-        setFilterData(TrapFilter);
         durability = MAX_DURABILITY;
         linger = false;
     }
@@ -325,10 +316,16 @@ public class Trap extends GameObject implements TrapInterface {
                 sensHurt.shape = lHShape;
                 Fixture sensorHurtF = body.createFixture(sensHurt);
                 sensorHurtF.setUserData(FixtureType.LURE_HURT);//"lureHurt");
+                sensorDef.shape = sensorShape;
+                hitFixture = body.createFixture(sensorDef);
+                hitFixture.setUserData(FixtureType.TRAP_SENSOR);
                 break;
             case SLOW:
                 sensorShape.setRadius(SLOW_RADIUS);
                 activeTimer = SLOW_ACTIVE_TIME;
+                sensorDef.shape = sensorShape;
+                hitFixture = body.createFixture(sensorDef);
+                hitFixture.setUserData(FixtureType.TRAP_SENSOR);
                 break;
             case FIRE:
                 sensorShape.setRadius(FIRE_TRIGGER_RADIUS);
@@ -338,9 +335,6 @@ public class Trap extends GameObject implements TrapInterface {
             case FRIDGE:
             case BREAD_BOMB:
             case FAULTY_OVEN:
-                sensorDef = new FixtureDef();
-                sensorDef.isSensor = true;
-                sensorShape = new CircleShape();
                 sensorShape.setRadius(ACTIVATION_RADIUS);
                 sensorDef.shape = sensorShape;
                 Fixture sensorFixture = body.createFixture(sensorDef);
@@ -349,10 +343,7 @@ public class Trap extends GameObject implements TrapInterface {
 
 
         }
-        sensorDef.shape = sensorShape;
-        hitFixture = body.createFixture(sensorDef);
-        hitFixture.setUserData(FixtureType.TRAP_SENSOR);//getSensorName());
-        needsPhysics = false;
+        //getSensorName());
         return true;
     }
 

@@ -77,8 +77,8 @@ public class Slap extends GameObject {
         sensorShape.setAsBox(width, height, sensorCenter, 0.0f);
         sensorDef.shape = sensorShape;
 
-        Fixture sensorFixture = body.createFixture( sensorDef );
-        sensorFixture.setUserData(FixtureType.SLAP_SENSOR);//getSensorName());
+        //Fixture sensorFixture = body.createFixture( sensorDef );
+        //sensorFixture.setUserData(FixtureType.SLAP_SENSOR);//getSensorName());
 
         return true;
     }
