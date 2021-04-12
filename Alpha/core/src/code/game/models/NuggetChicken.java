@@ -2,7 +2,6 @@ package code.game.models;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -53,7 +52,7 @@ public class NuggetChicken extends Chicken {
                 attack.shape = hitbox;
 
                 Fixture chickAttack = body.createFixture(attack);
-                chickAttack.setUserData("basicattack");
+                chickAttack.setUserData(FixtureType.BASIC_ATTACK);//"basicattack");
                 hitboxOut = true;
             }
         }

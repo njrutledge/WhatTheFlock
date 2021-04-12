@@ -126,7 +126,7 @@ public class Chef extends GameObject implements ChefInterface {
 		super(	x,
 				y,
 				width*data.get("shrink").getFloat( 0 ),
-				height*data.get("shrink").getFloat( 1 ));
+				height*data.get("shrink").getFloat( 1 ), ObjectType.CHEF);
 		setDensity(data.getFloat("density", 0));
 		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
 		setFixedRotation(true);
@@ -136,7 +136,7 @@ public class Chef extends GameObject implements ChefInterface {
 		force = data.getFloat("force", 0);
 		shotLimit = data.getInt( "shot_cool", 0 );
 		trapLimit = 120;
-		setSensorName("chefSensor");
+		//setSensorName("chefSensor");
 		this.data = data;
 		// Gameplay attributes
 		isShooting = false;
@@ -410,7 +410,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 		// Ground sensor to represent our feet
 		Fixture sensorFixture = body.createFixture( sensorDef );
-		sensorFixture.setUserData(getSensorName());
+		sensorFixture.setUserData(FixtureType.CHEF_SENSOR);//getSensorName());
 
 		return true;
 	}
