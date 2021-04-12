@@ -55,6 +55,7 @@ public class NuggetChicken extends Chicken {
             // Duration that the attack stays on screen
             attack_timer += dt;
             if (!hitboxOut) {
+                destination = new Vector2(target.getPosition());
                 setAttackType(ChickenAttack.AttackType.Basic);
                 soundCheck = true;
                 makeAttack = true;

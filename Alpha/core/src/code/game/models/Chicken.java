@@ -183,7 +183,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         //0x0002 = chickens
         filter.categoryBits = 0x0002;
         //0x0001 = players
-        filter.maskBits = 0x0001 | 0x0004 | 0x0002;
+        filter.maskBits = 0x0001 | 0x0002 | 0x0004 ;
         setFilterData(filter);
     }
 

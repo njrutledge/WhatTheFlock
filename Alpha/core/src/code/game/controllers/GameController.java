@@ -544,7 +544,8 @@ public class GameController implements ContactListener, Screen {
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
 
-		//0x0001 = player, 0x0002 = chickens, 0x0004 walls, 0x0016 buffalo's headbutt, 0x0032 spawn
+		//0x0001 = player, 0x0002 = chickens, 0x0004 walls, 0x0008 chicken basic attack,
+		// 0x0016 buffalo's headbutt, 0x0032 spawn
 
 		//The filter for all obstacles
 		Filter obstacle_filter = new Filter();
@@ -552,8 +553,7 @@ public class GameController implements ContactListener, Screen {
 		obstacle_filter.maskBits = 0x0001 | 0x0002 | 0x0004 | 0x0016;
 
 		Filter spawn_filter = new Filter();
-		spawn_filter.categoryBits = 0x0032;
-		spawn_filter.maskBits = -1;
+		spawn_filter.groupIndex = -1;
 
 		for(int ii = 0; ii < stuff.length; ii++){
 			int x = ii % grid.getColCount();

@@ -68,6 +68,7 @@ public class ChickenAttack extends GameObject {
                 filter = new Filter();
                 filter.categoryBits = 0x0008;
                 filter.maskBits = -1;
+                filter.groupIndex = -1;
                 setFilterData(filter);
                 break;
             case Charge:
