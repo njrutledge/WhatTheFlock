@@ -530,7 +530,8 @@ public class GameController implements ContactListener, Screen {
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
 		*/
 		for (int i = 0; i < parameterList[4]-2; i++){
-			spawnChicken(Chicken.ChickenType.Shredded);
+			//spawnChicken(Chicken.ChickenType.Shredded);
+			spawnChicken(Chicken.ChickenType.Nugget);
 		}
 
 		// Get initial values for parameters in the list
@@ -924,7 +925,7 @@ public class GameController implements ContactListener, Screen {
 		//random chance of spawning a chicken
 		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
 			float rand = (float)Math.random();
-			if (rand<0.33) {
+/*			if (rand<0.33) {
 				spawnChicken(Chicken.ChickenType.Nugget);
 			}
 			else if (rand<0.66){
@@ -932,7 +933,7 @@ public class GameController implements ContactListener, Screen {
 			}
 			else{
 				spawnChicken(Chicken.ChickenType.Shredded);
-			}
+			}*/
 		}
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete

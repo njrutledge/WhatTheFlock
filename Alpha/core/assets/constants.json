@@ -19,8 +19,8 @@
 		"jump_cool": 30,
 		"shot_cool": 40,
 		"sensor": {
-			"shrink" : 0.6,
-			"height" : 0.2
+			"shrink" : 0.9,
+			"height" : 0.4
 		}
 	},
 	"chicken" : {

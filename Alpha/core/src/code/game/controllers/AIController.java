@@ -163,7 +163,9 @@ public class AIController {
                     state = FSM.KNOCKBACK;
                 }
                 else if (stop_counter >= STOP_DUR) {
-                    if (chicken.isTouching()) { state = FSM.ATTACK; chicken.startAttack(); }
+                    if (chicken.isTouching()) {
+                        state = FSM.ATTACK; chicken.startAttack();
+                    }
                     else { state = FSM.CHASE; }
                 }
                 break;
