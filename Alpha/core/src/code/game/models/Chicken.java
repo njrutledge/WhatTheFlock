@@ -455,6 +455,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void takeDamage(float damage) {
         if (!isStunned) {
+            System.out.println("ouchie");
+
             if (status_timer >= 0) {
                 health -= damage * FIRE_MULT;
             } else {

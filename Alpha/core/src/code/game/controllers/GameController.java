@@ -530,7 +530,7 @@ public class GameController implements ContactListener, Screen {
 		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
 		*/
-		for (int i = 0; i < parameterList[4]+3; i++){
+		for (int i = 0; i < parameterList[4]-2; i++){
 			spawnChicken(Chicken.ChickenType.Shredded);
 		}
 
@@ -909,7 +909,16 @@ public class GameController implements ContactListener, Screen {
 
 		//random chance of spawning a chicken
 		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			spawnChicken(Chicken.ChickenType.Nugget);
+			float rand = (float)Math.random();
+			if (rand<0.33) {
+				spawnChicken(Chicken.ChickenType.Nugget);
+			}
+			else if (rand<0.66){
+				spawnChicken(Chicken.ChickenType.Buffalo);
+			}
+			else{
+				spawnChicken(Chicken.ChickenType.Shredded);
+			}
 		}
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
@@ -1016,31 +1025,31 @@ public class GameController implements ContactListener, Screen {
 			y = spawn_ymax;
 		}*/
 
-		if (!done) {
-			Chicken enemy;
-			Chicken enemy2;
-			done = true;
+		Chicken enemy;
+		Chicken enemy2;
 /*			if (type == Chicken.Type.Nugget) {
-				enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
-			} else {
-				enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
-			}*/
-			if (type == Chicken.ChickenType.Nugget) {
-				enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
-			} else if (type == Chicken.ChickenType.Shredded){
-				enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
-				((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
-			}
-			else{
-				enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
-			}
-
-			enemy.setDrawScale(scale);
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+		} else {
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+		}*/
+		if (type == Chicken.ChickenType.Nugget) {
+			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(nuggetTexture);
+		} else if (type == Chicken.ChickenType.Shredded){
+			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
+			((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
 			enemy.setTexture(shreddedTexture);
-			enemy.setBarTexture(enemyHealthBarTexture);
-			addObject(enemy);
-			ai.put(enemy, new AIController(enemy, chef, grid));
 		}
+		else{
+			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(buffaloTexture);
+		}
+
+		enemy.setDrawScale(scale);
+		enemy.setBarTexture(enemyHealthBarTexture);
+		addObject(enemy);
+		ai.put(enemy, new AIController(enemy, chef, grid));
+
 	}
 
 	/**

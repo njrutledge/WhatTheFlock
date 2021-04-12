@@ -405,7 +405,7 @@ public class Chef extends GameObject implements ChefInterface {
 		Vector2 sensorCenter = new Vector2(0, -getHeight()/4);
 		FixtureDef sensorDef = new FixtureDef();
 		sensorDef.density = data.getFloat("density",0);
-		sensorDef.isSensor = true;
+		//sensorDef.isSensor = true;
 		sensorDef.filter.groupIndex = -1;
 		sensorDef.filter.categoryBits =  0x0002;
 		sensorShape = new PolygonShape();

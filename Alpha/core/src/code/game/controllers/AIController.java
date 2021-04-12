@@ -157,13 +157,21 @@ public class AIController {
                     chicken.setStunned(false);
                     chicken.setInvisible(false);
                 }
+                break;
             case STOP:
-                if (stop_counter >= STOP_DUR) {
+                if (chicken.getHit()){
+                    state = FSM.KNOCKBACK;
+                }
+                else if (stop_counter >= STOP_DUR) {
                     if (chicken.isTouching()) { state = FSM.ATTACK; chicken.startAttack(); }
                     else { state = FSM.CHASE; }
                 }
+                break;
             case ATTACK:
-                if (stop_counter < STOP_DUR) {
+                if (chicken.getHit()){
+                    state = FSM.KNOCKBACK;
+                }
+                else if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
                 }
 /*                else if (!chicken.isAttacking() && !chicken.isTouching()) {
@@ -215,6 +223,7 @@ public class AIController {
                 chicken.setForceCache(temp, true);
                 break;
             case STUNNED:
+                System.out.println("stun");
                 temp.setZero();
                 chicken.setForceCache(temp, true);
                 break;

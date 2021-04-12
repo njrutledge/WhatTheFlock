@@ -144,6 +144,9 @@ public class CollisionController implements CollisionControllerInterface {
             case PLACE:
                 c1.setCanPlaceTrap(true);
                 break;
+            case ATTACK:
+                handleChefChickenAttack(c1, fd1, (ChickenAttack) bd2, fd2);
+                break;
         }
         }
         private void stoveCollision(Stove s1, FixtureType fd1, GameObject bd2, FixtureType fd2){
@@ -208,12 +211,12 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChefChicken(Chef chef, FixtureType fd1, Fixture fix1, Chicken chicken, FixtureType fd2, Fixture fix2){
         //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
-        //if(chicken.getHitboxOut() && (fd1 == FixtureType.BASIC_ATTACK
-            //    || fd2 == FixtureType.BASIC_ATTACK)){//fix2.getUserData() == "basicattack")){
-           // chef.decrementHealth();
-           // chicken.hitPlayer();
-        //}else
-        if (chicken.chasingPlayer(chef)){
+        if(chicken.isAttacking() && (fd1 == FixtureType.BASIC_ATTACK
+                || fd2 == FixtureType.BASIC_ATTACK)){//fix2.getUserData() == "basicattack")){
+            chef.decrementHealth();
+            //chicken.hitPlayer();
+        }
+        else if (chicken.chasingPlayer(chef)){
             chicken.startAttack();
         }
     }
