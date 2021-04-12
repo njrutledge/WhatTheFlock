@@ -115,7 +115,7 @@ public class ChickenAttack extends GameObject {
     }
 
     public void collideObject() {
-        if (type == AttackType.Charge) {  chicken.setStopped(true); chicken.interruptAttack(); remove = true; }
+        if (type == AttackType.Charge) { chicken.setStopped(true); chicken.interruptAttack(); remove = true; }
         //if (type == AttackType.Projectile) { remove = true; } // Delete projectile after colliding with something
     }
 

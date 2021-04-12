@@ -189,6 +189,7 @@ public class GameController implements ContactListener, Screen {
 //	/** Reference to the stove object */
 //	private Stove stove;
 
+	boolean done = false;
 	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.LURE;
 	/** The parameter from the list of parameters currently selected */
@@ -245,8 +246,6 @@ public class GameController implements ContactListener, Screen {
 	/**The collision controller for this game*/
 	private CollisionController collisionController;
 	/**The trap controller for this game*/
-
-	boolean done = false;
 
 	private TrapController trapController;
 	/**

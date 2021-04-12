@@ -157,9 +157,6 @@ public class CollisionController implements CollisionControllerInterface {
             }
         }
 
-
-
-
         private void slapCollision(Slap s1, FixtureType fd1, GameObject bd2, FixtureType fd2){
         //TODO make slap class
             switch(fd2){
@@ -215,12 +212,7 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChefChicken(Chef chef, FixtureType fd1, Fixture fix1, Chicken chicken, FixtureType fd2, Fixture fix2){
         //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
-        if(chicken.isAttacking() && (fd1 == FixtureType.BASIC_ATTACK
-                || fd2 == FixtureType.BASIC_ATTACK)){//fix2.getUserData() == "basicattack")){
-            chef.decrementHealth();
-            //chicken.hitPlayer();
-        }
-        else if (chicken.chasingPlayer(chef)){
+        if (chicken.chasingPlayer(chef)){
             chicken.startAttack();
         }
     }
@@ -381,7 +373,9 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
     private void endChickenChef(Chicken chicken, FixtureType fd1, Chef chef, FixtureType fd2){
-        chicken.stopAttack(false);
+        if (fd1 == FixtureType.CHICKEN_SENSOR) {
+            chicken.stopAttack(false);
+        }
     }
 
     private void endStoveChef(Stove stove, FixtureType fd1, Chef chef, FixtureType fd2){

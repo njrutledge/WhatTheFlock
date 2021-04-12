@@ -79,10 +79,17 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Whether or not the attack needs to be created for this chicken */
     protected boolean makeAttack = false;
-    /** Whether or not the chicken's sensor is touching its target */
-    private boolean touching = false;
     /** Whether the chicken should stop their attack after running */
     private boolean stopThisAttack = false;
+    /** Whether or not the chicken's sensor is touching its target (Not up-to-date)
+     * Touching might not always be up to date as a chicken that is
+     * currently performing an attack may stop touching from being
+     * updated to prevent their attack from being interrupted. */
+    private boolean touching = false;
+    /** Whether or not the chicken's sensor is touching its target (Up-to-date)
+     * This variable will be updated in place of touching if the chicken
+     * is currently performing an attack. */
+    private boolean last_touching = false;
 
     /** The type of attack that needs to be made */
     protected ChickenAttack.AttackType attackType;
@@ -359,12 +366,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void startAttack() {
         if (!isRunning()) {
+            touching = true;
             hitboxOut = false;
             destination = new Vector2(target.getPosition());
-            touching = true;
             attack_timer = 0f;
             charge_time = 0f;
-        } else { stopThisAttack = false; }
+        } else { stopThisAttack = false;}
     }
 
     //TODO: comment
@@ -374,7 +381,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             charge_time = -1f;
             hitboxOut = false;
             this.touching = touching;
-        } else { stopThisAttack = true; }
+        } else { stopThisAttack = true; last_touching = touching; }
     }
 
     /** Returns whether or not the chicken should stop their current attack.
@@ -391,7 +398,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public boolean stopThisAttack() {
         if (stopThisAttack && !isRunning()) {
             stopThisAttack = false;
-            stopAttack(false);
             return true;
         }
         return false;
