@@ -84,16 +84,28 @@ public class TrapController implements TrapControllerInterface {
 
     }
 
-    public void createLures(Vector2 spawnPos){
-        for(int i = 1; i <= 5; i++){
-
+    public void createLures(Trap breadBomb){
+        for(int i = 0; i < 5; i++){
+            float angle = rollFloat(120*i, 120*(i+1));
+            Trap trap = createLure(breadBomb);
+            trap.setAngle(angle);
+            trap.setVX(2.0f);
+            trap.setFriction(.2f);
+            trapCache.add(trap);
         }
     }
 
-    public Trap createSlow(Trap t){
-        Trap trap = new Trap(constants.get("trap"), t.getX(), t.getY(), t.getWidth(), t.getHeight(), Trap.type.SLOW);
-        trap.setDrawScale(t.getDrawScale());
-        trap.setTexture(t.getTexture());
+    public Trap createSlow(Trap fridge){
+        Trap trap = new Trap(constants.get("trap"), fridge.getX(), fridge.getY(), fridge.getWidth(), fridge.getHeight(), Trap.type.SLOW);
+        trap.setDrawScale(fridge.getDrawScale());
+        trap.setTexture(fridge.getTexture());
+        return trap;
+    }
+
+    private Trap createLure(Trap breadBomb){
+        Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), breadBomb.getWidth(), breadBomb.getHeight(), Trap.type.LURE);
+        trap.setDrawScale(breadBomb.getDrawScale());
+        trap.setTexture(breadBomb.getTexture());
         return trap;
     }
 

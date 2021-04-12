@@ -294,7 +294,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         hitboxShape.setAsBox(getWidth(), getHeight()/2, sensorCenter, 0);
         hitboxDef.shape = hitboxShape;
         Fixture hitboxFixture = body.createFixture(hitboxDef);
-        hitboxFixture.setUserData(FixtureType.CHICKEN_HITBOX);
+        hitboxFixture.setUserData(FixtureType.CHICKEN_HURTBOX);
 
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.density = data.getFloat("density",0);
@@ -304,7 +304,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         sensorDef.shape = sensorShape;
         // Ground sensor to represent our feet
         Fixture sensorFixture = body.createFixture( sensorDef );
-        sensorFixture.setUserData(FixtureType.CHICKEN_SENSOR);//getSensorName());
+        sensorFixture.setUserData(FixtureType.CHICKEN_HITBOX);//getSensorName());
 
 
         return true;

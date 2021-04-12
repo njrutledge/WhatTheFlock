@@ -206,9 +206,11 @@ public class GameController implements ContactListener, Screen {
 	/** All walls and stoves in the world. */
 	protected PooledList<Obstacle> walls = new PooledList<Obstacle>();
 	/** All traps in the world. */
-	protected PooledList<Trap> traps = new PooledList<Trap>();
+	protected PooledList<Obstacle> traps = new PooledList<Obstacle>();
 	/** All enemies in the world. */
-	protected PooledList<Chicken> chickens = new PooledList<Chicken>();
+	protected PooledList<Obstacle> chickens = new PooledList<Obstacle>();
+	/** All other objects in the world. */
+	protected PooledList<Obstacle> others = new PooledList<Obstacle>();
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
 
@@ -389,6 +391,7 @@ public class GameController implements ContactListener, Screen {
 		addQueue.clear();
 		walls.clear();
 		traps.clear();
+		others.clear();
 		chickens.clear();
 		world.dispose();
 		
@@ -1206,6 +1209,8 @@ public class GameController implements ContactListener, Screen {
 			case CHICKEN:
 				chickens.add((Chicken) obj);
 				break;
+			case NULL:
+				others.add(obj);
 		}
 
 	}
@@ -1268,7 +1273,13 @@ public class GameController implements ContactListener, Screen {
 		// Garbage collect the deleted objects.
 		// Note how we use the linked list nodes to delete O(1) in place.
 		// This is O(n) without copying.
-		Iterator<PooledList<Obstacle>.Entry> iterator = objects.entryIterator();
+		iterateThrough(walls.entryIterator(), dt);
+		iterateThrough(traps.entryIterator(),dt);
+		iterateThrough(chickens.entryIterator(),dt);
+		iterateThrough(others.entryIterator(),dt);
+	}
+
+	private void iterateThrough(Iterator<PooledList<Obstacle>.Entry> iterator, float dt){
 		while (iterator.hasNext()) {
 			PooledList<Obstacle>.Entry entry = iterator.next();
 			Obstacle obj = entry.getValue();
@@ -1279,15 +1290,6 @@ public class GameController implements ContactListener, Screen {
 				// Note that update is called last!
 				obj.update(dt);
 			}
-
-			/*if(obj.getClass().equals(Trap.class)){
-				Trap t = (Trap) obj;
-				if(t.isActive() && t.needsActivation()){
-					t.activatePhysics(world);
-				}else if(t.needsDeactivation()){
-					t.partialDeactivatePhysics(world);
-				}
-			}*/
 		}
 	}
 
@@ -1351,16 +1353,19 @@ public class GameController implements ContactListener, Screen {
 		}*/
 
 
-		//priority: Walls < traps < chickens < chef
+		//priority: Walls < traps < chickens < other < chef
 
 		for(Obstacle obj : walls){
 			obj.draw(canvas);
 		}
-		for (Trap trap : traps){
+		for (Obstacle trap : traps){
 			trap.draw(canvas);
 		}
-		for (Chicken c : chickens){
+		for (Obstacle c : chickens){
 			c.draw(canvas);
+		}
+		for (Obstacle other : others){
+			other.draw(canvas);
 		}
 		//draw chef last
 		chef.draw(canvas);
@@ -1369,8 +1374,17 @@ public class GameController implements ContactListener, Screen {
 
 		if (debug) {
 			canvas.beginDebug();
-			for(Obstacle obj : objects) {
+			for(Obstacle obj : walls){
 				obj.drawDebug(canvas);
+			}
+			for (Obstacle trap : traps){
+				trap.drawDebug(canvas);
+			}
+			for (Obstacle c : chickens){
+				c.drawDebug(canvas);
+			}
+			for (Obstacle other : others){
+				other.drawDebug(canvas);
 			}
 			if (grid_toggle) {
 				grid.drawDebug(canvas);

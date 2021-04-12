@@ -416,7 +416,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 		// Ground sensor to represent our feet
 		Fixture sensorFixture = body.createFixture( sensorDef );
-		sensorFixture.setUserData(FixtureType.CHEF_SENSOR);//getSensorName());
+		sensorFixture.setUserData(FixtureType.CHEF_HURTBOX);//getSensorName());
 
 		return true;
 	}

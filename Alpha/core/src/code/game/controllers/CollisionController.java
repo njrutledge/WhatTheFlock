@@ -5,7 +5,6 @@ import code.game.models.*;
 import code.game.models.GameObject;
 import code.game.models.obstacle.Obstacle;
 import code.util.PooledList;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -172,7 +171,7 @@ public class CollisionController implements CollisionControllerInterface {
         private void slapCollision(Slap s1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
             if (fd2 != null) {
                 switch (fd2) {
-                    case CHICKEN_HITBOX:
+                    case CHICKEN_HURTBOX:
                         handleChickenSlap((Chicken) bd2, fd2, s1, fd1);
                         break;
                     case TRAP_ACTIVATION:
@@ -216,7 +215,7 @@ public class CollisionController implements CollisionControllerInterface {
                 chef.setDoubleDamage(true);
                 break;
             case BREAD_BOMB:
-                trapController.createLures(t1.getPosition());
+                trapController.createLures(t1);
                 break;
             case FRIDGE:
                 t1.markReady(false);
@@ -235,7 +234,7 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChefChicken(Chef chef, FixtureType fd1, Chicken chicken, FixtureType fd2){
         //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
-        if (fd2 == FixtureType.CHICKEN_SENSOR && chicken.chasingPlayer(chef)){
+        if (fd2 == FixtureType.CHICKEN_HITBOX && chicken.chasingPlayer(chef)){
             chicken.startAttack();
         }
     }
@@ -284,7 +283,9 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void handleChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
-        trapController.applyTrap(t2, c1);
+        if(fd1 != null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
+            trapController.applyTrap(t2, c1);
+        }
     }
 
     /**
@@ -361,7 +362,7 @@ public class CollisionController implements CollisionControllerInterface {
                 endChickenChef(c1, fd1, (Chef) bd2, fd2);
                 break;
             case TRAP:
-                if(fd2!= null && fd2.equals(FixtureType.TRAP_SENSOR)) {
+                if(fd2!= null && fd2.equals(FixtureType.TRAP_HITBOX)) {
                     endChickenTrap(c1, fd1, (Trap) bd2, fd2);
                 }
                 break;
@@ -395,7 +396,7 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
     private void endTrapCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
-        if (bd2.getObjectType().equals(ObjectType.CHICKEN) && fd1!= null && fd1.equals(FixtureType.TRAP_SENSOR)) {
+        if (bd2.getObjectType().equals(ObjectType.CHICKEN) && fd1!= null && fd1.equals(FixtureType.TRAP_HITBOX)) {
             endChickenTrap((Chicken) bd2, fd2, t1, fd1);
         }
     }
@@ -413,7 +414,7 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
     private void endChickenChef(Chicken chicken, FixtureType fd1, Chef chef, FixtureType fd2){
-        if (fd1 == FixtureType.CHICKEN_SENSOR) {
+        if (fd1 == FixtureType.CHICKEN_HITBOX) {
             chicken.stopAttack(false);
         }
     }

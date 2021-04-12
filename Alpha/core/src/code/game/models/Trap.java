@@ -177,7 +177,7 @@ public class Trap extends GameObject implements TrapInterface {
         super(x, y,
                 width * data.get("shrink").getFloat(0),
                 height * data.get("shrink").getFloat(1), ObjectType.TRAP);
-        setBodyType(BodyDef.BodyType.StaticBody);
+        //setBodyType(BodyDef.BodyType.StaticBody);
         setFixedRotation(true);
         this.data = data;
         setName("trap");
@@ -320,14 +320,14 @@ public class Trap extends GameObject implements TrapInterface {
                 sensorHurtF.setUserData(FixtureType.LURE_HURT);//"lureHurt");
                 sensorDef.shape = sensorShape;
                 hitFixture = body.createFixture(sensorDef);
-                hitFixture.setUserData(FixtureType.TRAP_SENSOR);
+                hitFixture.setUserData(FixtureType.TRAP_HITBOX);
                 break;
             case SLOW:
                 sensorShape.setRadius(SLOW_RADIUS);
                 activeTimer = SLOW_ACTIVE_TIME;
                 sensorDef.shape = sensorShape;
                 hitFixture = body.createFixture(sensorDef);
-                hitFixture.setUserData(FixtureType.TRAP_SENSOR);
+                hitFixture.setUserData(FixtureType.TRAP_HITBOX);
                 break;
             /*case FIRE:
                 sensorShape.setRadius(FIRE_TRIGGER_RADIUS);
