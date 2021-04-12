@@ -2,8 +2,15 @@ package code.game.models;
 
 import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.Color;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
+
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
 
@@ -48,7 +55,7 @@ public class NuggetChicken extends Chicken {
             // Duration that the attack stays on screen
             attack_timer += dt;
             if (!hitboxOut) {
-                setAttackType(ChickenAttack.AttackType.Basic);
+                setAttackType(FixtureType.BASIC_ATTACK);
                 soundCheck = true;
                 makeAttack = true;
             }

@@ -48,10 +48,9 @@ public class BuffaloChicken extends Chicken {
         if (charge_time >= CHARGE_DUR){
             attack_timer += dt;
             if (!hitboxOut) {
-                setAttackType(ChickenAttack.AttackType.Charge);
+                setAttackType(FixtureType.CHARGE_ATTACK);
                 // No sounds for buffalo yet
                 //soundCheck = true;
-                System.out.println("Make new attack");
                 makeAttack = true;
             }
             hitboxOut = true;

@@ -72,7 +72,7 @@ public interface ChickenInterface {
     /**
      * Removes any slowdown modifiers to the chicken's speed
      */
-    public void removeSlow();
+    public void removeSlow(float strength);
 
     /**
      * Applies the fire effect by giving the chicken a countdown timer

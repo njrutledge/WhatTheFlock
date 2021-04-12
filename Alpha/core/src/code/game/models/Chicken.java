@@ -85,7 +85,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     private boolean stopThisAttack = false;
 
     /** The type of attack that needs to be made */
-    protected ChickenAttack.AttackType attackType;
+    protected FixtureType attackType;
 
 
     /** The damage modifier from being on fire*/
@@ -130,6 +130,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected Boolean isStunned = false;
     /** Whether the chicken is invisible due to hitstun*/
     protected Boolean isInvisible = false;
+    /** Whether the chicken is being slowed */
+    private boolean inSlow = false;
+    /** Ammount to increase or decrease the slow modifier */
+    private float SLOW_EFFECT = 0.3f;
+
 
 
     /**
@@ -150,11 +155,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public Chicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh, ChickenType type) {
         // The shrink factors fit the image to a tigher hitbox
         super(x, y, width * unique.get("shrink").getFloat(0),
-                height * unique.get("shrink").getFloat(1));
+                height * unique.get("shrink").getFloat(1), ObjectType.CHICKEN);
         setDensity(unique.getFloat("density", 0));
         setFriction(data.getFloat("friction", 0));  /// IT WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true);
         setName("chicken");
+        //setSensorName("chickenSensor");
         this.target = player;
         this.player = player;
         this.type = type;
@@ -211,6 +217,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public int getMaxHealth(){ return max_health;}
 
     /**
+<<<<<<< HEAD
      * Returns whether an attack object needs to be made for this chicken.
      *
      * @return makeAttack
@@ -227,13 +234,21 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      *
      * @param type  The type of the attack to be made
      */
-    public void setAttackType(ChickenAttack.AttackType type) { attackType = type; }
+    public void setAttackType(FixtureType type) { attackType = type; }
 
     /** Returns the type of the attack that needs to be made for this chicken.
      *
      * @return attackType
      */
-    public ChickenAttack.AttackType getAttackType() { return attackType; }
+    public GameObject.FixtureType getAttackType() { return attackType; }
+
+    /**
+     * Returns current chicken slowing modifier.
+     *
+     * @return the current chicken slowing modifier.
+     */
+    public float getSlow(){ return slow;}
+
 
     /**
      * Creates the physics Body(s) for this object, adding them to the world.
@@ -260,7 +275,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         hitboxShape.setAsBox(getWidth(), getHeight()/2, sensorCenter, 0);
         hitboxDef.shape = hitboxShape;
         Fixture hitboxFixture = body.createFixture(hitboxDef);
-        hitboxFixture.setUserData("chickenHitbox");
+        hitboxFixture.setUserData(FixtureType.CHICKEN_HITBOX);
 
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.density = data.getFloat("density",0);
@@ -269,8 +284,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         sensorShape.setRadius(sensorRadius);
         sensorDef.shape = sensorShape;
         // Ground sensor to represent our feet
-        Fixture sensorFixture = body.createFixture(sensorDef);
-        sensorFixture.setUserData("chickenSensor");
+
+        Fixture sensorFixture = body.createFixture( sensorDef );
+        sensorFixture.setUserData(FixtureType.CHICKEN_SENSOR);//getSensorName());
 
 
         return true;
@@ -314,6 +330,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
         if (!cookin) {
             status_timer = Math.max(status_timer - dt, -1f);
+        }
+        if(inSlow){
+            applySlow(SLOW_EFFECT*dt);
+        }else {
+            removeSlow(SLOW_EFFECT*dt);
         }
     }
 
@@ -454,19 +475,27 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /**
      * Applies a slowdown modifier to the chicken's speed
-     *
-     * @param strength a slowdown multiplier (1f for normal speed)
+     * slowing effect at 1f means normal speed, 0f means stopped
+     * @param strength amount to decrease the slow multiplier, > 0
      */
     public void applySlow(float strength) {
-        slow = strength;
+        slow = Math.max(0, slow - strength);
     }
 
     /**
-     * Removes any slowdown modifiers to the chicken's speed
+     * Removes a slowdown modifier to the chicken's speed
+     * slowing effect at 1f means normal speed, 0f means stopped
+     * @param strength amount to increase the slow multiplier, > 0
      */
-    public void removeSlow() {
-        slow = 1f;
+    public void removeSlow(float strength) {
+        slow = Math.min(1, slow + strength);
     }
+
+    /**
+     * Sets whether the chicken is currently in a slow trap or not
+     * @param bool is true if the chicken is being slowed
+     */
+    public void inSlow(boolean bool) { inSlow = bool;}
 
     /**
      * Applies the fire effect by giving the chicken a countdown timer

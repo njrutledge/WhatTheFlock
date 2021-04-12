@@ -19,7 +19,7 @@ public class ChickenAttack extends GameObject {
     private Chicken chicken;
     /** The position of the target when the chicken began charging */
     private Vector2 target;
-    private AttackType type;
+    private FixtureType type;
     private CircleShape sensorShape;
 
     /** The maximum distance away from the chicken that a basic attack can be created */
@@ -48,17 +48,16 @@ public class ChickenAttack extends GameObject {
     private boolean remove;
 
     /** Creates an instance of a basic attack */
-    public ChickenAttack(float x, float y, float width, float height, Chef chef, Chicken chicken, AttackType type) {
-        super(x, y, width, height);
+    public ChickenAttack(float x, float y, float width, float height, Chef chef, Chicken chicken, FixtureType type) {
+        super(x, y, width, height, ObjectType.CHICKEN_ATTACK);
         this.type = type;
         this.chicken = chicken;
         this.target = new Vector2(chicken.getDestination());
         setName("chickenAttack");
-        setSensorName("chickenAttackSensor");
         setDensity(0f);
         Filter filter;
         switch(type) {
-            case Basic:
+            case BASIC_ATTACK:
                 setPosition(getVector(false));
                 destination = getPosition();
                 filter = new Filter();
@@ -66,7 +65,7 @@ public class ChickenAttack extends GameObject {
                 filter.maskBits = -1;
                 setFilterData(filter);
                 break;
-            case Charge:
+            case CHARGE_ATTACK:
                 setPosition(getVector(false));
                 destination = getVector(true);
                 chicken.setDestination(new Vector2(destination));
@@ -75,13 +74,6 @@ public class ChickenAttack extends GameObject {
                 filter.categoryBits = 0x0016;
                 filter.maskBits = 0x0001 | 0x0004;
                 setFilterData(filter);
-                break;
-            case Projectile:
-                setPosition(getVector(false));
-                destination = chicken.target.getPosition();
-                break;
-            case Explosion:
-                destination = getPosition();
                 break;
         }
     }
@@ -102,7 +94,7 @@ public class ChickenAttack extends GameObject {
     public static float getHEIGHT() { return HEIGHT; }
 
     public void collideObject(Chicken chicken) {
-        if (type == AttackType.Charge && chicken != this.chicken) {
+        if (type == FixtureType.CHARGE_ATTACK && chicken != this.chicken) {
             System.out.println("Chicken colliding with another chicken");
 
             collideObject();
@@ -110,7 +102,7 @@ public class ChickenAttack extends GameObject {
     }
 
     public void collideObject() {
-        if (type == AttackType.Charge) {  chicken.setStopped(true); chicken.interruptAttack(); remove = true; }
+        if (type == FixtureType.CHARGE_ATTACK) {  chicken.setStopped(true); chicken.interruptAttack(); remove = true; }
     }
 
     /** Returns whether the destination has been reached
@@ -121,7 +113,7 @@ public class ChickenAttack extends GameObject {
         age += dt;
         if (remove) { return true; }
         if (distance(getX(), getY(), destination.x, destination.y) < 0.5f && age > ATTACK_DUR) {
-            if (type == AttackType.Charge) {
+            if (type == FixtureType.CHARGE_ATTACK) {
                 //setLinearVelocity(destination.setZero());
                 remove = true;
                 chicken.interruptAttack(); }
@@ -156,7 +148,7 @@ public class ChickenAttack extends GameObject {
         if (over_extend) {
             dist = distance(chicken.getX(), chicken.getY(), target.x, target.y) + OVEREXTEND_DIST;
         }
-        else if (type == AttackType.Charge) { dist = CHARGE_DIST; }
+        else if (type == FixtureType.CHARGE_ATTACK) { dist = CHARGE_DIST; }
         else { dist = BASIC_DIST; }
         if (!over_extend && distance(chicken.getX(), chicken.getY(), target.x, target.y) < dist) {
             return target;
@@ -207,7 +199,7 @@ public class ChickenAttack extends GameObject {
         sensorDef.shape = sensorShape;
 
         Fixture sensorFixture = body.createFixture(sensorDef);
-        sensorFixture.setUserData(getSensorName());
+        sensorFixture.setUserData(type);
 
         return true;
     }
@@ -219,10 +211,9 @@ public class ChickenAttack extends GameObject {
      */
     public void draw(GameCanvas canvas) {
         switch (type) {
-            case Basic:
-                break;
-            case Projectile:
-            case Explosion:
+            case BASIC_ATTACK:
+            case CHARGE_ATTACK:
+            case EXPLOSION_ATTACK:
                 canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 2, 2);
         }
     }
