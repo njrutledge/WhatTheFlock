@@ -518,7 +518,6 @@ public class GameController implements ContactListener, Screen {
 
 	}
 
-
 	public void doNewPopulate(JsonValue level){
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
@@ -580,13 +579,13 @@ public class GameController implements ContactListener, Screen {
 					spawnPoints.add(spawn);
 					break;
 				case LEVEL_SLOW:
-					trapHelper(x, y, Trap.type.SLOW, true);
+					trapHelper(x, y, Trap.type.FRIDGE);
 					break;
 				case LEVEL_LURE:
-					trapHelper(x, y, Trap.type.LURE, true);
+					trapHelper(x, y, Trap.type.BREAD_BOMB);
 					break;
 				case LEVEL_FIRE:
-					trapHelper(x, y, Trap.type.FAULTY_OVEN, true);
+					trapHelper(x, y, Trap.type.FAULTY_OVEN);
 					break;
 			}
 		}
@@ -892,7 +891,7 @@ public class GameController implements ContactListener, Screen {
 
 		//random chance of spawning a chicken
 		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			spawnChicken(Chicken.Type.Nugget);
+			//spawnChicken(Chicken.Type.Nugget);
 		}
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
@@ -1075,21 +1074,17 @@ public class GameController implements ContactListener, Screen {
 
 	public void createTrap() {
 		//spawn test traps
-		trapHelper(chef.getX(), chef.getY(), trapTypeSelected, false);
+		trapHelper(chef.getX(), chef.getY(), trapTypeSelected);
 
 	}
 
-	public void trapHelper(float x, float y, Trap.type t, boolean env){
+	public void trapHelper(float x, float y, Trap.type t){
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
-		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t, Trap.shape.CIRCLE, env);
+		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t);
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
-		if (env){
-			addEnvironmentalObject(trap);
-		}else {
-			addObject(trap);
-		}
+		addObject(trap);
 	}
 
 
@@ -1122,12 +1117,6 @@ public class GameController implements ContactListener, Screen {
 		assert inBounds(obj) : "Object is not in bounds";
 		objects.add(obj);
 		obj.activatePhysics(world);
-	}
-
-	protected void addEnvironmentalObject(Trap trap) {
-		assert inBounds(trap) : "Object is not in bounds";
-		objects.add(trap);
-		trap.activateInitialPhysics(world);
 	}
 
 	/**
@@ -1174,6 +1163,9 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void postUpdate(float dt) {
 		// Add any objects created by actions
+		while(!collisionController.getNewTraps().isEmpty()){
+			addObject(collisionController.getNewTraps().poll());
+		}
 		while (!addQueue.isEmpty()) {
 			addObject(addQueue.poll());
 		}
@@ -1196,14 +1188,14 @@ public class GameController implements ContactListener, Screen {
 				obj.update(dt);
 			}
 
-			if(obj.getClass().equals(Trap.class)){
+			/*if(obj.getClass().equals(Trap.class)){
 				Trap t = (Trap) obj;
 				if(t.isActive() && t.needsActivation()){
 					t.activatePhysics(world);
 				}else if(t.needsDeactivation()){
 					t.partialDeactivatePhysics(world);
 				}
-			}
+			}*/
 		}
 	}
 

@@ -93,7 +93,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Whether the chicken is being slowed */
     private boolean inSlow = false;
     /** Ammount to increase or decrease the slow modifier */
-    private float SLOW_EFFECT = 0.3f;
+    private float SLOW_EFFECT = 0.5f;
 
 
 

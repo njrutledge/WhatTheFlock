@@ -91,6 +91,13 @@ public class TrapController implements TrapControllerInterface {
         }
     }
 
+    public Trap createSlow(Trap t){
+        Trap trap = new Trap(constants.get("trap"), t.getX(), t.getY(), t.getWidth(), t.getHeight(), Trap.type.SLOW);
+        trap.setDrawScale(t.getDrawScale());
+        trap.setTexture(t.getTexture());
+        return trap;
+    }
+
     /**
      * Returns a random float between min and max (inclusive).
      *
