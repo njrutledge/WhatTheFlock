@@ -26,6 +26,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** The physics shape of this object's hitbox */
     protected PolygonShape hitboxShape;
 
+    public boolean faceRight;
+
     /** The type of chicken */
     public enum ChickenType {
         Nugget,
@@ -175,6 +177,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         chaseSpeed = unique.getFloat("chasespeed", 0);
         knockback = unique.getFloat("knockback", 0);
         max_health = (int)(unique.getFloat("maxhealth",0) * (mh/100));
+        faceRight = true;
 
         health = max_health;
         this.data = data;
@@ -260,6 +263,13 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public float getSlow(){ return slow;}
 
     /**
+     * Returns the direction the chicken is facing.
+     *
+     * @return faceRight - true if facing right
+     */
+    public boolean isFacing() { return faceRight; }
+
+    /**
      * Creates the physics Body(s) for this object, adding them to the world.
      *
      * This method overrides the base method to keep your ship from spinning.
@@ -333,9 +343,13 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     @Override
     public void update(float dt) {
+        if (getLinearVelocity().x > 0){
+            faceRight = true;
+        } else {
+            faceRight = false;
+        }
         super.update(dt);
         applyForce();
-
         if (!cookin) {
             status_timer = Math.max(status_timer - dt, -1f);
         }

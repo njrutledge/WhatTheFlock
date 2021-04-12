@@ -87,8 +87,9 @@ public class NuggetChicken extends Chicken {
      */
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
+        float effect = faceRight ? -1.0f:1.0f;
         if (!isInvisible) {
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f, 0.25f);
+            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.2f*effect, 0.2f);
         }
     }
 
