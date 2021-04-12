@@ -542,7 +542,7 @@ public class GameController implements ContactListener, Screen {
 		JsonValue defaults = constants.get("defaults");
 
 		//0x0001 = player, 0x0002 = chickens, 0x0004 walls, 0x0008 chicken basic attack,
-		// 0x0016 buffalo's headbutt, 0x0032 spawn
+		// 0x0010 buffalo's headbutt, 0x0020 spawn
 
 		//The filter for all obstacles
 		Filter obstacle_filter = new Filter();

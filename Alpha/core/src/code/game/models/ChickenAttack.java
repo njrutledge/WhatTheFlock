@@ -77,7 +77,7 @@ public class ChickenAttack extends GameObject {
                 chicken.setDestination(new Vector2(destination));
                 setLinearVelocity(new Vector2(destination).sub(chicken.getPosition()));
                 filter = new Filter();
-                filter.categoryBits = 0x0016;
+                filter.categoryBits = 0x0010;
                 filter.maskBits = 0x0001 | 0x0004;
                 setFilterData(filter);
                 break;
