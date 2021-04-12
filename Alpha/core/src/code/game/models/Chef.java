@@ -59,6 +59,8 @@ public class Chef extends GameObject implements ChefInterface {
 	private boolean isTrap;
 	/** Can the player cook */
 	private boolean isCooking;
+	/** Whether the player is invincible */
+	private boolean invincible;
 
 	/** The game shape of this object */
 	private PolygonShape sensorShape;
@@ -128,8 +130,6 @@ public class Chef extends GameObject implements ChefInterface {
 		setDensity(data.getFloat("density", 0));
 		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
 		setFixedRotation(true);
-	/*		sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
-				sensorjv.getFloat("height",0), sensorCenter, 0.0f);*/
 
 		maxspeed = data.getFloat("maxspeed", 0);
 		damping = data.getFloat("damping", 0);
@@ -149,16 +149,13 @@ public class Chef extends GameObject implements ChefInterface {
 		setName("chef");
 		isTrap = false;
 		isCooking = false;
-
+		animeframe = 0.0f;
 		Filter filter = new Filter();
 		//0x0001 = player
 		filter.categoryBits = 0x0001;
 		//0x0002 = chickens, 0x0004 walls, 0x0016 buffalo's headbutt
 		filter.maskBits = 0x0002 | 0x0004 | 0x0016;
 		setFilterData(filter);
-
-		animeframe = 0.0f;
-
 	}
 
 	/**Sets the chef's cooking status
@@ -276,7 +273,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/** Reduces the chef's health by one. */
 	public void decrementHealth() {
-		if (!isStunned()) {
+		if (!isStunned() && !invincible) {
 			health --;
 			invuln_counter = 0f;
 		}
@@ -408,12 +405,13 @@ public class Chef extends GameObject implements ChefInterface {
 		Vector2 sensorCenter = new Vector2(0, -getHeight()/4);
 		FixtureDef sensorDef = new FixtureDef();
 		sensorDef.density = data.getFloat("density",0);
-		sensorDef.isSensor = true;
+		//sensorDef.isSensor = true;
 		sensorDef.filter.groupIndex = -1;
 		sensorDef.filter.categoryBits =  0x0002;
 		sensorShape = new PolygonShape();
 		JsonValue sensorjv = data.get("sensor");
-		sensorShape.setAsBox(getWidth(), getHeight(), sensorCenter, 0.0f);
+		sensorShape.setAsBox(sensorjv.getFloat("shrink",0)*getWidth()/2.0f,
+				sensorjv.getFloat("height",0), sensorCenter, 0.0f);
 		sensorDef.shape = sensorShape;
 
 		// Ground sensor to represent our feet

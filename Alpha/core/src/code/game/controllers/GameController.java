@@ -68,6 +68,8 @@ public class GameController implements ContactListener, Screen {
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
 	private TextureRegion trapSpotTexture;
+	/** Texture asset for the shredded chicken egg projectile */
+	private TextureRegion eggTexture;
 
 	/** Texture asset for the chef*/
 	private Texture chefTexture;
@@ -75,6 +77,9 @@ public class GameController implements ContactListener, Screen {
 	private Texture nuggetTexture;
 	/** Texture asset for the buffalo */
 	private Texture buffaloTexture;
+	/** Texture asset for the shredded chicken */
+	private Texture shreddedTexture;
+
 
 	///** Texture asset for temp bar*/
 	//private Texture tempTexture;
@@ -330,6 +335,8 @@ public class GameController implements ContactListener, Screen {
 		chefTexture = directory.getEntry("char:chef", Texture.class);
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
+		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
+		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
 
 		//ui
 		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
@@ -523,8 +530,8 @@ public class GameController implements ContactListener, Screen {
 		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
 		*/
-		for (int i = 0; i < parameterList[4]; i++){
-			spawnChicken(Chicken.ChickenType.Nugget);
+		for (int i = 0; i < parameterList[4]-2; i++){
+			spawnChicken(Chicken.ChickenType.Shredded);
 		}
 
 		// Get initial values for parameters in the list
@@ -917,7 +924,16 @@ public class GameController implements ContactListener, Screen {
 
 		//random chance of spawning a chicken
 		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			spawnChicken(Chicken.ChickenType.Nugget);
+			float rand = (float)Math.random();
+			if (rand<0.33) {
+				spawnChicken(Chicken.ChickenType.Nugget);
+			}
+			else if (rand<0.66){
+				spawnChicken(Chicken.ChickenType.Buffalo);
+			}
+			else{
+				spawnChicken(Chicken.ChickenType.Shredded);
+			}
 		}
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
@@ -928,15 +944,15 @@ public class GameController implements ContactListener, Screen {
 				Chicken chicken = ((Chicken) obj);
 				if (chicken.makeAttack()) {
 					switch(chicken.getAttackType()) {
-						case BASIC_ATTACK:
-						case CHARGE_ATTACK:
+						case Basic:
+						case Charge:
+						case Projectile:
 							createChickenAttack(chicken, chicken.getAttackType());
-							if (chicken.getSoundCheck()) {
+							if (chicken.getSoundCheck()){
 								chickAttack.stop();
 								chickAttack.play(volume * 0.5f);
 							}
-							break;
-						case EXPLOSION_ATTACK:
+						case Explosion:
 							break;
 					}
 				}
@@ -1018,28 +1034,31 @@ public class GameController implements ContactListener, Screen {
 			y = spawn_ymax;
 		}*/
 
-		if (!done) {
-			Chicken enemy;
-			Chicken enemy2;
-			done = true;
+		Chicken enemy;
+		Chicken enemy2;
 /*			if (type == Chicken.Type.Nugget) {
-				enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
-			} else {
-				enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
-			}*/
-			if (type == Chicken.ChickenType.Nugget) {
-				enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
-			} else {
-				enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
-
-			}
-
-			enemy.setDrawScale(scale);
-			enemy.setTexture(buffaloTexture);
-			enemy.setBarTexture(enemyHealthBarTexture);
-			addObject(enemy);
-			ai.put(enemy, new AIController(enemy, chef, grid));
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+		} else {
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+		}*/
+		if (type == Chicken.ChickenType.Nugget) {
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(nuggetTexture);
+		} else if (type == Chicken.ChickenType.Shredded){
+			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
+			((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
+			enemy.setTexture(shreddedTexture);
 		}
+		else{
+			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(buffaloTexture);
+		}
+
+		enemy.setDrawScale(scale);
+		enemy.setBarTexture(enemyHealthBarTexture);
+		addObject(enemy);
+		ai.put(enemy, new AIController(enemy, chef, grid));
+
 	}
 
 	/**
@@ -1112,7 +1131,7 @@ public class GameController implements ContactListener, Screen {
 	}
 
 	/** Adds a chickenAttack to the world */
-	private void createChickenAttack(Chicken chicken, GameObject.FixtureType type) {
+	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
 		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
 				ChickenAttack.getHEIGHT(), chef, chicken, type);
 		attack.setDrawScale(scale);

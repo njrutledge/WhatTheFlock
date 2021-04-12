@@ -22,7 +22,8 @@ public abstract class GameObject extends BoxObstacle {
         STOVE,
         SLAP,
         TRAP,
-        PLACE
+        PLACE,
+        ATTACK
     }
     /**
      * Represents the type of Fixture
@@ -33,7 +34,7 @@ public abstract class GameObject extends BoxObstacle {
         //attacks
         BASIC_ATTACK, CHARGE_ATTACK, EXPLOSION_ATTACK,
         //other
-        CHEF_SENSOR, CHICKEN_SENSOR, CHICKEN_HITBOX, SLAP_SENSOR, STOVE_SENSOR, PLACE_SENSOR
+        CHEF_SENSOR, CHICKEN_SENSOR, SLAP_SENSOR, STOVE_SENSOR, PLACE_SENSOR, CHICKEN_HITBOX
     }
 
     public GameObject(float x, float y, float width, float height, ObjectType o){

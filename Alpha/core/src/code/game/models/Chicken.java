@@ -85,7 +85,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     private boolean stopThisAttack = false;
 
     /** The type of attack that needs to be made */
-    protected FixtureType attackType;
+    protected ChickenAttack.AttackType attackType;
 
 
     /** The damage modifier from being on fire*/
@@ -160,7 +160,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         setFriction(data.getFloat("friction", 0));  /// IT WILL STICK TO WALLS IF YOU FORGET
         setFixedRotation(true);
         setName("chicken");
-        //setSensorName("chickenSensor");
         this.target = player;
         this.player = player;
         this.type = type;
@@ -218,6 +217,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /**
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> shredded
      * Returns whether an attack object needs to be made for this chicken.
      *
      * @return makeAttack
@@ -234,13 +236,14 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      *
      * @param type  The type of the attack to be made
      */
-    public void setAttackType(FixtureType type) { attackType = type; }
+    public void setAttackType(ChickenAttack.AttackType type) { attackType = type; }
 
     /** Returns the type of the attack that needs to be made for this chicken.
      *
      * @return attackType
      */
-    public GameObject.FixtureType getAttackType() { return attackType; }
+    public ChickenAttack.AttackType getAttackType() { return attackType; }
+
 
     /**
      * Returns current chicken slowing modifier.
@@ -248,7 +251,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @return the current chicken slowing modifier.
      */
     public float getSlow(){ return slow;}
-
 
     /**
      * Creates the physics Body(s) for this object, adding them to the world.
@@ -284,7 +286,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         sensorShape.setRadius(sensorRadius);
         sensorDef.shape = sensorShape;
         // Ground sensor to represent our feet
-
         Fixture sensorFixture = body.createFixture( sensorDef );
         sensorFixture.setUserData(FixtureType.CHICKEN_SENSOR);//getSensorName());
 
@@ -353,7 +354,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             return false;
     }
 
-    //TODO: comment
+    /**
+     * Start an attack
+     */
     public void startAttack() {
         if (!isRunning()) {
             hitboxOut = false;
@@ -422,7 +425,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public abstract void setTexture(Texture texture);
 
-    //TODO: comment
+    /**
+     * Set texture for the chicken healthbar
+     * @param texture texture for chicken healthbar
+     */
     public void setBarTexture(TextureRegion texture){
         healthBar = texture;
     }
@@ -434,8 +440,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void draw(GameCanvas canvas) {
         if (!isInvisible) {
-            canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f, 0.025f);
-            canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+40, getAngle(), 0.08f*(health/max_health), 0.025f);
+            canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
+            canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
         }
     }
 
@@ -459,6 +465,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void takeDamage(float damage) {
         if (!isStunned) {
+
             if (status_timer >= 0) {
                 health -= damage * FIRE_MULT;
             } else {
