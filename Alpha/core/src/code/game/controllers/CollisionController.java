@@ -209,18 +209,20 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
     private void handleTrapSlap(Trap t1, FixtureType fd1, Slap s2, FixtureType fd2) {
-        //TODO: WHY IS THIS CALLED MULTIPLE TIMES ON A SINGLE SLAP AHHHHHHHH
-        switch (t1.getTrapType()) {
-            case FAULTY_OVEN:
-                chef.setDoubleDamage(true);
-                break;
-            case BREAD_BOMB:
-                trapController.createLures(t1);
-                break;
-            case FRIDGE:
-                t1.markReady(false);
-                trapCache.add(trapController.createSlow(t1));
-                break;
+        if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION)) {
+            switch (t1.getTrapType()) {
+                case FAULTY_OVEN:
+                    chef.setDoubleDamage(true);
+                    break;
+                case BREAD_BOMB:
+                    t1.markReady(false);
+                    trapCache.addAll(trapController.createLures(t1));
+                    break;
+                case FRIDGE:
+                    t1.markReady(false);
+                    trapCache.add(trapController.createSlow(t1));
+                    break;
+            }
         }
     }
 

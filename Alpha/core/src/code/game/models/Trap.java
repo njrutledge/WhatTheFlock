@@ -392,6 +392,10 @@ public class Trap extends GameObject implements TrapInterface {
                 */
             case FRIDGE:
                 c = Color.BLUE.cpy();
+                break;
+            case BREAD_BOMB:
+                c = Color.BROWN.cpy();
+                break;
 
         }
         c.a = durability / MAX_DURABILITY;

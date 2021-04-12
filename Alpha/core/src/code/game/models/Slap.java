@@ -70,6 +70,7 @@ public class Slap extends GameObject {
         // Ground Sensor
         // -------------
         // Previously used to detect double-jumps, but also allows us to see hitboxes
+        /*
         Vector2 sensorCenter = new Vector2(0,0);
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
@@ -77,9 +78,10 @@ public class Slap extends GameObject {
         sensorShape.setAsBox(width, height, sensorCenter, 0.0f);
         sensorDef.shape = sensorShape;
 
-        //Fixture sensorFixture = body.createFixture( sensorDef );
-        //sensorFixture.setUserData(FixtureType.SLAP_SENSOR);//getSensorName());
+        Fixture sensorFixture = body.createFixture( sensorDef );
+        sensorFixture.setUserData(FixtureType.SLAP_SENSOR);//getSensorName());
 
+         */
         return true;
     }
 
@@ -101,6 +103,6 @@ public class Slap extends GameObject {
      */
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
-        canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),getAngle(),drawScale.x,drawScale.y);
+        //canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),getAngle(),drawScale.x,drawScale.y);
     }
 }
