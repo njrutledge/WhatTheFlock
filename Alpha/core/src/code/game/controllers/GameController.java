@@ -1033,7 +1033,7 @@ public class GameController implements ContactListener, Screen {
 			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 		}*/
 		if (type == Chicken.ChickenType.Nugget) {
-			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(nuggetTexture);
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
