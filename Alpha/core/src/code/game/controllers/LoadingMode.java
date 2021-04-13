@@ -305,7 +305,7 @@ public class LoadingMode implements Screen, InputProcessor, ControllerListener {
 	 */
 	private void draw() {
 		canvas.begin();
-		canvas.draw(background, 0, 0);
+		canvas.draw(background, Color.WHITE, 0, 0, canvas.getWidth(), canvas.getHeight());
 		if (easyButton == null || medButton == null || hardButton == null|| hardButtonPushed == null) {
 			drawProgress(canvas);
 		} else {
