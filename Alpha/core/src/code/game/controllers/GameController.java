@@ -48,7 +48,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level02";
+	private final String DEFAULT_LEVEL = "level01";
 
 
 	/** The texture for walls and platforms */
@@ -69,11 +69,18 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
 	private TextureRegion trapSpotTexture;
+	/** Texture asset for the shredded chicken egg projectile */
+	private TextureRegion eggTexture;
 
 	/** Texture asset for the chef*/
 	private Texture chefTexture;
 	/** Texture asset for the nugget */
 	private Texture nuggetTexture;
+	/** Texture asset for the buffalo */
+	private Texture buffaloTexture;
+	/** Texture asset for the shredded chicken */
+	private Texture shreddedTexture;
+
 
 	///** Texture asset for temp bar*/
 	//private Texture tempTexture;
@@ -86,6 +93,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion healthTexture;
 	private TextureRegion noHealthTexture;
 
+	/**Slap attack texture */
+	private Texture slapTexture;
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
 	private long jumpId = -1;
@@ -163,8 +172,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	///** Whether or not the player is cooking, true is they are and false otherwise*/
 	//private boolean cooking;
 
-	private Trap trapCache;
-
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
@@ -183,6 +190,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 //	/** Reference to the stove object */
 //	private Stove stove;
 
+	boolean done = false;
 	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.LURE;
 	/** The parameter from the list of parameters currently selected */
@@ -198,6 +206,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected PooledList<Obstacle> objects  = new PooledList<Obstacle>();
 	/** Queue for adding objects */
 	protected PooledList<Obstacle> addQueue = new PooledList<Obstacle>();
+	/** All walls and stoves in the world. */
+	protected PooledList<Obstacle> walls = new PooledList<Obstacle>();
+	/** All traps in the world. */
+	protected PooledList<Obstacle> traps = new PooledList<Obstacle>();
+	/** All enemies in the world. */
+	protected PooledList<Obstacle> chickens = new PooledList<Obstacle>();
+	/** All other objects in the world. */
+	protected PooledList<Obstacle> others = new PooledList<Obstacle>();
 	/** Listener that will update the player mode when we are done */
 	private ScreenListener listener;
 
@@ -240,8 +256,25 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private CollisionController collisionController;
 	/**The trap controller for this game*/
 
-
 	private TrapController trapController;
+
+	/** How much time has passed in the game */
+	private float gameTime;
+
+	/**Wave-related variables, to be changed to take in input via level editor later */
+	private float[] probs; // probability spread for each chicken
+	private int startWaveSize; // Starting wave size, increases by incWaveSize each wave
+	private int maxWaveSize; // Maximum size of a wave
+	private float spreadability; // how much time between each spawn of the wave (in seconds)
+	private float replenishTime; // how long before the wave is replenished (in seconds)
+	private int enemiesLeft; // how many enemies left in the wave
+	private float waveStartTime; // when did this wave start
+	private float lastEnemySpawnTime; // when did the last enemy spawn
+	// the total pool of enemies for this level
+	private ArrayList<Integer> enemyPool; // the enemies in the pool but not on the board
+	private ArrayList<Integer> enemyBoard; // the enemies on the board
+
+
 	/**
 	 * Returns true if debug mode is active.
 	 *
@@ -279,7 +312,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//trapController = new TrapController(scale, constants);
 		//collisionController = new CollisionController(trapController);
 		collisionController = new CollisionController(scale);
-		//chickens = 0;
 		//cooking = false;
 	}
 
@@ -327,6 +359,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("char:nuggetBar", Texture.class));
 		chefTexture = directory.getEntry("char:chef", Texture.class);
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
+		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
+		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
+		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
+		slapTexture = directory.getEntry("char:slap", Texture.class);
 
 		//ui
 		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
@@ -375,13 +411,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 		objects.clear();
 		addQueue.clear();
+		walls.clear();
+		traps.clear();
+		others.clear();
+		chickens.clear();
 		world.dispose();
 		
 		world = new World(gravity,false);
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
-		//chickens = 0;
 		populateLevel();
 	}
 	public void initEasy(){
@@ -419,12 +458,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 
 		//add chef here!
-		addObject(chef);
+		addObject(chef, GameObject.ObjectType.NULL);
 		//set the chef in the collision controller now that it exists
 		collisionController.setChef(chef);
 		/*String wname = "wall";
 	    JsonValue walljv = constants.get("walls");
 		JsonValue defaults = constants.get("defaults");
+		// Obstacle filter: 0x0001 = players, 0x0002 = chickens, 0x0004 = walls, 0x0008 = traps
+		Filter obsfilter = new Filter();
+		obsfilter.categoryBits = 0x0004;
+		obsfilter.maskBits = 0x0001 | 0x0002 | 0x0016;
+		Filter trapfilter = new Filter();
+		trapfilter.categoryBits = 0x0008;
+		trapfilter.maskBits = 0x0002;
 		for (int ii = 0; ii < walljv.size; ii++) {
 	        PolygonObstacle obj;
 	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
@@ -435,6 +481,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			obj.setDrawScale(scale);
 			obj.setTexture(earthTile);
 			obj.setName(wname+ii);
+			obj.setFilterData(obsfilter);
 			addObject(obj);
 	    }
 
@@ -451,6 +498,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			obj.setDrawScale(scale);
 			obj.setTexture(earthTile);
 			obj.setName(pname+ii);
+			obj.setFilterData(obsfilter);
 			addObject(obj);
 	    }
 		//TODO add stove to JSON
@@ -469,6 +517,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			obj.setDrawScale(scale);
 			obj.setTexture(trapSpotTexture);
 			obj.setName(trpname+ii);
+			obj.setFilterData(trapfilter);
 			addObject(obj);
 		}
 
@@ -480,6 +529,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
 		stove.setDrawScale(scale);
 		stove.setTexture(stoveTexture);
+		stove.setFilterData(obsfilter);
 		addObject(stove);
 
 
@@ -509,8 +559,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
 		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
 		*/
-		for (int i = 0; i < parameterList[4]; i++){
-			spawnChicken(Chicken.Type.Nugget);
+		for (int i = 0; i < parameterList[4]-2; i++){
+			spawnChicken(Chicken.ChickenType.Nugget);
 		}
 
 		// Get initial values for parameters in the list
@@ -519,10 +569,44 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	}
 
-
 	public void doNewPopulate(JsonValue level){
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
+		probs = level.get("spawn_probs").asFloatArray();
+		startWaveSize = level.get("starting_wave_size").asInt();
+		maxWaveSize = level.get("max_wave_size").asInt();
+		spreadability = level.get("spawn_gap").asFloat();
+		replenishTime = level.get("wave_gap").asFloat();
+
+		gameTime = 0;
+		waveStartTime = gameTime;
+		lastEnemySpawnTime = gameTime;
+		enemiesLeft = startWaveSize;
+		enemyPool = new ArrayList<>();
+		enemyBoard = new ArrayList<>();
+		// sets up the initial enemy pool
+		for (int i = 0; i < maxWaveSize; i++){
+			double r = Math.random();
+			float sum = probs[0];
+			int k = 1;
+			while (k < probs.length && r > sum){
+				sum += probs[k];
+				k++;
+			}
+			enemyPool.add(k-1);
+		}
+
+		//0x0001 = player, 0x0002 = chickens, 0x0004 walls, 0x0008 chicken basic attack,
+		// 0x0010 buffalo's headbutt, 0x0020 spawn
+
+		//The filter for all obstacles
+		Filter obstacle_filter = new Filter();
+		obstacle_filter.categoryBits = 0x0004;
+		obstacle_filter.maskBits = 0x0001 | 0x0002 | 0x0004 | 0x0010;
+
+		Filter spawn_filter = new Filter();
+		spawn_filter.groupIndex = -1;
+
 		for(int ii = 0; ii < stuff.length; ii++){
 			int x = ii % grid.getColCount();
 			int y = (stuff.length - 1 - ii) / grid.getColCount();
@@ -537,7 +621,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					obj.setDrawScale(scale);
 					obj.setTexture(earthTile);
 					obj.setName(LEVEL_WALL);//+ii); If we need to specify name further, its here
-					addObject(obj);
+					obj.setFilterData(obstacle_filter);
+					addObject(obj, GameObject.ObjectType.WALL);
 
 					grid.setObstacle(x,y);
 					break;
@@ -548,7 +633,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					Stove stove = new Stove(constants.get(LEVEL_STOVE),x,y,swidth,sheight);
 					stove.setDrawScale(scale);
 					stove.setTexture(stoveTexture);
-					addObject(stove);
+					stove.setFilterData(obstacle_filter);
+					addObject(stove, GameObject.ObjectType.WALL);
 					grid.setObstacle(x,y);
 					grid.setObstacle(x-1,y);
 					grid.setObstacle(x,y-1);
@@ -564,6 +650,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef.setTexture(chefTexture);
 					chef.setHealthTexture(healthTexture);
 					chef.setNoHealthTexture(noHealthTexture);
+					chef.setSlapTexture(slapTexture);
 					//don't add chef here! add it later so its on top easier
 					break;
 				case LEVEL_SPAWN:
@@ -572,17 +659,18 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					spawn.setDrawScale(scale);
 					//spawn.setTexture(trapSpotTexture);
 					spawn.setName(LEVEL_SPAWN);
-					addObject(spawn);
+					spawn.setFilterData(spawn_filter);
+					addObject(spawn, GameObject.ObjectType.WALL);
 					spawnPoints.add(spawn);
 					break;
 				case LEVEL_SLOW:
-					trapHelper(x, y, Trap.type.SLOW, true);
+					trapHelper(x, y, Trap.type.FRIDGE);
 					break;
 				case LEVEL_LURE:
-					trapHelper(x, y, Trap.type.LURE, true);
+					trapHelper(x, y, Trap.type.BREAD_BOMB);
 					break;
 				case LEVEL_FIRE:
-					trapHelper(x, y, Trap.type.FAULTY_OVEN, true);
+					trapHelper(x, y, Trap.type.FAULTY_OVEN);
 					break;
 			}
 		}
@@ -739,6 +827,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
 		chef.setShooting(InputController.getInstance().didSecondary());
 		chef.setTrap(InputController.getInstance().didTrap());
+		gameTime += dt;
 
 		if(InputController.getInstance().didMute()){
 			muted = !muted;
@@ -750,7 +839,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 
 		// Rotate through player's available traps
-		if (InputController.getInstance().didRotateTrapLeft()){
+		/*if (InputController.getInstance().didRotateTrapLeft()){
 			if (trapTypeSelected == Trap.type.LURE){
 				trapTypeSelected = Trap.type.FIRE;
 			} else if (trapTypeSelected == Trap.type.SLOW){
@@ -794,7 +883,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			} else {
 				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 1);
 			}
-		}
+		}*/
 
 		
 		// Add a bullet if we fire
@@ -807,20 +896,55 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			createTrap();
 		}
 
-		//random chance of spawning a chicken
-		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			spawnChicken(Chicken.Type.Nugget);
+		// Wave spawning logic
+
+		if (gameTime > waveStartTime + replenishTime){
+			waveStartTime = gameTime;
+			enemiesLeft = startWaveSize + 1;
+			startWaveSize += 1;
 		}
+
+		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
+			int r = (int)Math.floor((maxWaveSize - enemyBoard.size())*Math.random());
+			enemyBoard.add(enemyPool.get(r));
+			int chicken = enemyPool.remove(r);
+			if (chicken == 0){
+				spawnChicken(Chicken.ChickenType.Nugget);
+			} else if (chicken == 1){
+				spawnChicken(Chicken.ChickenType.Buffalo);
+			} else if (chicken == 2) {
+				spawnChicken(Chicken.ChickenType.Shredded);
+			}
+			lastEnemySpawnTime = gameTime;
+			enemiesLeft -= 1;
+		}
+
+
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
 			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {
 				removeBullet(obj);
 			}
 			if (obj.getName().equals("chicken")){
-				Chicken chick = ((Chicken) obj);
-				if (chick.isAttacking() && chick.getSoundCheck()) {
-					chickAttack.stop();
-					chickAttack.play(volume*0.5f);
+				Chicken chicken = ((Chicken) obj);
+				if (chicken.makeAttack()) {
+					switch(chicken.getAttackType()) {
+						case Basic:
+						case Charge:
+						case Projectile:
+							createChickenAttack(chicken, chicken.getAttackType());
+							if (chicken.getSoundCheck()){
+								chickAttack.stop();
+								chickAttack.play(volume * 0.5f);
+							}
+						case Explosion:
+							break;
+					}
+				}
+			} else if (obj.getName().equals("chickenAttack")) {
+				ChickenAttack attack = (ChickenAttack)obj;
+				if (attack.atDestination(dt)) {
+					attack.markRemoved(true);
 				}
 			}
 		}
@@ -828,9 +952,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chef.applyForce();
 
 		// if the chef tries to perform an action, move or gets hit, stop cooking
-		if (chef.isCooking() && (InputController.getInstance().didMovementKey()|| InputController.getInstance().didSecondary()
+		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
 		|| chef.isStunned())){
 			chef.setCooking(false);
+
+		}
+		else{
+			chef.setCooking(chef.inCookingRange());
 		}
 
 		//update temperature
@@ -861,7 +989,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * Kills all chickens in the world
 	 */
 	public void killChickens(){
-		//chickens = 0;
 		for (Obstacle obstacle: objects){
 			if (obstacle.getName().equals("chicken")){
 				removeChicken(obstacle);
@@ -871,7 +998,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/**
 	 * Spawn a chicken somewhere in the world, then increments the number of chickens
 	 */
-	private void spawnChicken(Chicken.Type type){
+	private void spawnChicken(Chicken.ChickenType type){
 		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
 		float dheight = chickenTexture.getRegionHeight()/scale.y;
 		int index = (int) (Math.random() * spawnPoints.size());
@@ -896,19 +1023,30 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}*/
 
 		Chicken enemy;
-		if (type == Chicken.Type.Nugget) {
-			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"),x, y, dwidth, dheight, chef, parameterList[1]);
+		Chicken enemy2;
+/*			if (type == Chicken.Type.Nugget) {
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 		} else {
-			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"),x, y, dwidth, dheight, chef, parameterList[1]);
-
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+		}*/
+		if (type == Chicken.ChickenType.Nugget) {
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(nuggetTexture);
+		} else if (type == Chicken.ChickenType.Shredded){
+			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
+			((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
+			enemy.setTexture(shreddedTexture);
+		}
+		else{
+			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(buffaloTexture);
 		}
 
 		enemy.setDrawScale(scale);
-		enemy.setTexture(nuggetTexture);
 		enemy.setBarTexture(enemyHealthBarTexture);
-		addObject(enemy);
+		addObject(enemy, GameObject.ObjectType.CHICKEN);
 		ai.put(enemy, new AIController(enemy, chef, grid));
-		//chickens ++;
+
 	}
 
 	/**
@@ -979,7 +1117,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		emptySlap.play(volume);
 
 	}
-	
+
+	/** Adds a chickenAttack to the world */
+	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
+		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
+				ChickenAttack.getHEIGHT(), chef, chicken, type);
+		attack.setDrawScale(scale);
+		addQueuedObject(attack);
+	}
+
 	/**
 	 * Remove a new bullet from the world.
 	 *
@@ -992,21 +1138,17 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	public void createTrap() {
 		//spawn test traps
-		trapHelper(chef.getX(), chef.getY(), trapTypeSelected, false);
+		trapHelper(chef.getX(), chef.getY(), trapTypeSelected);
 
 	}
 
-	public void trapHelper(float x, float y, Trap.type t, boolean env){
+	public void trapHelper(float x, float y, Trap.type t){
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
-		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t, Trap.shape.CIRCLE, env);
+		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t);
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
-		if (env){
-			addEnvironmentalObject(trap);
-		}else {
-			addObject(trap);
-		}
+		addObject(trap, GameObject.ObjectType.TRAP);
 	}
 
 
@@ -1035,16 +1177,25 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 *
 	 * param obj The object to add
 	 */
-	protected void addObject(Obstacle obj) {
+	protected void addObject(Obstacle obj, GameObject.ObjectType type) {
 		assert inBounds(obj) : "Object is not in bounds";
 		objects.add(obj);
 		obj.activatePhysics(world);
-	}
+		//for drawing priorities
+		switch (type){
+			case WALL:
+				walls.add(obj);
+				break;
+			case TRAP:
+				traps.add((Trap)obj);
+				break;
+			case CHICKEN:
+				chickens.add((Chicken) obj);
+				break;
+			case NULL:
+				others.add(obj);
+		}
 
-	protected void addEnvironmentalObject(Trap trap) {
-		assert inBounds(trap) : "Object is not in bounds";
-		objects.add(trap);
-		trap.activateInitialPhysics(world);
 	}
 
 	/**
@@ -1091,8 +1242,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void postUpdate(float dt) {
 		// Add any objects created by actions
+		while(!collisionController.getNewTraps().isEmpty()){
+			addObject(collisionController.getNewTraps().poll(), GameObject.ObjectType.TRAP);
+		}
+		//TODO: make sure this is only used for slaps
 		while (!addQueue.isEmpty()) {
-			addObject(addQueue.poll());
+			addObject(addQueue.poll(), GameObject.ObjectType.NULL);
 		}
 
 		// Turn the game engine crank.
@@ -1101,7 +1256,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Garbage collect the deleted objects.
 		// Note how we use the linked list nodes to delete O(1) in place.
 		// This is O(n) without copying.
-		Iterator<PooledList<Obstacle>.Entry> iterator = objects.entryIterator();
+		iterateThrough(walls.entryIterator(), dt);
+		iterateThrough(traps.entryIterator(),dt);
+		iterateThrough(chickens.entryIterator(),dt);
+		iterateThrough(others.entryIterator(),dt);
+	}
+
+	private void iterateThrough(Iterator<PooledList<Obstacle>.Entry> iterator, float dt){
 		while (iterator.hasNext()) {
 			PooledList<Obstacle>.Entry entry = iterator.next();
 			Obstacle obj = entry.getValue();
@@ -1111,15 +1272,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			} else {
 				// Note that update is called last!
 				obj.update(dt);
-			}
-
-			if(obj.getClass().equals(Trap.class)){
-				Trap t = (Trap) obj;
-				if(t.isActive() && t.needsActivation()){
-					t.activatePhysics(world);
-				}else if(t.needsDeactivation()){
-					t.partialDeactivatePhysics(world);
-				}
 			}
 		}
 	}
@@ -1137,7 +1289,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void draw(float dt) {
 		canvas.clear();
 
-		String s = "";
+		/*String s = "";
 		switch (trapTypeSelected ){
 			case LURE:
 				s = "lure";
@@ -1145,10 +1297,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			case SLOW:
 				s = "slow";
 				break;
-			case FIRE:
+			/*case FIRE:
 				s = "fire";
 				break;
-		}
+		}*/
 
 		canvas.begin();
 		/*canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
@@ -1179,16 +1331,43 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			stove.setLit(false);
 		}*/
 
-		for(Obstacle obj : objects) {
+		/*for(Obstacle obj : objects) {
+			obj.draw(canvas);
+		}*/
+
+
+		//priority: Walls < traps < chickens < other < chef
+
+		for(Obstacle obj : walls){
 			obj.draw(canvas);
 		}
+		for (Obstacle trap : traps){
+			trap.draw(canvas);
+		}
+		for (Obstacle c : chickens){
+			c.draw(canvas);
+		}
+		for (Obstacle other : others){
+			other.draw(canvas);
+		}
+		//draw chef last
+		chef.draw(canvas);
 
 		canvas.end();
 
 		if (debug) {
 			canvas.beginDebug();
-			for(Obstacle obj : objects) {
+			for(Obstacle obj : walls){
 				obj.drawDebug(canvas);
+			}
+			for (Obstacle trap : traps){
+				trap.drawDebug(canvas);
+			}
+			for (Obstacle c : chickens){
+				c.drawDebug(canvas);
+			}
+			for (Obstacle other : others){
+				other.drawDebug(canvas);
 			}
 			if (grid_toggle) {
 				grid.drawDebug(canvas);
@@ -1201,6 +1380,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		canvas.begin();
 
 		temp.draw(canvas);
+		canvas.end();
+
+		//draw gametime
+		canvas.begin();
+		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
 		if (paused){

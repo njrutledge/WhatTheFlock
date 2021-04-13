@@ -19,8 +19,8 @@
 		"jump_cool": 30,
 		"shot_cool": 40,
 		"sensor": {
-			"shrink" : 0.6,
-			"height" : 0.2
+			"shrink" : 0.9,
+			"height" : 0.4
 		}
 	},
 	"chicken" : {
@@ -32,6 +32,7 @@
 	"nugget" : {
 		"shrink": [0.7, 0.7],
 		"damping": 0.2,
+		"shrink": [0.95, 0.7],
 		"density": 0.1,
 		"maxspeed": 5.0,
 		"chasespeed": 3,
@@ -40,6 +41,32 @@
 		"sensor": {
 			"shrink" : 0.6,
 			"height" : 0.05
+		}
+	},
+	"buffalo" : {
+		"shrink": [0.6, 0.4],
+		"density": 0.1,
+		"damping": 0.2,
+		"maxspeed": 5.0,
+		"chasespeed": 2.0,
+		"knockback": 20.0,
+		"maxhealth": 5,
+		"sensor": {
+			"shrink" : 0.6,
+			"height" : 0.1
+		}
+	},
+	"shredded" : {
+		"shrink": [0.7, 0.7],
+		"density": 0.1,
+		"damping": 0.2,
+		"maxspeed": 5.0,
+		"chasespeed": 2.0,
+		"knockback": 20.0,
+		"maxhealth": 5,
+		"sensor": {
+			"shrink" : 0.6,
+			"height" : 0.1
 		}
 	},
 	"stove" : {
@@ -67,6 +94,10 @@
     	"speed"  : 20.0,
 		"density": 10.0
     },
+	"chickenBasic": {
+		"offset" : 1.0,
+		"radius" : 0.5
+	},
 	"walls": 		[
 		[16.0, 18.0, 16.0, 17.0,  1.0, 17.0, 1.0,  0.0,  0.0,  0.0,  0.0, 18.0],
 		[32.0, 18.0, 32.0,  0.0, 31.0,  0.0, 31.0, 17.0, 16.0, 17.0, 16.0, 18.0],

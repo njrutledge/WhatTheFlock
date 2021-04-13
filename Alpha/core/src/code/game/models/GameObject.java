@@ -21,18 +21,21 @@ public abstract class GameObject extends BoxObstacle {
         STOVE,
         SLAP,
         TRAP,
-        PLACE
+        PLACE,
+        ATTACK,
+        WALL,
+        NULL
     }
     /**
      * Represents the type of Fixture
      */
     public enum FixtureType{
         //traps
-        TRAP_SENSOR, TRAP_ACTIVATION, LURE_HURT,
+        TRAP_HITBOX, TRAP_ACTIVATION, LURE_HURT,
         //attacks
-        BASIC_ATTACK,
+        BASIC_ATTACK, CHARGE_ATTACK, EXPLOSION_ATTACK,
         //other
-        CHEF_SENSOR, CHICKEN_SENSOR, SLAP_SENSOR, STOVE_SENSOR, PLACE_SENSOR
+        CHEF_HURTBOX, CHICKEN_HITBOX, STOVE_SENSOR, PLACE_SENSOR, CHICKEN_HURTBOX
     }
 
     public GameObject(float x, float y, float width, float height, ObjectType o){
