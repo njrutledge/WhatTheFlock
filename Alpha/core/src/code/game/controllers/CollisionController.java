@@ -429,6 +429,7 @@ public class CollisionController implements CollisionControllerInterface {
     private void endStoveChef(Stove stove, FixtureType fd1, Chef chef, FixtureType fd2) {
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
         chef.setCooking(false);
+        chef.setInCookingRange(false);
         stove.setLit(false);
     }
 
