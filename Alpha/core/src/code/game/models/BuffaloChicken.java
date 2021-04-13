@@ -49,7 +49,7 @@ public class BuffaloChicken extends Chicken {
         // The shrink factors fit the image to a tigher hitbox
         super(data, unique, x, y, width, height, player, mh, ChickenType.Buffalo);
         sensorRadius = SENSOR_RADIUS;
-        faceRight = true;
+        //faceRight = true;
     }
 
     public void attack(float dt) {

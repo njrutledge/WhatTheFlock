@@ -143,6 +143,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     private boolean inSlow = false;
     /** Ammount to increase or decrease the slow modifier */
     private float SLOW_EFFECT = 0.33f;
+    /** Whether the chicken is being lured */
+    private Boolean isLured = false;
 
 
 
@@ -343,10 +345,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     @Override
     public void update(float dt) {
-        if (getLinearVelocity().x > 0){
-            faceRight = true;
-        } else {
-            faceRight = false;
+        if (!isLured) {
+            if (getLinearVelocity().x > 0) {
+                faceRight = true;
+            } else {
+                faceRight = false;
+            }
         }
         super.update(dt);
         applyForce();
@@ -422,11 +426,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Whether or not the chicken is charging up an attack */
     public boolean isAttacking() {
-        return charge_time >= 0 || isRunning();
+        return !isLured && (charge_time >= 0 || isRunning());
     }
 
     /** Whether or not the chicken is currently running */
-    public boolean isRunning() { return false; };
+    public boolean isRunning() { return false; }
 
     /** Set running */
     public void setRunning(boolean running) { return; }
@@ -547,6 +551,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void trapTarget(Trap t) {
         target = t;
+        isLured = true;
     }
 
     /**
@@ -555,11 +560,24 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void resetTarget() {
         target = player;
+        isLured = false;
     }
 
+    /**
+     * Returns the chicken's current target
+     * @return  the current target
+     */
     public Obstacle getTarget(){
         return target;
     }
+
+    /**
+     * Whether the chicken is currently lured
+     */
+    public Boolean isLured(){
+        return isLured;
+    }
+
 
     /**
      * updates the isStunned condition for the chicken

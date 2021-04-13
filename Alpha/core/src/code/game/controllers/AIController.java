@@ -37,53 +37,28 @@ public class AIController {
     private final float INVULN_TIME = 1f;
     /** Counter for Invulnerability timer*/
     private float invuln_counter = INVULN_TIME;
-    /** Time to move perpendicular to a wall upon collision before returning to normal AI */
-    private final float SIDEWAYS_TIME = 0.1f;
-    /** Counter for sideways movement timer*/
-    private float sideways_counter = SIDEWAYS_TIME;
     /** Time to remain stationary after hitting the player */
     private final float STOP_DUR;
     /** Counter for stop movement timer*/
     private float stop_counter;
-    /** True if the chicken has just been hit and the knockback has not yet been applied*/
-    private boolean hit = false;
 
-    private final int FIRE_MULT = 2;
-
-    private boolean finishA = false;
-
-    private boolean soundCheck = true;
-
-    private float attack_timer = -1f;
-
-    private float attack_charge = 0f;
-
-    private float ATTACK_CHARGE = 0.4f;
-
-    private boolean hitboxOut = false;
-
-
-    private float ATTACK_DUR = 0.2f;
-
-    private CircleShape attackHit;
-
-    private float ATTACK_RADIUS = 1.5f;
-
-    protected FilmStrip animator;
     /** Reference to texture origin */
     protected Vector2 origin;
 
     /** The chicken being controlled by this controller */
     private Chicken chicken;
-    /** The chef that this chicken is targeting*/
-    private Chef chef;
     /** The states of the finite state machine for chicken AI*/
-    public static enum FSM{
-        CHASE, /** Chicken is chasing the player, but not in attack range yet*/
-        KNOCKBACK,/** The chicken has just taken damage and is receiving a knockback force*/
-        STUNNED,/** The chicken has recently taken damage, but not receiving a knockback force*/
-        STOP, /** The chicken has recently attacked and is recovering before performing an action */
-        ATTACK /** The chicken is attacking the chef */
+    public enum FSM{
+        /** Chicken is chasing the player, but not in attack range yet*/
+        CHASE,
+        /** The chicken has just taken damage and is receiving a knockback force*/
+        KNOCKBACK,
+        /** The chicken has recently taken damage, but not receiving a knockback force*/
+        STUNNED,
+        /** The chicken has recently attacked and is recovering before performing an action */
+        STOP,
+        /** The chicken is attacking the chef */
+        ATTACK
     }
 
     // Pathfinding
@@ -115,7 +90,6 @@ public class AIController {
      * */
     public AIController(Chicken chicken, Chef chef, Grid grid){
         this.target = chef;
-        this.chef = chef;
         this.chicken = chicken;
         this.data = chicken.getJsonData();
         this.unique = chicken.getJsonUnique();
@@ -179,7 +153,7 @@ public class AIController {
 /*                else if (!chicken.isAttacking() && !chicken.isTouching()) {
                     state = FSM.CHASE;
                 }*/
-                else if (chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching()) {
+                else if (chicken.isLured() || (chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())) {
                     state = FSM.CHASE;
                 }
                 break;
@@ -214,7 +188,7 @@ public class AIController {
         switch(state){
             case CHASE:
                 move();
-                temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
+                temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(grid.getPosition(start_tile.getRow(), start_tile.getCol())));
                 temp.nor();
                 temp.scl(chaseSpeed * chicken.getSlow());
                 chicken.setForceCache(temp, false);
