@@ -156,7 +156,7 @@ public class AIController {
 /*                else if (!chicken.isAttacking() && !chicken.isTouching()) {
                     state = FSM.CHASE;
                 }*/
-                else if (chicken.isLured() || (chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())) {
+                else if ((chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())) {
                     state = FSM.CHASE;
                 }
                 break;

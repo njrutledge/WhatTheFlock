@@ -241,7 +241,7 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChefChicken(Chef chef, FixtureType fd1, Chicken chicken, FixtureType fd2){
         //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
-        if (fd2 == FixtureType.CHICKEN_HITBOX && chicken.chasingPlayer(chef)){
+        if (fd2 == FixtureType.CHICKEN_HITBOX && chicken.chasingObject(chef)){
             chicken.startAttack();
         }
     }
@@ -292,6 +292,15 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
         if(fd1 != null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
             trapController.applyTrap(t2, c1);
+        }
+
+        if(t2.getTrapType().equals(Trap.type.LURE) && fd2!= null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)
+                && fd1!=null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
+            c1.startAttack();
+        }
+
+        if (t2.getTrapType().equals(Trap.type.LURE) && c1.getType().equals(Chicken.ChickenType.Shredded) && c1.chasingObject(t2)){
+            //c1.startAttack();
         }
     }
 
@@ -417,7 +426,13 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void endChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
+        if(t2.getTrapType().equals(Trap.type.LURE) && fd2!= null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)
+                && fd1!=null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
+            c1.stopAttack(false);
+            System.out.println("stop attack");
+        }
         trapController.stopTrap(t2, c1);
+
     }
 
     private void endChickenChef(Chicken chicken, FixtureType fd1, Chef chef, FixtureType fd2){
