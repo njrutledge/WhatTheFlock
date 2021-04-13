@@ -197,7 +197,9 @@ public class Trap extends GameObject implements TrapInterface {
             setBullet(true);
             Filter lure_filter = new Filter();
             lure_filter.categoryBits = 0x0080;
-            lure_filter.maskBits = 0x0004 | 0x0080;
+            lure_filter.maskBits = 0x0004;
+            setFilterData(lure_filter);
+            setRestitution(.8f);
         }
         durability = MAX_DURABILITY;
         linger = false;

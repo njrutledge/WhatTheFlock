@@ -615,6 +615,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		obstacle_filter.categoryBits = 0x0004;
 		obstacle_filter.maskBits = 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0080;
 
+		Filter player_filter = new Filter();
+		player_filter.categoryBits = 0x0001;
+		player_filter.maskBits = 0x0004 | 0x0008;
+
+		Filter chicken_filter = new Filter();
+		chicken_filter.categoryBits = 0x0002;
+		chicken_filter.maskBits = 0x0004;
+
 		Filter spawn_filter = new Filter();
 		spawn_filter.groupIndex = -1;
 
@@ -662,6 +670,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef.setHealthTexture(healthTexture);
 					chef.setNoHealthTexture(noHealthTexture);
 					chef.setSlapTexture(slapTexture);
+					chef.setFilterData(player_filter);
 					//don't add chef here! add it later so its on top easier
 					break;
 				case LEVEL_SPAWN:
