@@ -21,6 +21,7 @@ public abstract class GameObject extends BoxObstacle {
         STOVE,
         SLAP,
         TRAP,
+        TRAP_EFFECT,
         PLACE,
         ATTACK,
         WALL,

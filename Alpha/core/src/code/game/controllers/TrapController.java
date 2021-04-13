@@ -18,6 +18,12 @@ public class TrapController implements TrapControllerInterface {
 
     /** collection of constants */
     private JsonValue constants;
+    /** Texture Region for Fridge traps */
+    private TextureRegion trapFridgeTexture;
+    /** Texture Region for Slow traps */
+    private TextureRegion trapSlowTexture;
+    /** Texture Region for default traps */
+    private TextureRegion trapDefaultTexture;
 
     private static Random generator = new Random(0);
 
@@ -27,6 +33,12 @@ public class TrapController implements TrapControllerInterface {
 
     public void setConstants (JsonValue cnst){
         constants = cnst;
+    }
+
+    public void setTrapAssets(TextureRegion trapFridgeTexture, TextureRegion trapSlowTexture, TextureRegion trapDefaultTexture) {
+        this.trapFridgeTexture = trapFridgeTexture;
+        this.trapSlowTexture = trapSlowTexture;
+        this.trapDefaultTexture = trapDefaultTexture;
     }
 
     /**
@@ -39,7 +51,9 @@ public class TrapController implements TrapControllerInterface {
     public boolean applyTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
             case LURE: //damage
-                c.trapTarget(t);
+                if(!c.getType().equals(Chicken.ChickenType.Shredded)) {
+                    c.trapTarget(t);
+                }
                 break;
             case SLOW:
                 c.inSlow(true);
@@ -68,7 +82,7 @@ public class TrapController implements TrapControllerInterface {
     public void stopTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
             case LURE:
-                //c.resetTarget();
+                c.resetTarget();
                 break;
             case SLOW:
                 c.inSlow(false);
@@ -80,6 +94,10 @@ public class TrapController implements TrapControllerInterface {
                 break;
         }
 
+    }
+
+    public void handleLureHit(Trap lure){
+       lure.markHit();
     }
 
     public PooledList<Trap> createLures(Trap breadBomb){
@@ -100,16 +118,20 @@ public class TrapController implements TrapControllerInterface {
     }
 
     public Trap createSlow(Trap fridge){
-        Trap trap = new Trap(constants.get("trap"), fridge.getX(), fridge.getY(), fridge.getWidth(), fridge.getHeight(), Trap.type.SLOW);
+        float twidth = trapSlowTexture.getRegionWidth()/drawscale.x;
+        float theight = trapSlowTexture.getRegionHeight()/drawscale.y;
+        Trap trap = new Trap(constants.get("trap"), fridge.getX(), fridge.getY(), twidth, theight, Trap.type.SLOW);
         trap.setDrawScale(fridge.getDrawScale());
-        trap.setTexture(fridge.getTexture());
+        trap.setTexture(trapSlowTexture);
         return trap;
     }
 
     private Trap createLure(Trap breadBomb){
+        float twidth = trapDefaultTexture.getRegionWidth()/drawscale.x;
+        float theight = trapDefaultTexture.getRegionHeight()/drawscale.y;
         Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), breadBomb.getWidth(), breadBomb.getHeight(), Trap.type.LURE);
         trap.setDrawScale(breadBomb.getDrawScale());
-        trap.setTexture(breadBomb.getTexture());
+        trap.setTexture(trapDefaultTexture);
         return trap;
     }
 
@@ -135,4 +157,6 @@ public class TrapController implements TrapControllerInterface {
             trap.markRemoved(true);
         }
     }
+
+
 }
