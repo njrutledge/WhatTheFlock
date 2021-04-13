@@ -15,16 +15,13 @@
         "wrapU": "repeated",
         "wrapV": "repeated"
       },
-        "enviro:wall:yellow:bottom": {
-        "file": "enviro/ywall_b.png",
-        "wrapU": "repeated",
-        "wrapV": "repeated"
-      },
+        "enviro:wall:yellow:bottom": "enviro/ywall_b.png",
         "enviro:stove": "enviro/stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
         "enviro:trap:spot": "enviro/trapspot.png",
         "enviro:trap:fridge": "enviro/fridge.png",
         "enviro:trap:slow": "enviro/slow.png",
+        "enviro:background": "enviro/background_2.png",
 
         "char:chicken": "characters/chicken.png",
         "char:chef":"characters/chef_animation_run.png",

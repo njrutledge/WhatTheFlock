@@ -48,9 +48,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "HUDTEST";
+	private final String DEFAULT_LEVEL = "level02";
 
 
+	/** The texture for the background */
+	protected TextureRegion background;
 	/** The texture for center wall */
 	protected TextureRegion wallCenterTile;
 	/** The texture for walls and platforms */
@@ -379,7 +381,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void gatherAssets(AssetDirectory directory) {
 		//textures
 			//environment
-		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:center", Texture.class ));
+		background = new TextureRegion(directory.getEntry("enviro:background",Texture.class));
+		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:earth", Texture.class ));
 		wallLeftTile = new TextureRegion(directory.getEntry( "enviro:wall:left", Texture.class ));
 		wallRightTile = new TextureRegion(directory.getEntry( "enviro:wall:right", Texture.class ));
 		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
@@ -1393,6 +1396,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}*/
 
 		canvas.begin();
+		canvas.draw(background,0,0);
 		/*canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
 		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: ",
