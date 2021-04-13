@@ -9,7 +9,6 @@ import code.game.views.GameCanvas;
 
 public class Trap extends GameObject implements TrapInterface {
 
-
     /**
      * Enumeration to encode the trap type
      */
@@ -105,10 +104,11 @@ public class Trap extends GameObject implements TrapInterface {
      * durability of lure
      */
     private float lure_ammount = 6;
+
     /**
-     * Lure Durability
+     * max durability of lure
      */
-    private float LURE_CRUMBS = MAX_DURABILITY / lure_ammount;
+    private final float MAX_LURE_AMMOUNT = 6;
     /**
      * Slow effect strength
      */
@@ -153,6 +153,14 @@ public class Trap extends GameObject implements TrapInterface {
      * flag for if the trap is ready to become active
      */
     private boolean isReady = true;
+    /** flag for if the trap is invulnerable*/
+    private boolean invuln = true;
+    /** invulnerability Time */
+    private float INVULN_TIME = 1.0f;
+    /**Timer for how long the trap is invulnverable */
+    private float invulnTimer = INVULN_TIME;
+    /** Counter for how many chickens are hitting this trap */
+    private int HitCount = 0;
     /**
      * Fixture for hit box of active traps
      */
@@ -183,7 +191,14 @@ public class Trap extends GameObject implements TrapInterface {
         setName("trap");
         trapType = t;
         //setSensorName("trapSensor");
-        setSensor(true);
+        if (!trapType.equals(type.LURE)){
+            setSensor(true);
+        }else{
+            setBullet(true);
+            Filter lure_filter = new Filter();
+            lure_filter.categoryBits = 0x0080;
+            lure_filter.maskBits = 0x0004 | 0x0080;
+        }
         durability = MAX_DURABILITY;
         linger = false;
     }
@@ -240,7 +255,7 @@ public class Trap extends GameObject implements TrapInterface {
     public boolean decrementDurability() {
         switch (trapType) {
             case LURE:
-                durability = Math.max(0, durability - LURE_CRUMBS);
+                lure_ammount--;
                 break;
             /*case FIRE:
                 durability = 0; //FIRE transitions into FIRE_LINGER
@@ -290,9 +305,42 @@ public class Trap extends GameObject implements TrapInterface {
                 }else{
                     activeTimer -= delta;
                 }
+                break;
+            case LURE:
+                if (invuln){
+                    invulnTimer -= delta;
+                    if(invulnTimer <= 0){
+                        invuln = false;
+                    }
+                }else if(isHit()){
+                    lure_ammount--;
+                    invuln = true;
+                    invulnTimer = INVULN_TIME;
+                }
+                if(lure_ammount <=0){
+                    markRemoved(true);
+                }
+                break;
         }
 
     }
+
+    /**
+     * sets the trap as hit by a chicken
+     */
+    public void markHit(){ HitCount++; }
+
+    public void removeHit(){ HitCount--; }
+
+    private boolean isHit(){
+        return HitCount>0 && !invuln;
+    }
+
+    /**
+     *  Returns if the trap is invulnerable.
+     * @return true if the trap is invulnerable, false otherwise.
+     */
+    public boolean isInvuln(){ return invuln; }
 
     /**
      * Creates the game Body(s) for this object, adding them to the world.
@@ -376,15 +424,19 @@ public class Trap extends GameObject implements TrapInterface {
      */
     public void draw(GameCanvas canvas) {
         Color c = Color.WHITE.cpy();
+        float scale = .1f;
         switch (trapType) {
             case FAULTY_OVEN:
                 c = fireColor.cpy();
                 break;
             case LURE:
                 c = lureColor.cpy();
+                c.a = Math.max(0,lure_ammount/MAX_LURE_AMMOUNT);
                 break;
             case SLOW:
                 c = slowColor.cpy();
+                scale = .3f;
+                c.a = Math.max(0,activeTimer/SLOW_ACTIVE_TIME);
                 break;
             /*case FIRE_LINGER:
                 c = Color.FIREBRICK.cpy();
@@ -392,17 +444,17 @@ public class Trap extends GameObject implements TrapInterface {
                 */
             case FRIDGE:
                 c = Color.BLUE.cpy();
+                scale = .2f;
                 break;
             case BREAD_BOMB:
                 c = Color.BROWN.cpy();
                 break;
 
         }
-        c.a = durability / MAX_DURABILITY;
         if(!isReady){
             int breaking = 1;
         }
-        canvas.draw(texture, isReady ? c : Color.BLACK, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
+        canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
     }
 
     /**

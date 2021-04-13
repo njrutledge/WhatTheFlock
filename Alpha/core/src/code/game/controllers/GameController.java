@@ -26,6 +26,7 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
+import javax.swing.plaf.TextUI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
@@ -62,8 +63,12 @@ public class GameController implements ContactListener, Screen {
 	private TextureRegion chickenTexture;
 	/** Texture asset for the stove */
 	private TextureRegion stoveTexture;
-	/** Texture asset for the trap (TEMP) */
-	private TextureRegion trapTexture;
+	/** Texture asset for default trap (TEMP) */
+	private TextureRegion trapDefaultTexture;
+	/** Texture asset for Fidge trap */
+	private TextureRegion trapFridgeTexture;
+	/** Texture asset for slow trap */
+	private TextureRegion trapSlowTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
@@ -207,6 +212,8 @@ public class GameController implements ContactListener, Screen {
 	protected PooledList<Obstacle> walls = new PooledList<Obstacle>();
 	/** All traps in the world. */
 	protected PooledList<Obstacle> traps = new PooledList<Obstacle>();
+	/** All traps effects in the world. */
+	protected PooledList<Obstacle> trapEffects = new PooledList<Obstacle>();
 	/** All enemies in the world. */
 	protected PooledList<Obstacle> chickens = new PooledList<Obstacle>();
 	/** All other objects in the world. */
@@ -330,8 +337,10 @@ public class GameController implements ContactListener, Screen {
 		earthTile = new TextureRegion(directory.getEntry( "enviro:earth", Texture.class ));
 		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
 			//traps
-		trapTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
+		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
+		trapFridgeTexture = new TextureRegion(directory.getEntry("enviro:trap:fridge",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
+		trapSlowTexture = new TextureRegion(directory.getEntry("enviro:trap:slow", Texture.class));
 			//characters
 		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("char:chicken",Texture.class));
@@ -371,8 +380,10 @@ public class GameController implements ContactListener, Screen {
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
-		collisionController.setConstants(constants);
 		levels = directory.getEntry("levels", JsonValue.class );
+		//set assets
+		collisionController.setConstants(constants);
+		collisionController.setTrapAssets(trapFridgeTexture, trapSlowTexture, trapDefaultTexture);
 	}
 
 	
@@ -390,6 +401,7 @@ public class GameController implements ContactListener, Screen {
 		objects.clear();
 		addQueue.clear();
 		walls.clear();
+		trapEffects.clear();
 		traps.clear();
 		others.clear();
 		chickens.clear();
@@ -557,7 +569,7 @@ public class GameController implements ContactListener, Screen {
 		//The filter for all obstacles
 		Filter obstacle_filter = new Filter();
 		obstacle_filter.categoryBits = 0x0004;
-		obstacle_filter.maskBits = 0x0001 | 0x0002 | 0x0004 | 0x0010;
+		obstacle_filter.maskBits = 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0080;
 
 		Filter spawn_filter = new Filter();
 		spawn_filter.groupIndex = -1;
@@ -931,14 +943,14 @@ public class GameController implements ContactListener, Screen {
 		//random chance of spawning a chicken
 		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
 			float rand = (float)Math.random();
-			if (rand<0.33) {
-				spawnChicken(Chicken.ChickenType.Nugget);
-			}
-			else if (rand<0.66){
-				spawnChicken(Chicken.ChickenType.Buffalo);
-			}
-			else{
-				spawnChicken(Chicken.ChickenType.Shredded);
+			if(false) {
+				if (rand < 0.33) {
+					spawnChicken(Chicken.ChickenType.Nugget);
+				} else if (rand < 0.66) {
+					spawnChicken(Chicken.ChickenType.Buffalo);
+				} else {
+					spawnChicken(Chicken.ChickenType.Shredded);
+				}
 			}
 		}
 		for (Obstacle obj : objects) {
@@ -1160,6 +1172,12 @@ public class GameController implements ContactListener, Screen {
 	}
 
 	public void trapHelper(float x, float y, Trap.type t){
+		TextureRegion trapTexture = trapDefaultTexture;
+		switch (t){
+			case FRIDGE:
+				trapTexture = trapFridgeTexture;
+				break;
+		}
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
 		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t);
@@ -1203,11 +1221,14 @@ public class GameController implements ContactListener, Screen {
 			case WALL:
 				walls.add(obj);
 				break;
+			case TRAP_EFFECT:
+				trapEffects.add(obj);
+				break;
 			case TRAP:
-				traps.add((Trap)obj);
+				traps.add(obj);
 				break;
 			case CHICKEN:
-				chickens.add((Chicken) obj);
+				chickens.add(obj);
 				break;
 			case NULL:
 				others.add(obj);
@@ -1260,7 +1281,7 @@ public class GameController implements ContactListener, Screen {
 	public void postUpdate(float dt) {
 		// Add any objects created by actions
 		while(!collisionController.getNewTraps().isEmpty()){
-			addObject(collisionController.getNewTraps().poll(), GameObject.ObjectType.TRAP);
+			addObject(collisionController.getNewTraps().poll(), GameObject.ObjectType.TRAP_EFFECT);
 		}
 		//TODO: make sure this is only used for slaps
 		while (!addQueue.isEmpty()) {
@@ -1274,6 +1295,7 @@ public class GameController implements ContactListener, Screen {
 		// Note how we use the linked list nodes to delete O(1) in place.
 		// This is O(n) without copying.
 		iterateThrough(walls.entryIterator(), dt);
+		iterateThrough(trapEffects.entryIterator(),dt);
 		iterateThrough(traps.entryIterator(),dt);
 		iterateThrough(chickens.entryIterator(),dt);
 		iterateThrough(others.entryIterator(),dt);
@@ -1353,10 +1375,13 @@ public class GameController implements ContactListener, Screen {
 		}*/
 
 
-		//priority: Walls < traps < chickens < other < chef
+		//priority: Walls < trap effects < traps < chickens < other < chef
 
 		for(Obstacle obj : walls){
 			obj.draw(canvas);
+		}
+		for (Obstacle trapE : trapEffects){
+			trapE.draw(canvas);
 		}
 		for (Obstacle trap : traps){
 			trap.draw(canvas);
@@ -1376,6 +1401,9 @@ public class GameController implements ContactListener, Screen {
 			canvas.beginDebug();
 			for(Obstacle obj : walls){
 				obj.drawDebug(canvas);
+			}
+			for (Obstacle trapE : trapEffects){
+				trapE.drawDebug(canvas);
 			}
 			for (Obstacle trap : traps){
 				trap.drawDebug(canvas);

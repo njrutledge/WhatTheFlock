@@ -5,6 +5,7 @@ import code.game.models.*;
 import code.game.models.GameObject;
 import code.game.models.obstacle.Obstacle;
 import code.util.PooledList;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -288,6 +289,9 @@ public class CollisionController implements CollisionControllerInterface {
         if(fd1 != null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
             trapController.applyTrap(t2, c1);
         }
+        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT)){
+            t2.markHit();
+        }
     }
 
     /**
@@ -413,6 +417,10 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void endChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
         trapController.stopTrap(t2, c1);
+        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT)){
+            t2.removeHit();
+        }
+
     }
 
     private void endChickenChef(Chicken chicken, FixtureType fd1, Chef chef, FixtureType fd2){
@@ -427,4 +435,7 @@ public class CollisionController implements CollisionControllerInterface {
         stove.setLit(false);
     }
 
+    public void setTrapAssets(TextureRegion trapFridgeTexture, TextureRegion trapSlowTexture, TextureRegion trapDefaultTexture) {
+        trapController.setTrapAssets(trapFridgeTexture, trapSlowTexture, trapDefaultTexture);
+    }
 }

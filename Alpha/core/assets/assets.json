@@ -8,6 +8,8 @@
         "enviro:stove": "enviro/stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
         "enviro:trap:spot": "enviro/trapspot.png",
+        "enviro:trap:fridge": "enviro/fridge.png",
+        "enviro:trap:slow": "enviro/slow.png",
 
         "char:chicken": "characters/chicken.png",
         "char:chef":"characters/chef_animation_run.png",
