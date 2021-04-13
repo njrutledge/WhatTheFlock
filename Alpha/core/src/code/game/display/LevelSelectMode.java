@@ -1,6 +1,7 @@
 package code.game.display;
 
 import code.assets.AssetDirectory;
+import code.game.controllers.GameController;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.ScreenListener;
@@ -14,19 +15,22 @@ import com.badlogic.gdx.controllers.ControllerMapping;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.JsonValue;
 
 
 public class LevelSelectMode implements Screen, InputProcessor, ControllerListener {
-    /** The assets to be loaded */
+    /** The assets of the screen */
     private AssetDirectory assets;
+    /** The level assets to read in */
+    private AssetDirectory levels;
 
     /** Background texture for start-up */
     private Texture background;
     /** The texture for the knife*/
     private Texture knifeTexture;
+    /** The texture for the selection arrows */
+    private Texture arrowTexture;
 
-    /** Default budget for asset loader (do nothing but load 60 fps) */
-    private static int DEFAULT_BUDGET = 15;
     /** Standard window size (for scaling) */
     private static int STANDARD_WIDTH  = 800;
     /** Standard window height (for scaling) */
@@ -43,25 +47,27 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private int heightY;
     /** Scaling factor for when the student changes the resolution. */
     private float scale;
-
-    /** The level selected */
-    private int levelSelected;
-    /** The current state of the play button */
+    /**The list of levels*/
+    private String[] levelList;
+    /** The current state of the play button; will be the index of the level selected */
     private int  pressState;
+    /** The level info of the selected level, to pass onto GameController*/
+    private JsonValue levelSelected;
     /** Whether or not this player mode is still active */
     private boolean active;
 
     /**
      * Creates a LevelSelectMode with the default size and position.
-     *
-     * @param file  	The asset directory to load in the background
      * @param canvas 	The game canvas to draw to
      */
-    public LevelSelectMode(String file, GameCanvas canvas) {
+    public LevelSelectMode(GameCanvas canvas) {
         this.canvas  = canvas;
 
         // Compute the dimensions from the canvas
         resize(canvas.getWidth(),canvas.getHeight());
+        levels = new AssetDirectory( "levels.json" );
+        levels.loadAssets();
+        levels.finishLoading();
 
         // load in assets
         assets = new AssetDirectory( "levelselect.json" );
@@ -80,7 +86,13 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
         active = true;
     }
-
+    /**
+     * Gets the JsonValue of the level this mode selected
+     * Can be null
+     * */
+    public JsonValue getLevelSelected(){
+        return levelSelected;
+    }
     /**
      * Checks if pressState has been set to a valid level number.
      * Add different levels here!
