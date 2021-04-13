@@ -1220,6 +1220,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * Pausing happens when we switch game modes.
 	 */
 	public void pause() {
+		//stop all sounds
 		if (jumpSound.isPlaying( jumpId )) {
 			jumpSound.stop(jumpId);
 		}

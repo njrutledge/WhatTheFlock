@@ -43,7 +43,7 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
     /** Height of the progress bar */
     private static float BUTTON_SCALE  = 0.75f;
     /** Background scale*/
-    private static float BACKGROUND_SCALE = 1.10f;
+    private static float BACKGROUND_SCALE = 1.3f;
 
     /** Reference to GameCanvas created by the root */
     private GameCanvas canvas;
@@ -129,7 +129,7 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
 
 
         // Load the next two images immediately.
-        background = internal.getEntry( "background", Texture.class );
+        background = internal.getEntry( "menu_background", Texture.class );
         background.setFilter( Texture.TextureFilter.Linear, Texture.TextureFilter.Linear );
         pressState = 0;
 

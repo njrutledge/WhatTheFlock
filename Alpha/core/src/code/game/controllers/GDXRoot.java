@@ -132,10 +132,10 @@ public class GDXRoot extends Game implements ScreenListener {
 			loading.dispose();
 			loading = null;
 
-			//menu.setScreenListener(this);
 			setScreen(menu);
 		}
 		else if (screen == menu){
+			controller.reset();
 			switch (exitCode){
 				case MenuMode.START: //TODO go to level select
 					controller.reset();
