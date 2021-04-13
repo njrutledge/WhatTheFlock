@@ -200,6 +200,7 @@ public class Trap extends GameObject implements TrapInterface {
             lure_filter.maskBits = 0x0004;
             setFilterData(lure_filter);
             setRestitution(.8f);
+
         }
         durability = MAX_DURABILITY;
         linger = false;

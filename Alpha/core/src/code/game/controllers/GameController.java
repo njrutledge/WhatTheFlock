@@ -48,11 +48,24 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level02";
+	private final String DEFAULT_LEVEL = "HUDTEST";
 
 
+	/** The texture for center wall */
+	protected TextureRegion wallCenterTile;
 	/** The texture for walls and platforms */
-	protected TextureRegion earthTile;
+	protected TextureRegion wallLeftTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallRightTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallTopTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallBottomTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallYellowCenterTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallYellowBottomTile;
+
 	/** The font for giving messages to the player */
 	protected BitmapFont displayFont;
 
@@ -158,8 +171,20 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** The default value of gravity (going down) */
 	protected static final float DEFAULT_GRAVITY = -4.9f;
 
-	/** Name of wall in level files */
-	protected static final String LEVEL_WALL = "wall";
+	/** Name of center wall in level files */
+	protected static final String LEVEL_WALL_CENTER = "wall";
+	/** Name of bottom wall in level files */
+	protected static final String LEVEL_WALL_BOTTOM = "wall_b";
+	/** Name of left wall in level files */
+	protected static final String LEVEL_WALL_LEFT = "wall_l";
+	/** Name of right wall in level files */
+	protected static final String LEVEL_WALL_RIGHT = "wall_r";
+	/** Name of top wall in level files */
+	protected static final String LEVEL_WALL_TOP = "wall_t";
+	/** Name of right wall in level files */
+	protected static final String LEVEL_WALL_YELLOW_CENTER = "ywall";
+	/** Name of right wall in level files */
+	protected static final String LEVEL_WALL_YELLOW_BOTTOM = "ywall_b";
 	/** Name of spawnpoint in level files */
 	protected static final String LEVEL_SPAWN = "spawn";
 	/** Name of stove in level files */
@@ -354,7 +379,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void gatherAssets(AssetDirectory directory) {
 		//textures
 			//environment
-		earthTile = new TextureRegion(directory.getEntry( "enviro:earth", Texture.class ));
+		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:center", Texture.class ));
+		wallLeftTile = new TextureRegion(directory.getEntry( "enviro:wall:left", Texture.class ));
+		wallRightTile = new TextureRegion(directory.getEntry( "enviro:wall:right", Texture.class ));
+		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
+		wallBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:bottom", Texture.class ));
+		wallYellowCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:center", Texture.class ));
+		wallYellowBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:bottom", Texture.class ));
 		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
@@ -630,20 +661,33 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			int x = ii % grid.getColCount();
 			int y = (stuff.length - 1 - ii) / grid.getColCount();
 			switch(stuff[ii]){
-				case LEVEL_WALL:
+				case LEVEL_WALL_CENTER:
+					//add center wall
+					createWall(defaults, wallCenterTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_TOP:
+					//add top wall
+					createWall(defaults, wallTopTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_BOTTOM:
+					//add bottom wall
+					createWall(defaults, wallBottomTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_LEFT:
+					//add left wall
+					createWall(defaults, wallLeftTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_RIGHT:
+					//add right wall
+					createWall(defaults, wallRightTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_YELLOW_CENTER:
 					//add wall
-					PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
-					obj.setBodyType(BodyDef.BodyType.StaticBody);
-					obj.setDensity(defaults.getFloat( "density", 0.0f ));
-					obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-					obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-					obj.setDrawScale(scale);
-					obj.setTexture(earthTile);
-					obj.setName(LEVEL_WALL);//+ii); If we need to specify name further, its here
-					obj.setFilterData(obstacle_filter);
-					addObject(obj, GameObject.ObjectType.WALL);
-
-					grid.setObstacle(x,y);
+					createWall(defaults, wallYellowCenterTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_YELLOW_BOTTOM:
+					//add wall
+					createWall(defaults, wallYellowBottomTile, obstacle_filter, x, y);
 					break;
 				case LEVEL_STOVE:
 					// Add stove
@@ -695,6 +739,20 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			}
 		}
 
+	}
+
+	private void createWall(JsonValue defaults, TextureRegion texture, Filter obstacle_filter, float x, float y){
+		PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
+		obj.setBodyType(BodyDef.BodyType.StaticBody);
+		obj.setDensity(defaults.getFloat( "density", 0.0f ));
+		obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+		obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+		obj.setDrawScale(scale);
+		obj.setTexture(texture);
+		obj.setName(LEVEL_WALL_CENTER);//+ii); If we need to specify name further, its here
+		obj.setFilterData(obstacle_filter);
+		addObject(obj, GameObject.ObjectType.WALL);
+		grid.setObstacle(x,y);
 	}
 
 	/*******************************************************************************************
@@ -821,6 +879,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else if (countdown == 0) {
 			if (failed) {
 				reset();
+				return false;
 			} else if (complete) {
 				pause();
 				listener.exitScreen(this, EXIT_NEXT);

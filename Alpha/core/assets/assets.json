@@ -5,6 +5,21 @@
             "wrapU": "repeated",
             "wrapV": "repeated"
         },
+        "enviro:wall:center": "enviro/wall.png",
+        "enviro:wall:left": "enviro/wall_l.png",
+        "enviro:wall:right": "enviro/wall_r.png",
+      "enviro:wall:top": "enviro/wall_t.png",
+      "enviro:wall:bottom": "enviro/wall_b.png",
+      "enviro:wall:yellow:center": {
+        "file": "enviro/ywall.png",
+        "wrapU": "repeated",
+        "wrapV": "repeated"
+      },
+        "enviro:wall:yellow:bottom": {
+        "file": "enviro/ywall_b.png",
+        "wrapU": "repeated",
+        "wrapV": "repeated"
+      },
         "enviro:stove": "enviro/stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
         "enviro:trap:spot": "enviro/trapspot.png",
