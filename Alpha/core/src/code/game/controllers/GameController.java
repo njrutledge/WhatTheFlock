@@ -1026,9 +1026,13 @@ public class GameController implements ContactListener, Screen {
 		chef.applyForce();
 
 		// if the chef tries to perform an action, move or gets hit, stop cooking
-		if (chef.isCooking() && (InputController.getInstance().didMovementKey()|| InputController.getInstance().didSecondary()
+		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
 		|| chef.isStunned())){
 			chef.setCooking(false);
+
+		}
+		else{
+			chef.setCooking(chef.inCookingRange());
 		}
 
 		//update temperature

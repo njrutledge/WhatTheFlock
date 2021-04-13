@@ -103,7 +103,7 @@ public interface ChickenInterface {
      *
      * @param stun  whether the chicken is stunned
      */
-    public void setStunned(Boolean stun);
+    public void setStunned(boolean stun);
 
     /** If the enemy is still alive
      * @return true if chicken health > 0*/
@@ -120,12 +120,12 @@ public interface ChickenInterface {
      * @param newForce     the new value of the forceCache
      * @param isForce       whether the new force is a force (otherwise it is a velocity)
      * */
-    public void setForceCache(Vector2 newForce, Boolean isForce);
+    public void setForceCache(Vector2 newForce, boolean isForce);
 
     /**
      * Set the isInvisible boolean, which determines whether to draw the chicken on the screen
      *
      * @param invisible whether the chicken should be invisible
      */
-    public void setInvisible(Boolean invisible);
+    public void setInvisible(boolean invisible);
 }
