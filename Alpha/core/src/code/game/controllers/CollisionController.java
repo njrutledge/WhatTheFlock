@@ -80,6 +80,11 @@ public class CollisionController implements CollisionControllerInterface {
                     } else if (fd2 != null && fd2 == FixtureType.CHARGE_ATTACK) {
                         ((ChickenAttack) bd2).collideObject();
                     }
+                    else if (fd1 != null && fd1.equals(FixtureType.LURE_HURT)) {
+                        bd1.setLinearVelocity(Vector2.Zero);
+                    } else if (fd2 != null && fd2.equals(FixtureType.LURE_HURT)) {
+                        bd2.setLinearVelocity(Vector2.Zero);
+                    }
                 }
             }
         } catch (Exception e) {
