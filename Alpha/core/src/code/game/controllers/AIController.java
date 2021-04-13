@@ -191,7 +191,7 @@ public class AIController {
         switch(state){
             case CHASE:
                 move();
-                temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(grid.getPosition(start_tile.getRow(), start_tile.getCol())));
+                temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
                 temp.nor();
                 temp.scl(chaseSpeed * chicken.getSlow());
                 chicken.setForceCache(temp, false);
