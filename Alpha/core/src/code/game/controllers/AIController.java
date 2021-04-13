@@ -28,6 +28,8 @@ public class AIController {
     protected JsonValue unique;
     /** The player character that the enemy will follow */
     private GameObject target;
+    /** The chef that the enemy wants to attack */
+    private Chef chef;
     /** The speed that the enemy chases the player */
     //TODO: make final after technical
     private float chaseSpeed;
@@ -90,6 +92,7 @@ public class AIController {
      * */
     public AIController(Chicken chicken, Chef chef, Grid grid){
         this.target = chef;
+        this.chef = chef;
         this.chicken = chicken;
         this.data = chicken.getJsonData();
         this.unique = chicken.getJsonUnique();
@@ -194,7 +197,7 @@ public class AIController {
                 chicken.setForceCache(temp, false);
                 break;
             case KNOCKBACK:
-                temp.set(target.getPosition().sub(chicken.getPosition()));
+                temp.set(chef.getPosition().sub(chicken.getPosition()));
                 temp.nor();
                 temp.scl(-knockback);
                 chicken.setForceCache(temp, true);
