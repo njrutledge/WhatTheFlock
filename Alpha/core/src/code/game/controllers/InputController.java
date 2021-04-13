@@ -201,6 +201,13 @@ public class InputController {
 	public boolean didMovementKey() { return movementPressed && !movementPrevious; }
 
 	/**
+	 * Returns true iff a movement key is currently being pressed
+	 * @return a movement key is being pressed
+	 */
+	public boolean isMovementPressed(){
+		return movementPressed;
+	}
+	/**
 	 * Returns true if the tertiary action button was pressed.
 	 *
 	 * This is a sustained button. It will returns true as long as the player

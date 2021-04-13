@@ -14,12 +14,12 @@
  package code.game.controllers;
 
 import code.assets.AssetDirectory;
+import code.game.display.LevelSelectMode;
+import code.game.display.LoadingMode;
+import code.game.display.MenuMode;
 import code.game.views.GameCanvas;
 import code.util.ScreenListener;
 import com.badlogic.gdx.*;
-//import edu.cornell.gdiac.game.rocket.*;
-//import edu.cornell.gdiac.game.ragdoll.*;
-
 
 /**
  * Root class for a LibGDX.  
@@ -39,6 +39,10 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameCanvas canvas;
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
+	/** Player mode for the menu screen (CONTROLLER CLASS)*/
+	private MenuMode menu;
+	/** Player mode for the level selection screen (CONTROLLER CLASS)*/
+	private LevelSelectMode levelselect;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	/** List of all WorldControllers */
@@ -61,11 +65,14 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void create() {
 		canvas  = new GameCanvas();
 		loading = new LoadingMode("assets.json",canvas,1);
+		menu = new MenuMode(canvas);
 
 		// Initialize the three game worlds
 		controller = new GameController();
 		current = 0;
 		loading.setScreenListener(this);
+		controller.setScreenListener(this);
+		menu.setScreenListener(this);
 		setScreen(loading);
 	}
 
@@ -118,30 +125,44 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (screen == loading) {
 			directory = loading.getAssets();
 			controller.gatherAssets(directory);
-			controller.setScreenListener(this);
+			//controller.setScreenListener(this);
 			controller.setCanvas(canvas);
 			controller.initGrid();
-			if(exitCode == GameController.EASY){
-				controller.initEasy();
-			} else if (exitCode == GameController.MED){
-				controller.initMed();
-			} else if (exitCode == GameController.HARD){
-				controller.initHard();
-			}
-			controller.reset();
-			setScreen(controller);
 			
 			loading.dispose();
 			loading = null;
-		} else if (exitCode == GameController.EXIT_NEXT) {
+
+			setScreen(menu);
+		}
+		else if (screen == menu){
 			controller.reset();
-			setScreen(controller);
-		} else if (exitCode == GameController.EXIT_PREV) {
-			controller.reset();
-			setScreen(controller);
-		} else if (exitCode == GameController.EXIT_QUIT) {
-			// We quit the main application
-			Gdx.app.exit();
+			switch (exitCode){
+				case MenuMode.START: //TODO go to level select
+					controller.reset();
+					setScreen(controller);
+					break;
+				case MenuMode.GUIDE: //TODO go to guide
+					break;
+				case MenuMode.OPTIONS: //TODO go to options
+					break;
+				case MenuMode.QUIT: //TODO go to quit
+					// We quit the main application
+					Gdx.app.exit();
+					break;
+			}
+		}
+		else if (screen == controller){
+			switch (exitCode){
+				case GameController.EXIT_NEXT:
+					break;
+				case GameController.EXIT_PREV:
+					break;
+				case GameController.EXIT_QUIT:
+					//go back to menu select screen
+					menu.reset();
+					setScreen(menu);
+					break;
+			}
 		}
 	}
 

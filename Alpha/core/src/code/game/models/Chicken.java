@@ -134,15 +134,17 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
 
     /** Whether the chicken movement is beign controlled by a force (otherwise a velocity)*/
-    protected Boolean isBeingForced = false;
+    protected boolean isBeingForced = false;
     /** Whether the chicken is currently in hitstun */
-    protected Boolean isStunned = false;
+    protected boolean isStunned = false;
     /** Whether the chicken is invisible due to hitstun*/
-    protected Boolean isInvisible = false;
+    protected boolean isInvisible = false;
     /** Whether the chicken is being slowed */
     private boolean inSlow = false;
     /** Ammount to increase or decrease the slow modifier */
     private float SLOW_EFFECT = 0.33f;
+    /** Whether the chicken is being lured */
+    private boolean isLured = false;
 
 
 
@@ -343,10 +345,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     @Override
     public void update(float dt) {
-        if (getLinearVelocity().x > 0){
-            faceRight = true;
-        } else {
-            faceRight = false;
+        if (!isLured) {
+            if (getLinearVelocity().x > 0) {
+                faceRight = true;
+            } else {
+                faceRight = false;
+            }
         }
         super.update(dt);
         applyForce();
@@ -422,11 +426,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Whether or not the chicken is charging up an attack */
     public boolean isAttacking() {
-        return charge_time >= 0 || isRunning();
+        return !isLured && (charge_time >= 0 || isRunning());
     }
 
     /** Whether or not the chicken is currently running */
-    public boolean isRunning() { return false; };
+    public boolean isRunning() { return false; }
 
     /** Set running */
     public void setRunning(boolean running) { return; }
@@ -547,6 +551,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void trapTarget(Trap t) {
         target = t;
+        isLured = true;
     }
 
     /**
@@ -555,11 +560,24 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void resetTarget() {
         target = player;
+        isLured = false;
     }
 
+    /**
+     * Returns the chicken's current target
+     * @return  the current target
+     */
     public Obstacle getTarget(){
         return target;
     }
+
+    /**
+     * Whether the chicken is currently lured
+     */
+    public boolean isLured(){
+        return isLured;
+    }
+
 
     /**
      * updates the isStunned condition for the chicken
@@ -567,7 +585,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      *
      * @param stun  whether the chicken is stunned
      */
-    public void setStunned(Boolean stun){
+    public void setStunned(boolean stun){
         isStunned = stun;
     }
 
@@ -599,7 +617,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @param newForce     the new value of the forceCache
      * @param isForce       whether the new force is a force (otherwise it is a velocity)
      * */
-    public void setForceCache(Vector2 newForce, Boolean isForce){
+    public void setForceCache(Vector2 newForce, boolean isForce){
         forceCache.set(newForce);
         this.isBeingForced = isForce;
     }
@@ -609,7 +627,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      *
      * @param invisible whether the chicken should be invisible
      */
-    public void setInvisible(Boolean invisible){
+    public void setInvisible(boolean invisible){
         isInvisible = invisible;
     }
 
@@ -617,7 +635,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * Accessor for hit
      * @return  the value of hit
      */
-    public Boolean getHit(){
+    public boolean getHit(){
         return hit;
     }
 }

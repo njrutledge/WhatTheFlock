@@ -1,8 +1,13 @@
 {
 	"textures": {
         "background": "ui/loading/loading.png",
+        "menu_background": "ui/loading/temp_menu_bkg.png",
 		"play": "ui/loading/play.png",
         "skull": "ui/loading/skull.png",
+        "start": "ui/loading/mainmenu_start.png",
+        "howtoplay": "ui/loading/mainmenu_howtoplay.png",
+        "options": "ui/loading/mainmenu_options.png",
+        "quit": "ui/loading/mainmenu_quit.png",
         "progress": {
             "file":      "ui/loading/progressbar.png",
             "atlas":     {

@@ -26,6 +26,7 @@ public class Chef extends GameObject implements ChefInterface {
 	//private TextureRegion chefTexture;
 	private TextureRegion healthTexture;
 	private TextureRegion noHealthTexture;
+	private Texture slapTexture;
 	/** The initializing data (to avoid magic numbers) */
 	private final JsonValue data;
 
@@ -59,6 +60,8 @@ public class Chef extends GameObject implements ChefInterface {
 	private boolean isTrap;
 	/** Can the player cook */
 	private boolean isCooking;
+	/** whether the chef is close enough to the stove to cook */
+	private boolean inCookingRange = false;
 	/** Whether the player is invincible */
 	private boolean invincible;
 
@@ -162,12 +165,30 @@ public class Chef extends GameObject implements ChefInterface {
 	 * @param b the boolean, whether cooking is true or false*/
 	public void setCooking(boolean b){
 		isCooking = b;
+		if (b){
+			inCookingRange = true;
+		}
 	}
 
 	/**Returns whether the chef is cooking.
 	 * @return the cooking status of the chef. */
 	public boolean isCooking(){
 		return isCooking;
+	}
+
+	/**
+	 * Returns whether the chef is in cooking range of a stove
+	 * @return true iff chef is in range of a stove
+	 */
+	public boolean inCookingRange(){
+		return inCookingRange;
+	}
+	/**
+	 * Sets whether the chef is in cooking range of a stove
+	 * @param inRange	whether the chef is in cooking range
+	 */
+	public void setInCookingRange(boolean inRange){
+		inCookingRange = inRange;
 	}
 
 	/**
@@ -386,6 +407,10 @@ public class Chef extends GameObject implements ChefInterface {
 	public void setNoHealthTexture(TextureRegion t){
 		noHealthTexture = t;
 	}
+
+	public void setSlapTexture(Texture t){
+		slapTexture = t;
+	}
 	/**
 	 * Creates the game Body(s) for this object, adding them to the world.
 	 *
@@ -505,9 +530,12 @@ public class Chef extends GameObject implements ChefInterface {
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
 		animator.setFrame((int)animeframe);
-		if (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0) {
+		if (!isShooting && (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0)) {
 			canvas.draw(animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
 		}
+//		else if (isShooting()){
+//			canvas.draw(slapTexture, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), effect/4, 0.25f);
+//		}
 
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
 		//canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);

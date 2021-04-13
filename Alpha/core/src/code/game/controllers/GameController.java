@@ -19,6 +19,7 @@ import code.game.views.GameCanvas;
 import code.util.PooledList;
 import code.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
@@ -26,7 +27,6 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.physics.box2d.*;
 
-import javax.swing.plaf.TextUI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ import java.util.List;
  * This is the purpose of our AssetState variable; it ensures that multiple instances
  * place nicely with the static assets.
  */
-public class GameController implements ContactListener, Screen {
+public class GameController implements ContactListener, Screen, InputProcessor {
 	///TODO: Implement a proper board and interactions between the player and chickens, slap may also be implemented here
 	////////////// This file puts together a lot of data, be sure that you do not modify something without knowing fully
 	////////////// its purpose or you may break someone else's work, further comments are below ////////////////////
@@ -97,6 +97,8 @@ public class GameController implements ContactListener, Screen {
 	private TextureRegion healthTexture;
 	private TextureRegion noHealthTexture;
 
+	/**Slap attack texture */
+	private Texture slapTexture;
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
 	private long jumpId = -1;
@@ -142,12 +144,12 @@ public class GameController implements ContactListener, Screen {
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
-	/** Exit code for starting in Easy */
-	public static final int EASY = 0;
-	/** Exit code for starting in Medium */
-	public static final int MED = 1;
-	/** Exit code for starting in Hard */
-	public static final int HARD = 2;
+	///** Exit code for starting in Easy */
+	//public static final int EASY = 0;
+	///** Exit code for starting in Medium */
+	//public static final int MED = 1;
+	///** Exit code for starting in Hard */
+	//public static final int HARD = 2;
 
 	/** Width of the game world in Box2d units */
 	protected static final float DEFAULT_WIDTH  = 48.0f;
@@ -261,6 +263,24 @@ public class GameController implements ContactListener, Screen {
 	/**The trap controller for this game*/
 
 	private TrapController trapController;
+
+	/** How much time has passed in the game */
+	private float gameTime;
+
+	/**Wave-related variables, to be changed to take in input via level editor later */
+	private float[] probs; // probability spread for each chicken
+	private int startWaveSize; // Starting wave size, increases by incWaveSize each wave
+	private int maxWaveSize; // Maximum size of a wave
+	private float spreadability; // how much time between each spawn of the wave (in seconds)
+	private float replenishTime; // how long before the wave is replenished (in seconds)
+	private int enemiesLeft; // how many enemies left in the wave
+	private float waveStartTime; // when did this wave start
+	private float lastEnemySpawnTime; // when did the last enemy spawn
+	// the total pool of enemies for this level
+	private ArrayList<Integer> enemyPool; // the enemies in the pool but not on the board
+	private ArrayList<Integer> enemyBoard; // the enemies on the board
+
+
 	/**
 	 * Returns true if debug mode is active.
 	 *
@@ -350,6 +370,7 @@ public class GameController implements ContactListener, Screen {
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
 		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
+		slapTexture = directory.getEntry("char:slap", Texture.class);
 
 		//ui
 		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
@@ -562,6 +583,29 @@ public class GameController implements ContactListener, Screen {
 	public void doNewPopulate(JsonValue level){
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
+		probs = level.get("spawn_probs").asFloatArray();
+		startWaveSize = level.get("starting_wave_size").asInt();
+		maxWaveSize = level.get("max_wave_size").asInt();
+		spreadability = level.get("spawn_gap").asFloat();
+		replenishTime = level.get("wave_gap").asFloat();
+
+		gameTime = 0;
+		waveStartTime = gameTime;
+		lastEnemySpawnTime = gameTime;
+		enemiesLeft = startWaveSize;
+		enemyPool = new ArrayList<>();
+		enemyBoard = new ArrayList<>();
+		// sets up the initial enemy pool
+		for (int i = 0; i < maxWaveSize; i++){
+			double r = Math.random();
+			float sum = probs[0];
+			int k = 1;
+			while (k < probs.length && r > sum){
+				sum += probs[k];
+				k++;
+			}
+			enemyPool.add(k-1);
+		}
 
 		//0x0001 = player, 0x0002 = chickens, 0x0004 walls, 0x0008 chicken basic attack,
 		// 0x0010 buffalo's headbutt, 0x0020 spawn
@@ -617,6 +661,7 @@ public class GameController implements ContactListener, Screen {
 					chef.setTexture(chefTexture);
 					chef.setHealthTexture(healthTexture);
 					chef.setNoHealthTexture(noHealthTexture);
+					chef.setSlapTexture(slapTexture);
 					//don't add chef here! add it later so its on top easier
 					break;
 				case LEVEL_SPAWN:
@@ -662,7 +707,7 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void beginContact(Contact contact){
 		collisionController.beginContact(contact, damageCalc());
-	}/* {
+	}
 
 		//TODO: Detect if a collision is with an enemy and have an appropriate interaction
 
@@ -676,87 +721,6 @@ public class GameController implements ContactListener, Screen {
 	public void endContact(Contact contact) {
 		//TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
 		collisionController.endContact(contact, sensorFixtures);
-		/*Fixture fix1 = contact.getFixtureA();
-		Fixture fix2 = contact.getFixtureB();
-
-		Body body1 = fix1.getBody();
-		Body body2 = fix2.getBody();
-
-		Object fd1 = fix1.getUserData();
-		Object fd2 = fix2.getUserData();
-
-		Object bd1 = body1.getUserData();
-		Object bd2 = body2.getUserData();
-
-		Obstacle b1 = (Obstacle) bd1;
-		Obstacle b2 = (Obstacle) bd2;
-
-		if ((chef.getSensorName().equals(fd2) && chef != bd1) ||
-				(chef.getSensorName().equals(fd1) && chef != bd2)) {
-			sensorFixtures.remove((chef == bd1) ? fix2 : fix1);
-		}
-
-		if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
-				chef.getSensorName().equals(fd1) && stove.getSensorName().equals(fd2)){
-			chef.setCanCook(false);
-		}
-		if (b1.getName().equals("trap") && b2.getName().equals("chicken")) {
-			switch (((Trap) b1).getTrapType()){
-				case LURE:
-					((Chicken) b2).resetTarget();
-					break;
-				case SLOW:
-					((Chicken) b2).removeSlow();
-					break;
-				case FIRE :
-					break;
-				case FIRE_LINGER:
-					((Chicken) b2).letItBurn();
-			}
-		}
-		if (b2.getName().equals("trap") && b1.getName().equals("chicken")) {
-			switch (((Trap) b2).getTrapType()){
-				case LURE: //damage
-					((Chicken) b1).resetTarget();
-					break;
-				case SLOW:
-					((Chicken) b1).removeSlow();
-					break;
-				case FIRE :
-					break;
-				case FIRE_LINGER:
-					((Chicken) b1).letItBurn();
-			}
-		}
-
-		if (fd1 != null && fd2 != null) {
-			if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
-				((Chicken) bd2).stopAttack();
-			}
-
-			if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
-				((Chicken) bd1).stopAttack();
-			}
-
-			if (fd1.equals("placeRadius") && bd2 == chef) {
-				chef.setCanPlaceTrap(false);
-			}
-			if (fd2.equals("placeRadius") && bd1 == chef) {
-				chef.setCanPlaceTrap(false);
-			}
-		}
-
-		if (fd1 != null) {
-			if (bd2 == chef && fd1.equals("chickenSensor")){
-				((Chicken) bd1).stopAttack();
-			}
-		}
-
-		if (fd2 != null) {
-			if (bd1 == chef && fd2.equals("chickenSensor")) {
-				((Chicken) bd2).stopAttack();
-			}
-		}*/
 	}
 	/*******************************************************************************************
 	 * UPDATING LOGIC
@@ -827,7 +791,9 @@ public class GameController implements ContactListener, Screen {
 
 		// Handle resets
 		if (input.didReset()) {
-			reset();
+			//TODO implement real pause menu
+			listener.exitScreen(this, EXIT_QUIT);
+			//reset();
 		}
 		if(input.didAdvance()) {
 			chef.decrementHealth();
@@ -872,6 +838,7 @@ public class GameController implements ContactListener, Screen {
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
 		chef.setShooting(InputController.getInstance().didSecondary());
 		chef.setTrap(InputController.getInstance().didTrap());
+		gameTime += dt;
 
 		if(InputController.getInstance().didMute()){
 			muted = !muted;
@@ -940,19 +907,30 @@ public class GameController implements ContactListener, Screen {
 			createTrap();
 		}
 
-		//random chance of spawning a chicken
-		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			float rand = (float)Math.random();
-			if(false) {
-				if (rand < 0.33) {
-					spawnChicken(Chicken.ChickenType.Nugget);
-				} else if (rand < 0.66) {
-					spawnChicken(Chicken.ChickenType.Buffalo);
-				} else {
-					spawnChicken(Chicken.ChickenType.Shredded);
-				}
-			}
+		// Wave spawning logic
+
+		if (gameTime > waveStartTime + replenishTime){
+			waveStartTime = gameTime;
+			enemiesLeft = startWaveSize + 1;
+			startWaveSize += 1;
 		}
+
+		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
+			int r = (int)Math.floor((maxWaveSize - enemyBoard.size())*Math.random());
+			enemyBoard.add(enemyPool.get(r));
+			int chicken = enemyPool.remove(r);
+			if (chicken == 0){
+				spawnChicken(Chicken.ChickenType.Nugget);
+			} else if (chicken == 1){
+				spawnChicken(Chicken.ChickenType.Buffalo);
+			} else if (chicken == 2) {
+				spawnChicken(Chicken.ChickenType.Shredded);
+			}
+			lastEnemySpawnTime = gameTime;
+			enemiesLeft -= 1;
+		}
+
+
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
 			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {
@@ -985,9 +963,13 @@ public class GameController implements ContactListener, Screen {
 		chef.applyForce();
 
 		// if the chef tries to perform an action, move or gets hit, stop cooking
-		if (chef.isCooking() && (InputController.getInstance().didMovementKey()|| InputController.getInstance().didSecondary()
+		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
 		|| chef.isStunned())){
 			chef.setCooking(false);
+
+		}
+		else{
+			chef.setCooking(chef.inCookingRange());
 		}
 
 		//update temperature
@@ -1258,6 +1240,7 @@ public class GameController implements ContactListener, Screen {
 	 * Pausing happens when we switch game modes.
 	 */
 	public void pause() {
+		//stop all sounds
 		if (jumpSound.isPlaying( jumpId )) {
 			jumpSound.stop(jumpId);
 		}
@@ -1425,6 +1408,9 @@ public class GameController implements ContactListener, Screen {
 		canvas.begin();
 
 		temp.draw(canvas);
+
+		//draw gametime
+		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
 		if (paused){
@@ -1658,5 +1644,47 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void setScreenListener(ScreenListener listener) {
 		this.listener = listener;
+	}
+
+	@Override
+	public boolean keyDown(int keycode) {
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(char character) {
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		//register clicking to pause menu
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		//register pausing
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(float amountX, float amountY) {
+		return false;
 	}
 }
