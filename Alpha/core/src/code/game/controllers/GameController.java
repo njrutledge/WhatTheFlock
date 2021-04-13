@@ -47,7 +47,7 @@ public class GameController implements ContactListener, Screen {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level02";
+	private final String DEFAULT_LEVEL = "level01";
 
 
 	/** The texture for walls and platforms */
@@ -261,11 +261,11 @@ public class GameController implements ContactListener, Screen {
 	private float gameTime;
 
 	/**Wave-related variables, to be changed to take in input via level editor later */
-	private float[] probs = {0.5f, 0.3f, 0.2f}; // probability spread for each chicken
-	private int startWaveSize = 5; // Starting wave size, increases by incWaveSize each wave
-	private int maxWaveSize = 50; // Maximum size of a wave
-	private float spreadability = 2; // how much time between each spawn of the wave (in seconds)
-	private float replenishTime = 30; // how long before the wave is replenished (in seconds)
+	private float[] probs; // probability spread for each chicken
+	private int startWaveSize; // Starting wave size, increases by incWaveSize each wave
+	private int maxWaveSize; // Maximum size of a wave
+	private float spreadability; // how much time between each spawn of the wave (in seconds)
+	private float replenishTime; // how long before the wave is replenished (in seconds)
 	private int enemiesLeft; // how many enemies left in the wave
 	private float waveStartTime; // when did this wave start
 	private float lastEnemySpawnTime; // when did the last enemy spawn
@@ -571,7 +571,11 @@ public class GameController implements ContactListener, Screen {
 	public void doNewPopulate(JsonValue level){
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
-
+		probs = level.get("spawn_probs").asFloatArray();
+		startWaveSize = level.get("starting_wave_size").asInt();
+		maxWaveSize = level.get("max_wave_size").asInt();
+		spreadability = level.get("spawn_gap").asFloat();
+		replenishTime = level.get("wave_gap").asFloat();
 
 		gameTime = 0;
 		waveStartTime = gameTime;
@@ -583,12 +587,12 @@ public class GameController implements ContactListener, Screen {
 		for (int i = 0; i < maxWaveSize; i++){
 			double r = Math.random();
 			float sum = probs[0];
-			int k = 0;
+			int k = 1;
 			while (k < probs.length && r > sum){
-				sum += probs[k+1];
+				sum += probs[k];
 				k++;
 			}
-			enemyPool.add(k);
+			enemyPool.add(k-1);
 		}
 
 		//0x0001 = player, 0x0002 = chickens, 0x0004 walls, 0x0008 chicken basic attack,
