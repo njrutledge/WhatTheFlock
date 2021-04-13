@@ -19,6 +19,7 @@ import code.game.views.GameCanvas;
 import code.util.PooledList;
 import code.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
@@ -40,7 +41,7 @@ import java.util.List;
  * This is the purpose of our AssetState variable; it ensures that multiple instances
  * place nicely with the static assets.
  */
-public class GameController implements ContactListener, Screen {
+public class GameController implements ContactListener, Screen, InputProcessor {
 	///TODO: Implement a proper board and interactions between the player and chickens, slap may also be implemented here
 	////////////// This file puts together a lot of data, be sure that you do not modify something without knowing fully
 	////////////// its purpose or you may break someone else's work, further comments are below ////////////////////
@@ -130,12 +131,12 @@ public class GameController implements ContactListener, Screen {
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
-	/** Exit code for starting in Easy */
-	public static final int EASY = 0;
-	/** Exit code for starting in Medium */
-	public static final int MED = 1;
-	/** Exit code for starting in Hard */
-	public static final int HARD = 2;
+	///** Exit code for starting in Easy */
+	//public static final int EASY = 0;
+	///** Exit code for starting in Medium */
+	//public static final int MED = 1;
+	///** Exit code for starting in Hard */
+	//public static final int HARD = 2;
 
 	/** Width of the game world in Box2d units */
 	protected static final float DEFAULT_WIDTH  = 48.0f;
@@ -607,7 +608,7 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void beginContact(Contact contact){
 		collisionController.beginContact(contact, damageCalc());
-	}/* {
+	}
 
 		//TODO: Detect if a collision is with an enemy and have an appropriate interaction
 
@@ -621,87 +622,6 @@ public class GameController implements ContactListener, Screen {
 	public void endContact(Contact contact) {
 		//TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
 		collisionController.endContact(contact, sensorFixtures);
-		/*Fixture fix1 = contact.getFixtureA();
-		Fixture fix2 = contact.getFixtureB();
-
-		Body body1 = fix1.getBody();
-		Body body2 = fix2.getBody();
-
-		Object fd1 = fix1.getUserData();
-		Object fd2 = fix2.getUserData();
-
-		Object bd1 = body1.getUserData();
-		Object bd2 = body2.getUserData();
-
-		Obstacle b1 = (Obstacle) bd1;
-		Obstacle b2 = (Obstacle) bd2;
-
-		if ((chef.getSensorName().equals(fd2) && chef != bd1) ||
-				(chef.getSensorName().equals(fd1) && chef != bd2)) {
-			sensorFixtures.remove((chef == bd1) ? fix2 : fix1);
-		}
-
-		if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1) ||
-				chef.getSensorName().equals(fd1) && stove.getSensorName().equals(fd2)){
-			chef.setCanCook(false);
-		}
-		if (b1.getName().equals("trap") && b2.getName().equals("chicken")) {
-			switch (((Trap) b1).getTrapType()){
-				case LURE:
-					((Chicken) b2).resetTarget();
-					break;
-				case SLOW:
-					((Chicken) b2).removeSlow();
-					break;
-				case FIRE :
-					break;
-				case FIRE_LINGER:
-					((Chicken) b2).letItBurn();
-			}
-		}
-		if (b2.getName().equals("trap") && b1.getName().equals("chicken")) {
-			switch (((Trap) b2).getTrapType()){
-				case LURE: //damage
-					((Chicken) b1).resetTarget();
-					break;
-				case SLOW:
-					((Chicken) b1).removeSlow();
-					break;
-				case FIRE :
-					break;
-				case FIRE_LINGER:
-					((Chicken) b1).letItBurn();
-			}
-		}
-
-		if (fd1 != null && fd2 != null) {
-			if (fd1.equals("lureHurt") && fd2.equals("chickenSensor")) {
-				((Chicken) bd2).stopAttack();
-			}
-
-			if (fd2.equals("lureHurt") && fd1.equals("chickenSensor")) {
-				((Chicken) bd1).stopAttack();
-			}
-
-			if (fd1.equals("placeRadius") && bd2 == chef) {
-				chef.setCanPlaceTrap(false);
-			}
-			if (fd2.equals("placeRadius") && bd1 == chef) {
-				chef.setCanPlaceTrap(false);
-			}
-		}
-
-		if (fd1 != null) {
-			if (bd2 == chef && fd1.equals("chickenSensor")){
-				((Chicken) bd1).stopAttack();
-			}
-		}
-
-		if (fd2 != null) {
-			if (bd1 == chef && fd2.equals("chickenSensor")) {
-				((Chicken) bd2).stopAttack();
-			}
-		}*/
 	}
 	/*******************************************************************************************
 	 * UPDATING LOGIC
@@ -772,7 +692,9 @@ public class GameController implements ContactListener, Screen {
 
 		// Handle resets
 		if (input.didReset()) {
-			reset();
+			//TODO implement real pause menu
+			listener.exitScreen(this, EXIT_QUIT);
+			//reset();
 		}
 		if(input.didAdvance()) {
 			chef.decrementHealth();
@@ -1512,5 +1434,47 @@ public class GameController implements ContactListener, Screen {
 	 */
 	public void setScreenListener(ScreenListener listener) {
 		this.listener = listener;
+	}
+
+	@Override
+	public boolean keyDown(int keycode) {
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(char character) {
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		//register clicking to pause menu
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		//register pausing
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(float amountX, float amountY) {
+		return false;
 	}
 }

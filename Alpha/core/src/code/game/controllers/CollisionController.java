@@ -81,7 +81,7 @@ public class CollisionController implements CollisionControllerInterface {
          * */
         private void handleCollision(GameObject bd1, FixtureType fd1, Fixture fix1,
                                      GameObject bd2, FixtureType fd2, Fixture fix2){
-        switch (bd1.getObjectType()){
+            switch (bd1.getObjectType()){
             case CHICKEN:
                 chickenCollision((Chicken) bd1, fd1, fix1, bd2, fd2, fix2);
                 break;
@@ -103,6 +103,7 @@ public class CollisionController implements CollisionControllerInterface {
                 }
                 break;
         }
+
         }
 
     /**

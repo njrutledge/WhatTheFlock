@@ -45,7 +45,8 @@ public class TrapController implements TrapControllerInterface {
                 TextureRegion trapTexture = t.getTexture();
                 float twidth = trapTexture.getRegionWidth()/drawscale.x;
                 float theight = trapTexture.getRegionHeight()/drawscale.y;
-                trapCache = new Trap(constants.get("trap"), t.getX(), t.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE, true);
+                trapCache = new Trap(constants.get("trap"), t.getX(), t.getY(), twidth, theight, Trap.type.FIRE_LINGER,
+                        Trap.shape.CIRCLE, true);
                 trapCache.setDrawScale(drawscale);
                 trapCache.setTexture(trapTexture);
                 //We need to let GameController know that a trap needs to be created
