@@ -94,7 +94,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion noHealthTexture;
 
 	/**Slap attack texture */
-	private Texture slapTexture;
+	private Texture slapSideTexture;
+	private Texture slapUpTexture;
+	private Texture slapDownTexture;
+
+
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
 	private long jumpId = -1;
@@ -362,7 +366,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
 		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
-		slapTexture = directory.getEntry("char:slap", Texture.class);
+		slapSideTexture = directory.getEntry("char:slapSide", Texture.class);
+		slapDownTexture = directory.getEntry("char:slapDown", Texture.class);
+		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
 
 		//ui
 		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
@@ -650,7 +656,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef.setTexture(chefTexture);
 					chef.setHealthTexture(healthTexture);
 					chef.setNoHealthTexture(noHealthTexture);
-					chef.setSlapTexture(slapTexture);
+					chef.setSlapSideTexture(slapSideTexture);
+					chef.setSlapUpTexture(slapUpTexture);
+					chef.setSlapDownTexture(slapDownTexture);
 					//don't add chef here! add it later so its on top easier
 					break;
 				case LEVEL_SPAWN:
@@ -825,7 +833,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Process actions in object model
 		chef.setMovement(InputController.getInstance().getHorizontal() * chef.getForce());
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
-		chef.setShooting(InputController.getInstance().didSecondary());
+		chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
 		chef.setTrap(InputController.getInstance().didTrap());
 		gameTime += dt;
 
@@ -955,7 +963,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
 		|| chef.isStunned())){
 			chef.setCooking(false);
-
 		}
 		else{
 			chef.setCooking(chef.inCookingRange());

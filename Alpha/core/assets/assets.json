@@ -17,7 +17,9 @@
         "char:shredded": "characters/shredded.png",
         "char:nuggetBar": "characters/nuggetBar.png",
         "char:egg": "characters/egg.png",
-        "char:slap": "characters/slap.png",
+        "char:slapSide": "characters/chef_animation_attackSide.png",
+        "char:slapDown": "characters/chef_animation_attackDown.png",
+        "char:slapUp": "characters/chef_animation_attackUp.png",
 
         "ui:tempBar": {
           "file":      "ui/tempbar.png",

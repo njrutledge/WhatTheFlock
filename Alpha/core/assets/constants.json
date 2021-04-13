@@ -17,7 +17,7 @@
 		"maxhealth": 3,
 		"jump_force": 5.5,
 		"jump_cool": 30,
-		"shot_cool": 40,
+		"shot_cool": 16,
 		"sensor": {
 			"shrink" : 0.9,
 			"height" : 0.4
