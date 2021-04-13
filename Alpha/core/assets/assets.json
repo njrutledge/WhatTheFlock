@@ -17,6 +17,7 @@
         "char:shredded": "characters/shredded.png",
         "char:nuggetBar": "characters/nuggetBar.png",
         "char:egg": "characters/egg.png",
+        "char:slap": "characters/slap.png",
 
         "ui:tempBar": {
           "file":      "ui/tempbar.png",

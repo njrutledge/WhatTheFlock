@@ -92,6 +92,8 @@ public class GameController implements ContactListener, Screen {
 	private TextureRegion healthTexture;
 	private TextureRegion noHealthTexture;
 
+	/**Slap attack texture */
+	private Texture slapTexture;
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
 	private long jumpId = -1;
@@ -254,6 +256,24 @@ public class GameController implements ContactListener, Screen {
 	/**The trap controller for this game*/
 
 	private TrapController trapController;
+
+	/** How much time has passed in the game */
+	private float gameTime;
+
+	/**Wave-related variables, to be changed to take in input via level editor later */
+	private float[] probs = {0.5f, 0.3f, 0.2f}; // probability spread for each chicken
+	private int startWaveSize = 5; // Starting wave size, increases by incWaveSize each wave
+	private int maxWaveSize = 50; // Maximum size of a wave
+	private float spreadability = 2; // how much time between each spawn of the wave (in seconds)
+	private float replenishTime = 30; // how long before the wave is replenished (in seconds)
+	private int enemiesLeft; // how many enemies left in the wave
+	private float waveStartTime; // when did this wave start
+	private float lastEnemySpawnTime; // when did the last enemy spawn
+	// the total pool of enemies for this level
+	private ArrayList<Integer> enemyPool; // the enemies in the pool but not on the board
+	private ArrayList<Integer> enemyBoard; // the enemies on the board
+
+
 	/**
 	 * Returns true if debug mode is active.
 	 *
@@ -341,6 +361,7 @@ public class GameController implements ContactListener, Screen {
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
 		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
+		slapTexture = directory.getEntry("char:slap", Texture.class);
 
 		//ui
 		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
@@ -551,6 +572,25 @@ public class GameController implements ContactListener, Screen {
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
 
+
+		gameTime = 0;
+		waveStartTime = gameTime;
+		lastEnemySpawnTime = gameTime;
+		enemiesLeft = startWaveSize;
+		enemyPool = new ArrayList<>();
+		enemyBoard = new ArrayList<>();
+		// sets up the initial enemy pool
+		for (int i = 0; i < maxWaveSize; i++){
+			double r = Math.random();
+			float sum = probs[0];
+			int k = 0;
+			while (k < probs.length && r > sum){
+				sum += probs[k+1];
+				k++;
+			}
+			enemyPool.add(k);
+		}
+
 		//0x0001 = player, 0x0002 = chickens, 0x0004 walls, 0x0008 chicken basic attack,
 		// 0x0010 buffalo's headbutt, 0x0020 spawn
 
@@ -605,6 +645,7 @@ public class GameController implements ContactListener, Screen {
 					chef.setTexture(chefTexture);
 					chef.setHealthTexture(healthTexture);
 					chef.setNoHealthTexture(noHealthTexture);
+					chef.setSlapTexture(slapTexture);
 					//don't add chef here! add it later so its on top easier
 					break;
 				case LEVEL_SPAWN:
@@ -860,6 +901,7 @@ public class GameController implements ContactListener, Screen {
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
 		chef.setShooting(InputController.getInstance().didSecondary());
 		chef.setTrap(InputController.getInstance().didTrap());
+		gameTime += dt;
 
 		if(InputController.getInstance().didMute()){
 			muted = !muted;
@@ -928,19 +970,30 @@ public class GameController implements ContactListener, Screen {
 			createTrap();
 		}
 
-		//random chance of spawning a chicken
-		if ((int)(Math.random() * (parameterList[3] + 1)) == 0) {
-			float rand = (float)Math.random();
-			if (rand<0.33) {
+		// Wave spawning logic
+
+		if (gameTime > waveStartTime + replenishTime){
+			waveStartTime = gameTime;
+			enemiesLeft = startWaveSize + 1;
+			startWaveSize += 1;
+		}
+
+		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
+			int r = (int)Math.floor((maxWaveSize - enemyBoard.size())*Math.random());
+			enemyBoard.add(enemyPool.get(r));
+			int chicken = enemyPool.remove(r);
+			if (chicken == 0){
 				spawnChicken(Chicken.ChickenType.Nugget);
-			}
-			else if (rand<0.66){
+			} else if (chicken == 1){
 				spawnChicken(Chicken.ChickenType.Buffalo);
-			}
-			else{
+			} else if (chicken == 2) {
 				spawnChicken(Chicken.ChickenType.Shredded);
 			}
+			lastEnemySpawnTime = gameTime;
+			enemiesLeft -= 1;
 		}
+
+
 		for (Obstacle obj : objects) {
 			//Remove a bullet if slap is complete
 			if (obj.isBullet() && (obj.getAngle() > Math.PI/8 || obj.getAngle() < Math.PI/8*-1)) {
@@ -1397,6 +1450,11 @@ public class GameController implements ContactListener, Screen {
 		canvas.begin();
 
 		temp.draw(canvas);
+		canvas.end();
+
+		//draw gametime
+		canvas.begin();
+		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
 		if (paused){
