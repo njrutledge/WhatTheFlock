@@ -142,6 +142,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /**Resets this screen*/
     public void reset(){
         currentIndex = 0;
+        pressState = -1;
     }
 
     /**
