@@ -107,8 +107,8 @@ public class TrapController implements TrapControllerInterface {
             float angle = rollFloat(72*i, 72*(i+1));
             Trap trap = createLure(breadBomb);
             float speed = 16.0f;
-            float vx = 16.0f* MathUtils.cosDeg(angle);
-            float vy = 16.0f * MathUtils.sinDeg(angle);
+            float vx = speed * MathUtils.cosDeg(angle);
+            float vy = speed * MathUtils.sinDeg(angle);
             trap.setVX(vx);
             trap.setVY(vy);
             trap.setLinearDamping(2f);
