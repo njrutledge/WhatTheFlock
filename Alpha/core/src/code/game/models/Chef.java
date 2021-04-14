@@ -49,6 +49,8 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/** Which direction is the character facing */
 	private boolean faceRight;
+	/** which direction the character is slapping */
+	private int slapFace;
 	/** How long until we can shoot again */
 	private int shootCooldown;
 	//TODO: change to slapping?
@@ -111,6 +113,12 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/** CURRENT image for this object. May change over time. */
 	protected FilmStrip animator;
+
+	/** placeholder filmstrips until figure out animator business */
+	protected FilmStrip slap_up_animator;
+	protected FilmStrip slap_down_animator;
+	protected FilmStrip slap_side_animator;
+
 	/** Reference to texture origin */
 	protected Vector2 origin;
 
@@ -223,7 +231,11 @@ public class Chef extends GameObject implements ChefInterface {
 	 * @param value left/right movement of this character.
 	 */
 	public void setMovement(float value) {
-		movement = value;
+		if (shootCooldown > 0){
+			movement = 0;
+		} else {
+			movement = value;
+		}
 		// Change facing if appropriate
 		if (movement < 0) {
 			faceRight = false;
@@ -234,7 +246,11 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/**Set the vertical movement of the character*/
 	public void setVertMovement(float value) {
-		vertmovement = value;
+		if (shootCooldown > 0) {
+			vertmovement = 0;
+		} else {
+			vertmovement = value;
+		}
 		//TODO change if facing up/down
 	}
 
@@ -263,11 +279,14 @@ public class Chef extends GameObject implements ChefInterface {
 
 
 	/**
-	 * Sets whether the chef is actively firing.
+	 * Sets whether the chef is actively firing and what direction they are.
 	 *
 	 * @param value whether the chef is actively firing.
+	 * @param slapDirection what direction the chef is slapping in
 	 */
-	public void setShooting(boolean value) {
+	public void setShooting(boolean value, int slapDirection) {
+		if (value) animeframe = 0;
+		slapFace = slapDirection;
 		isShooting = value;
 	}
 
@@ -286,6 +305,32 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void setTexture(Texture texture) {
 		animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
+		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
+	}
+	/**
+	 * Animates the up slap
+	 * @param texture
+	 */
+	public void setSlapUpTexture(Texture texture){
+		slap_up_animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
+		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
+	}
+
+	/**
+	 * Animates the side slap
+	 * @param texture
+	 */
+	public void setSlapSideTexture(Texture texture) {
+		slap_side_animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
+		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
+	}
+
+	/**
+	 * Animates the down slap
+	 * @param texture
+	 */
+	public void setSlapDownTexture(Texture texture) {
+		slap_down_animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
 		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
 	}
 
@@ -462,21 +507,21 @@ public class Chef extends GameObject implements ChefInterface {
 		}
 		
 		// Don't want to be moving. Damp out player motion
-		if (getMovement() == 0f) {
-			forceCache.set(-getDamping()*getVX(),0);
-			body.applyForce(forceCache,getPosition(),true);
-		}
-		
+//		if (getMovement() == 0f) {
+//			forceCache.set(-getDamping()*getVX(),0);
+//			body.applyForce(forceCache,getPosition(),true);
+//		}
+
+		//		if (getVertMovement() == 0f) {
+//			forceCache.set(0,-getDamping()*getVY());
+//			body.applyForce(forceCache,getPosition(),true);
+//		}
+
 		// Velocity too high, clamp it
 		if (Math.abs(getVX()) >= getMaxSpeed()) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
 		} else {
 			forceCache.set(getMovement(),0);
-			body.applyForce(forceCache,getPosition(),true);
-		}
-
-		if (getVertMovement() == 0f) {
-			forceCache.set(0,-getDamping()*getVY());
 			body.applyForce(forceCache,getPosition(),true);
 		}
 
@@ -486,6 +531,21 @@ public class Chef extends GameObject implements ChefInterface {
 		} else {
 			forceCache.set(0,getVertMovement());
 			body.applyForce(forceCache,getPosition(),true);
+		}
+		// Diagonal Velocity is too high (TO CHANGE IN THE FUTURE)
+		if (Math.sqrt(Math.pow(getVX(),2) + Math.pow(getVY(),2)) >= getMaxSpeed()){
+			float angle = MathUtils.atan2(getVY(), getVX());
+			setVY(MathUtils.sin(angle)*getMaxSpeed()/2.5f);
+			setVX(MathUtils.cos(angle)*getMaxSpeed()/2.5f);
+		}
+
+		if (getMovement() == 0f) {
+			forceCache.set(0, 0);
+			body.setLinearVelocity(0,0);
+		}
+		if (getVertMovement() == 0f){
+			forceCache.set(0,0);
+			body.setLinearVelocity(0,0);
 		}
 
 	}
@@ -507,6 +567,14 @@ public class Chef extends GameObject implements ChefInterface {
 				animeframe -= NUM_ANIM_FRAMES;
 			}
 		}
+
+		if (shootCooldown > 0){
+			animeframe += ANIMATION_SPEED;
+			if (animeframe >= NUM_ANIM_FRAMES) {
+				animeframe -= NUM_ANIM_FRAMES;
+			}
+		}
+
 		if (isShooting()) {
 			shootCooldown = shotLimit;
 		} else {
@@ -533,13 +601,24 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
-		animator.setFrame((int)animeframe);
-		if (!isShooting && (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0)) {
+		if (shootCooldown <= 0 && (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0)) {
+			animator.setFrame((int)animeframe);
 			canvas.draw(animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
+		} else if (shootCooldown > 0) {
+			if (slapFace == 1) {
+				slap_up_animator.setFrame((int) animeframe);
+				canvas.draw(slap_up_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect / 4, 0.25f);
+			} else if (slapFace == 3) {
+				slap_down_animator.setFrame((int) animeframe);
+				canvas.draw(slap_down_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect / 4, 0.25f);
+			} else if (slapFace == 2) {
+				slap_side_animator.setFrame((int) animeframe);
+				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), 0.25f, 0.25f);
+			} else if (slapFace == 4){
+				slap_side_animator.setFrame((int) animeframe);
+				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), -0.25f, 0.25f);
+			}
 		}
-//		else if (isShooting()){
-//			canvas.draw(slapTexture, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), effect/4, 0.25f);
-//		}
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
 		//canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
 		//draw health
