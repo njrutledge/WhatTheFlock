@@ -967,6 +967,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void update(float dt) {
 		// Music
 		if (gameTime == 0){
+			theme1.stop();
 			theme1.play(DEFAULT_VOL*0.3f);
 		} else if (gameTime > theme1_timer + THEME1_DURATION) {
 			theme1_timer = gameTime;
