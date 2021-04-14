@@ -42,7 +42,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Ratio of the knife to the screen */
     private static float KNIFE_RATIO = 1.0f;
     /** Background scale*/
-    private static float BACKGROUND_SCALE = 1.3f;
+    private static float BACKGROUND_SCALE = 1.2f;
     /** Scale of arrows*/
     private static float ARROW_SCALE = 0.5f;
     /**Center the background*/
@@ -88,6 +88,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private JsonValue levelSelected;
     /** Whether or not this player mode is still active */
     private boolean active;
+    /** Whether to highlight the knife or not*/
+    private boolean highlightKnife;
 
     /**
      * Creates a LevelSelectMode with the default size and position.
@@ -123,7 +125,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         for (XBoxController controller : Controllers.get().getXBoxControllers()) {
             controller.addListener( this );
         }
-
+        highlightKnife = false;
         active = true;
     }
 
@@ -218,12 +220,19 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         canvas.draw(background, Color.WHITE, background.getWidth()/2, background.getHeight()/2,
                 bkgCenterX, bkgCenterY, 0, BACKGROUND_SCALE * scale, BACKGROUND_SCALE * scale);
         //draw knife and two arrows
-        Color knifeTint = (pressState == 2 ? Color.RED: Color.WHITE);
+        Color knifeTint = (pressState == 2 ? Color.RED: Color.DARK_GRAY);
         Color leftTint = (pressState == 4 ? Color.RED: Color.WHITE);
         Color rightTint = (pressState == 6 ? Color.RED: Color.WHITE);
         //knife
-        canvas.draw(knifeTexture, knifeTint, knifeTexture.getWidth()/2, knifeTexture.getHeight()/2,
-                knifeCenterX, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+        if (highlightKnife){
+            canvas.draw(knifeTexture, Color.WHITE, knifeTexture.getWidth()/2, knifeTexture.getHeight()/2,
+                    knifeCenterX, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+        }else{
+            canvas.draw(knifeTexture, knifeTint, knifeTexture.getWidth()/2, knifeTexture.getHeight()/2,
+                    knifeCenterX, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+        }
+
+
         //arrow
         canvas.draw(arrowLeftTexture, leftTint, arrowLeftTexture.getWidth()/2, arrowLeftTexture.getHeight()/2,
                 leftArrowCenterX, arrowCenterY, 0, ARROW_SCALE * scale, ARROW_SCALE * scale);
@@ -485,6 +494,17 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @return whether to hand the event to other listeners.
      */
     public boolean mouseMoved(int screenX, int screenY) {
+        screenY = heightY-screenY;
+        if(overKnife(knifeTexture, screenX, screenY, knifeCenterX, knifeCenterY)){
+            //TODO make this a filmstrip
+            highlightKnife = true;
+        }else {highlightKnife = false;}
+        /*
+        else if(overArrow(arrowLeftTexture, screenX, screenY, leftArrowCenterX, arrowCenterY)){
+
+        }else if(overArrow(arrowRightTexture, screenX, screenY, rightArrowCenterX, arrowCenterY)){
+
+        }*/
         return true;
     }
 
