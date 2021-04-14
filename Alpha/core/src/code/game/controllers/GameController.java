@@ -18,7 +18,6 @@ import code.game.models.obstacle.PolygonObstacle;
 import code.game.views.GameCanvas;
 import code.util.PooledList;
 import code.util.ScreenListener;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.*;
@@ -81,7 +80,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Texture asset for default trap (TEMP) */
 	private TextureRegion trapDefaultTexture;
 	/** Texture asset for Fidge trap */
-	private TextureRegion trapFridgeTexture;
+	private TextureRegion trapCoolerTexture;
 	/** Texture asset for slow trap */
 	private TextureRegion trapSlowTexture;
 	/** Texture asset for chicken health bar */
@@ -90,6 +89,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion trapSpotTexture;
 	/** Texture asset for the shredded chicken egg projectile */
 	private TextureRegion eggTexture;
+	/** Texture asset for the spawnpoint*/
+	private TextureRegion spawnTexture;
 
 	/** Texture asset for the chef*/
 	private Texture chefTexture;
@@ -150,6 +151,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private SoundBuffer slowSquelch;
 	private SoundBuffer chefOof;
 
+	private final float THEME1_DURATION = 68f;
+	private float theme1_timer;
+	private SoundBuffer theme1;
+
 
 	private final float DEFAULT_VOL = 0.5F;
 
@@ -163,7 +168,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Number of position iterations for the constrain solvers */
 	public static final int WORLD_POSIT = 2;
 	/** Time required until active stove is swapped */
-	public static final float STOVE_RESET = 5f;
+	public static final float STOVE_RESET = 20f;
 
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
@@ -226,7 +231,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Reference to the character chef */
 	private Chef chef;
 	/** array of chicken spawn points */
-	private List<PolygonObstacle> spawnPoints = new ArrayList<PolygonObstacle>();
+	private List<Spawn> spawnPoints = new ArrayList<Spawn>();
 	/** Reference to the temperature*/
 	private TemperatureBar temp;
 	///** Reference to the goalDoor (for collision detection) */
@@ -413,9 +418,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
-		trapFridgeTexture = new TextureRegion(directory.getEntry("enviro:trap:fridge",Texture.class));
+		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
 		trapSlowTexture = new TextureRegion(directory.getEntry("enviro:trap:slow", Texture.class));
+		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 			//characters
 		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("char:chicken",Texture.class));
@@ -460,12 +466,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		fireLinger = directory.getEntry( "sound:trap:fireLinger", SoundBuffer.class );
 		lureCrumb = directory.getEntry( "sound:trap:lureCrumb", SoundBuffer.class );
 
+		theme1 = directory.getEntry("sound:music:theme1", SoundBuffer.class);
+
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
 		levels = directory.getEntry("levels", JsonValue.class );
 		//set assets
 		collisionController.setConstants(constants);
-		collisionController.setTrapAssets(trapFridgeTexture, trapSlowTexture, trapDefaultTexture);
+		collisionController.setTrapAssets(trapCoolerTexture, trapSlowTexture, trapDefaultTexture);
 	}
 
 	
@@ -476,6 +484,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void reset() {
 		Vector2 gravity = new Vector2(world.getGravity() );
+		theme1.stop();
 		
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
@@ -490,6 +499,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		ActiveStove = null;
 		Stoves.clear();
 		world.dispose();
+		spawnPoints.clear();
 		
 		world = new World(gravity,false);
 		world.setContactListener(this);
@@ -645,6 +655,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	private void doNewPopulate(JsonValue level){
+		grid.clearObstacles();
+		initGrid();
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
 		probs = level.get("spawn_probs").asFloatArray();
@@ -760,10 +772,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					//don't add chef here! add it later so its on top easier
 					break;
 				case LEVEL_SPAWN:
-					PolygonObstacle spawn = new PolygonObstacle(new float[] {0, 0, 1, 0, 1, 1, 0, 1},x, y);
+					Spawn spawn = new Spawn(x, y, 1, 1);
 					spawn.setSensor(true);
 					spawn.setDrawScale(scale);
-					//spawn.setTexture(trapSpotTexture);
+					spawn.setTexture(spawnTexture);
 					spawn.setName(LEVEL_SPAWN);
 					spawn.setFilterData(spawn_filter);
 					addObject(spawn, GameObject.ObjectType.WALL);
@@ -867,6 +879,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for (Chicken chick: ai.keySet()){
 			if(chick.isActive()){
 				ai.get(chick).update(dt);
+				for (Obstacle ob: trapEffects){
+					Trap tr = (Trap)ob;
+					if (tr.getTrapType().equals(Trap.type.LURE) && tr.getPosition().dst(chick.getPosition()) < 6f){
+						chick.trapTarget(tr);
+					}
+
+					if ((chick.getTrap() == null || chick.getTrap().isRemoved()) && chick.isLured()){
+						chick.resetTarget();
+					}
+				}
 			}
 		}
 		return !paused;
@@ -901,6 +923,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Handle resets
 		if (input.didReset()) {
 			//TODO implement real pause menu
+			theme1.stop();
 			listener.exitScreen(this, EXIT_QUIT);
 			//reset();
 		}
@@ -914,10 +937,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Now it is time to maybe switch screens.
 		if (input.didExit()) {
 			pause();
+			theme1.stop();
 			listener.exitScreen(this, EXIT_QUIT);
 			return false;
 		} else if (countdown > 0) {
 			countdown--;
+			return false;
 		} else if (countdown == 0) {
 			if (failed) {
 				reset();
@@ -925,6 +950,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				return false;
 			} else if (complete) {
 				pause();
+				theme1.stop();
 				listener.exitScreen(this, EXIT_NEXT);
 				return false;
 			}
@@ -944,6 +970,17 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
+		// Music
+		if (gameTime == 0){
+			theme1.stop();
+			theme1.play(DEFAULT_VOL*0.3f);
+		} else if (gameTime > theme1_timer + THEME1_DURATION) {
+			theme1_timer = gameTime;
+			theme1.stop();
+			theme1.play(DEFAULT_VOL*0.3f);
+		}
+
+
 		// Process actions in object model
 		chef.setMovement(InputController.getInstance().getHorizontal() * chef.getForce());
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
@@ -1131,7 +1168,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
 		float dheight = chickenTexture.getRegionHeight()/scale.y;
 		int index = (int) (Math.random() * spawnPoints.size());
-		PolygonObstacle spawn = spawnPoints.get(index);
+		Spawn spawn = spawnPoints.get(index);
 		//float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
 		//float y = ((float)Math.random() * (spawn_ymax - spawn_ymin) + spawn_ymin);
 		float rand = (float)Math.random();
@@ -1274,7 +1311,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		TextureRegion trapTexture = trapDefaultTexture;
 		switch (t){
 			case FRIDGE:
-				trapTexture = trapFridgeTexture;
+				trapTexture = trapCoolerTexture;
 				break;
 		}
 		float twidth = trapTexture.getRegionWidth()/scale.x;
@@ -1481,6 +1518,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for(Obstacle obj : walls){
 			obj.draw(canvas);
 		}
+
+//		for (Obstacle spawn : spawnPoints){
+//			spawn.draw(canvas);
+//		}
+
 		for (Obstacle trapE : trapEffects){
 			trapE.draw(canvas);
 		}
@@ -1493,6 +1535,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for (Obstacle other : others){
 			other.draw(canvas);
 		}
+
 		//draw chef last
 		chef.draw(canvas);
 

@@ -126,7 +126,7 @@ public class AIController {
                 } else if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
                 }
-                else if (chicken.isAttacking()) {
+                else if (!chicken.isLured() && chicken.isAttacking()) {
                     state = FSM.ATTACK;
                 }
                 break;
@@ -148,7 +148,7 @@ public class AIController {
                     state = FSM.KNOCKBACK;
                 }
                 else if (stop_counter >= STOP_DUR) {
-                    if (chicken.isTouching()) {
+                    if (!chicken.isLured() && chicken.isTouching()) {
                         state = FSM.ATTACK; chicken.startAttack();
                     }
                     else { state = FSM.CHASE; }
@@ -158,15 +158,16 @@ public class AIController {
                 if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
+                else if ((chicken.isLured() || chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())) {
+                    state = FSM.CHASE;
+                }
                 else if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
                 }
 /*                else if (!chicken.isAttacking() && !chicken.isTouching()) {
                     state = FSM.CHASE;
                 }*/
-                else if (chicken.isLured() || (chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())) {
-                    state = FSM.CHASE;
-                }
+
                 break;
             default: // This shouldn't happen
                 break;

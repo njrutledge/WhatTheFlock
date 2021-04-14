@@ -51,9 +51,9 @@ public class TrapController implements TrapControllerInterface {
     public boolean applyTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
             case LURE: //damage
-                if(!c.getType().equals(Chicken.ChickenType.Shredded)) {
-                    c.trapTarget(t);
-                }
+                //if(!c.getType().equals(Chicken.ChickenType.Shredded)) {
+                //c.trapTarget(t);
+                //}
                 break;
             case SLOW:
                 c.inSlow(true);
@@ -82,7 +82,7 @@ public class TrapController implements TrapControllerInterface {
     public void stopTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
             case LURE:
-                c.resetTarget();
+                //c.resetTarget();
                 break;
             case SLOW:
                 c.inSlow(false);

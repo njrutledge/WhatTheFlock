@@ -3,6 +3,7 @@ package code.game.models;
 import code.game.interfaces.ChickenInterface;
 import code.game.models.obstacle.Obstacle;
 import code.util.FilmStrip;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
@@ -25,7 +26,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected CircleShape sensorShape;
     /** The physics shape of this object's hitbox */
     protected PolygonShape hitboxShape;
-
+    private Trap trap = null;
     public boolean faceRight;
 
     /** The type of chicken */
@@ -426,7 +427,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Whether or not the chicken is charging up an attack */
     public boolean isAttacking() {
-        return !isLured && (charge_time >= 0 || isRunning());
+        return (charge_time >= 0 || isRunning());
     }
 
     /** Whether or not the chicken is currently running */
@@ -435,9 +436,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Set running */
     public void setRunning(boolean running) { return; }
 
-    //TODO: comment
-    public boolean chasingPlayer(Chef p) { return target.equals(p); }
-    //TODO: comment
+    /** Whether the chicken is chasing the object p */
+    public boolean chasingObject(GameObject p) { return target.equals(p); }
+
+    /** Set the chase speed of this chicken */
     public void setChaseSpeed(float spd){
         chaseSpeed = spd;
     }
@@ -464,8 +466,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void draw(GameCanvas canvas) {
         if (!isInvisible) {
-            canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
-            canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
+            //canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
+            //canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
         }
     }
 
@@ -550,10 +552,22 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @param t a Lure trap target
      */
     public void trapTarget(Trap t) {
-        target = t;
-        isLured = true;
+        if (chasingPlayer()) {
+            trap = t;
+            target = t;
+            isLured = true;
+            t.markHit();
+        }
     }
 
+    /** Whether the chicken is currently chasing a player */
+    private boolean chasingPlayer(){
+        return target.equals(player);
+    }
+
+    public Trap getTrap(){
+        return trap;
+    }
     /**
      * Resets the chicken's target to the player
      *
@@ -561,6 +575,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public void resetTarget() {
         target = player;
         isLured = false;
+        trap = null;
     }
 
     /**
