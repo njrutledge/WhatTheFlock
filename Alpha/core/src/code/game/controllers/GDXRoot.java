@@ -146,6 +146,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			switch (exitCode){
 				case MenuMode.START: //TODO go to level select
 					//controller.reset();
+					levelselect.reset();
 					setScreen(levelselect);
 					break;
 				case MenuMode.GUIDE: //TODO go to guide
@@ -169,8 +170,12 @@ public class GDXRoot extends Game implements ScreenListener {
 		else if (screen == controller){
 			switch (exitCode){
 				case GameController.EXIT_NEXT:
+					levelselect.reset();
+					setScreen(levelselect);
 					break;
 				case GameController.EXIT_PREV:
+					levelselect.reset();
+					setScreen(levelselect);
 					break;
 				case GameController.EXIT_QUIT:
 					//go back to menu select screen

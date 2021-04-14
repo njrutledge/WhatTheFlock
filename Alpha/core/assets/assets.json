@@ -39,7 +39,7 @@
         "char:slapUp": "characters/chef_animation_attackUp.png",
 
 
-        "background:levelselect": "ui/loading/loading.png",
+        "background:levelselect": "ui/levelselect/cuttingboard.png",
         "background:menu": "ui/loading/temp_menu_bkg.png",
 
         "ui:menu:start": "ui/loading/mainmenu_start.png",

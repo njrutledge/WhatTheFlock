@@ -332,8 +332,10 @@ public class AIController {
         if (target_tile == null){
             int stop = 4;
         }
-        if ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile) {
-            move_tile = child_tile;
+        if(child_tile != null && start_tile != null && move_tile != null && target_tile != null){
+            if ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile) {
+                move_tile = child_tile;
+            }
         }
     }
 }

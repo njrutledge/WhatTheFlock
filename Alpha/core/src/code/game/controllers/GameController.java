@@ -297,8 +297,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** Whether or not the cooldown effect is enabled */
 	private boolean cooldown;
-
-
+	/** Stores the data of the last level, in case of reset */
+	private JsonValue lastLevel;
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
 
@@ -509,6 +509,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * Lays out the game geography.
 	 */
 	public void populateLevel(JsonValue level) {
+		lastLevel = level;
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
@@ -913,6 +914,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else if (countdown == 0) {
 			if (failed) {
 				reset();
+				//reload the world
+				populateLevel(lastLevel);
 				return false;
 			} else if (complete) {
 				pause();
