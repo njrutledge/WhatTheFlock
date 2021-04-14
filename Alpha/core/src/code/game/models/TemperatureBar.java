@@ -125,7 +125,7 @@ public class TemperatureBar {
      *
      * @param amt - the amount to decrease by
      */
-    public void reduceTemp(int amt) {
+    public void reduceTemp(float amt) {
         temperature -= Math.max(0,amt);
     }
 

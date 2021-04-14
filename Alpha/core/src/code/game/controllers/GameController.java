@@ -1221,7 +1221,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
 		if (temp.getTemperature() > 0){
-			temp.reduceTemp(1);
+			temp.reduceTemp(.5f);
 		}
 		/*
 		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
