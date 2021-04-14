@@ -484,6 +484,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void reset() {
 		Vector2 gravity = new Vector2(world.getGravity() );
+		theme1.stop();
 		
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
@@ -922,6 +923,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Handle resets
 		if (input.didReset()) {
 			//TODO implement real pause menu
+			theme1.stop();
 			listener.exitScreen(this, EXIT_QUIT);
 			//reset();
 		}
