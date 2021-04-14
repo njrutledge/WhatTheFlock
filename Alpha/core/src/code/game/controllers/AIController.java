@@ -107,6 +107,14 @@ public class AIController {
     }
 
     /**
+     * if any of the tiles are null
+     * @return
+     */
+    private boolean anyTilesNull(){
+        /*return (child_tile == null || start_tile == null || move_tile == null || target_tile == null);*/
+        return false;
+    }
+    /**
      * If applicable, change the FSM state for this AI controller based on the current state and
      * recent interactions between the chicken and traps/chef
      */
@@ -191,6 +199,7 @@ public class AIController {
         switch(state){
             case CHASE:
                 move();
+                if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
                 temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
                 temp.nor();
                 temp.scl(chaseSpeed * chicken.getSlow());
@@ -309,15 +318,15 @@ public class AIController {
         open.clear();
         closed.clear();
         grid.clearCosts();
-
         start_tile = grid.getTile(chicken.getX(), chicken.getY());
         start_tile.setGcost(0);
         start_tile.setHcost(distance(target.getPosition(), grid.getPosition(start_tile.getRow(), start_tile.getCol())));
         start_tile.setFcost(start_tile.getHcost());
         open.add(start_tile);
-        target_tile = grid.getTile(target.getX(), target.getY());
+        target_tile = grid.getTile(target.getX(), target.getY()); //could be getting a null tile?
         AStar();
 
+        if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
         // Moving in a straight line?
         //TODO: remove after testing
         if (child_tile == null){
@@ -332,10 +341,10 @@ public class AIController {
         if (target_tile == null){
             int stop = 4;
         }
-        if(child_tile != null && start_tile != null && move_tile != null && target_tile != null){
-            if ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile) {
+
+        if ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile) {
                 move_tile = child_tile;
-            }
         }
+
     }
 }
