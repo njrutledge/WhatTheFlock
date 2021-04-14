@@ -158,15 +158,16 @@ public class AIController {
                 if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
+                else if ((chicken.isLured() || chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())) {
+                    state = FSM.CHASE;
+                }
                 else if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
                 }
 /*                else if (!chicken.isAttacking() && !chicken.isTouching()) {
                     state = FSM.CHASE;
                 }*/
-                else if ((chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())) {
-                    state = FSM.CHASE;
-                }
+
                 break;
             default: // This shouldn't happen
                 break;
