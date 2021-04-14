@@ -490,6 +490,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		ActiveStove = null;
 		Stoves.clear();
 		world.dispose();
+		spawnPoints.clear();
 		
 		world = new World(gravity,false);
 		world.setContactListener(this);
@@ -645,6 +646,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	private void doNewPopulate(JsonValue level){
+		grid.clearObstacles();
+		initGrid();
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
 		probs = level.get("spawn_probs").asFloatArray();
