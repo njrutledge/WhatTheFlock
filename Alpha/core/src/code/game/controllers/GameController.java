@@ -48,11 +48,24 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level01";
+	private final String DEFAULT_LEVEL = "HUDTEST";
 
 
+	/** The texture for center wall */
+	protected TextureRegion wallCenterTile;
 	/** The texture for walls and platforms */
-	protected TextureRegion earthTile;
+	protected TextureRegion wallLeftTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallRightTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallTopTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallBottomTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallYellowCenterTile;
+	/** The texture for walls and platforms */
+	protected TextureRegion wallYellowBottomTile;
+
 	/** The font for giving messages to the player */
 	protected BitmapFont displayFont;
 
@@ -63,8 +76,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion chickenTexture;
 	/** Texture asset for the stove */
 	private TextureRegion stoveTexture;
-	/** Texture asset for the trap (TEMP) */
-	private TextureRegion trapTexture;
+	/** Texture asset for default trap (TEMP) */
+	private TextureRegion trapDefaultTexture;
+	/** Texture asset for Fidge trap */
+	private TextureRegion trapFridgeTexture;
+	/** Texture asset for slow trap */
+	private TextureRegion trapSlowTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
@@ -84,17 +101,30 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	///** Texture asset for temp bar*/
 	//private Texture tempTexture;
-	/** Texture asset for temp bar background */
-	private TextureRegion tempBackground;
-	/**Texture asset for temp bar foreground */
-	private TextureRegion tempForeground;
+	/** Texture asset for empty temp bar */
+	private TextureRegion tempEmpty;
+	/**Texture asset for yellow temp bar */
+	private TextureRegion tempYellow;
+	/**Texture asset for orange temp bar */
+	private TextureRegion tempOrange;
+	/**Texture asset for red temp bar */
+	private TextureRegion tempRed;
+
+	/**Texture asset for medium flames */
+	private TextureRegion tempMedFlame;
+	/**Texture asset for red temp bar */
+	private TextureRegion tempLrgFlame;
 
 	/** Health textures*/
-	private TextureRegion healthTexture;
-	private TextureRegion noHealthTexture;
+	private TextureRegion heartTexture;
+	private TextureRegion halfHeartTexture;
 
 	/**Slap attack texture */
-	private Texture slapTexture;
+	private Texture slapSideTexture;
+	private Texture slapUpTexture;
+	private Texture slapDownTexture;
+
+
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
 	private long jumpId = -1;
@@ -130,6 +160,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public static final int WORLD_VELOC = 6;
 	/** Number of position iterations for the constrain solvers */
 	public static final int WORLD_POSIT = 2;
+	/** Time required until active stove is swapped */
+	public static final float STOVE_RESET = 5f;
 
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
@@ -154,8 +186,20 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** The default value of gravity (going down) */
 	protected static final float DEFAULT_GRAVITY = -4.9f;
 
-	/** Name of wall in level files */
-	protected static final String LEVEL_WALL = "wall";
+	/** Name of center wall in level files */
+	protected static final String LEVEL_WALL_CENTER = "wall";
+	/** Name of bottom wall in level files */
+	protected static final String LEVEL_WALL_BOTTOM = "wall_b";
+	/** Name of left wall in level files */
+	protected static final String LEVEL_WALL_LEFT = "wall_l";
+	/** Name of right wall in level files */
+	protected static final String LEVEL_WALL_RIGHT = "wall_r";
+	/** Name of top wall in level files */
+	protected static final String LEVEL_WALL_TOP = "wall_t";
+	/** Name of right wall in level files */
+	protected static final String LEVEL_WALL_YELLOW_CENTER = "ywall";
+	/** Name of right wall in level files */
+	protected static final String LEVEL_WALL_YELLOW_BOTTOM = "ywall_b";
 	/** Name of spawnpoint in level files */
 	protected static final String LEVEL_SPAWN = "spawn";
 	/** Name of stove in level files */
@@ -187,8 +231,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	//private BoxObstacle goalDoor;
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
-//	/** Reference to the stove object */
-//	private Stove stove;
+	/** Reference to the active stove object */
+	private Stove ActiveStove;
+	/** List of all inactive stoves in the level */
+	private List<Stove> Stoves = new ArrayList<>();
+	/** Timer for the current active stove */
+	private float stoveTimer = 0;
 
 	boolean done = false;
 	/** The trap the player has currently selected */
@@ -210,6 +258,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected PooledList<Obstacle> walls = new PooledList<Obstacle>();
 	/** All traps in the world. */
 	protected PooledList<Obstacle> traps = new PooledList<Obstacle>();
+	/** All traps effects in the world. */
+	protected PooledList<Obstacle> trapEffects = new PooledList<Obstacle>();
 	/** All enemies in the world. */
 	protected PooledList<Obstacle> chickens = new PooledList<Obstacle>();
 	/** All other objects in the world. */
@@ -348,11 +398,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void gatherAssets(AssetDirectory directory) {
 		//textures
 			//environment
-		earthTile = new TextureRegion(directory.getEntry( "enviro:earth", Texture.class ));
+		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:center", Texture.class ));
+		wallLeftTile = new TextureRegion(directory.getEntry( "enviro:wall:left", Texture.class ));
+		wallRightTile = new TextureRegion(directory.getEntry( "enviro:wall:right", Texture.class ));
+		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
+		wallBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:bottom", Texture.class ));
+		wallYellowCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:center", Texture.class ));
+		wallYellowBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:bottom", Texture.class ));
 		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
 			//traps
-		trapTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
+		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
+		trapFridgeTexture = new TextureRegion(directory.getEntry("enviro:trap:fridge",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
+		trapSlowTexture = new TextureRegion(directory.getEntry("enviro:trap:slow", Texture.class));
 			//characters
 		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("char:chicken",Texture.class));
@@ -362,13 +420,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
 		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
-		slapTexture = directory.getEntry("char:slap", Texture.class);
+		slapSideTexture = directory.getEntry("char:slapSide", Texture.class);
+		slapDownTexture = directory.getEntry("char:slapDown", Texture.class);
+		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
 
 		//ui
-		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
-		tempForeground = directory.getEntry("ui:tempBarFlipped.foreground", TextureRegion.class);
-		healthTexture = directory.getEntry("ui:healthUnit.on", TextureRegion.class);
-		noHealthTexture = directory.getEntry("ui:healthUnit.off", TextureRegion.class);
+		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
+		tempYellow = directory.getEntry("ui:tempBar.yellow", TextureRegion.class);
+		tempOrange = directory.getEntry("ui:tempBar.orange", TextureRegion.class);
+		tempRed = directory.getEntry("ui:tempBar.red", TextureRegion.class);
+		tempMedFlame = directory.getEntry("ui:tempBarMedFlame.flame", TextureRegion.class);
+		tempLrgFlame = directory.getEntry("ui:tempBarLargeFlame.flame", TextureRegion.class);
+		heartTexture = directory.getEntry("ui:healthUnit.full", TextureRegion.class);
+		halfHeartTexture = directory.getEntry("ui:healthUnit.half", TextureRegion.class);
 
 		//fonts
 		displayFont = directory.getEntry( "font:retro" ,BitmapFont.class);
@@ -393,8 +457,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
-		collisionController.setConstants(constants);
 		levels = directory.getEntry("levels", JsonValue.class );
+		//set assets
+		collisionController.setConstants(constants);
+		collisionController.setTrapAssets(trapFridgeTexture, trapSlowTexture, trapDefaultTexture);
 	}
 
 	
@@ -412,6 +478,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		objects.clear();
 		addQueue.clear();
 		walls.clear();
+		trapEffects.clear();
 		traps.clear();
 		others.clear();
 		chickens.clear();
@@ -446,7 +513,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
-		temp = new TemperatureBar(tempBackground, tempForeground,30);
+		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, 30);
 		temp.setUseCooldown(cooldown);
 
 		doNewPopulate(level);
@@ -603,7 +670,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//The filter for all obstacles
 		Filter obstacle_filter = new Filter();
 		obstacle_filter.categoryBits = 0x0004;
-		obstacle_filter.maskBits = 0x0001 | 0x0002 | 0x0004 | 0x0010;
+		obstacle_filter.maskBits = 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0080;
+
+		Filter player_filter = new Filter();
+		player_filter.categoryBits = 0x0001;
+		player_filter.maskBits = 0x0004 | 0x0008;
+
+		Filter chicken_filter = new Filter();
+		chicken_filter.categoryBits = 0x0002;
+		chicken_filter.maskBits = 0x0004;
 
 		Filter spawn_filter = new Filter();
 		spawn_filter.groupIndex = -1;
@@ -612,20 +687,33 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			int x = ii % grid.getColCount();
 			int y = (stuff.length - 1 - ii) / grid.getColCount();
 			switch(stuff[ii]){
-				case LEVEL_WALL:
+				case LEVEL_WALL_CENTER:
+					//add center wall
+					createWall(defaults, wallCenterTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_TOP:
+					//add top wall
+					createWall(defaults, wallTopTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_BOTTOM:
+					//add bottom wall
+					createWall(defaults, wallBottomTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_LEFT:
+					//add left wall
+					createWall(defaults, wallLeftTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_RIGHT:
+					//add right wall
+					createWall(defaults, wallRightTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_YELLOW_CENTER:
 					//add wall
-					PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
-					obj.setBodyType(BodyDef.BodyType.StaticBody);
-					obj.setDensity(defaults.getFloat( "density", 0.0f ));
-					obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-					obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-					obj.setDrawScale(scale);
-					obj.setTexture(earthTile);
-					obj.setName(LEVEL_WALL);//+ii); If we need to specify name further, its here
-					obj.setFilterData(obstacle_filter);
-					addObject(obj, GameObject.ObjectType.WALL);
-
-					grid.setObstacle(x,y);
+					createWall(defaults, wallYellowCenterTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_YELLOW_BOTTOM:
+					//add wall
+					createWall(defaults, wallYellowBottomTile, obstacle_filter, x, y);
 					break;
 				case LEVEL_STOVE:
 					// Add stove
@@ -640,6 +728,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					grid.setObstacle(x-1,y);
 					grid.setObstacle(x,y-1);
 					grid.setObstacle(x-1,y-1);
+					Stoves.add(stove);
+					if (ActiveStove == null){
+						ActiveStove = stove;
+						ActiveStove.setActive();
+					}
 					break;
 				case LEVEL_CHEF:
 					// Create chef
@@ -649,9 +742,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
 					chef.setTexture(chefTexture);
-					chef.setHealthTexture(healthTexture);
-					chef.setNoHealthTexture(noHealthTexture);
-					chef.setSlapTexture(slapTexture);
+					chef.setHeartTexture(heartTexture);
+					chef.setHalfHeartTexture(halfHeartTexture);
+					chef.setSlapSideTexture(slapSideTexture);
+					chef.setSlapUpTexture(slapUpTexture);
+					chef.setSlapDownTexture(slapDownTexture);
+					chef.setFilterData(player_filter);
+
 					//don't add chef here! add it later so its on top easier
 					break;
 				case LEVEL_SPAWN:
@@ -676,6 +773,20 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			}
 		}
 
+	}
+
+	private void createWall(JsonValue defaults, TextureRegion texture, Filter obstacle_filter, float x, float y){
+		PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
+		obj.setBodyType(BodyDef.BodyType.StaticBody);
+		obj.setDensity(defaults.getFloat( "density", 0.0f ));
+		obj.setFriction(defaults.getFloat( "friction", 0.0f ));
+		obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
+		obj.setDrawScale(scale);
+		obj.setTexture(texture);
+		obj.setName(LEVEL_WALL_CENTER);//+ii); If we need to specify name further, its here
+		obj.setFilterData(obstacle_filter);
+		addObject(obj, GameObject.ObjectType.WALL);
+		grid.setObstacle(x,y);
 	}
 
 	/*******************************************************************************************
@@ -802,6 +913,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else if (countdown == 0) {
 			if (failed) {
 				reset();
+				return false;
 			} else if (complete) {
 				pause();
 				listener.exitScreen(this, EXIT_NEXT);
@@ -826,7 +938,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Process actions in object model
 		chef.setMovement(InputController.getInstance().getHorizontal() * chef.getForce());
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
-		chef.setShooting(InputController.getInstance().didSecondary());
+		chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
 		chef.setTrap(InputController.getInstance().didTrap());
 		gameTime += dt;
 
@@ -897,6 +1009,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			createTrap();
 		}
 
+		// Stove updating mechanics
+		if (gameTime > stoveTimer + STOVE_RESET) {
+			stoveTimer = gameTime;
+			ActiveStove.setInactive();
+			ActiveStove = Stoves.get(MathUtils.random(0, Stoves.size() - 1));
+			ActiveStove.setActive();
+		}
+
 		// Wave spawning logic
 
 		if (gameTime > waveStartTime + replenishTime){
@@ -955,11 +1075,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// if the chef tries to perform an action, move or gets hit, stop cooking
 		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
 		|| chef.isStunned())){
-			chef.setCooking(false);
-
+			chef.setCooking(false, null);
 		}
 		else{
-			chef.setCooking(chef.inCookingRange());
+			chef.setCooking(chef.inCookingRange(), null);
 		}
 
 		//update temperature
@@ -1047,7 +1166,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy, GameObject.ObjectType.CHICKEN);
 		ai.put(enemy, new AIController(enemy, chef, grid));
-
 	}
 
 	/**
@@ -1144,6 +1262,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	public void trapHelper(float x, float y, Trap.type t){
+		TextureRegion trapTexture = trapDefaultTexture;
+		switch (t){
+			case FRIDGE:
+				trapTexture = trapFridgeTexture;
+				break;
+		}
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
 		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t);
@@ -1187,11 +1311,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			case WALL:
 				walls.add(obj);
 				break;
+			case TRAP_EFFECT:
+				trapEffects.add(obj);
+				break;
 			case TRAP:
-				traps.add((Trap)obj);
+				traps.add(obj);
 				break;
 			case CHICKEN:
-				chickens.add((Chicken) obj);
+				chickens.add(obj);
 				break;
 			case NULL:
 				others.add(obj);
@@ -1245,7 +1372,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void postUpdate(float dt) {
 		// Add any objects created by actions
 		while(!collisionController.getNewTraps().isEmpty()){
-			addObject(collisionController.getNewTraps().poll(), GameObject.ObjectType.TRAP);
+			addObject(collisionController.getNewTraps().poll(), GameObject.ObjectType.TRAP_EFFECT);
 		}
 		//TODO: make sure this is only used for slaps
 		while (!addQueue.isEmpty()) {
@@ -1259,6 +1386,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Note how we use the linked list nodes to delete O(1) in place.
 		// This is O(n) without copying.
 		iterateThrough(walls.entryIterator(), dt);
+		iterateThrough(trapEffects.entryIterator(),dt);
 		iterateThrough(traps.entryIterator(),dt);
 		iterateThrough(chickens.entryIterator(),dt);
 		iterateThrough(others.entryIterator(),dt);
@@ -1338,10 +1466,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}*/
 
 
-		//priority: Walls < traps < chickens < other < chef
+		//priority: Walls < trap effects < traps < chickens < other < chef
 
 		for(Obstacle obj : walls){
 			obj.draw(canvas);
+		}
+		for (Obstacle trapE : trapEffects){
+			trapE.draw(canvas);
 		}
 		for (Obstacle trap : traps){
 			trap.draw(canvas);
@@ -1361,6 +1492,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			canvas.beginDebug();
 			for(Obstacle obj : walls){
 				obj.drawDebug(canvas);
+			}
+			for (Obstacle trapE : trapEffects){
+				trapE.drawDebug(canvas);
 			}
 			for (Obstacle trap : traps){
 				trap.drawDebug(canvas);
@@ -1382,10 +1516,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		canvas.begin();
 
 		temp.draw(canvas);
-		canvas.end();
 
 		//draw gametime
-		canvas.begin();
 		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 

@@ -5,6 +5,7 @@ import code.game.models.*;
 import code.game.models.GameObject;
 import code.game.models.obstacle.Obstacle;
 import code.util.PooledList;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -207,10 +208,11 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chef  a chef
      */
     private void handleStoveChef(Stove stove, Chef chef) {
-        chef.setCooking(true);
+        chef.setCooking(true, stove);
         chef.setMovement(0);
         chef.setVertMovement(0);
         stove.setLit(true);
+
     }
 
     private void handleTrapSlap(Trap t1, FixtureType fd1, Slap s2, FixtureType fd2) {
@@ -292,6 +294,9 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
         if(fd1 != null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
             trapController.applyTrap(t2, c1);
+        }
+        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT)){
+            t2.markHit();
         }
     }
 
@@ -418,6 +423,10 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void endChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
         trapController.stopTrap(t2, c1);
+        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT)){
+            t2.removeHit();
+        }
+
     }
 
     private void endChickenChef(Chicken chicken, FixtureType fd1, Chef chef, FixtureType fd2){
@@ -428,9 +437,12 @@ public class CollisionController implements CollisionControllerInterface {
 
     private void endStoveChef(Stove stove, FixtureType fd1, Chef chef, FixtureType fd2) {
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
-        chef.setCooking(false);
+        chef.setCooking(false, stove);
         chef.setInCookingRange(false);
         stove.setLit(false);
     }
 
+    public void setTrapAssets(TextureRegion trapFridgeTexture, TextureRegion trapSlowTexture, TextureRegion trapDefaultTexture) {
+        trapController.setTrapAssets(trapFridgeTexture, trapSlowTexture, trapDefaultTexture);
+    }
 }
