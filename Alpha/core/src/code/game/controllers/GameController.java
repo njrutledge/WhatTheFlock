@@ -421,7 +421,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
-		populateLevel();
+		//populateLevel();
 	}
 	public void initEasy(){
 		parameterList = new int []{5, 100, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
@@ -441,7 +441,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/**
 	 * Lays out the game geography.
 	 */
-	private void populateLevel() {
+	public void populateLevel(JsonValue level) {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
@@ -449,13 +449,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		temp = new TemperatureBar(tempBackground, tempForeground,30);
 		temp.setUseCooldown(cooldown);
 
-		JsonReader json = new JsonReader();
+		doNewPopulate(level);
+		/*JsonReader json = new JsonReader();
 		try{
 			JsonValue level = json.parse(Gdx.files.internal(levels.getString(DEFAULT_LEVEL)));
 			doNewPopulate(level);
 		}catch (Exception e){
 			e.printStackTrace();
-		}
+		}*/
 
 		//add chef here!
 		addObject(chef, GameObject.ObjectType.NULL);
@@ -569,7 +570,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	}
 
-	public void doNewPopulate(JsonValue level){
+	private void doNewPopulate(JsonValue level){
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
 		probs = level.get("spawn_probs").asFloatArray();

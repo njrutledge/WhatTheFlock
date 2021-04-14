@@ -65,14 +65,11 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void create() {
 		canvas  = new GameCanvas();
 		loading = new LoadingMode("assets.json",canvas,1);
-		menu = new MenuMode(canvas);
 
 		// Initialize the three game worlds
 		controller = new GameController();
 		current = 0;
 		loading.setScreenListener(this);
-		controller.setScreenListener(this);
-		menu.setScreenListener(this);
 		setScreen(loading);
 	}
 
@@ -132,14 +129,23 @@ public class GDXRoot extends Game implements ScreenListener {
 			loading.dispose();
 			loading = null;
 
+			//make other modes with assets
+			menu = new MenuMode(directory, canvas);
+			levelselect = new LevelSelectMode(directory, canvas);
+
+			//set listeners
+			controller.setScreenListener(this);
+			menu.setScreenListener(this);
+			levelselect.setScreenListener(this);
 			setScreen(menu);
+			//setScreen(levelselect);
 		}
 		else if (screen == menu){
-			controller.reset();
+			//menu.reset();
 			switch (exitCode){
 				case MenuMode.START: //TODO go to level select
-					controller.reset();
-					setScreen(controller);
+					//controller.reset();
+					setScreen(levelselect);
 					break;
 				case MenuMode.GUIDE: //TODO go to guide
 					break;
@@ -149,6 +155,14 @@ public class GDXRoot extends Game implements ScreenListener {
 					// We quit the main application
 					Gdx.app.exit();
 					break;
+			}
+		}
+		else if (screen == levelselect){
+			controller.reset();
+			if(exitCode == 0){
+				controller.populateLevel(levelselect.getLevelSelected());
+				levelselect.reset();
+				setScreen(controller);
 			}
 		}
 		else if (screen == controller){
