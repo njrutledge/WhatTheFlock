@@ -403,7 +403,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//textures
 			//environment
 		background = new TextureRegion(directory.getEntry("enviro:background",Texture.class));
-		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:earth", Texture.class ));
+		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:center", Texture.class ));
 		wallLeftTile = new TextureRegion(directory.getEntry( "enviro:wall:left", Texture.class ));
 		wallRightTile = new TextureRegion(directory.getEntry( "enviro:wall:right", Texture.class ));
 		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
