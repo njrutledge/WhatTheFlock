@@ -138,15 +138,18 @@ public class GDXRoot extends Game implements ScreenListener {
 			loading.dispose();
 			loading = null;
 
-			setScreen(levelselect);
+			//menu.activateInputProcessor(true);
+			setScreen(menu);
 			//setScreen(levelselect);
 		}
 		else if (screen == menu){
-			//menu.reset();
+			//menu.activateInputProcessor(false);
+			menu.reset();
 			switch (exitCode){
 				case MenuMode.START: //TODO go to level select
 					//controller.reset();
 					levelselect.reset();
+					//levelselect.activateInputProcessor(true);
 					setScreen(levelselect);
 					break;
 				case MenuMode.GUIDE: //TODO go to guide
@@ -161,27 +164,27 @@ public class GDXRoot extends Game implements ScreenListener {
 		}
 		else if (screen == levelselect){
 			controller.reset();
+			//levelselect.activateInputProcessor(false);
 			if(exitCode == 0){
 				controller.populateLevel(levelselect.getLevelSelected());
-				//levelselect.reset();
+				levelselect.reset();
 				setScreen(controller);
 			}
 		}
 		else if (screen == controller){
 			switch (exitCode){
 				case GameController.EXIT_NEXT:
-					levelselect.reset();
-					setScreen(levelselect);
+					menu.reset();
+					setScreen(menu);
 					break;
 				case GameController.EXIT_PREV:
-					levelselect.reset();
-					setScreen(levelselect);
+					menu.reset();
+					setScreen(menu);
 					break;
 				case GameController.EXIT_QUIT:
 					//go back to menu select screen
 					menu.reset();
-					levelselect.reset();//TODO go to menu instead
-					setScreen(levelselect); //TODO go to menu instead
+					setScreen(menu);
 					break;
 			}
 		}

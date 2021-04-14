@@ -127,7 +127,7 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
         background.setFilter( Texture.TextureFilter.Linear, Texture.TextureFilter.Linear );
         pressState = 0;
 
-        Gdx.input.setInputProcessor( this );
+        //Gdx.input.setInputProcessor( this );
 
         // Let ANY connected controller start the game.
         for (XBoxController controller : Controllers.get().getXBoxControllers()) {
@@ -136,6 +136,18 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
         active = true;
     }
 
+    /**
+     * Activates or deactivates the input processor; called when screen is shown or hidden
+     * @param b     whether or not to activate or deactivate the input processor
+     * */
+    private void activateInputProcessor(boolean b){
+        if(b){
+            Gdx.input.setInputProcessor(this);
+        }
+        else {
+            Gdx.input.setInputProcessor(null);
+        }
+    }
 
     /**
      * Called when this screen should release all resources.
@@ -268,6 +280,7 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
     public void show() {
         // Useless if called in outside animation loop
         active = true;
+        activateInputProcessor(true);
     }
 
     /**
@@ -276,6 +289,7 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
     public void hide() {
         // Useless if called in outside animation loop
         active = false;
+        activateInputProcessor(false);
     }
 
     /**

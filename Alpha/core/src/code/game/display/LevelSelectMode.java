@@ -127,7 +127,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         numLevels = levelList.length;
 
         pressState = -1; //initialize as -1, which is an invalid level
-        Gdx.input.setInputProcessor( this );
+        //Gdx.input.setInputProcessor( this );
 
         // Let ANY connected controller start the game.
         for (XBoxController controller : Controllers.get().getXBoxControllers()) {
@@ -135,6 +135,19 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         }
         highlightKnife = false;
         active = true;
+    }
+
+    /**
+     * Activates or deactivates the input processor; called when screen is shown or hidden
+     * @param b     whether or not to activate or deactivate the input processor
+     * */
+    private void activateInputProcessor(boolean b){
+        if(b){
+            Gdx.input.setInputProcessor(this);
+        }
+        else {
+            Gdx.input.setInputProcessor(null);
+        }
     }
 
     /**
@@ -339,6 +352,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     public void show() {
         // Useless if called in outside animation loop
         active = true;
+        activateInputProcessor(true);
     }
 
     /**
@@ -347,6 +361,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     public void hide() {
         // Useless if called in outside animation loop
         active = false;
+        activateInputProcessor(false);
     }
 
     /**
