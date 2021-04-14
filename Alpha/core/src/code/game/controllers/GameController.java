@@ -939,6 +939,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			return false;
 		} else if (countdown > 0) {
 			countdown--;
+			return false;
 		} else if (countdown == 0) {
 			if (failed) {
 				reset();
