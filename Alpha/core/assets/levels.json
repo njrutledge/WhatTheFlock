@@ -1,6 +1,6 @@
 {
-  "level01": "levels/boxedIn.json",
-  "level02": "levels/pillars.json",
+  "pillars": "levels/pillars.json",
+  "boxed in!!": "levels/boxedIn.json",
   "level03": "levels/manta.json",
   "HUDTEST": "levels/HUDTEST.json",
   "TEST": "levels/TEST.json"

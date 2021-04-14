@@ -234,7 +234,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         displayFont.setColor(Color.BLACK);
         canvas.begin();
 
-        canvas.drawText(getText(), displayFont, textCenterY, knifeCenterX);
+        String text = getText();
+        canvas.drawText(getText(), displayFont, knifeCenterX, textCenterY);
         //canvas.drawTextCentered(getText(), displayFont, 0.0f);
         canvas.end();
     }
@@ -277,12 +278,12 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         bkgCenterY = height/2;
 
         arrowCenterY = height/2;
-        leftArrowCenterX = width/8;
-        rightArrowCenterX = 7 * width/8;
+        leftArrowCenterX = width/10;
+        rightArrowCenterX = 9 * width/10;
 
         knifeCenterX = width/2;
-        knifeCenterY = height/2;
-        textCenterY = 3 * height/4;
+        knifeCenterY = 1 * height/3;
+        textCenterY = 8 * height/10;
         heightY = height;
     }
 

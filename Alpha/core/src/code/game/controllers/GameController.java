@@ -300,6 +300,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Whether or not the cooldown effect is enabled */
 	private boolean cooldown;
 
+	/** Save of the current level, for resetting */
+	private JsonValue levelSave;
 
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
@@ -401,7 +403,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//textures
 			//environment
 		background = new TextureRegion(directory.getEntry("enviro:background",Texture.class));
-		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:earth", Texture.class ));
+		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:center", Texture.class ));
 		wallLeftTile = new TextureRegion(directory.getEntry( "enviro:wall:left", Texture.class ));
 		wallRightTile = new TextureRegion(directory.getEntry( "enviro:wall:right", Texture.class ));
 		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
@@ -493,7 +495,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
-		//populateLevel();
 	}
 	public void initEasy(){
 		parameterList = new int []{5, 100, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
@@ -515,6 +516,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void populateLevel(JsonValue level) {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
+		levelSave = level;
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
@@ -925,6 +927,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else if (countdown == 0) {
 			if (failed) {
 				reset();
+				populateLevel(levelSave);
 				return false;
 			} else if (complete) {
 				pause();
