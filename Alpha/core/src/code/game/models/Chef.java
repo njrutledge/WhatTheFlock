@@ -64,6 +64,8 @@ public class Chef extends GameObject implements ChefInterface {
 	private boolean isCooking;
 	/** whether the chef is close enough to the stove to cook */
 	private boolean inCookingRange = false;
+	/** Stove the chef is or was cooking from */
+	private Stove stove;
 	/** Whether the player is invincible */
 	private boolean invincible;
 
@@ -171,7 +173,10 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/**Sets the chef's cooking status
 	 * @param b the boolean, whether cooking is true or false*/
-	public void setCooking(boolean b){
+	public void setCooking(boolean b, Stove s){
+		if (s != null) {
+			stove = s;
+		}
 		isCooking = b;
 		if (b){
 			inCookingRange = true;
@@ -180,8 +185,8 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/**Returns whether the chef is cooking.
 	 * @return the cooking status of the chef. */
-	public boolean isCooking(){
-		return isCooking;
+	public boolean isCooking() {
+		return (isCooking && stove != null && stove.isActive());
 	}
 
 	/**

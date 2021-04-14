@@ -151,6 +151,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public static final int WORLD_VELOC = 6;
 	/** Number of position iterations for the constrain solvers */
 	public static final int WORLD_POSIT = 2;
+	/** Time required until active stove is swapped */
+	public static final float STOVE_RESET = 5f;
 
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
@@ -220,8 +222,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	//private BoxObstacle goalDoor;
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
-//	/** Reference to the stove object */
-//	private Stove stove;
+	/** Reference to the active stove object */
+	private Stove ActiveStove;
+	/** List of all inactive stoves in the level */
+	private List<Stove> Stoves = new ArrayList<>();
+	/** Timer for the current active stove */
+	private float stoveTimer = 0;
 
 	boolean done = false;
 	/** The trap the player has currently selected */
@@ -708,6 +714,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					grid.setObstacle(x-1,y);
 					grid.setObstacle(x,y-1);
 					grid.setObstacle(x-1,y-1);
+					Stoves.add(stove);
+					if (ActiveStove == null){
+						ActiveStove = stove;
+						ActiveStove.setActive();
+					}
 					break;
 				case LEVEL_CHEF:
 					// Create chef
@@ -983,6 +994,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			createTrap();
 		}
 
+		// Stove updating mechanics
+		if (gameTime > stoveTimer + STOVE_RESET) {
+			stoveTimer = gameTime;
+			ActiveStove.setInactive();
+			ActiveStove = Stoves.get(MathUtils.random(0, Stoves.size() - 1));
+			ActiveStove.setActive();
+		}
+
 		// Wave spawning logic
 
 		if (gameTime > waveStartTime + replenishTime){
@@ -1041,10 +1060,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// if the chef tries to perform an action, move or gets hit, stop cooking
 		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
 		|| chef.isStunned())){
-			chef.setCooking(false);
+			chef.setCooking(false, null);
 		}
 		else{
-			chef.setCooking(chef.inCookingRange());
+			chef.setCooking(chef.inCookingRange(), null);
 		}
 
 		//update temperature
