@@ -466,8 +466,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void draw(GameCanvas canvas) {
         if (!isInvisible) {
-            canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
-            canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
+            //canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
+            //canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
         }
     }
 
