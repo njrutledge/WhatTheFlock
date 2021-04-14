@@ -208,14 +208,15 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chef  a chef
      */
     private void handleStoveChef(Stove stove, Chef chef) {
-        chef.setCooking(true);
+        chef.setCooking(true, stove);
         chef.setMovement(0);
         chef.setVertMovement(0);
         stove.setLit(true);
+
     }
 
     private void handleTrapSlap(Trap t1, FixtureType fd1, Slap s2, FixtureType fd2) {
-        if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION)) {
+        if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION) && t1.getReady()) {
             switch (t1.getTrapType()) {
                 case FAULTY_OVEN:
                     chef.setDoubleDamage(true);
@@ -436,7 +437,7 @@ public class CollisionController implements CollisionControllerInterface {
 
     private void endStoveChef(Stove stove, FixtureType fd1, Chef chef, FixtureType fd2) {
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
-        chef.setCooking(false);
+        chef.setCooking(false, stove);
         chef.setInCookingRange(false);
         stove.setLit(false);
     }

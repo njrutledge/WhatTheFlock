@@ -51,6 +51,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private final String DEFAULT_LEVEL = "level02";
 
 
+	/** The texture for the background */
+	protected TextureRegion background;
 	/** The texture for center wall */
 	protected TextureRegion wallCenterTile;
 	/** The texture for walls and platforms */
@@ -101,14 +103,23 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	///** Texture asset for temp bar*/
 	//private Texture tempTexture;
-	/** Texture asset for temp bar background */
-	private TextureRegion tempBackground;
-	/**Texture asset for temp bar foreground */
-	private TextureRegion tempForeground;
+	/** Texture asset for empty temp bar */
+	private TextureRegion tempEmpty;
+	/**Texture asset for yellow temp bar */
+	private TextureRegion tempYellow;
+	/**Texture asset for orange temp bar */
+	private TextureRegion tempOrange;
+	/**Texture asset for red temp bar */
+	private TextureRegion tempRed;
+
+	/**Texture asset for medium flames */
+	private TextureRegion tempMedFlame;
+	/**Texture asset for red temp bar */
+	private TextureRegion tempLrgFlame;
 
 	/** Health textures*/
-	private TextureRegion healthTexture;
-	private TextureRegion noHealthTexture;
+	private TextureRegion heartTexture;
+	private TextureRegion halfHeartTexture;
 
 	/**Slap attack texture */
 	private Texture slapSideTexture;
@@ -151,6 +162,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public static final int WORLD_VELOC = 6;
 	/** Number of position iterations for the constrain solvers */
 	public static final int WORLD_POSIT = 2;
+	/** Time required until active stove is swapped */
+	public static final float STOVE_RESET = 5f;
 
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
@@ -220,8 +233,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	//private BoxObstacle goalDoor;
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
-//	/** Reference to the stove object */
-//	private Stove stove;
+	/** Reference to the active stove object */
+	private Stove ActiveStove;
+	/** List of all inactive stoves in the level */
+	private List<Stove> Stoves = new ArrayList<>();
+	/** Timer for the current active stove */
+	private float stoveTimer;
 
 	boolean done = false;
 	/** The trap the player has currently selected */
@@ -383,7 +400,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void gatherAssets(AssetDirectory directory) {
 		//textures
 			//environment
-		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:center", Texture.class ));
+		background = new TextureRegion(directory.getEntry("enviro:background",Texture.class));
+		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:earth", Texture.class ));
 		wallLeftTile = new TextureRegion(directory.getEntry( "enviro:wall:left", Texture.class ));
 		wallRightTile = new TextureRegion(directory.getEntry( "enviro:wall:right", Texture.class ));
 		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
@@ -410,10 +428,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
 
 		//ui
-		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
-		tempForeground = directory.getEntry("ui:tempBarFlipped.foreground", TextureRegion.class);
-		healthTexture = directory.getEntry("ui:healthUnit.on", TextureRegion.class);
-		noHealthTexture = directory.getEntry("ui:healthUnit.off", TextureRegion.class);
+		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
+		tempYellow = directory.getEntry("ui:tempBar.yellow", TextureRegion.class);
+		tempOrange = directory.getEntry("ui:tempBar.orange", TextureRegion.class);
+		tempRed = directory.getEntry("ui:tempBar.red", TextureRegion.class);
+		tempMedFlame = directory.getEntry("ui:tempBarMedFlame.flame", TextureRegion.class);
+		tempLrgFlame = directory.getEntry("ui:tempBarLargeFlame.flame", TextureRegion.class);
+		heartTexture = directory.getEntry("ui:healthUnit.full", TextureRegion.class);
+		halfHeartTexture = directory.getEntry("ui:healthUnit.half", TextureRegion.class);
 
 		//fonts
 		displayFont = directory.getEntry( "font:retro" ,BitmapFont.class);
@@ -463,13 +485,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		traps.clear();
 		others.clear();
 		chickens.clear();
+		ActiveStove = null;
+		Stoves.clear();
 		world.dispose();
 		
 		world = new World(gravity,false);
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
-		populateLevel();
+		//populateLevel();
 	}
 	public void initEasy(){
 		parameterList = new int []{5, 100, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
@@ -489,21 +513,22 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/**
 	 * Lays out the game geography.
 	 */
-	private void populateLevel() {
+	public void populateLevel(JsonValue level) {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
-		temp = new TemperatureBar(tempBackground, tempForeground,30);
+		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, 30);
 		temp.setUseCooldown(cooldown);
 
-		JsonReader json = new JsonReader();
+		doNewPopulate(level);
+		/*JsonReader json = new JsonReader();
 		try{
 			JsonValue level = json.parse(Gdx.files.internal(levels.getString(DEFAULT_LEVEL)));
 			doNewPopulate(level);
 		}catch (Exception e){
 			e.printStackTrace();
-		}
+		}*/
 
 		//add chef here!
 		addObject(chef, GameObject.ObjectType.NULL);
@@ -617,7 +642,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	}
 
-	public void doNewPopulate(JsonValue level){
+	private void doNewPopulate(JsonValue level){
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
 		probs = level.get("spawn_probs").asFloatArray();
@@ -629,6 +654,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		gameTime = 0;
 		waveStartTime = gameTime;
 		lastEnemySpawnTime = gameTime;
+		stoveTimer = gameTime;
 		enemiesLeft = startWaveSize;
 		enemyPool = new ArrayList<>();
 		enemyBoard = new ArrayList<>();
@@ -708,6 +734,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					grid.setObstacle(x-1,y);
 					grid.setObstacle(x,y-1);
 					grid.setObstacle(x-1,y-1);
+					Stoves.add(stove);
+					if (ActiveStove == null){
+						ActiveStove = stove;
+						ActiveStove.setActive();
+					}
 					break;
 				case LEVEL_CHEF:
 					// Create chef
@@ -717,12 +748,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
 					chef.setTexture(chefTexture);
-					chef.setHealthTexture(healthTexture);
-					chef.setNoHealthTexture(noHealthTexture);
+					chef.setHeartTexture(heartTexture);
+					chef.setHalfHeartTexture(halfHeartTexture);
 					chef.setSlapSideTexture(slapSideTexture);
 					chef.setSlapUpTexture(slapUpTexture);
 					chef.setSlapDownTexture(slapDownTexture);
 					chef.setFilterData(player_filter);
+
 					//don't add chef here! add it later so its on top easier
 					break;
 				case LEVEL_SPAWN:
@@ -989,6 +1021,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			createTrap();
 		}
 
+		// Stove updating mechanics
+		if (Stoves.size() > 1 && gameTime > stoveTimer + STOVE_RESET) {
+			stoveTimer = gameTime;
+			ActiveStove.setInactive();
+			ActiveStove = Stoves.get(MathUtils.random(0, Stoves.size() - 1));
+			ActiveStove.setActive();
+		}
+
 		// Wave spawning logic
 
 		if (gameTime > waveStartTime + replenishTime){
@@ -1047,10 +1087,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// if the chef tries to perform an action, move or gets hit, stop cooking
 		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
 		|| chef.isStunned())){
-			chef.setCooking(false);
+			chef.setCooking(false, null);
 		}
 		else{
-			chef.setCooking(chef.inCookingRange());
+			chef.setCooking(chef.inCookingRange(), null);
 		}
 
 		//update temperature
@@ -1138,7 +1178,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy, GameObject.ObjectType.CHICKEN);
 		ai.put(enemy, new AIController(enemy, chef, grid));
-
 	}
 
 	/**
@@ -1406,6 +1445,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}*/
 
 		canvas.begin();
+		canvas.draw(background,0,0);
 		/*canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
 		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: ",

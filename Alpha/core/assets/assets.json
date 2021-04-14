@@ -15,16 +15,13 @@
         "wrapU": "repeated",
         "wrapV": "repeated"
       },
-        "enviro:wall:yellow:bottom": {
-        "file": "enviro/ywall_b.png",
-        "wrapU": "repeated",
-        "wrapV": "repeated"
-      },
+        "enviro:wall:yellow:bottom": "enviro/ywall_b.png",
         "enviro:stove": "enviro/stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
         "enviro:trap:spot": "enviro/trapspot.png",
         "enviro:trap:fridge": "enviro/fridge.png",
         "enviro:trap:slow": "enviro/slow.png",
+        "enviro:background": "enviro/background_2.png",
 
         "char:chicken": "characters/chicken.png",
         "char:chef":"characters/chef_animation_run.png",
@@ -38,30 +35,45 @@
         "char:slapDown": "characters/chef_animation_attackDown.png",
         "char:slapUp": "characters/chef_animation_attackUp.png",
 
+
+        "background:levelselect": "ui/loading/loading.png",
+        "background:menu": "ui/loading/temp_menu_bkg.png",
+
+        "ui:menu:start": "ui/loading/mainmenu_start.png",
+        "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
+        "ui:menu:options": "ui/loading/mainmenu_options.png",
+        "ui:menu:quit": "ui/loading/mainmenu_quit.png",
+
+        "ui:knife": "ui/levelselect/cleaver_placeholder_empty.png",
+        "ui:arrowRight": "ui/levelselect/arrowRight.png",
+        "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
+
         "ui:tempBar": {
-          "file":      "ui/tempbar.png",
+          "file":      "ui/HUD_tempbar_noflame.png",
           "atlas":     {
-            "background" : [0, 0, 100, 436],
-            "backtop"   : [0, 0,  100, 30],
-            "backmid"   : [0, 100, 100, 336],
-            "backbottom"  : [336,  0, 100, 100],
-            "foreground" : [100,  0, 200, 436],
-            "foretop"   : [100,  0,  200, 30],
-            "foremid"   : [100, 30, 200, 336],
-            "forebottom"  : [100, 336, 200, 436]
+            "empty" : [55, 60, 140, 600],
+            "yellow" : [285, 60, 369, 600],
+            "orange" : [522, 61, 605, 601],
+            "red" : [746, 58, 829, 598]
           }
         },
-        "ui:tempBarFlipped": {
-          "file":      "ui/temp_bar_flip.png",
-          "atlas":     {
-            "foreground" : [0, 0, 100, 436]
-          }
-        },
+      "ui:tempBarMedFlame": {
+        "file":      "ui/HUD_2tempbar_flame.png",
+        "atlas":     {
+          "flame" : [0, 0, 154, 225]
+        }
+      },
+      "ui:tempBarLargeFlame": {
+        "file":      "ui/HUD_3tempbar_flame.png",
+        "atlas":     {
+          "flame" : [0, 0, 186, 236]
+        }
+      },
         "ui:healthUnit": {
-            "file": "ui/health.png",
+            "file": "ui/final_hearts.png",
             "atlas": {
-              "on": [0, 0, 137, 165],
-              "off": [137, 0, 274, 165]
+              "full": [75, 55, 160, 125],
+              "half": [240, 55, 325, 125]
           }
       }
     },
@@ -93,6 +105,10 @@
         "font:minecraft": {
             "file": "ui/fonts/Minecraft.ttf",
             "size": 16
+        },
+        "font:lightPixel": {
+          "file": "ui/fonts/LightPixel7.ttf",
+          "size": 64
         }
     }
 }

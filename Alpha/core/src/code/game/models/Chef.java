@@ -24,8 +24,8 @@ public class Chef extends GameObject implements ChefInterface {
 	//////////////////////////////////////////////////////////////////////////////////////
 	/** the texture of the chef */
 	//private TextureRegion chefTexture;
-	private TextureRegion healthTexture;
-	private TextureRegion noHealthTexture;
+	private TextureRegion heartTexture;
+	private TextureRegion halfHeartTexture;
 	private Texture slapTexture;
 	/** The initializing data (to avoid magic numbers) */
 	private final JsonValue data;
@@ -64,6 +64,8 @@ public class Chef extends GameObject implements ChefInterface {
 	private boolean isCooking;
 	/** whether the chef is close enough to the stove to cook */
 	private boolean inCookingRange = false;
+	/** Stove the chef is or was cooking from */
+	private Stove stove;
 	/** Whether the player is invincible */
 	private boolean invincible;
 
@@ -81,11 +83,14 @@ public class Chef extends GameObject implements ChefInterface {
 	/** The font used to draw text on the screen*/
 	private static final BitmapFont font = new BitmapFont();
 	/** X offset for health display */
-	private final float X_HEALTH = 1200;
+	private float X_HEALTH = 30;
 	/** Y offset for health display */
-	private final float Y_HEALTH = 450;
+	private float y_health;
 	/** size of each heart */
-	private final int HEART_SIZE = 30;
+	private final int HEART_SIZE = 45;
+	/** The number of hearts, including both full and half hearts.
+	 * Used for drawing heart textures. */
+	private float full_hearts;
 	/** Time until invulnerability after getting hit wears off */
 	private final float INVULN_TIME = 1;
 	/** Chef base damage */
@@ -154,6 +159,7 @@ public class Chef extends GameObject implements ChefInterface {
 		faceRight = true;
 		max_health = data.getInt("maxhealth",0);
 		health = max_health;
+		full_hearts = (float)Math.ceil(max_health/2.0f);
 		//gatherHealthAssets();
 		shootCooldown = 0;
 		trapCooldown = 0;
@@ -171,7 +177,10 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/**Sets the chef's cooking status
 	 * @param b the boolean, whether cooking is true or false*/
-	public void setCooking(boolean b){
+	public void setCooking(boolean b, Stove s){
+		if (s != null) {
+			stove = s;
+		}
 		isCooking = b;
 		if (b){
 			inCookingRange = true;
@@ -180,8 +189,8 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/**Returns whether the chef is cooking.
 	 * @return the cooking status of the chef. */
-	public boolean isCooking(){
-		return isCooking;
+	public boolean isCooking() {
+		return (isCooking && stove != null && stove.isActive());
 	}
 
 	/**
@@ -444,13 +453,13 @@ public class Chef extends GameObject implements ChefInterface {
 	}
 
 	//TODO: comment
-	public void setHealthTexture(TextureRegion t){
-		healthTexture = t;
+	public void setHeartTexture(TextureRegion t){
+		heartTexture = t;
 	}
 
 	//TODO: comment
-	public void setNoHealthTexture(TextureRegion t){
-		noHealthTexture = t;
+	public void setHalfHeartTexture(TextureRegion t){
+		halfHeartTexture = t;
 	}
 
 	public void setSlapTexture(Texture t){
@@ -615,20 +624,22 @@ public class Chef extends GameObject implements ChefInterface {
 				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), -0.25f, 0.25f);
 			}
 		}
-
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
 		//canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
 		//draw health
+		if (y_health == 0) { y_health = canvas.getHeight() - HEART_SIZE - 20; }
 		float x = X_HEALTH;
-		float y = Y_HEALTH;
-		for (int i = 1; i <= max_health; i++){
-			if(i <= health){
-				canvas.draw(healthTexture, Color.WHITE, x, y, HEART_SIZE, HEART_SIZE);
+		for (int i = 1; i <= full_hearts; i++){
+			if(i*2 <= health){
+				canvas.draw(heartTexture, Color.WHITE, x, y_health, HEART_SIZE, HEART_SIZE);
 			}
-			else {
-				canvas.draw(noHealthTexture, Color.WHITE, x, y, HEART_SIZE, HEART_SIZE);
+			else if (i*2-1 <= health){
+				canvas.draw(halfHeartTexture, Color.WHITE, x, y_health, HEART_SIZE, HEART_SIZE);
+				break;
+			} else {
+				break;
 			}
-			y -= HEART_SIZE + HEART_SIZE/3;
+			x += HEART_SIZE + HEART_SIZE/3;
 		}
 	}
 	

@@ -130,6 +130,10 @@ public class Trap extends GameObject implements TrapInterface {
      */
     private final float FRIDGE_RECHARGE_TIME = 15.0f;
     /**
+     * Recharge time for Bread Bombtraps
+     */
+    private final float BREAD_BOMB_RECHARGE_TIME = 15.0f;
+    /**
      * Active time for slow traps
      */
     private final float SLOW_ACTIVE_TIME = 10.0f;
@@ -238,6 +242,15 @@ public class Trap extends GameObject implements TrapInterface {
      */
     public boolean getLinger() {
         return linger;
+    }
+
+    /**
+     * Returns true if the trap is ready
+     *
+     * @return true if the trap is ready
+     */
+    public boolean getReady() {
+        return isReady;
     }
 
     /**
@@ -415,6 +428,8 @@ public class Trap extends GameObject implements TrapInterface {
                 case FAULTY_OVEN:
                     readyTimer = FAULTY_OVEN_ACTIVATION_TIME;
                     break;
+                case BREAD_BOMB:
+                    readyTimer = BREAD_BOMB_RECHARGE_TIME;
             }
         }
         isReady = bool;

@@ -13,6 +13,8 @@ public class Stove extends GameObject implements StoveInterface {
 
     private CircleShape sensorShape;
 
+    private boolean active = false;
+
     /** Whether or not the stove is lit */
     private boolean lit = false;
 
@@ -67,12 +69,27 @@ public class Stove extends GameObject implements StoveInterface {
     public void setLit(boolean val){lit = val;}
 
     /**
+     * Sets the stove to active so that the chef can cook from it
+     */
+    public void setActive() {active = true;}
+
+    /**
+     * Sets the stove to inactive so that the chef cannot cook from it
+     */
+    public void setInactive() {active = false;}
+
+    /**
+     * Checks whether the stove is active
+     */
+    public boolean isActive() {return active;}
+
+    /**
      * Draws the stove
      *
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.draw(texture, (lit ? Color.RED : Color.WHITE),origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
+        canvas.draw(texture, (active ? (lit ? Color.RED : Color.WHITE) : Color.DARK_GRAY),origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
     }
 
     /**
