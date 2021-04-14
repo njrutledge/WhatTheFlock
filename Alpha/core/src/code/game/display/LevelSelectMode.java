@@ -1,6 +1,7 @@
 package code.game.display;
 
 import code.assets.AssetDirectory;
+import code.audio.SoundBuffer;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.ScreenListener;
@@ -13,6 +14,7 @@ import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -34,6 +36,11 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** The texture for the selection arrows */
     private Texture arrowLeftTexture;
     private Texture arrowRightTexture;
+
+
+    private float themeCounter = 0;
+    private final float THEME_DURATION = 72f;
+    private SoundBuffer theme;
 
     /** Standard window size (for scaling) */
     private static int STANDARD_WIDTH  = 800;
@@ -107,6 +114,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         displayFont = assets.getEntry("font:lightPixel", BitmapFont.class);
         //TODO probably want to share some font assets
         levels = assets.getEntry("levels", JsonValue.class );
+        theme = assets.getEntry("sound:music:levelSel", SoundBuffer.class);
 
         levelList = new String[levels.size];
         for (int i = 0; i < levels.size; i++){
@@ -141,6 +149,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     }
     /**Resets this screen*/
     public void reset(){
+        theme.stop();
+        themeCounter = 0f;
         currentIndex = 0;
         pressState = -1;
     }
@@ -158,6 +168,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      */
     private boolean validLevelSelected(){
         if(pressState == 2){
+            theme.stop();
             return true;
         }
         return false;
@@ -203,7 +214,12 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @param delta Number of seconds since last animation frame
      */
     private void update(float delta) {
-        //do nothing
+        themeCounter = MathUtils.clamp(themeCounter - delta, 0f, THEME_DURATION);
+        if (themeCounter == 0) {
+            theme.stop();
+            theme.play(0.5f);
+            themeCounter = THEME_DURATION;
+        }
     }
 
     /**

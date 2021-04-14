@@ -151,7 +151,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private SoundBuffer slowSquelch;
 	private SoundBuffer chefOof;
 
-	private final float THEME1_DURATION = 69f;
+	private final float THEME1_DURATION = 68f;
 	private float theme1_timer;
 	private SoundBuffer theme1;
 
