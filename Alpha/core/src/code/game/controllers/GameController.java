@@ -151,7 +151,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private SoundBuffer slowSquelch;
 	private SoundBuffer chefOof;
 
-	private final float THEME1_DURATION = 69f;
+	private final float THEME1_DURATION = 68f;
 	private float theme1_timer;
 	private SoundBuffer theme1;
 
@@ -484,6 +484,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void reset() {
 		Vector2 gravity = new Vector2(world.getGravity() );
+		theme1.stop();
 		
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
@@ -922,6 +923,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Handle resets
 		if (input.didReset()) {
 			//TODO implement real pause menu
+			theme1.stop();
 			listener.exitScreen(this, EXIT_QUIT);
 			//reset();
 		}
@@ -968,6 +970,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void update(float dt) {
 		// Music
 		if (gameTime == 0){
+			theme1.stop();
 			theme1.play(DEFAULT_VOL*0.3f);
 		} else if (gameTime > theme1_timer + THEME1_DURATION) {
 			theme1_timer = gameTime;
