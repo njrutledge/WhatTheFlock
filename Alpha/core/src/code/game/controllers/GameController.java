@@ -84,14 +84,23 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	///** Texture asset for temp bar*/
 	//private Texture tempTexture;
-	/** Texture asset for temp bar background */
-	private TextureRegion tempBackground;
-	/**Texture asset for temp bar foreground */
-	private TextureRegion tempForeground;
+	/** Texture asset for empty temp bar */
+	private TextureRegion tempEmpty;
+	/**Texture asset for yellow temp bar */
+	private TextureRegion tempYellow;
+	/**Texture asset for orange temp bar */
+	private TextureRegion tempOrange;
+	/**Texture asset for red temp bar */
+	private TextureRegion tempRed;
+
+	/**Texture asset for medium flames */
+	private TextureRegion tempMedFlame;
+	/**Texture asset for red temp bar */
+	private TextureRegion tempLrgFlame;
 
 	/** Health textures*/
-	private TextureRegion healthTexture;
-	private TextureRegion noHealthTexture;
+	private TextureRegion heartTexture;
+	private TextureRegion halfHeartTexture;
 
 	/**Slap attack texture */
 	private Texture slapTexture;
@@ -365,10 +374,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		slapTexture = directory.getEntry("char:slap", Texture.class);
 
 		//ui
-		tempBackground = directory.getEntry("ui:tempBar.background", TextureRegion.class);
-		tempForeground = directory.getEntry("ui:tempBarFlipped.foreground", TextureRegion.class);
-		healthTexture = directory.getEntry("ui:healthUnit.on", TextureRegion.class);
-		noHealthTexture = directory.getEntry("ui:healthUnit.off", TextureRegion.class);
+		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
+		tempYellow = directory.getEntry("ui:tempBar.yellow", TextureRegion.class);
+		tempOrange = directory.getEntry("ui:tempBar.orange", TextureRegion.class);
+		tempRed = directory.getEntry("ui:tempBar.red", TextureRegion.class);
+		tempMedFlame = directory.getEntry("ui:tempBarMedFlame.flame", TextureRegion.class);
+		tempLrgFlame = directory.getEntry("ui:tempBarLargeFlame.flame", TextureRegion.class);
+		heartTexture = directory.getEntry("ui:healthUnit.full", TextureRegion.class);
+		halfHeartTexture = directory.getEntry("ui:healthUnit.half", TextureRegion.class);
 
 		//fonts
 		displayFont = directory.getEntry( "font:retro" ,BitmapFont.class);
@@ -446,7 +459,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
-		temp = new TemperatureBar(tempBackground, tempForeground,30);
+		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, 30);
 		temp.setUseCooldown(cooldown);
 
 		JsonReader json = new JsonReader();
@@ -648,8 +661,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
 					chef.setTexture(chefTexture);
-					chef.setHealthTexture(healthTexture);
-					chef.setNoHealthTexture(noHealthTexture);
+					chef.setHeartTexture(heartTexture);
+					chef.setHalfHeartTexture(halfHeartTexture);
 					chef.setSlapTexture(slapTexture);
 					//don't add chef here! add it later so its on top easier
 					break;
@@ -1046,7 +1059,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy, GameObject.ObjectType.CHICKEN);
 		ai.put(enemy, new AIController(enemy, chef, grid));
-
 	}
 
 	/**

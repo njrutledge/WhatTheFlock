@@ -19,30 +19,33 @@
         "char:egg": "characters/egg.png",
         "char:slap": "characters/slap.png",
 
+
         "ui:tempBar": {
-          "file":      "ui/tempbar.png",
+          "file":      "ui/HUD_tempbar_noflame.png",
           "atlas":     {
-            "background" : [0, 0, 100, 436],
-            "backtop"   : [0, 0,  100, 30],
-            "backmid"   : [0, 100, 100, 336],
-            "backbottom"  : [336,  0, 100, 100],
-            "foreground" : [100,  0, 200, 436],
-            "foretop"   : [100,  0,  200, 30],
-            "foremid"   : [100, 30, 200, 336],
-            "forebottom"  : [100, 336, 200, 436]
+            "empty" : [55, 60, 140, 600],
+            "yellow" : [285, 60, 369, 600],
+            "orange" : [522, 61, 605, 601],
+            "red" : [746, 58, 829, 598]
           }
         },
-        "ui:tempBarFlipped": {
-          "file":      "ui/temp_bar_flip.png",
-          "atlas":     {
-            "foreground" : [0, 0, 100, 436]
-          }
-        },
+      "ui:tempBarMedFlame": {
+        "file":      "ui/HUD_2tempbar_flame.png",
+        "atlas":     {
+          "flame" : [0, 0, 154, 225]
+        }
+      },
+      "ui:tempBarLargeFlame": {
+        "file":      "ui/HUD_3tempbar_flame.png",
+        "atlas":     {
+          "flame" : [0, 0, 186, 236]
+        }
+      },
         "ui:healthUnit": {
-            "file": "ui/health.png",
+            "file": "ui/final_hearts.png",
             "atlas": {
-              "on": [0, 0, 137, 165],
-              "off": [137, 0, 274, 165]
+              "full": [75, 55, 160, 125],
+              "half": [240, 55, 325, 125]
           }
       }
     },
