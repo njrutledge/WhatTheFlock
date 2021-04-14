@@ -19,6 +19,18 @@
         "char:egg": "characters/egg.png",
         "char:slap": "characters/slap.png",
 
+        "background:levelselect": "ui/loading/loading.png",
+        "background:menu": "ui/loading/temp_menu_bkg.png",
+
+        "ui:menu:start": "ui/loading/mainmenu_start.png",
+        "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
+        "ui:menu:options": "ui/loading/mainmenu_options.png",
+        "ui:menu:quit": "ui/loading/mainmenu_quit.png",
+
+        "ui:knife": "ui/levelselect/cleaver_placeholder_empty.png",
+        "ui:arrowRight": "ui/levelselect/arrowRight.png",
+        "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
+
         "ui:tempBar": {
           "file":      "ui/tempbar.png",
           "atlas":     {
@@ -74,6 +86,10 @@
         "font:minecraft": {
             "file": "ui/fonts/Minecraft.ttf",
             "size": 16
+        },
+        "font:lightPixel": {
+          "file": "ui/fonts/LightPixel7.ttf",
+          "size": 64
         }
     }
 }
