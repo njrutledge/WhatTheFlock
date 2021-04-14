@@ -48,7 +48,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "HUDTEST";
+	private final String DEFAULT_LEVEL = "level02";
 
 
 	/** The texture for center wall */
@@ -833,6 +833,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for (Chicken chick: ai.keySet()){
 			if(chick.isActive()){
 				ai.get(chick).update(dt);
+				for (Obstacle ob: trapEffects){
+					Trap tr = (Trap)ob;
+					if (tr.getTrapType().equals(Trap.type.LURE) && tr.getPosition().dst(chick.getPosition()) < 6f){
+						chick.trapTarget(tr);
+					}
+				}
 			}
 		}
 		return !paused;

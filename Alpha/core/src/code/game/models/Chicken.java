@@ -435,9 +435,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Set running */
     public void setRunning(boolean running) { return; }
 
-    //TODO: comment
-    public boolean chasingPlayer(Chef p) { return target.equals(p); }
-    //TODO: comment
+    /** Whether the chicken is chasing the object p */
+    public boolean chasingObject(GameObject p) { return target.equals(p); }
+
+    /** Set the chase speed of this chicken */
     public void setChaseSpeed(float spd){
         chaseSpeed = spd;
     }
@@ -550,8 +551,16 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @param t a Lure trap target
      */
     public void trapTarget(Trap t) {
-        target = t;
-        isLured = true;
+        if (chasingPlayer()) {
+            target = t;
+            isLured = true;
+            t.markHit();
+        }
+    }
+
+    /** Whether the chicken is currently chasing a player */
+    private boolean chasingPlayer(){
+        return target.equals(player);
     }
 
     /**
