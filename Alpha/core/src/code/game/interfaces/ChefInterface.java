@@ -105,7 +105,7 @@ public interface ChefInterface {
      */
     float getDamage();
 
-    void setHealthTexture(TextureRegion t);
+    void setHeartTexture(TextureRegion t);
 
     /**
      * Applies the force to the body of this chef
