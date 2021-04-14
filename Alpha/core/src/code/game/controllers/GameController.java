@@ -151,6 +151,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private SoundBuffer slowSquelch;
 	private SoundBuffer chefOof;
 
+	private final float THEME1_DURATION = 69f;
+	private float theme1_timer;
+	private SoundBuffer theme1;
+
 
 	private final float DEFAULT_VOL = 0.5F;
 
@@ -461,6 +465,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		fireTrig = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
 		fireLinger = directory.getEntry( "sound:trap:fireLinger", SoundBuffer.class );
 		lureCrumb = directory.getEntry( "sound:trap:lureCrumb", SoundBuffer.class );
+
+		theme1 = directory.getEntry("sound:music:theme1", SoundBuffer.class);
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
@@ -959,6 +965,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
+		// Music
+		if (gameTime == 0){
+			theme1.play(DEFAULT_VOL*0.3f);
+		} else if (gameTime > theme1_timer + THEME1_DURATION) {
+			theme1_timer = gameTime;
+			theme1.stop();
+			theme1.play(DEFAULT_VOL*0.3f);
+		}
+
+
 		// Process actions in object model
 		chef.setMovement(InputController.getInstance().getHorizontal() * chef.getForce());
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
