@@ -217,7 +217,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         themeCounter = MathUtils.clamp(themeCounter - delta, 0f, THEME_DURATION);
         if (themeCounter == 0) {
             theme.stop();
-            theme.play(0.5f);
+            theme.play(0.2f);
             themeCounter = THEME_DURATION;
         }
     }

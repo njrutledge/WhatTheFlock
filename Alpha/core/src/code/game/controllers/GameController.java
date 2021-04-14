@@ -937,6 +937,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Now it is time to maybe switch screens.
 		if (input.didExit()) {
 			pause();
+			theme1.stop();
 			listener.exitScreen(this, EXIT_QUIT);
 			return false;
 		} else if (countdown > 0) {
@@ -949,6 +950,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				return false;
 			} else if (complete) {
 				pause();
+				theme1.stop();
 				listener.exitScreen(this, EXIT_NEXT);
 				return false;
 			}
