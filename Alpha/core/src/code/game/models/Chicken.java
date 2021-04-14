@@ -3,6 +3,7 @@ package code.game.models;
 import code.game.interfaces.ChickenInterface;
 import code.game.models.obstacle.Obstacle;
 import code.util.FilmStrip;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
@@ -426,7 +427,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Whether or not the chicken is charging up an attack */
     public boolean isAttacking() {
-        return !isLured && (charge_time >= 0 || isRunning());
+        return (charge_time >= 0 || isRunning());
     }
 
     /** Whether or not the chicken is currently running */
