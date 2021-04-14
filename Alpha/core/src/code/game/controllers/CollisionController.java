@@ -216,7 +216,7 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
     private void handleTrapSlap(Trap t1, FixtureType fd1, Slap s2, FixtureType fd2) {
-        if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION)) {
+        if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION) && t1.getReady()) {
             switch (t1.getTrapType()) {
                 case FAULTY_OVEN:
                     chef.setDoubleDamage(true);

@@ -48,9 +48,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "HUDTEST";
+	private final String DEFAULT_LEVEL = "level02";
 
 
+	/** The texture for the background */
+	protected TextureRegion background;
 	/** The texture for center wall */
 	protected TextureRegion wallCenterTile;
 	/** The texture for walls and platforms */
@@ -236,7 +238,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** List of all inactive stoves in the level */
 	private List<Stove> Stoves = new ArrayList<>();
 	/** Timer for the current active stove */
-	private float stoveTimer = 0;
+	private float stoveTimer;
 
 	boolean done = false;
 	/** The trap the player has currently selected */
@@ -297,8 +299,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** Whether or not the cooldown effect is enabled */
 	private boolean cooldown;
-	/** Stores the data of the last level, in case of reset */
-	private JsonValue lastLevel;
+
+	/** Save of the current level, for resetting */
+	private JsonValue levelSave;
+
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
 
@@ -398,6 +402,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void gatherAssets(AssetDirectory directory) {
 		//textures
 			//environment
+		background = new TextureRegion(directory.getEntry("enviro:background",Texture.class));
 		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:center", Texture.class ));
 		wallLeftTile = new TextureRegion(directory.getEntry( "enviro:wall:left", Texture.class ));
 		wallRightTile = new TextureRegion(directory.getEntry( "enviro:wall:right", Texture.class ));
@@ -482,13 +487,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		traps.clear();
 		others.clear();
 		chickens.clear();
+		ActiveStove = null;
+		Stoves.clear();
 		world.dispose();
 		
 		world = new World(gravity,false);
 		world.setContactListener(this);
 		setComplete(false);
 		setFailure(false);
-		//populateLevel();
 	}
 	public void initEasy(){
 		parameterList = new int []{5, 100, 3, 100, 2, 6, 30, 10, 5, 5, 3, 5, 0};
@@ -509,8 +515,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * Lays out the game geography.
 	 */
 	public void populateLevel(JsonValue level) {
-		lastLevel = level;
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
+		levelSave = level;
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
@@ -650,6 +656,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		gameTime = 0;
 		waveStartTime = gameTime;
 		lastEnemySpawnTime = gameTime;
+		stoveTimer = gameTime;
 		enemiesLeft = startWaveSize;
 		enemyPool = new ArrayList<>();
 		enemyBoard = new ArrayList<>();
@@ -914,8 +921,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else if (countdown == 0) {
 			if (failed) {
 				reset();
-				//reload the world
-				populateLevel(lastLevel);
+				populateLevel(levelSave);
 				return false;
 			} else if (complete) {
 				pause();
@@ -1013,7 +1019,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 
 		// Stove updating mechanics
-		if (gameTime > stoveTimer + STOVE_RESET) {
+		if (Stoves.size() > 1 && gameTime > stoveTimer + STOVE_RESET) {
 			stoveTimer = gameTime;
 			ActiveStove.setInactive();
 			ActiveStove = Stoves.get(MathUtils.random(0, Stoves.size() - 1));
@@ -1436,6 +1442,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}*/
 
 		canvas.begin();
+		canvas.draw(background,0,0);
 		/*canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
 		// Draws out all the parameters and their values
 		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: ",
