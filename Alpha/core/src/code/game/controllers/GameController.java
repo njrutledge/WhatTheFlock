@@ -877,6 +877,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					if (tr.getTrapType().equals(Trap.type.LURE) && tr.getPosition().dst(chick.getPosition()) < 6f){
 						chick.trapTarget(tr);
 					}
+
+					if ((chick.getTrap() == null || chick.getTrap().isRemoved()) && chick.isLured()){
+						chick.resetTarget();
+					}
 				}
 			}
 		}

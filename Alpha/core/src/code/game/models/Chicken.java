@@ -26,7 +26,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected CircleShape sensorShape;
     /** The physics shape of this object's hitbox */
     protected PolygonShape hitboxShape;
-
+    private Trap trap = null;
     public boolean faceRight;
 
     /** The type of chicken */
@@ -553,6 +553,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void trapTarget(Trap t) {
         if (chasingPlayer()) {
+            trap = t;
             target = t;
             isLured = true;
             t.markHit();
@@ -564,6 +565,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         return target.equals(player);
     }
 
+    public Trap getTrap(){
+        return trap;
+    }
     /**
      * Resets the chicken's target to the player
      *
@@ -571,6 +575,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public void resetTarget() {
         target = player;
         isLured = false;
+        trap = null;
     }
 
     /**
