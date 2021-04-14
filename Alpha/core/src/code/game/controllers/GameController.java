@@ -163,7 +163,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Number of position iterations for the constrain solvers */
 	public static final int WORLD_POSIT = 2;
 	/** Time required until active stove is swapped */
-	public static final float STOVE_RESET = 5f;
+	public static final float STOVE_RESET = 20f;
 
 	/** Exit code for quitting the game */
 	public static final int EXIT_QUIT = 0;
