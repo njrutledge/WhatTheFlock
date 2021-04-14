@@ -106,30 +106,24 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
      *
      * @param canvas 	The game canvas to draw to
      */
-    public MenuMode(GameCanvas canvas) {
+    public MenuMode(AssetDirectory assets, GameCanvas canvas) {
         this.canvas  = canvas;
 
         // Compute the dimensions from the canvas
         resize(canvas.getWidth(),canvas.getHeight());
-
-        // We need these files loaded immediately
-        internal = new AssetDirectory( "loading.json" );
-        internal.loadAssets();
-        internal.finishLoading();
+        internal = assets;
 
         //button textures
-        startTexture = internal.getEntry("start", Texture.class);
+        startTexture = internal.getEntry("ui:menu:start", Texture.class);
         start = new FilmStrip(startTexture, 1, 2);
-        howToPlayTexture = internal.getEntry("howtoplay", Texture.class);
+        howToPlayTexture = internal.getEntry("ui:menu:howtoplay", Texture.class);
         howToPlay = new FilmStrip(howToPlayTexture, 1, 2);
-        optionsTexture = internal.getEntry("options", Texture.class);
+        optionsTexture = internal.getEntry("ui:menu:options", Texture.class);
         options = new FilmStrip(optionsTexture, 1, 2);
-        quitTexture = internal.getEntry("quit", Texture.class);
+        quitTexture = internal.getEntry("ui:menu:quit", Texture.class);
         quit = new FilmStrip(quitTexture, 1, 2);
 
-
-        // Load the next two images immediately.
-        background = internal.getEntry( "menu_background", Texture.class );
+        background = internal.getEntry( "background:menu", Texture.class );
         background.setFilter( Texture.TextureFilter.Linear, Texture.TextureFilter.Linear );
         pressState = 0;
 
@@ -156,12 +150,6 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
         pressState = 0;
     }
 
-    /** Returns if all the button textures have been loaded in, which would mean that the game is done loading in
-     * its assets in update */
-    private boolean allAssetsLoaded(){
-        return !(startTexture == null || howToPlayTexture == null || optionsTexture == null
-                || quitTexture == null);
-    }
     /**
      * Update the status of this player mode.
      *
@@ -423,9 +411,6 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
      * @return whether to hand the event to other listeners.
      */
     public boolean mouseMoved(int screenX, int screenY) {
-        if(!allAssetsLoaded()){
-            return true;
-        }
         resetButtons();
         // Flip to match graphics coordinates
         screenY = heightY-screenY;

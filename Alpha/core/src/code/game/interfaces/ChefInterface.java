@@ -2,11 +2,12 @@ package code.game.interfaces;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import code.game.models.Stove;
 
 public interface ChefInterface {
     /**Sets the chef's cooking status
      * @param b the boolean, whether cooking is true or false*/
-    void setCooking(boolean b);
+    void setCooking(boolean b, Stove s);
 
     /**Returns whether the chef is cooking.
      * @return the cooking status of the chef. */
@@ -104,7 +105,7 @@ public interface ChefInterface {
      */
     float getDamage();
 
-    void setHealthTexture(TextureRegion t);
+    void setHeartTexture(TextureRegion t);
 
     /**
      * Applies the force to the body of this chef

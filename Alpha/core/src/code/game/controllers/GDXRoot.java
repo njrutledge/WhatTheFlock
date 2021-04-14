@@ -65,14 +65,11 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void create() {
 		canvas  = new GameCanvas();
 		loading = new LoadingMode("assets.json",canvas,1);
-		menu = new MenuMode(canvas);
 
 		// Initialize the three game worlds
 		controller = new GameController();
 		current = 0;
 		loading.setScreenListener(this);
-		controller.setScreenListener(this);
-		menu.setScreenListener(this);
 		setScreen(loading);
 	}
 
@@ -128,18 +125,28 @@ public class GDXRoot extends Game implements ScreenListener {
 			//controller.setScreenListener(this);
 			controller.setCanvas(canvas);
 			controller.initGrid();
-			
+
+			//make other modes with assets
+			menu = new MenuMode(directory, canvas);
+			levelselect = new LevelSelectMode(directory, canvas);
+
+			//set listeners
+			controller.setScreenListener(this);
+			menu.setScreenListener(this);
+			levelselect.setScreenListener(this);
+
 			loading.dispose();
 			loading = null;
 
-			setScreen(menu);
+			setScreen(levelselect);
+			//setScreen(levelselect);
 		}
 		else if (screen == menu){
-			controller.reset();
+			//menu.reset();
 			switch (exitCode){
 				case MenuMode.START: //TODO go to level select
-					controller.reset();
-					setScreen(controller);
+					//controller.reset();
+					setScreen(levelselect);
 					break;
 				case MenuMode.GUIDE: //TODO go to guide
 					break;
@@ -151,6 +158,14 @@ public class GDXRoot extends Game implements ScreenListener {
 					break;
 			}
 		}
+		else if (screen == levelselect){
+			controller.reset();
+			if(exitCode == 0){
+				controller.populateLevel(levelselect.getLevelSelected());
+				//levelselect.reset();
+				setScreen(controller);
+			}
+		}
 		else if (screen == controller){
 			switch (exitCode){
 				case GameController.EXIT_NEXT:
@@ -160,7 +175,8 @@ public class GDXRoot extends Game implements ScreenListener {
 				case GameController.EXIT_QUIT:
 					//go back to menu select screen
 					menu.reset();
-					setScreen(menu);
+					levelselect.reset();//TODO go to menu instead
+					setScreen(levelselect); //TODO go to menu instead
 					break;
 			}
 		}
