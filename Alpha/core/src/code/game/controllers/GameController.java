@@ -236,7 +236,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** List of all inactive stoves in the level */
 	private List<Stove> Stoves = new ArrayList<>();
 	/** Timer for the current active stove */
-	private float stoveTimer = 0;
+	private float stoveTimer;
 
 	boolean done = false;
 	/** The trap the player has currently selected */
@@ -482,6 +482,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		traps.clear();
 		others.clear();
 		chickens.clear();
+		ActiveStove = null;
+		Stoves.clear();
 		world.dispose();
 		
 		world = new World(gravity,false);
@@ -649,6 +651,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		gameTime = 0;
 		waveStartTime = gameTime;
 		lastEnemySpawnTime = gameTime;
+		stoveTimer = gameTime;
 		enemiesLeft = startWaveSize;
 		enemyPool = new ArrayList<>();
 		enemyBoard = new ArrayList<>();
@@ -1010,7 +1013,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 
 		// Stove updating mechanics
-		if (gameTime > stoveTimer + STOVE_RESET) {
+		if (Stoves.size() > 1 && gameTime > stoveTimer + STOVE_RESET) {
 			stoveTimer = gameTime;
 			ActiveStove.setInactive();
 			ActiveStove = Stoves.get(MathUtils.random(0, Stoves.size() - 1));
