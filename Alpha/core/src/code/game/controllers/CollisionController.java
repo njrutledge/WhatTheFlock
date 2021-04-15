@@ -1,5 +1,7 @@
 package code.game.controllers;
 
+import code.assets.AssetDirectory;
+import code.audio.SoundBuffer;
 import code.game.interfaces.CollisionControllerInterface;
 import code.game.models.*;
 import code.game.models.GameObject;
@@ -22,6 +24,23 @@ public class CollisionController implements CollisionControllerInterface {
     public PooledList<Trap> trapCache = new PooledList<Trap>();
 
     private Chef chef;
+    /** Sound for buffalo charging */
+    private SoundBuffer buffaloCharge;
+    /** Sound for buffalo charging */
+    private SoundBuffer buffaloAttack;
+    /** Sound for nugget hurt */
+    private SoundBuffer nuggetHurt;
+    /** Sound for nugget attack */
+    private SoundBuffer nuggetAttack;
+    /** Sound for shredded hurt */
+    private SoundBuffer shreddedHurt;
+    /** Sound for shredded attack */
+    private SoundBuffer shreddedAttack;
+    /** Sound for eggsplosion */
+    private SoundBuffer eggsplosion;
+
+    /** Sound for fire trigger */
+    private SoundBuffer fireTrigger;
 
     public CollisionController(Vector2 scale) {
         trapController = new TrapController(scale);
@@ -33,6 +52,19 @@ public class CollisionController implements CollisionControllerInterface {
      */
     public void setConstants(JsonValue constants) {
         trapController.setConstants(constants);
+    }
+
+    public void gatherAssets(AssetDirectory directory){
+        nuggetHurt = directory.getEntry("sound:chick:nugget:hurt", SoundBuffer.class);
+        nuggetAttack = directory.getEntry("sound:chick:nugget:attack", SoundBuffer.class);
+        shreddedHurt = directory.getEntry("sound:chick:shredded:hurt", SoundBuffer.class);
+        shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
+        buffaloCharge = directory.getEntry("sound:chick:buffalo:charge", SoundBuffer.class);
+        buffaloAttack = directory.getEntry("sound:chick:buffalo:attack", SoundBuffer.class);
+        eggsplosion = directory.getEntry("sound:chick:eggsplosion",SoundBuffer.class);
+        fireTrigger = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
+        trapController.gatherAssets(directory);
+
     }
 
     /**
@@ -446,7 +478,4 @@ public class CollisionController implements CollisionControllerInterface {
         stove.setLit(false);
     }
 
-    public void setTrapAssets(TextureRegion trapFridgeTexture, TextureRegion trapSlowTexture, TextureRegion trapDefaultTexture) {
-        trapController.setTrapAssets(trapFridgeTexture, trapSlowTexture, trapDefaultTexture);
-    }
 }

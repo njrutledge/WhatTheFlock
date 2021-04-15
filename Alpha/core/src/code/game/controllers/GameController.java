@@ -82,8 +82,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion trapDefaultTexture;
 	/** Texture asset for Fidge trap */
 	private TextureRegion trapCoolerTexture;
-	/** Texture asset for slow trap */
-	private TextureRegion trapSlowTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
@@ -421,7 +419,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
-		trapSlowTexture = new TextureRegion(directory.getEntry("enviro:trap:slow", Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 			//characters
 		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
@@ -463,8 +460,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chickHurt = directory.getEntry( "sound:chick:nugget:hurt", SoundBuffer.class );
 		chickAttack = directory.getEntry( "sound:chick:nugget:attack", SoundBuffer.class );
 			//trap
-		fireTrig = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
-		fireLinger = directory.getEntry( "sound:trap:fireLinger", SoundBuffer.class );
+
 		lureCrumb = directory.getEntry( "sound:trap:lureCrumb", SoundBuffer.class );
 
 		theme1 = directory.getEntry("sound:music:theme1", SoundBuffer.class);
@@ -474,7 +470,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		levels = directory.getEntry("levels", JsonValue.class );
 		//set assets
 		collisionController.setConstants(constants);
-		collisionController.setTrapAssets(trapCoolerTexture, trapSlowTexture, trapDefaultTexture);
+		collisionController.gatherAssets(directory);
 	}
 
 	

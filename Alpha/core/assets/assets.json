@@ -92,6 +92,14 @@
 
         "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt_1.ogg",
         "sound:chick:nugget:attack" : "sounds/chicken/nug_attack_1.ogg",
+
+        "sound:chick:buffalo:charge" : "sounds/chicken/buffalo_charger.ogg",
+
+        "sound:chick:shredded:attack" : "sounds/chicken/shredded_attack.ogg",
+        "sound:chick:shredded:hurt" : "sounds/chicken/shredded_hurt.ogg",
+        "sound:chick:eggsplosion" : "sounds/chicken/eggsplosion.ogg",
+
+
         "sound:chick:fire" : "sounds/chicken/set_ablaze_cluck.ogg",
 
         "sound:trap:fireLinger" : "sounds/trap/fire_linger_1.ogg",
