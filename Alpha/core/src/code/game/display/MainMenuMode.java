@@ -16,7 +16,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class MenuMode implements Screen, InputProcessor, ControllerListener {
+public class MainMenuMode implements Screen, InputProcessor, ControllerListener {
     // There are TWO asset managers.  One to load the loading screen.  The other to load the assets
     /** Internal assets for this loading screen */
     private AssetDirectory internal;
@@ -97,7 +97,7 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
     }
 
     /**
-     * Creates a MenuMode with the default size and position.
+     * Creates a MainMenuMode with the default size and position.
      *
      * The budget is the number of milliseconds to spend loading assets each animation
      * frame.  This allows you to do something other than load assets.  An animation
@@ -106,7 +106,7 @@ public class MenuMode implements Screen, InputProcessor, ControllerListener {
      *
      * @param canvas 	The game canvas to draw to
      */
-    public MenuMode(AssetDirectory assets, GameCanvas canvas) {
+    public MainMenuMode(AssetDirectory assets, GameCanvas canvas) {
         this.canvas  = canvas;
 
         // Compute the dimensions from the canvas

@@ -16,7 +16,7 @@
 import code.assets.AssetDirectory;
 import code.game.display.LevelSelectMode;
 import code.game.display.LoadingMode;
-import code.game.display.MenuMode;
+import code.game.display.MainMenuMode;
 import code.game.views.GameCanvas;
 import code.util.ScreenListener;
 import com.badlogic.gdx.*;
@@ -40,7 +40,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
 	/** Player mode for the menu screen (CONTROLLER CLASS)*/
-	private MenuMode menu;
+	private MainMenuMode menu;
 	/** Player mode for the level selection screen (CONTROLLER CLASS)*/
 	private LevelSelectMode levelselect;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
@@ -127,7 +127,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			controller.initGrid();
 
 			//make other modes with assets
-			menu = new MenuMode(directory, canvas);
+			menu = new MainMenuMode(directory, canvas);
 			levelselect = new LevelSelectMode(directory, canvas);
 
 			//set listeners
@@ -146,17 +146,17 @@ public class GDXRoot extends Game implements ScreenListener {
 			//menu.activateInputProcessor(false);
 			menu.reset();
 			switch (exitCode){
-				case MenuMode.START: //TODO go to level select
+				case MainMenuMode.START: //TODO go to level select
 					//controller.reset();
 					levelselect.reset();
 					//levelselect.activateInputProcessor(true);
 					setScreen(levelselect);
 					break;
-				case MenuMode.GUIDE: //TODO go to guide
+				case MainMenuMode.GUIDE: //TODO go to guide
 					break;
-				case MenuMode.OPTIONS: //TODO go to options
+				case MainMenuMode.OPTIONS: //TODO go to options
 					break;
-				case MenuMode.QUIT: //TODO go to quit
+				case MainMenuMode.QUIT: //TODO go to quit
 					// We quit the main application
 					Gdx.app.exit();
 					break;
