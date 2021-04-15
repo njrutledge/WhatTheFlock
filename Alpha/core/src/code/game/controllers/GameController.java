@@ -1067,8 +1067,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		if (gameTime > waveStartTime + replenishTime){
 			waveStartTime = gameTime;
-			enemiesLeft = startWaveSize + 1;
-			startWaveSize += 1;
+			enemiesLeft = Math.min(maxWaveSize, startWaveSize + 1);
+			startWaveSize = Math.min(maxWaveSize, startWaveSize + 1);
 		}
 
 		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
