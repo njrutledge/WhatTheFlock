@@ -1,9 +1,11 @@
 package code.game.controllers;
 
+import code.assets.AssetDirectory;
 import code.game.interfaces.TrapControllerInterface;
 import code.game.models.Chicken;
 import code.game.models.Trap;
 import code.util.PooledList;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -35,10 +37,10 @@ public class TrapController implements TrapControllerInterface {
         constants = cnst;
     }
 
-    public void setTrapAssets(TextureRegion trapFridgeTexture, TextureRegion trapSlowTexture, TextureRegion trapDefaultTexture) {
-        this.trapFridgeTexture = trapFridgeTexture;
-        this.trapSlowTexture = trapSlowTexture;
-        this.trapDefaultTexture = trapDefaultTexture;
+    public void gatherAssets(AssetDirectory directory){
+        constants = directory.getEntry( "constants", JsonValue.class );
+        trapSlowTexture = new TextureRegion(directory.getEntry("enviro:trap:slow", Texture.class));
+        trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
     }
 
     /**

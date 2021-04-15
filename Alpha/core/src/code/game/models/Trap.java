@@ -134,13 +134,13 @@ public class Trap extends GameObject implements TrapInterface {
      */
     private final float BREAD_BOMB_RECHARGE_TIME = 15.0f;
     /**
+     * Recharge time for faulty oven traps
+     */
+    private final float FAULTY_OVEN_RECHARGE_TIME = 15.0f;
+    /**
      * Active time for slow traps
      */
     private final float SLOW_ACTIVE_TIME = 10.0f;
-    /**
-     * Recharge time for faulty oven traps
-     */
-    private final float FAULTY_OVEN_ACTIVATION_TIME = 2.0f;
     /**
      * Timer for how long the environmental trap is active
      */
@@ -426,7 +426,7 @@ public class Trap extends GameObject implements TrapInterface {
                     readyTimer = FRIDGE_RECHARGE_TIME;
                     break;
                 case FAULTY_OVEN:
-                    readyTimer = FAULTY_OVEN_ACTIVATION_TIME;
+                    readyTimer = FAULTY_OVEN_RECHARGE_TIME;
                     break;
                 case BREAD_BOMB:
                     readyTimer = BREAD_BOMB_RECHARGE_TIME;

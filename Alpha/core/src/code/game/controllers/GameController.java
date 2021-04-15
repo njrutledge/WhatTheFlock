@@ -82,8 +82,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion trapDefaultTexture;
 	/** Texture asset for Fidge trap */
 	private TextureRegion trapCoolerTexture;
-	/** Texture asset for slow trap */
-	private TextureRegion trapSlowTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
@@ -154,6 +152,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private SoundBuffer chickOnFire;
 	private SoundBuffer slowSquelch;
 	private SoundBuffer chefOof;
+
+	/** Sound for shredded attack */
+	private SoundBuffer shreddedAttack;
+	/** Sound for buffalo charging */
+	private SoundBuffer buffaloAttack;
+	/** Sound for nugget attack */
+	private SoundBuffer nuggetAttack;
 
 	private final float THEME1_DURATION = 68f;
 	private float theme1_timer;
@@ -424,7 +429,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
-		trapSlowTexture = new TextureRegion(directory.getEntry("enviro:trap:slow", Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 			//characters
 		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
@@ -464,22 +468,21 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chefOof = directory.getEntry("sound:chef:oof", SoundBuffer.class);
 			//chicken
 		chickOnFire = directory.getEntry( "sound:chick:fire", SoundBuffer.class );
-				//nugget
-		chickHurt = directory.getEntry( "sound:chick:nugget:hurt", SoundBuffer.class );
-		chickAttack = directory.getEntry( "sound:chick:nugget:attack", SoundBuffer.class );
-			//trap
-		fireTrig = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
-		fireLinger = directory.getEntry( "sound:trap:fireLinger", SoundBuffer.class );
+
 		lureCrumb = directory.getEntry( "sound:trap:lureCrumb", SoundBuffer.class );
 
 		theme1 = directory.getEntry("sound:music:theme1", SoundBuffer.class);
+
+		shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
+		buffaloAttack = directory.getEntry("sound:chick:buffalo:attack", SoundBuffer.class);
+		nuggetAttack = directory.getEntry("sound:chick:nugget:attack", SoundBuffer.class);
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
 		levels = directory.getEntry("levels", JsonValue.class );
 		//set assets
 		collisionController.setConstants(constants);
-		collisionController.setTrapAssets(trapCoolerTexture, trapSlowTexture, trapDefaultTexture);
+		collisionController.gatherAssets(directory);
 	}
 
 	
@@ -1003,10 +1006,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 						case Charge:
 						case Projectile:
 							createChickenAttack(chicken, chicken.getAttackType());
-							if (chicken.getSoundCheck()){
-								chickAttack.stop();
-								chickAttack.play(volume * 0.5f);
-							}
 						case Explosion:
 							break;
 					}
@@ -1192,6 +1191,24 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				ChickenAttack.getHEIGHT(), chef, chicken, type);
 		attack.setDrawScale(scale);
 		addQueuedObject(attack);
+		switch (type) {
+			case Basic:
+				nuggetAttack.stop();
+				nuggetAttack.play(DEFAULT_VOL);
+				break;
+			case Projectile:
+				shreddedAttack.stop();
+				shreddedAttack.play(DEFAULT_VOL);
+				break;
+			case Charge:
+				if (chicken.getType() == Chicken.ChickenType.Buffalo){
+					buffaloAttack.stop();
+					buffaloAttack.play(DEFAULT_VOL);
+				}
+				break;
+
+
+		}
 	}
 
 	/**

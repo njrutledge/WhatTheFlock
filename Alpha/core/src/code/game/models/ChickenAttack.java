@@ -109,6 +109,12 @@ public class ChickenAttack extends GameObject {
      * */
     public static float getHEIGHT() { return HEIGHT; }
 
+    /** Returns the type of the chicken attack
+     *
+     * @return attack type
+     */
+    public AttackType getType(){ return type;}
+
     public void collideObject(Chicken chicken) {
         if (type == AttackType.Charge && chicken != this.chicken) {
             collideObject();

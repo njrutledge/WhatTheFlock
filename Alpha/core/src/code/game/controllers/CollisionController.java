@@ -1,5 +1,7 @@
 package code.game.controllers;
 
+import code.assets.AssetDirectory;
+import code.audio.SoundBuffer;
 import code.game.interfaces.CollisionControllerInterface;
 import code.game.models.*;
 import code.game.models.GameObject;
@@ -22,6 +24,18 @@ public class CollisionController implements CollisionControllerInterface {
     public PooledList<Trap> trapCache = new PooledList<Trap>();
 
     private Chef chef;
+    /** Sound for buffalo charging */
+    private SoundBuffer buffaloCharge;
+    /** Sound for nugget hurt */
+    private SoundBuffer nuggetHurt;
+
+    /** Sound for shredded hurt */
+    private SoundBuffer shreddedHurt;
+    /** Sound for eggsplosion */
+    private SoundBuffer eggsplosion;
+
+    /** Sound for fire trigger */
+    private SoundBuffer fireTrigger;
 
     public CollisionController(Vector2 scale) {
         trapController = new TrapController(scale);
@@ -33,6 +47,16 @@ public class CollisionController implements CollisionControllerInterface {
      */
     public void setConstants(JsonValue constants) {
         trapController.setConstants(constants);
+    }
+
+    public void gatherAssets(AssetDirectory directory){
+        nuggetHurt = directory.getEntry("sound:chick:nugget:hurt", SoundBuffer.class);
+        shreddedHurt = directory.getEntry("sound:chick:shredded:hurt", SoundBuffer.class);
+        buffaloCharge = directory.getEntry("sound:chick:buffalo:charge", SoundBuffer.class);
+        eggsplosion = directory.getEntry("sound:chick:eggsplosion",SoundBuffer.class);
+        fireTrigger = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
+        trapController.gatherAssets(directory);
+
     }
 
     /**
@@ -219,6 +243,9 @@ public class CollisionController implements CollisionControllerInterface {
         if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION) && t1.getReady()) {
             switch (t1.getTrapType()) {
                 case FAULTY_OVEN:
+                    t1.markReady(false);
+                    fireTrigger.stop();
+                    fireTrigger.play();
                     chef.setDoubleDamage(true);
                     break;
                 case BREAD_BOMB:
@@ -245,6 +272,12 @@ public class CollisionController implements CollisionControllerInterface {
         //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
         if (fd2 == FixtureType.CHICKEN_HITBOX && chicken.chasingObject(chef)){
             chicken.startAttack();
+            switch(chicken.getType()){
+                case Buffalo:
+                    buffaloCharge.stop();
+                    buffaloCharge.play();
+                    break;
+            }
         }
     }
 
@@ -254,6 +287,10 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleChefChickenAttack(Chef chef, Object fd1, ChickenAttack attack, Object fd2){
         chef.decrementHealth();
         attack.collideObject();
+        if(attack.getType().equals(ChickenAttack.AttackType.Projectile)){
+            eggsplosion.stop();
+            eggsplosion.play();
+        }
     }
 
     /**
@@ -278,6 +315,18 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChickenSlap(Chicken c1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
         c1.takeDamage(dmg);
+        switch (c1.getType()){
+            case Nugget:
+            case Buffalo:
+                nuggetHurt.stop();
+                nuggetHurt.play();
+                break;
+            case Shredded:
+                shreddedHurt.stop();
+                shreddedHurt.play();
+                break;
+        }
+
         if (!c1.isAlive()) {
             c1.markRemoved(true);
         }
@@ -446,7 +495,4 @@ public class CollisionController implements CollisionControllerInterface {
         stove.setLit(false);
     }
 
-    public void setTrapAssets(TextureRegion trapFridgeTexture, TextureRegion trapSlowTexture, TextureRegion trapDefaultTexture) {
-        trapController.setTrapAssets(trapFridgeTexture, trapSlowTexture, trapDefaultTexture);
-    }
 }
