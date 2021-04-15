@@ -26,16 +26,11 @@ public class CollisionController implements CollisionControllerInterface {
     private Chef chef;
     /** Sound for buffalo charging */
     private SoundBuffer buffaloCharge;
-    /** Sound for buffalo charging */
-    private SoundBuffer buffaloAttack;
     /** Sound for nugget hurt */
     private SoundBuffer nuggetHurt;
-    /** Sound for nugget attack */
-    private SoundBuffer nuggetAttack;
+
     /** Sound for shredded hurt */
     private SoundBuffer shreddedHurt;
-    /** Sound for shredded attack */
-    private SoundBuffer shreddedAttack;
     /** Sound for eggsplosion */
     private SoundBuffer eggsplosion;
 
@@ -56,11 +51,8 @@ public class CollisionController implements CollisionControllerInterface {
 
     public void gatherAssets(AssetDirectory directory){
         nuggetHurt = directory.getEntry("sound:chick:nugget:hurt", SoundBuffer.class);
-        nuggetAttack = directory.getEntry("sound:chick:nugget:attack", SoundBuffer.class);
         shreddedHurt = directory.getEntry("sound:chick:shredded:hurt", SoundBuffer.class);
-        shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
         buffaloCharge = directory.getEntry("sound:chick:buffalo:charge", SoundBuffer.class);
-        buffaloAttack = directory.getEntry("sound:chick:buffalo:attack", SoundBuffer.class);
         eggsplosion = directory.getEntry("sound:chick:eggsplosion",SoundBuffer.class);
         fireTrigger = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
         trapController.gatherAssets(directory);
@@ -281,17 +273,9 @@ public class CollisionController implements CollisionControllerInterface {
         if (fd2 == FixtureType.CHICKEN_HITBOX && chicken.chasingObject(chef)){
             chicken.startAttack();
             switch(chicken.getType()){
-                case Nugget:
-                    nuggetAttack.stop();
-                    nuggetAttack.play();
-                    break;
                 case Buffalo:
                     buffaloCharge.stop();
                     buffaloCharge.play();
-                    break;
-                case Shredded:
-                    shreddedAttack.stop();
-                    shreddedAttack.play();
                     break;
             }
         }
@@ -333,12 +317,9 @@ public class CollisionController implements CollisionControllerInterface {
         c1.takeDamage(dmg);
         switch (c1.getType()){
             case Nugget:
+            case Buffalo:
                 nuggetHurt.stop();
                 nuggetHurt.play();
-                break;
-            case Buffalo:
-                buffaloAttack.stop();
-                buffaloAttack.play();
                 break;
             case Shredded:
                 shreddedHurt.stop();

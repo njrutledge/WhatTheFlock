@@ -153,6 +153,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private SoundBuffer slowSquelch;
 	private SoundBuffer chefOof;
 
+	/** Sound for shredded attack */
+	private SoundBuffer shreddedAttack;
+	/** Sound for buffalo charging */
+	private SoundBuffer buffaloAttack;
+	/** Sound for nugget attack */
+	private SoundBuffer nuggetAttack;
+
 	private final float THEME1_DURATION = 68f;
 	private float theme1_timer;
 	private SoundBuffer theme1;
@@ -465,6 +472,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		lureCrumb = directory.getEntry( "sound:trap:lureCrumb", SoundBuffer.class );
 
 		theme1 = directory.getEntry("sound:music:theme1", SoundBuffer.class);
+
+		shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
+		buffaloAttack = directory.getEntry("sound:chick:buffalo:attack", SoundBuffer.class);
+		nuggetAttack = directory.getEntry("sound:chick:nugget:attack", SoundBuffer.class);
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
@@ -1180,6 +1191,24 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				ChickenAttack.getHEIGHT(), chef, chicken, type);
 		attack.setDrawScale(scale);
 		addQueuedObject(attack);
+		switch (type) {
+			case Basic:
+				nuggetAttack.stop();
+				nuggetAttack.play(DEFAULT_VOL);
+				break;
+			case Projectile:
+				shreddedAttack.stop();
+				shreddedAttack.play(DEFAULT_VOL);
+				break;
+			case Charge:
+				if (chicken.getType() == Chicken.ChickenType.Buffalo){
+					buffaloAttack.stop();
+					buffaloAttack.play(DEFAULT_VOL);
+				}
+				break;
+
+
+		}
 	}
 
 	/**
