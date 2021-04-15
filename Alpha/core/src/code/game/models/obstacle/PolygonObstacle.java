@@ -365,7 +365,10 @@ public class PolygonObstacle extends SimpleObstacle {
 	 */
 	public void draw(GameCanvas canvas) {
 		if (region != null) {
-			canvas.draw(region,Color.WHITE,0,0,getX()*drawScale.x,getY()*drawScale.y,getAngle(),1,1);
+			//canvas.draw(region,Color.WHITE,0,0,0,0,getAngle(),.5f,.5f);
+			//canvas.draw(region,getX(),getY());
+			canvas.draw(texture,Color.WHITE, getX(),getY(),getX()*drawScale.x,getY()*drawScale.y,getAngle(),1.5f,1.5f);
+			//canvas.draw(region,Color.WHITE,0,0,getX(), getY(), getAngle(),1,1);
 		}
 	}
 
