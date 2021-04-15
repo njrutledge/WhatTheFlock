@@ -126,6 +126,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture slapSideTexture;
 	private Texture slapUpTexture;
 	private Texture slapDownTexture;
+	private Texture chefHurtTexture;
 
 
 	/** The jump sound.  We only want to play once. */
@@ -434,6 +435,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		slapSideTexture = directory.getEntry("char:slapSide", Texture.class);
 		slapDownTexture = directory.getEntry("char:slapDown", Texture.class);
 		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
+		chefHurtTexture = directory.getEntry("char:hurt", Texture.class);
 
 		//ui
 		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
@@ -766,6 +768,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef.setHalfHeartTexture(halfHeartTexture);
 					chef.setSlapSideTexture(slapSideTexture);
 					chef.setSlapUpTexture(slapUpTexture);
+					chef.setHurtTexture(chefHurtTexture);
 					chef.setSlapDownTexture(slapDownTexture);
 					chef.setFilterData(player_filter);
 

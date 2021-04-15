@@ -92,7 +92,7 @@ public class Chef extends GameObject implements ChefInterface {
 	 * Used for drawing heart textures. */
 	private float full_hearts;
 	/** Time until invulnerability after getting hit wears off */
-	private final float INVULN_TIME = 1;
+	private final float INVULN_TIME = 0.5f;
 	/** Chef base damage */
 	private final float BASE_DAMAGE = 2;
 	/** Flag for double damage */
@@ -120,6 +120,7 @@ public class Chef extends GameObject implements ChefInterface {
 	protected FilmStrip slap_up_animator;
 	protected FilmStrip slap_down_animator;
 	protected FilmStrip slap_side_animator;
+	protected FilmStrip hurt_animator;
 
 	/** Reference to texture origin */
 	protected Vector2 origin;
@@ -339,6 +340,11 @@ public class Chef extends GameObject implements ChefInterface {
 		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
 	}
 
+	public void setHurtTexture(Texture texture) {
+		hurt_animator = new FilmStrip(texture, 1, 5);
+		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
+	}
+
 	/**
 	 * Returns if the character is alive.
 	 *
@@ -348,6 +354,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/** Reduces the chef's health by one. */
 	public void decrementHealth() {
+		animeframe = 0;
 		if (!isStunned() && !invincible) {
 			health --;
 			invuln_counter = 0f;
@@ -566,15 +573,15 @@ public class Chef extends GameObject implements ChefInterface {
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 
-		if (getVertMovement() != 0 || getMovement() != 0) {
+		if (getVertMovement() != 0 || getMovement() != 0 || shootCooldown > 0) {
 			animeframe += ANIMATION_SPEED;
 			if (animeframe >= NUM_ANIM_FRAMES) {
 				animeframe -= NUM_ANIM_FRAMES;
 			}
 		}
 
-		if (shootCooldown > 0){
-			animeframe += ANIMATION_SPEED;
+		if (isStunned()){
+			animeframe += ANIMATION_SPEED/8;
 			if (animeframe >= NUM_ANIM_FRAMES) {
 				animeframe -= NUM_ANIM_FRAMES;
 			}
@@ -623,6 +630,9 @@ public class Chef extends GameObject implements ChefInterface {
 				slap_side_animator.setFrame((int) animeframe);
 				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), -0.25f, 0.25f);
 			}
+		} else if (isStunned()) {
+			hurt_animator.setFrame((int) animeframe);
+			canvas.draw(hurt_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
 		}
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
 		//canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
