@@ -586,21 +586,17 @@ public class Chef extends GameObject implements ChefInterface {
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 
-		if (getVertMovement() != 0 || getMovement() != 0 || shootCooldown > 0) {
-			animeframe += ANIMATION_SPEED;
-			if (animeframe >= NUM_ANIM_FRAMES) {
-				animeframe -= NUM_ANIM_FRAMES;
-			}
-		}
-
 		if (isStunned()){
 			animeframe += ANIMATION_SPEED;
 			if (animeframe >= 5) {
 				animeframe -= 5;
 			}
-		}
-
-		if (Math.abs(getMovement()) + Math.abs(getVertMovement()) == 0 && shootCooldown <= 0) {
+		} else if(getVertMovement() != 0 || getMovement() != 0 || shootCooldown > 0) {
+			animeframe += ANIMATION_SPEED;
+			if (animeframe >= NUM_ANIM_FRAMES) {
+				animeframe -= NUM_ANIM_FRAMES;
+			}
+		} else if (Math.abs(getMovement()) + Math.abs(getVertMovement()) == 0 && shootCooldown <= 0) {
 			animeframe += ANIMATION_SPEED;
 			if (animeframe >= 14) {
 				animeframe -= 14;
