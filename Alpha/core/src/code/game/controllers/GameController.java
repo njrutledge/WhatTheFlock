@@ -995,10 +995,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 						case Charge:
 						case Projectile:
 							createChickenAttack(chicken, chicken.getAttackType());
-							if (chicken.getSoundCheck()){
-								chickAttack.stop();
-								chickAttack.play(volume * 0.5f);
-							}
 						case Explosion:
 							break;
 					}
