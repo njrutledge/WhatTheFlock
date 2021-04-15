@@ -13,6 +13,7 @@ package code.game.controllers;
 import code.assets.AssetDirectory;
 import code.audio.SoundBuffer;
 import code.game.models.*;
+import code.game.models.obstacle.BoxObstacle;
 import code.game.models.obstacle.Obstacle;
 import code.game.models.obstacle.PolygonObstacle;
 import code.game.views.GameCanvas;
@@ -534,116 +535,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		temp.setUseCooldown(cooldown);
 
 		doNewPopulate(level);
-		/*JsonReader json = new JsonReader();
-		try{
-			JsonValue level = json.parse(Gdx.files.internal(levels.getString(DEFAULT_LEVEL)));
-			doNewPopulate(level);
-		}catch (Exception e){
-			e.printStackTrace();
-		}*/
-
 		//add chef here!
 		addObject(chef, GameObject.ObjectType.NULL);
 		//set the chef in the collision controller now that it exists
 		collisionController.setChef(chef);
-		/*String wname = "wall";
-	    JsonValue walljv = constants.get("walls");
-		JsonValue defaults = constants.get("defaults");
-		// Obstacle filter: 0x0001 = players, 0x0002 = chickens, 0x0004 = walls, 0x0008 = traps
-		Filter obsfilter = new Filter();
-		obsfilter.categoryBits = 0x0004;
-		obsfilter.maskBits = 0x0001 | 0x0002 | 0x0016;
-		Filter trapfilter = new Filter();
-		trapfilter.categoryBits = 0x0008;
-		trapfilter.maskBits = 0x0002;
-		for (int ii = 0; ii < walljv.size; ii++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(earthTile);
-			obj.setName(wname+ii);
-			obj.setFilterData(obsfilter);
-			addObject(obj);
-	    }
-
-	    //put some other platforms in the world
-	    String pname = "platform";
-		JsonValue platjv = constants.get("platforms");
-	    for (int ii = 0; ii < platjv.size; ii++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(platjv.get(ii).asFloatArray(), 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(earthTile);
-			obj.setName(pname+ii);
-			obj.setFilterData(obsfilter);
-			addObject(obj);
-	    }
-		//TODO add stove to JSON
-
-		//trap places
-		String trpname = "trap_place";
-		JsonValue placejv = constants.get("trapplace");
-		for (int ii = 0; ii < placejv.size; ii++) {
-			TrapSpot obj;
-			float[] coors = placejv.get(ii).asFloatArray();
-			obj = new TrapSpot(coors[0], coors[1]);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(trapSpotTexture);
-			obj.setName(trpname+ii);
-			obj.setFilterData(trapfilter);
-			addObject(obj);
-		}
-
-
-		// Add stove
-		Stove stove;
-		float swidth = stoveTexture.getRegionWidth()/scale.x;
-		float sheight = stoveTexture.getRegionHeight()/scale.y;
-		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
-		stove.setDrawScale(scale);
-		stove.setTexture(stoveTexture);
-		stove.setFilterData(obsfilter);
-		addObject(stove);
-
-
-		// Create chef
-		//TODO: FIX AFTER WE HAVE FILMSTRIP!
-
-		float cwidth  = 32/scale.x;
-		float cheight = 32/scale.y;
-		chef = new Chef(constants.get("chef"), constants.get("chef").get("pos").getFloat(0), constants.get("chef").get("pos").getFloat(1), cwidth, cheight, parameterList[0], parameterList[12]);
-		chef.setDrawScale(scale);
-		chef.setTexture(chefTexture);
-		chef.setHealthTexture(healthTexture);
-		chef.setNoHealthTexture(noHealthTexture);
-		chef.setName("chef");
-
-
-
-
-		//Set temperature based on difficulty of the level
-
-
-		//chef.setMaxTemp(30);
-
-		// Create some chickens
-		spawn_xmin = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[0];
-		spawn_xmax = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[1];
-		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
-		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
-		*/
 		for (int i = 0; i < parameterList[4]-2; i++){
 			spawnChicken(Chicken.ChickenType.Nugget);
 		}
@@ -796,7 +691,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	private void createWall(JsonValue defaults, TextureRegion texture, Filter obstacle_filter, float x, float y){
-		PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
+		BoxObstacle obj = new BoxObstacle(x+.5f,y+.5f,1,1);
+		// PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
 		obj.setBodyType(BodyDef.BodyType.StaticBody);
 		obj.setDensity(defaults.getFloat( "density", 0.0f ));
 		obj.setFriction(defaults.getFloat( "friction", 0.0f ));
@@ -1515,8 +1411,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		//priority: Walls < trap effects < traps < chickens < other < chef
 
-		for(Obstacle obj : walls){
-			obj.draw(canvas);
+		for(Obstacle wall : walls){
+			wall.draw(canvas);
 		}
 
 //		for (Obstacle spawn : spawnPoints){
