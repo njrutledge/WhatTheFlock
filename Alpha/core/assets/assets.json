@@ -35,6 +35,8 @@
         "char:slapSide": "characters/chef_animation_attackSide.png",
         "char:slapDown": "characters/chef_animation_attackDown_color.png",
         "char:slapUp": "characters/chef_animation_attackUp.png",
+        "char:chefHurt": "characters/chef_animation_hurt.png",
+        "char:chefIdle": "characters/chef_animation_idle.png",
 
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",
