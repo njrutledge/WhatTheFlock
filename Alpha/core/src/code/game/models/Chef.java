@@ -92,7 +92,7 @@ public class Chef extends GameObject implements ChefInterface {
 	 * Used for drawing heart textures. */
 	private float full_hearts;
 	/** Time until invulnerability after getting hit wears off */
-	private final float INVULN_TIME = 1;
+	private final float INVULN_TIME = 0.5f;
 	/** Chef base damage */
 	private final float BASE_DAMAGE = 2;
 	/** Flag for double damage */
@@ -120,7 +120,8 @@ public class Chef extends GameObject implements ChefInterface {
 	protected FilmStrip slap_up_animator;
 	protected FilmStrip slap_down_animator;
 	protected FilmStrip slap_side_animator;
-
+	protected FilmStrip hurt_animator;
+	protected FilmStrip idle_animator;
 	/** Reference to texture origin */
 	protected Vector2 origin;
 
@@ -340,6 +341,24 @@ public class Chef extends GameObject implements ChefInterface {
 	}
 
 	/**
+	 * Animates getting damaged
+	 * @param texture
+	 */
+	public void setHurtTexture(Texture texture) {
+		hurt_animator = new FilmStrip(texture, 1, 5);
+		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
+	}
+
+	/**
+	 * Animates idle
+	 * @param texture
+	 */
+	public void setIdleTexture(Texture texture) {
+		idle_animator = new FilmStrip(texture, 1, 14);
+		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
+	}
+
+	/**
 	 * Returns if the character is alive.
 	 *
 	 * @return	 if the character is alive
@@ -348,6 +367,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 	/** Reduces the chef's health by one. */
 	public void decrementHealth() {
+		animeframe = 0;
 		if (!isStunned() && !invincible) {
 			health --;
 			invuln_counter = 0f;
@@ -566,17 +586,24 @@ public class Chef extends GameObject implements ChefInterface {
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 
-		if (getVertMovement() != 0 || getMovement() != 0) {
+		if (getVertMovement() != 0 || getMovement() != 0 || shootCooldown > 0) {
 			animeframe += ANIMATION_SPEED;
 			if (animeframe >= NUM_ANIM_FRAMES) {
 				animeframe -= NUM_ANIM_FRAMES;
 			}
 		}
 
-		if (shootCooldown > 0){
+		if (isStunned()){
 			animeframe += ANIMATION_SPEED;
-			if (animeframe >= NUM_ANIM_FRAMES) {
-				animeframe -= NUM_ANIM_FRAMES;
+			if (animeframe >= 5) {
+				animeframe -= 5;
+			}
+		}
+
+		if (Math.abs(getMovement()) + Math.abs(getVertMovement()) == 0 && shootCooldown <= 0) {
+			animeframe += ANIMATION_SPEED;
+			if (animeframe >= 14) {
+				animeframe -= 14;
 			}
 		}
 
@@ -606,7 +633,14 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
-		if (shootCooldown <= 0 && (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0)) {
+
+		if (isStunned()) {
+			hurt_animator.setFrame((int) animeframe);
+			canvas.draw(hurt_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
+		} else if (Math.abs(getMovement()) + Math.abs(getVertMovement()) == 0 && shootCooldown <= 0){
+			idle_animator.setFrame((int)animeframe);
+			canvas.draw(idle_animator,doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
+		} else if (shootCooldown <= 0 && (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0)) {
 			animator.setFrame((int)animeframe);
 			canvas.draw(animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
 		} else if (shootCooldown > 0) {

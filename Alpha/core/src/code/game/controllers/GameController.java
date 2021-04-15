@@ -13,6 +13,7 @@ package code.game.controllers;
 import code.assets.AssetDirectory;
 import code.audio.SoundBuffer;
 import code.game.models.*;
+import code.game.models.obstacle.BoxObstacle;
 import code.game.models.obstacle.Obstacle;
 import code.game.models.obstacle.PolygonObstacle;
 import code.game.views.GameCanvas;
@@ -81,8 +82,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion trapDefaultTexture;
 	/** Texture asset for Fidge trap */
 	private TextureRegion trapCoolerTexture;
-	/** Texture asset for slow trap */
-	private TextureRegion trapSlowTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
@@ -122,10 +121,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion heartTexture;
 	private TextureRegion halfHeartTexture;
 
-	/**Slap attack texture */
+	/**Slap attack texture strips*/
 	private Texture slapSideTexture;
 	private Texture slapUpTexture;
 	private Texture slapDownTexture;
+	/**Chef hurt and idle animation strips */
+	private Texture chefHurtTexture;
+	private Texture chefIdleTexture;
 
 
 	/** The jump sound.  We only want to play once. */
@@ -150,6 +152,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private SoundBuffer chickOnFire;
 	private SoundBuffer slowSquelch;
 	private SoundBuffer chefOof;
+
+	/** Sound for shredded attack */
+	private SoundBuffer shreddedAttack;
+	/** Sound for buffalo charging */
+	private SoundBuffer buffaloAttack;
+	/** Sound for nugget attack */
+	private SoundBuffer nuggetAttack;
 
 	private final float THEME1_DURATION = 68f;
 	private float theme1_timer;
@@ -420,7 +429,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
-		trapSlowTexture = new TextureRegion(directory.getEntry("enviro:trap:slow", Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 			//characters
 		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
@@ -434,6 +442,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		slapSideTexture = directory.getEntry("char:slapSide", Texture.class);
 		slapDownTexture = directory.getEntry("char:slapDown", Texture.class);
 		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
+		chefHurtTexture = directory.getEntry("char:chefHurt", Texture.class);
+		chefIdleTexture = directory.getEntry("char:chefIdle", Texture.class);
 
 		//ui
 		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
@@ -458,22 +468,21 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chefOof = directory.getEntry("sound:chef:oof", SoundBuffer.class);
 			//chicken
 		chickOnFire = directory.getEntry( "sound:chick:fire", SoundBuffer.class );
-				//nugget
-		chickHurt = directory.getEntry( "sound:chick:nugget:hurt", SoundBuffer.class );
-		chickAttack = directory.getEntry( "sound:chick:nugget:attack", SoundBuffer.class );
-			//trap
-		fireTrig = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
-		fireLinger = directory.getEntry( "sound:trap:fireLinger", SoundBuffer.class );
+
 		lureCrumb = directory.getEntry( "sound:trap:lureCrumb", SoundBuffer.class );
 
 		theme1 = directory.getEntry("sound:music:theme1", SoundBuffer.class);
+
+		shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
+		buffaloAttack = directory.getEntry("sound:chick:buffalo:attack", SoundBuffer.class);
+		nuggetAttack = directory.getEntry("sound:chick:nugget:attack", SoundBuffer.class);
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
 		levels = directory.getEntry("levels", JsonValue.class );
 		//set assets
 		collisionController.setConstants(constants);
-		collisionController.setTrapAssets(trapCoolerTexture, trapSlowTexture, trapDefaultTexture);
+		collisionController.gatherAssets(directory);
 	}
 
 	
@@ -534,116 +543,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		temp.setUseCooldown(cooldown);
 
 		doNewPopulate(level);
-		/*JsonReader json = new JsonReader();
-		try{
-			JsonValue level = json.parse(Gdx.files.internal(levels.getString(DEFAULT_LEVEL)));
-			doNewPopulate(level);
-		}catch (Exception e){
-			e.printStackTrace();
-		}*/
-
 		//add chef here!
 		addObject(chef, GameObject.ObjectType.NULL);
 		//set the chef in the collision controller now that it exists
 		collisionController.setChef(chef);
-		/*String wname = "wall";
-	    JsonValue walljv = constants.get("walls");
-		JsonValue defaults = constants.get("defaults");
-		// Obstacle filter: 0x0001 = players, 0x0002 = chickens, 0x0004 = walls, 0x0008 = traps
-		Filter obsfilter = new Filter();
-		obsfilter.categoryBits = 0x0004;
-		obsfilter.maskBits = 0x0001 | 0x0002 | 0x0016;
-		Filter trapfilter = new Filter();
-		trapfilter.categoryBits = 0x0008;
-		trapfilter.maskBits = 0x0002;
-		for (int ii = 0; ii < walljv.size; ii++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(walljv.get(ii).asFloatArray(), 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(earthTile);
-			obj.setName(wname+ii);
-			obj.setFilterData(obsfilter);
-			addObject(obj);
-	    }
-
-	    //put some other platforms in the world
-	    String pname = "platform";
-		JsonValue platjv = constants.get("platforms");
-	    for (int ii = 0; ii < platjv.size; ii++) {
-	        PolygonObstacle obj;
-	    	obj = new PolygonObstacle(platjv.get(ii).asFloatArray(), 0, 0);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(earthTile);
-			obj.setName(pname+ii);
-			obj.setFilterData(obsfilter);
-			addObject(obj);
-	    }
-		//TODO add stove to JSON
-
-		//trap places
-		String trpname = "trap_place";
-		JsonValue placejv = constants.get("trapplace");
-		for (int ii = 0; ii < placejv.size; ii++) {
-			TrapSpot obj;
-			float[] coors = placejv.get(ii).asFloatArray();
-			obj = new TrapSpot(coors[0], coors[1]);
-			obj.setBodyType(BodyDef.BodyType.StaticBody);
-			obj.setDensity(defaults.getFloat( "density", 0.0f ));
-			obj.setFriction(defaults.getFloat( "friction", 0.0f ));
-			obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
-			obj.setDrawScale(scale);
-			obj.setTexture(trapSpotTexture);
-			obj.setName(trpname+ii);
-			obj.setFilterData(trapfilter);
-			addObject(obj);
-		}
-
-
-		// Add stove
-		Stove stove;
-		float swidth = stoveTexture.getRegionWidth()/scale.x;
-		float sheight = stoveTexture.getRegionHeight()/scale.y;
-		stove = new Stove(constants.get("stove"),16,9,swidth,sheight);
-		stove.setDrawScale(scale);
-		stove.setTexture(stoveTexture);
-		stove.setFilterData(obsfilter);
-		addObject(stove);
-
-
-		// Create chef
-		//TODO: FIX AFTER WE HAVE FILMSTRIP!
-
-		float cwidth  = 32/scale.x;
-		float cheight = 32/scale.y;
-		chef = new Chef(constants.get("chef"), constants.get("chef").get("pos").getFloat(0), constants.get("chef").get("pos").getFloat(1), cwidth, cheight, parameterList[0], parameterList[12]);
-		chef.setDrawScale(scale);
-		chef.setTexture(chefTexture);
-		chef.setHealthTexture(healthTexture);
-		chef.setNoHealthTexture(noHealthTexture);
-		chef.setName("chef");
-
-
-
-
-		//Set temperature based on difficulty of the level
-
-
-		//chef.setMaxTemp(30);
-
-		// Create some chickens
-		spawn_xmin = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[0];
-		spawn_xmax = constants.get("chicken").get("spawn_range").get(0).asFloatArray()[1];
-		spawn_ymin = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[0];
-		spawn_ymax = constants.get("chicken").get("spawn_range").get(1).asFloatArray()[1];
-		*/
 		for (int i = 0; i < parameterList[4]-2; i++){
 			spawnChicken(Chicken.ChickenType.Nugget);
 		}
@@ -766,7 +669,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef.setHalfHeartTexture(halfHeartTexture);
 					chef.setSlapSideTexture(slapSideTexture);
 					chef.setSlapUpTexture(slapUpTexture);
+					chef.setHurtTexture(chefHurtTexture);
 					chef.setSlapDownTexture(slapDownTexture);
+					chef.setIdleTexture(chefIdleTexture);
 					chef.setFilterData(player_filter);
 
 					//don't add chef here! add it later so its on top easier
@@ -796,7 +701,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	private void createWall(JsonValue defaults, TextureRegion texture, Filter obstacle_filter, float x, float y){
-		PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
+		BoxObstacle obj = new BoxObstacle(x+.5f,y+.5f,1,1);
+		// PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
 		obj.setBodyType(BodyDef.BodyType.StaticBody);
 		obj.setDensity(defaults.getFloat( "density", 0.0f ));
 		obj.setFriction(defaults.getFloat( "friction", 0.0f ));
@@ -1067,8 +973,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		if (gameTime > waveStartTime + replenishTime){
 			waveStartTime = gameTime;
-			enemiesLeft = startWaveSize + 1;
-			startWaveSize += 1;
+			enemiesLeft = Math.min(maxWaveSize, startWaveSize + 1);
+			startWaveSize = Math.min(maxWaveSize, startWaveSize + 1);
 		}
 
 		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
@@ -1100,10 +1006,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 						case Charge:
 						case Projectile:
 							createChickenAttack(chicken, chicken.getAttackType());
-							if (chicken.getSoundCheck()){
-								chickAttack.stop();
-								chickAttack.play(volume * 0.5f);
-							}
 						case Explosion:
 							break;
 					}
@@ -1221,7 +1123,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
 		if (temp.getTemperature() > 0){
-			temp.reduceTemp(1);
+			temp.reduceTemp(.5f);
 		}
 		/*
 		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
@@ -1289,6 +1191,24 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				ChickenAttack.getHEIGHT(), chef, chicken, type);
 		attack.setDrawScale(scale);
 		addQueuedObject(attack);
+		switch (type) {
+			case Basic:
+				nuggetAttack.stop();
+				nuggetAttack.play(DEFAULT_VOL);
+				break;
+			case Projectile:
+				shreddedAttack.stop();
+				shreddedAttack.play(DEFAULT_VOL);
+				break;
+			case Charge:
+				if (chicken.getType() == Chicken.ChickenType.Buffalo){
+					buffaloAttack.stop();
+					buffaloAttack.play(DEFAULT_VOL);
+				}
+				break;
+
+
+		}
 	}
 
 	/**
@@ -1515,8 +1435,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		//priority: Walls < trap effects < traps < chickens < other < chef
 
-		for(Obstacle obj : walls){
-			obj.draw(canvas);
+		for(Obstacle wall : walls){
+			wall.draw(canvas);
 		}
 
 //		for (Obstacle spawn : spawnPoints){
