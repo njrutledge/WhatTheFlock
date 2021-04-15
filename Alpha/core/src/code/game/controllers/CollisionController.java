@@ -251,6 +251,9 @@ public class CollisionController implements CollisionControllerInterface {
         if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION) && t1.getReady()) {
             switch (t1.getTrapType()) {
                 case FAULTY_OVEN:
+                    t1.markReady(false);
+                    fireTrigger.stop();
+                    fireTrigger.play();
                     chef.setDoubleDamage(true);
                     break;
                 case BREAD_BOMB:
@@ -277,6 +280,20 @@ public class CollisionController implements CollisionControllerInterface {
         //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
         if (fd2 == FixtureType.CHICKEN_HITBOX && chicken.chasingObject(chef)){
             chicken.startAttack();
+            switch(chicken.getType()){
+                case Nugget:
+                    nuggetAttack.stop();
+                    nuggetAttack.play();
+                    break;
+                case Buffalo:
+                    buffaloCharge.stop();
+                    buffaloCharge.play();
+                    break;
+                case Shredded:
+                    shreddedAttack.stop();
+                    shreddedAttack.play();
+                    break;
+            }
         }
     }
 
@@ -286,6 +303,10 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleChefChickenAttack(Chef chef, Object fd1, ChickenAttack attack, Object fd2){
         chef.decrementHealth();
         attack.collideObject();
+        if(attack.getType().equals(ChickenAttack.AttackType.Projectile)){
+            eggsplosion.stop();
+            eggsplosion.play();
+        }
     }
 
     /**
@@ -310,6 +331,21 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChickenSlap(Chicken c1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
         c1.takeDamage(dmg);
+        switch (c1.getType()){
+            case Nugget:
+                nuggetHurt.stop();
+                nuggetHurt.play();
+                break;
+            case Buffalo:
+                buffaloAttack.stop();
+                buffaloAttack.play();
+                break;
+            case Shredded:
+                shreddedHurt.stop();
+                shreddedHurt.play();
+                break;
+        }
+
         if (!c1.isAlive()) {
             c1.markRemoved(true);
         }

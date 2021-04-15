@@ -461,10 +461,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chefOof = directory.getEntry("sound:chef:oof", SoundBuffer.class);
 			//chicken
 		chickOnFire = directory.getEntry( "sound:chick:fire", SoundBuffer.class );
-				//nugget
-		chickHurt = directory.getEntry( "sound:chick:nugget:hurt", SoundBuffer.class );
-		chickAttack = directory.getEntry( "sound:chick:nugget:attack", SoundBuffer.class );
-			//trap
 
 		lureCrumb = directory.getEntry( "sound:trap:lureCrumb", SoundBuffer.class );
 
