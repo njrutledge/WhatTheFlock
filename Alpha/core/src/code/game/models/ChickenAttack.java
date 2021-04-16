@@ -186,6 +186,7 @@ public class ChickenAttack extends GameObject {
      */
     public boolean atDestination(float dt) {
         age += dt;
+        if (type == AttackType.Basic) { return true; }
         if ((type==AttackType.Projectile && age> PROJECTILE_MAX_AGE) || remove) { return true; }
         if (type!=AttackType.Charge && distance(getX(), getY(), destination.x, destination.y) < 0.5f && age > ATTACK_DUR) {
             return true;

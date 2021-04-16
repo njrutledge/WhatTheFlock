@@ -112,7 +112,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
 
     protected boolean hitboxOut = false;
-    protected float ATTACK_DUR = 0.2f;
+    protected float ATTACK_DUR = 0.5f;
 
 
 
