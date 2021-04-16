@@ -68,6 +68,14 @@ public class Grid {
         }
     }
 
+    /** Returns whether the tile at (x,y) is an obstacle
+     *
+     * @return whether the tile at (x,y) is an obstacle
+     */
+    public boolean isObstacleAt(float x, float y) {
+        return getTile(x,y).isObstacle();
+    }
+
     /** Returns the comparator used for comparing Tile FCosts.
      *
      * @return  comparator

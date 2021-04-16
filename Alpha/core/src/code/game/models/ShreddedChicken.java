@@ -67,6 +67,7 @@ public class ShreddedChicken extends Chicken {
                 // Recharge attack
                 charge_time = 0f;
                 attack_timer = 0f;
+                doneAttack = true;
                 hitboxOut = false;
             }
         }

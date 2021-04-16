@@ -176,9 +176,6 @@ public class AIController {
                 else if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
                 }
-/*                else if (!chicken.isAttacking() && !chicken.isTouching()) {
-                    state = FSM.CHASE;
-                }*/
                 else if (chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching()) {
                     state = FSM.CHASE;
                 }
@@ -238,7 +235,10 @@ public class AIController {
                         if (chicken.doneCharging()) {
                             if (!chicken.isRunning()) {
                                 chicken.setRunning(true);
-                                temp.set(new Vector2(chicken.getDestination()).sub(chicken.getPosition()));
+                                temp.set(chicken.getChickenAttack().getLinearVelocity());
+                            } else {
+                                chicken.setDestination(target.getPosition());
+                                temp.set(chicken.getChickenAttack().updateLinearVelocity());
                             }
                         }
                         else { temp.setZero(); }

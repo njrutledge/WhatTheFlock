@@ -3,6 +3,7 @@ package code.game.models;
 import code.game.views.GameCanvas;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -27,8 +28,11 @@ public class ChickenAttack extends GameObject {
     private final float BASIC_DIST = 1.5f;
     /** The maximum distance away from the chicken that a charge attack can be created */
     private final float CHARGE_DIST = 0.5f;
-    /** The distance between this attack's destination and the actual target's position */
-    private final float OVEREXTEND_DIST = 2.5f;
+    /** The rate at which the buffalo's speed increases */
+    private final float CHARGE_RATE = 1.006f;
+
+    /** The maximum degrees that a buffalo's charge can change */
+    private final float MAX_ANGLE = 0.6f;
 
     /** The radius of the sensor of a basic attack */
     private final float BASIC_RADIUS = 0.5f;
@@ -47,10 +51,30 @@ public class ChickenAttack extends GameObject {
     private float age;
     /** Whether this attack should be removed */
     private boolean remove;
+    /** The current speed of the attack */
+    private float speed;
+
     /** The maximum length of time a projectile attack can exist */
     private final float PROJECTILE_MAX_AGE = 2f;
     /** Speed of projectiles */
     private final float PROJECTILE_SPEED = 8f;
+    /** The starting speed of a charge attack */
+    private final float CHARGE_SPEED = 4.0f;
+
+    /** The buffalo's starting position */
+    private Vector2 origin_vector;
+    /** The buffalo's starting velocity */
+    private Vector2 origin_velocity;
+    /** The point representing the "end" of the line that contains the origin_vector
+     * and curr_vector. This point should be unreachable. */
+    private Vector2 end_vector;
+    /** The current radius of the buffalo's charge */
+    private float charge_radius;
+    /** A point that is on the line that contains origin_vector and the vector
+     * representing the buffalo's initial charge direction. This point is also
+     * on the circumference of a circle that is charge_radius distance away
+     * from origin_vector. */
+    private Vector2 curr_vector;
 
     /** Creates an instance of a basic attack */
     public ChickenAttack(float x, float y, float width, float height, Chef chef, Chicken chicken, AttackType type) {
@@ -58,12 +82,13 @@ public class ChickenAttack extends GameObject {
         this.type = type;
         this.chicken = chicken;
         this.target = new Vector2(chicken.getDestination());
+        origin_vector = new Vector2(chicken.getPosition());
         setName("chickenAttack");
         setDensity(0f);
         Filter filter;
         switch(type) {
             case Basic:
-                setPosition(getVector(false));
+                setPosition(getVector(chicken.getPosition(),target));
                 destination = getPosition();
                 filter = new Filter();
                 filter.categoryBits = 0x0008;
@@ -72,17 +97,21 @@ public class ChickenAttack extends GameObject {
                 setFilterData(filter);
                 break;
             case Charge:
-                setPosition(getVector(false));
-                destination = getVector(true);
+                setPosition(getVector(chicken.getPosition(),target));
+                destination = target;
                 chicken.setDestination(new Vector2(destination));
-                setLinearVelocity(new Vector2(destination).sub(chicken.getPosition()));
+                setLinearVelocity((new Vector2(destination)).sub(chicken.getPosition()).nor().scl(CHARGE_SPEED));
+                origin_velocity = new Vector2(getLinearVelocity());
+                charge_radius = distance(destination.x, destination.y, getX(), getY());
+                speed = CHARGE_SPEED;
+                end_vector = destination.sub(chicken.getPosition()).scl(100f);
                 filter = new Filter();
                 filter.categoryBits = 0x0016;
                 filter.maskBits = 0x0001 | 0x0004;
                 setFilterData(filter);
                 break;
             case Projectile:
-                setPosition(getVector(false));
+                setPosition(getVector(chicken.getPosition(),target));
                 destination = chicken.target.getPosition();
                 setLinearVelocity(destination.sub(chicken.getPosition()).nor().scl(PROJECTILE_SPEED)); // move towards destination
                 setSensor(true); // Set sensor to avoid projectile bouncing off of chicken body
@@ -94,8 +123,33 @@ public class ChickenAttack extends GameObject {
         }
     }
 
-    /** Lets the chicken that this attack belongs to know that the player was hit */
-    public void hitPlayer() { chicken.setStopped(true); }
+    /** Returns a vector representing this attack's next linear velocity
+     *
+     */
+    public Vector2 updateLinearVelocity() {
+        speed *= CHARGE_RATE;
+        target = chicken.getDestination();
+        charge_radius = distance(origin_vector.x, origin_vector.y, chicken.getX(), chicken.getY());
+        Vector2 destination = getVector(origin_vector, target);
+        // If the chef is in front of us
+        if (destination != target) {
+            curr_vector = getVector(origin_vector, end_vector);
+            Vector2 destination_nor = new Vector2(destination).sub(origin_vector).nor();
+            curr_vector.sub(origin_vector).nor();
+            // Angle change between origin vector and the chef's location
+            float origin_change = MathUtils.atan2(destination_nor.y, destination_nor.x) -
+                    MathUtils.atan2(curr_vector.y, curr_vector.x);
+            // Is the angle change less than how much the buffalo is able to turn?
+            if ((Math.abs(origin_change) <= MAX_ANGLE)) {
+                setLinearVelocity((target.sub(chicken.getPosition())).nor().scl(speed));
+            } else {
+                setLinearVelocity(getLinearVelocity().nor().scl(speed));
+            }
+        } else {
+            setLinearVelocity(getLinearVelocity().nor().scl(speed));
+        }
+        return getLinearVelocity();
+    }
 
     /** Returns the width of chicken attacks
      *
@@ -127,11 +181,7 @@ public class ChickenAttack extends GameObject {
     public boolean atDestination(float dt) {
         age += dt;
         if ((type==AttackType.Projectile && age> PROJECTILE_MAX_AGE) || remove) { return true; }
-        if (distance(getX(), getY(), destination.x, destination.y) < 0.5f && age > ATTACK_DUR) {
-            if (type == AttackType.Charge) {
-                //setLinearVelocity(destination.setZero());
-                remove = true;
-                chicken.interruptAttack(); }
+        if (type!=AttackType.Charge && distance(getX(), getY(), destination.x, destination.y) < 0.5f && age > ATTACK_DUR) {
             return true;
         }
         return false;
@@ -158,31 +208,31 @@ public class ChickenAttack extends GameObject {
      *
      * @return (x,y) of ChickenAttack
      * */
-    private Vector2 getVector(boolean over_extend) {
+    private Vector2 getVector(Vector2 start, Vector2 destination) {
         float dist;
         if(type == AttackType.Projectile) { return chicken.getPosition(); } // Fire from center of chicken
-        if (over_extend) {
-            dist = distance(chicken.getX(), chicken.getY(), target.x, target.y) + OVEREXTEND_DIST;
+        if (type == AttackType.Charge) {
+            if (charge_radius > 0) { dist = charge_radius;}
+            else { dist = CHARGE_DIST; }
         }
-        else if (type == AttackType.Charge) { dist = CHARGE_DIST; }
         else { dist = BASIC_DIST; }
-        if (!over_extend && distance(chicken.getX(), chicken.getY(), target.x, target.y) < dist) {
-            return target;
+        if (distance(start.x, start.y, destination.x, destination.y) < dist) {
+            return destination;
         } else {
             Vector2 vector = new Vector2();
-            float slope = (chicken.getY()-target.y)/(chicken.getX()-target.x);
-            float intercept = chicken.getY() - (slope*chicken.getX());
+            float slope = (start.y-destination.y)/(start.x-destination.x);
+            float intercept = start.y - (slope*start.x);
             float a = (float)(1 + Math.pow(slope, 2));
-            float b = 2*(-chicken.getX()+((-chicken.getY() + intercept)*slope));
-            float c = (float)(Math.pow(chicken.getX(),2) + Math.pow(-chicken.getY() + intercept,2)
+            float b = 2*(-start.x+((-start.y + intercept)*slope));
+            float c = (float)(Math.pow(start.x,2) + Math.pow(-start.y + intercept,2)
                     - Math.pow(dist,2));
             float disc = (float)Math.sqrt(Math.pow(b,2)-(4*a*c));
             float root1 = (-b+disc)/(2*a);
             float root2 = (-b-disc)/(2*a);
             float y1 = (slope*root1) + intercept;
             float y2 = (slope*root2) + intercept;
-            if (distance(root1, y1, target.x, target.y) <
-            distance(root2, y2, target.x, target.y)) {
+            if (distance(root1, y1, destination.x, destination.y) <
+            distance(root2, y2, destination.x, destination.y)) {
                 vector.x = root1;
                 vector.y = y1;
             } else {
@@ -191,6 +241,33 @@ public class ChickenAttack extends GameObject {
             }
             return vector;
         }
+    }
+
+    /** Returns the number of degrees between the given coordinate
+     * and its corresponding coordinate in curr_vector
+     *
+     * @param point the point in question
+     * @param x     whether the point is an X coordinate
+     * @return number of degrees between point and corresponding point in origin_vector
+     */
+    private float getDegrees(float point, float curr, boolean x) {
+        //S = coefficient of sin
+        //C = coefficient of cos
+        //o = corresponding origin coordinate
+        // a,b,c = coefficients for the quadratic formula
+        float S, C, a, b, c, o;
+        if (x) { o = origin_vector.x; point -= o; S = -(curr-o); C = (curr-o);}
+        else { o = origin_vector.y; point -= o; S=(curr-o); C = (curr-o);}
+        a = -(S*S) - (C*C);
+        b = -(2*point*S);
+        c = -((float)Math.pow(point-o,2)) + (C*C);
+
+        float disc = (float)Math.sqrt(b*b - 4*a*c);
+        float root1 = (-b+disc)/(2*a);
+        float root2 = (-b-disc)/(2*a);
+
+        if (Math.abs(root1) < Math.abs(root2)) { return root1; }
+        else { return root2; }
     }
 
     /** Sets the position 

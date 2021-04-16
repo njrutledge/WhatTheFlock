@@ -41,6 +41,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected Obstacle target;
     /** The destination of this chicken, if  not the target's current position */
     protected Vector2 destination;
+    /** The chicken attack belonging to this chicken */
+    protected ChickenAttack chickenAttack;
 
     /** The type of this chicken */
     private ChickenType type;
@@ -79,6 +81,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Whether or not the attack needs to be created for this chicken */
     protected boolean makeAttack = false;
+    /** Whether or not the current attack (including charge-up + run, if applicable) is complete */
+    protected boolean doneAttack = false;
     /** Whether the chicken should stop their attack after running */
     private boolean stopThisAttack = false;
     /** Whether or not the chicken's sensor is touching its target (Not up-to-date)
@@ -97,8 +101,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** The damage modifier from being on fire*/
     private final int FIRE_MULT = 2;
-    //TODO comments
-    protected boolean finishA = false;
     protected boolean soundCheck = false;
     protected float attack_timer = -1f;
 
@@ -187,6 +189,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         setFilterData(filter);
     }
 
+    /** Set the chicken attack belonging to this chicken */
+    public void setChickenAttack(ChickenAttack attack) { chickenAttack = attack; }
+
+    /** Returns the chicken attack belonging to this chicken */
+    public ChickenAttack getChickenAttack() { return chickenAttack; }
+
     /** Returns the json data for this chicken */
     public JsonValue getJsonData(){
         return data;
@@ -206,6 +214,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Returns the type of this chicken */
     public ChickenType getType() { return type; }
 
+    /** Returns whether the chicken has completed its attack */
+    public boolean getDoneAttack() { return doneAttack; }
+
     /**
      * Sets the current chicken max health
      * @param h - the number to set the max health of the chicken to
@@ -223,10 +234,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public int getMaxHealth(){ return max_health;}
 
     /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> shredded
      * Returns whether an attack object needs to be made for this chicken.
      *
      * @return makeAttack
@@ -367,6 +374,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public void startAttack() {
         if (!isRunning()) {
             touching = true;
+            doneAttack = false;
             hitboxOut = false;
             destination = new Vector2(target.getPosition());
             attack_timer = 0f;
@@ -374,14 +382,31 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         } else { stopThisAttack = false;}
     }
 
-    //TODO: comment
-    public void stopAttack(boolean touching) {
-        if (!isRunning()) {
+    public void stopAttack() {
+        if (!isRunning() && doneAttack) {
             attack_timer = -1f;
             charge_time = -1f;
+            doneAttack = false;
             hitboxOut = false;
+        } else {
+            stopThisAttack = true;
+        }
+    }
+
+    public void forceStopAttack() {
+        attack_timer = -1f;
+        charge_time = -1f;
+        touching = false;
+        doneAttack = false;
+        hitboxOut = false;
+    }
+
+    public void setTouching(boolean touching) {
+        if (!isRunning()) {
             this.touching = touching;
-        } else { stopThisAttack = true; last_touching = touching; }
+        } else {
+            last_touching = touching;
+        }
     }
 
     /** Returns whether or not the chicken should stop their current attack.
@@ -396,8 +421,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @return stopThisAttack
      */
     public boolean stopThisAttack() {
-        if (stopThisAttack && !isRunning()) {
+        if (stopThisAttack && !isRunning() && doneAttack) {
             stopThisAttack = false;
+            stopAttack();
+            setTouching(last_touching);
             return true;
         }
         return false;

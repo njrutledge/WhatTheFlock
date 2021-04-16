@@ -539,7 +539,6 @@ public class GameController implements ContactListener, Screen {
 
 	}
 
-
 	public void doNewPopulate(JsonValue level){
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
@@ -1133,8 +1132,14 @@ public class GameController implements ContactListener, Screen {
 	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
 		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
 				ChickenAttack.getHEIGHT(), chef, chicken, type);
-		attack.setDrawScale(scale);
-		addQueuedObject(attack);
+		if (type == ChickenAttack.AttackType.Charge && grid.isObstacleAt(attack.getX(),attack.getY()) ) {
+			attack.markRemoved(true);
+			chicken.forceStopAttack();
+		} else {
+			chicken.setChickenAttack(attack);
+			attack.setDrawScale(scale);
+			addQueuedObject(attack);
+		}
 	}
 
 	/**
