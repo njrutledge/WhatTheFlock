@@ -1,10 +1,13 @@
 package code.game.controllers;
 
+import code.assets.AssetDirectory;
+import code.audio.SoundBuffer;
 import code.game.interfaces.CollisionControllerInterface;
 import code.game.models.*;
-
+import code.game.models.GameObject;
 import code.game.models.obstacle.Obstacle;
-import com.badlogic.gdx.Game;
+import code.util.PooledList;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -18,9 +21,23 @@ public class CollisionController implements CollisionControllerInterface {
 
     private TrapController trapController;
 
-    private Chef chef;
+    public PooledList<Trap> trapCache = new PooledList<Trap>();
 
-    public CollisionController(Vector2 scale){
+    private Chef chef;
+    /** Sound for buffalo charging */
+    private SoundBuffer buffaloCharge;
+    /** Sound for nugget hurt */
+    private SoundBuffer nuggetHurt;
+
+    /** Sound for shredded hurt */
+    private SoundBuffer shreddedHurt;
+    /** Sound for eggsplosion */
+    private SoundBuffer eggsplosion;
+
+    /** Sound for fire trigger */
+    private SoundBuffer fireTrigger;
+
+    public CollisionController(Vector2 scale) {
         trapController = new TrapController(scale);
     }
 
@@ -28,19 +45,32 @@ public class CollisionController implements CollisionControllerInterface {
      * Sets the constants parameter of trapController
      * @param constants the jsonValue to be set
      */
-    public void setConstants(JsonValue constants){
+    public void setConstants(JsonValue constants) {
         trapController.setConstants(constants);
     }
+
+    public void gatherAssets(AssetDirectory directory){
+        nuggetHurt = directory.getEntry("sound:chick:nugget:hurt", SoundBuffer.class);
+        shreddedHurt = directory.getEntry("sound:chick:shredded:hurt", SoundBuffer.class);
+        buffaloCharge = directory.getEntry("sound:chick:buffalo:charge", SoundBuffer.class);
+        eggsplosion = directory.getEntry("sound:chick:eggsplosion",SoundBuffer.class);
+        fireTrigger = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
+        trapController.gatherAssets(directory);
+
+    }
+
     /**
      * Sets the current chef
+     *
      * @param c the Chef
      */
-    public void setChef(Chef c){
+    public void setChef(Chef c) {
         chef = c;
     }
+
     /**
      * Callback method for the start of a collision
-     *
+     * <p>
      * This method is called when we first get a collision between two objects.  We use
      * this method to test if it is the "right" kind of collision.  In particular, we
      * use it to test if we made it to the win door.
@@ -66,31 +96,33 @@ public class CollisionController implements CollisionControllerInterface {
 
             //process GameObject collisions
             if (bd1 instanceof GameObject && bd2 instanceof GameObject) {
-                if (fd1 != null && fd2 != null) {
-                    handleCollision((GameObject) bd1, fd1, fix1, (GameObject) bd2, fd2, fix2);
-                }
+                handleCollision((GameObject) bd1, fd1, fix1, (GameObject) bd2, fd2, fix2);
             } else {
                 //process Charge Attack collision with walls
                 if (bd1.getName().contains("wall") || bd2.getName().contains("wall")) {
                     if (fd1 != null && fd1 == FixtureType.CHARGE_ATTACK) {
-                        ((ChickenAttack)bd1).collideObject();
+                        ((ChickenAttack) bd1).collideObject();
                     } else if (fd2 != null && fd2 == FixtureType.CHARGE_ATTACK) {
-                        ((ChickenAttack)bd2).collideObject();
+                        ((ChickenAttack) bd2).collideObject();
+                    }
+                    else if (fd1 != null && fd1.equals(FixtureType.LURE_HURT)) {
+                        bd1.setLinearVelocity(Vector2.Zero);
+                    } else if (fd2 != null && fd2.equals(FixtureType.LURE_HURT)) {
+                        bd2.setLinearVelocity(Vector2.Zero);
                     }
                 }
             }
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-        /**
-         * Handles the collision based on the type of GameObjects passed in.
-         * */
-        private void handleCollision(GameObject bd1, FixtureType fd1, Fixture fix1,
-                                     GameObject bd2, FixtureType fd2, Fixture fix2){
-        switch (bd1.getObjectType()){
+    /**
+     * Handles the collision based on the type of GameObjects passed in.
+     */
+    private void handleCollision(GameObject bd1, FixtureType fd1, Fixture fix1,
+                                 GameObject bd2, FixtureType fd2, Fixture fix2) {
+        switch (bd1.getObjectType()) {
             case CHICKEN:
                 chickenCollision((Chicken) bd1, fd1, fix1, bd2, fd2, fix2);
                 break;
@@ -104,18 +136,14 @@ public class CollisionController implements CollisionControllerInterface {
                 slapCollision((Slap) bd1, fd1, bd2, fd2);
                 break;
             case TRAP:
-                if (fd1 == FixtureType.TRAP_SENSOR) {
-                    trapCollision((Trap) bd1, fd1, bd2, fd2);
-                }
-                else if (fd1 == FixtureType.TRAP_ACTIVATION){
-                    trapActivationCollision((Trap) bd1, fd1, bd2, fd2);
-                }
+                trapCollision((Trap) bd1, fd1, bd2, fd2);
                 break;
         }
     }
 
     /**
      * Handles a collision between a Chicken and another GameObject
+     *
      * @param c1
      * @param fd1
      * @param fix1
@@ -123,23 +151,27 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      * @param fix2
      */
-        private void chickenCollision(Chicken c1, FixtureType fd1, Fixture fix1, GameObject bd2, FixtureType fd2, Fixture fix2){
-        switch (bd2.getObjectType()){
-            case CHEF: handleChefChicken((Chef)bd2, fd2, c1, fd1);
+    private void chickenCollision(Chicken c1, FixtureType fd1, Fixture fix1, GameObject bd2, FixtureType fd2, Fixture fix2) {
+        switch (bd2.getObjectType()) {
+            case CHEF:
+                handleChefChicken((Chef) bd2, fd2, c1, fd1);
                 break;
-            case SLAP: handleChickenSlap(c1, fd1, bd2, fd2);
+            case SLAP:
+                handleChickenSlap(c1, fd1, bd2, fd2);
                 break;
-            case TRAP: handleChickenTrap(c1, fd1, (Trap)bd2, fd2);
+            case TRAP:
+                handleChickenTrap(c1, fd1, (Trap) bd2, fd2);
                 break;
             case ATTACK:
                 if (fd1 == FixtureType.CHICKEN_HITBOX)
                 { handleChickenChickenAttack(c1, fd1, (ChickenAttack) bd2, fd2); }
                 break;
         }
-        }
+    }
 
     /**
      * Handles a collision between a Chef and another Object
+     *
      * @param c1
      * @param fd1
      * @param fix1
@@ -147,8 +179,8 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      * @param fix2
      */
-        private void chefCollision(Chef c1, FixtureType fd1, Fixture fix1, GameObject bd2, FixtureType fd2, Fixture fix2){
-        switch (bd2.getObjectType()){
+    private void chefCollision(Chef c1, FixtureType fd1, Fixture fix1, GameObject bd2, FixtureType fd2, Fixture fix2) {
+        switch (bd2.getObjectType()) {
             case STOVE:
                 handleStoveChef((Stove) bd2, c1);
                 break;
@@ -162,66 +194,84 @@ public class CollisionController implements CollisionControllerInterface {
                 handleChefChickenAttack(c1, fd1, (ChickenAttack) bd2, fd2);
                 break;
         }
-        }
+    }
 
         private void stoveCollision(Stove s1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
-            switch(bd2.getObjectType()) {
+            switch (bd2.getObjectType()) {
                 case CHEF:
-                    handleStoveChef(s1, (Chef) bd2); break;
+                    handleStoveChef(s1, (Chef) bd2);
+                    break;
                 case ATTACK:
                     handleObstacleChickenAttack(s1, fd1, (ChickenAttack) bd2, fd2);
                     break;
             }
         }
 
-        private void slapCollision(Slap s1, FixtureType fd1, GameObject bd2, FixtureType fd2){
-        //TODO make slap class
-            switch(fd2){
-                case CHICKEN_HITBOX:
-                    handleChickenSlap((Chicken)bd2, fd2, s1, fd1);
-                    break;
-                case TRAP_ACTIVATION:
-                    handleTrapSlap((Trap) bd2,fd2, s1, fd1);
-                    break;
+        private void slapCollision(Slap s1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
+            if (fd2 != null) {
+                switch (fd2) {
+                    case CHICKEN_HURTBOX:
+                        handleChickenSlap((Chicken) bd2, fd2, s1, fd1);
+                        break;
+                    case TRAP_ACTIVATION:
+                        handleTrapSlap((Trap) bd2, fd2, s1, fd1);
+                        break;
+                }
             }
         }
 
-    private void trapActivationCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2){
-        if(bd2.getObjectType().equals(ObjectType.SLAP)){
+
+    private void trapCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
+        if (bd2.getObjectType().equals(ObjectType.SLAP)) {
             handleTrapSlap(t1, fd1, (Slap) bd2, fd2);
         }
+
+        if (bd2.getObjectType().equals(ObjectType.CHICKEN)) {
+            handleChickenTrap((Chicken) bd2, fd2, t1, fd1);
+        }
     }
-        private void trapCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2){
-        if(bd2.getObjectType().equals(ObjectType.CHICKEN)){
-            handleChickenTrap((Chicken)bd2, fd2, t1, fd1);
-        }
-        }
 
     /****************************************
      * HELPER METHODS
      ****************************************/
     /**
      * Handles an interaction between a stove and a chef
-     * @param stove     a given stove
-     * @param chef      a chef
+     *
+     * @param stove a given stove
+     * @param chef  a chef
      */
-    private void handleStoveChef(Stove stove, Chef chef){
-        chef.setCooking(true);
+    private void handleStoveChef(Stove stove, Chef chef) {
+        chef.setCooking(true, stove);
         chef.setMovement(0);
         chef.setVertMovement(0);
         stove.setLit(true);
+
     }
 
-    private void handleTrapSlap(Trap t1, FixtureType fd1, Slap s2, FixtureType fd2){
-        //TODO ADD MORE TRAP LOGIC
-        t1.markActive(true);
-        if(t1.getTrapType().equals(Trap.type.FAULTY_OVEN)){
-            chef.setDoubleDamage(true);
+    private void handleTrapSlap(Trap t1, FixtureType fd1, Slap s2, FixtureType fd2) {
+        if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION) && t1.getReady()) {
+            switch (t1.getTrapType()) {
+                case FAULTY_OVEN:
+                    t1.markReady(false);
+                    fireTrigger.stop();
+                    fireTrigger.play();
+                    chef.setDoubleDamage(true);
+                    break;
+                case BREAD_BOMB:
+                    t1.markReady(false);
+                    trapCache.addAll(trapController.createLures(t1));
+                    break;
+                case FRIDGE:
+                    t1.markReady(false);
+                    trapCache.add(trapController.createSlow(t1));
+                    break;
+            }
         }
     }
 
     /**
      * Handles an interaction between a given chef and a chicken
+     *
      * @param chef
      * @param fd1
      * @param chicken
@@ -229,9 +279,15 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChefChicken(Chef chef, FixtureType fd1, Chicken chicken, FixtureType fd2){
         //TODO: why are we passing in the fixture itself when fd1 and fd2 are already the user datas?
-        if (fd2 == FixtureType.CHICKEN_SENSOR && chicken.chasingPlayer(chef)){
+        if (fd2 == FixtureType.CHICKEN_HITBOX && chicken.chasingObject(chef)){
             chicken.startAttack();
             chicken.setTouching(true);
+            switch(chicken.getType()){
+                case Buffalo:
+                    buffaloCharge.stop();
+                    buffaloCharge.play();
+                    break;
+            }
         }
     }
 
@@ -241,6 +297,10 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleChefChickenAttack(Chef chef, Object fd1, ChickenAttack attack, Object fd2){
         chef.decrementHealth();
         attack.collideObject();
+        if(attack.getType().equals(ChickenAttack.AttackType.Projectile)){
+            eggsplosion.stop();
+            eggsplosion.play();
+        }
     }
 
     /**
@@ -260,37 +320,63 @@ public class CollisionController implements CollisionControllerInterface {
 
     /**
      * Handles an interaction between a chicken and a slap
+     *
      * @param c1
      * @param fd1
      * @param bd2
      * @param fd2
      */
-    private void handleChickenSlap(Chicken c1, FixtureType fd1, GameObject bd2, FixtureType fd2){
+    private void handleChickenSlap(Chicken c1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
         c1.takeDamage(dmg);
-        if(!c1.isAlive()){
+        switch (c1.getType()){
+            case Nugget:
+            case Buffalo:
+                nuggetHurt.stop();
+                nuggetHurt.play();
+                break;
+            case Shredded:
+                shreddedHurt.stop();
+                shreddedHurt.play();
+                break;
+        }
+
+        if (!c1.isAlive()) {
             c1.markRemoved(true);
         }
     }
 
     /**
      * Handles an interaction between a chicken and a trap
+     *
      * @param c1
      * @param fd1
      * @param t2
      * @param fd2
      */
-    private void handleChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2){
-        if(trapController.applyTrap(t2, c1)){
-            //TODO need to add new trap to trap creation queue
+    private void handleChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
+        if(fd1 != null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
+            trapController.applyTrap(t2, c1);
+        }
+        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)){
+            //t2.markHit();
         }
     }
+
+    /**
+     * Gets all the new traps that need to be added
+     * @return a PooledList of traps
+     */
+    public PooledList<Trap> getNewTraps(){
+        return trapCache;
+    }
+
     /****************************************
      * END COLLISION
      ****************************************/
 
     /**
      * Callback method for the start of a collision
-     *
+     * <p>
      * This method is called when two objects cease to touch.  The main use of this method
      * is to determine when the characer is NOT on the ground.  This is how we prevent
      * double jumping.
@@ -318,14 +404,14 @@ public class CollisionController implements CollisionControllerInterface {
             }
         }*/
         //process collisions between GameObjects
-        if(bd1 instanceof GameObject && bd2 instanceof GameObject) {
+        if (bd1 instanceof GameObject && bd2 instanceof GameObject) {
             processEndContact((GameObject) bd1, fd1, (GameObject) bd2, fd2);
         }
 
     }
 
-    private void processEndContact(GameObject bd1, FixtureType fd1, GameObject bd2, FixtureType fd2){
-        switch (bd1.getObjectType()){
+    private void processEndContact(GameObject bd1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
+        switch (bd1.getObjectType()) {
             case CHICKEN:
                 endChickenCollision((Chicken) bd1, fd1, bd2, fd2);
                 break;
@@ -344,65 +430,83 @@ public class CollisionController implements CollisionControllerInterface {
         }
     }
 
-    private void endChickenCollision(Chicken c1, FixtureType fd1, GameObject bd2, FixtureType fd2){
-        switch (bd2.getObjectType()){
-            case CHEF:endChickenChef(c1, fd1, (Chef)bd2, fd2);
+    private void endChickenCollision(Chicken c1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
+        switch (bd2.getObjectType()) {
+            case CHEF:
+                endChickenChef(c1, fd1, (Chef) bd2, fd2);
                 break;
-            case TRAP: endChickenTrap(c1, fd1, (Trap)bd2, fd2);
-                break;
-        }
-    }
-
-    private void endChefCollision(Chef chef, FixtureType fd1, GameObject bd2, FixtureType fd2){
-        switch (bd2.getObjectType()){
-            case STOVE: endStoveChef((Stove) bd2, fd2, chef, fd1);
-                break;
-            case CHICKEN: endChickenChef((Chicken)bd2, fd2, chef, fd1);
+            case TRAP:
+                if(fd2!= null && fd2.equals(FixtureType.TRAP_HITBOX)) {
+                    endChickenTrap(c1, fd1, (Trap) bd2, fd2);
+                }
                 break;
         }
     }
 
-    private void endStoveCollision(Stove s1, FixtureType fd1, GameObject bd2, FixtureType fd2){
-        switch(bd2.getObjectType()){
-            case CHEF: endStoveChef(s1, fd1, (Chef)bd2, fd2);
+    private void endChefCollision(Chef chef, FixtureType fd1, GameObject bd2, FixtureType fd2) {
+        switch (bd2.getObjectType()) {
+            case STOVE:
+                endStoveChef((Stove) bd2, fd2, chef, fd1);
+                break;
+            case CHICKEN:
+                endChickenChef((Chicken) bd2, fd2, chef, fd1);
+                break;
+        }
+    }
+
+    private void endStoveCollision(Stove s1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
+        switch (bd2.getObjectType()) {
+            case CHEF:
+                endStoveChef(s1, fd1, (Chef) bd2, fd2);
                 break;
         }
     }
 
 
-    private void endSlapCollision(GameObject bd1, FixtureType fd1, GameObject bd2, FixtureType fd2){
+    private void endSlapCollision(GameObject bd1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
         //TODO make slap class
-        if(bd2.getObjectType().equals(ObjectType.CHICKEN)){
+        if (bd2.getObjectType().equals(ObjectType.CHICKEN)) {
         }
     }
 
-    private void endTrapCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2){
-        if(bd2.getObjectType().equals(ObjectType.CHICKEN)){
-            endChickenTrap((Chicken)bd2, fd2, t1, fd1);
+    private void endTrapCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
+        if (bd2.getObjectType().equals(ObjectType.CHICKEN) && fd1!= null && fd1.equals(FixtureType.TRAP_HITBOX)) {
+            endChickenTrap((Chicken) bd2, fd2, t1, fd1);
         }
     }
 
     /**
      * Handles the end of an interaction between a chicken and a trap
+     *
      * @param c1
      * @param fd1
      * @param t2
      * @param fd2
      */
-    private void endChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2){
-        trapController.stopTrap(t2,c1);
+    private void endChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
+        if(t2.getTrapType().equals(Trap.type.LURE) && fd2!= null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)
+                && fd1!=null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
+            c1.stopAttack();
+        }
+        trapController.stopTrap(t2, c1);
+        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT)){
+            t2.removeHit();
+        }
+
     }
 
     private void endChickenChef(Chicken chicken, FixtureType fd1, Chef chef, FixtureType fd2){
-        if (fd1 == FixtureType.CHICKEN_SENSOR) {
+        if (fd1 == FixtureType.CHICKEN_HITBOX) {
             chicken.stopAttack();
             chicken.setTouching(false);
+
         }
     }
 
-    private void endStoveChef(Stove stove, FixtureType fd1, Chef chef, FixtureType fd2){
+    private void endStoveChef(Stove stove, FixtureType fd1, Chef chef, FixtureType fd2) {
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
-        chef.setCooking(false);
+        chef.setCooking(false, stove);
+        chef.setInCookingRange(false);
         stove.setLit(false);
     }
 

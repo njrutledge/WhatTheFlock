@@ -615,7 +615,7 @@ public class GameCanvas {
 	 * @param height The texture height
 	 */
 	public void draw(TextureRegion region, Color tint, float ox, float oy, float x, float y, float width, float height) {
-		draw(region, -1, tint, ox, oy, x, y, width, height);
+		draw(region, -1, 0, tint, ox, oy, x, y, width, height);
 	}
 
 	/**
@@ -638,18 +638,18 @@ public class GameCanvas {
 	 * @param width	The texture width
 	 * @param height The texture height
 	 */	
-	public void draw(TextureRegion region, float clipScale, Color tint, float ox, float oy, float x, float y, float width,
-					 float height) {
+	public void draw(TextureRegion region, float clipScale, float angle, Color tint, float ox, float oy, float x, float y,
+					 float width, float height) {
 		if (active != DrawPass.STANDARD) {
 			Gdx.app.error("GameCanvas", "Cannot draw without active begin()", new IllegalStateException());
 			return;
 		}
-		
+
 		// Unlike Lab 1, we can shortcut without a master drawing method
 		spriteBatch.setColor(tint);
 
 		if (clipScale != -1) {
-			spriteBatch.draw(region.getTexture(), x, y, ox, oy, width, height*clipScale, 1, 1, 0,
+			spriteBatch.draw(region.getTexture(), x, y, ox, oy, width, height*clipScale, 1f, 1f, angle,
 					region.getRegionX(), region.getRegionY(), region.getRegionWidth(), (int)(region.getRegionHeight()*clipScale),
 					false, true);
 		} else {

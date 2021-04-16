@@ -21,6 +21,14 @@ public class BuffaloChicken extends Chicken {
     /** Whether the chicken is currently running */
     private boolean running = false;
 
+    /** How fast we change frames */
+    private static final float ANIMATION_SPEED = 0.2f;
+    /** The number of animation frames in our filmstrip */
+    private static final int NUM_ANIM_FRAMES = 10;
+
+    /** Current animation frame for this shell */
+    private float animeframe;
+
     /**
      * Creates a new chicken avatar with the given physics data
      *
@@ -41,6 +49,7 @@ public class BuffaloChicken extends Chicken {
         // The shrink factors fit the image to a tigher hitbox
         super(data, unique, x, y, width, height, player, mh, ChickenType.Buffalo);
         sensorRadius = SENSOR_RADIUS;
+        //faceRight = true;
     }
 
     public void attack(float dt) {
@@ -75,9 +84,24 @@ public class BuffaloChicken extends Chicken {
 
     public float getStopDur() { return STOP_DUR; }
 
+    /**
+     * Animates the texture (moves along the filmstrip)
+     *
+     * @param texture
+     */
     public void setTexture(Texture texture) {
-        animator = new FilmStrip(texture, 3, 4);
-        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f-1);
+        animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
+        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f - 1);
+    }
+
+    public void update(float dt) {
+        if (!isRunning() && !isAttacking()) {
+            animeframe += ANIMATION_SPEED;
+            if (animeframe >= NUM_ANIM_FRAMES) {
+                animeframe -= NUM_ANIM_FRAMES;
+            }
+        }
+        super.update(dt);
     }
 
 
@@ -88,8 +112,10 @@ public class BuffaloChicken extends Chicken {
      */
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
+        float effect = faceRight ? 1.0f : -1.0f;
+        animator.setFrame((int)animeframe);
         if (!isInvisible) {
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.15f, 0.15f);
+            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f*effect, 0.25f);
         }
     }
 

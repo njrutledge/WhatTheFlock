@@ -106,7 +106,7 @@ public class ChickenAttack extends GameObject {
                 speed = CHARGE_SPEED;
                 end_vector = destination.sub(chicken.getPosition()).scl(100f);
                 filter = new Filter();
-                filter.categoryBits = 0x0016;
+                filter.categoryBits = 0x0010;
                 filter.maskBits = 0x0001 | 0x0004;
                 setFilterData(filter);
                 break;
@@ -162,6 +162,12 @@ public class ChickenAttack extends GameObject {
      * @return WIDTH
      * */
     public static float getHEIGHT() { return HEIGHT; }
+
+    /** Returns the type of the chicken attack
+     *
+     * @return attack type
+     */
+    public AttackType getType(){ return type;}
 
     public void collideObject(Chicken chicken) {
         if (type == AttackType.Charge && chicken != this.chicken) {

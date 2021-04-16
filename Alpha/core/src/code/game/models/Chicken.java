@@ -3,6 +3,7 @@ package code.game.models;
 import code.game.interfaces.ChickenInterface;
 import code.game.models.obstacle.Obstacle;
 import code.util.FilmStrip;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.*;
@@ -25,6 +26,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected CircleShape sensorShape;
     /** The physics shape of this object's hitbox */
     protected PolygonShape hitboxShape;
+    private Trap trap = null;
+    public boolean faceRight;
 
     /** The type of chicken */
     public enum ChickenType {
@@ -134,15 +137,17 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
 
     /** Whether the chicken movement is beign controlled by a force (otherwise a velocity)*/
-    protected Boolean isBeingForced = false;
+    protected boolean isBeingForced = false;
     /** Whether the chicken is currently in hitstun */
-    protected Boolean isStunned = false;
+    protected boolean isStunned = false;
     /** Whether the chicken is invisible due to hitstun*/
-    protected Boolean isInvisible = false;
+    protected boolean isInvisible = false;
     /** Whether the chicken is being slowed */
     private boolean inSlow = false;
     /** Ammount to increase or decrease the slow modifier */
-    private float SLOW_EFFECT = 0.3f;
+    private float SLOW_EFFECT = 0.33f;
+    /** Whether the chicken is being lured */
+    private boolean isLured = false;
 
 
 
@@ -177,6 +182,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         chaseSpeed = unique.getFloat("chasespeed", 0);
         knockback = unique.getFloat("knockback", 0);
         max_health = (int)(unique.getFloat("maxhealth",0) * (mh/100));
+        faceRight = true;
 
         health = max_health;
         this.data = data;
@@ -267,6 +273,13 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public float getSlow(){ return slow;}
 
     /**
+     * Returns the direction the chicken is facing.
+     *
+     * @return faceRight - true if facing right
+     */
+    public boolean isFacing() { return faceRight; }
+
+    /**
      * Creates the physics Body(s) for this object, adding them to the world.
      *
      * This method overrides the base method to keep your ship from spinning.
@@ -291,7 +304,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         hitboxShape.setAsBox(getWidth(), getHeight()/2, sensorCenter, 0);
         hitboxDef.shape = hitboxShape;
         Fixture hitboxFixture = body.createFixture(hitboxDef);
-        hitboxFixture.setUserData(FixtureType.CHICKEN_HITBOX);
+        hitboxFixture.setUserData(FixtureType.CHICKEN_HURTBOX);
 
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.density = data.getFloat("density",0);
@@ -301,7 +314,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         sensorDef.shape = sensorShape;
         // Ground sensor to represent our feet
         Fixture sensorFixture = body.createFixture( sensorDef );
-        sensorFixture.setUserData(FixtureType.CHICKEN_SENSOR);//getSensorName());
+        sensorFixture.setUserData(FixtureType.CHICKEN_HITBOX);//getSensorName());
 
 
         return true;
@@ -340,9 +353,15 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     @Override
     public void update(float dt) {
+        if (!isLured) {
+            if (getLinearVelocity().x > 0) {
+                faceRight = true;
+            } else {
+                faceRight = false;
+            }
+        }
         super.update(dt);
         applyForce();
-
         if (!cookin) {
             status_timer = Math.max(status_timer - dt, -1f);
         }
@@ -435,18 +454,19 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Whether or not the chicken is charging up an attack */
     public boolean isAttacking() {
-        return charge_time >= 0 || isRunning();
+        return (charge_time >= 0 || isRunning());
     }
 
     /** Whether or not the chicken is currently running */
-    public boolean isRunning() { return false; };
+    public boolean isRunning() { return false; }
 
     /** Set running */
     public void setRunning(boolean running) { return; }
 
-    //TODO: comment
-    public boolean chasingPlayer(Chef p) { return target.equals(p); }
-    //TODO: comment
+    /** Whether the chicken is chasing the object p */
+    public boolean chasingObject(GameObject p) { return target.equals(p); }
+
+    /** Set the chase speed of this chicken */
     public void setChaseSpeed(float spd){
         chaseSpeed = spd;
     }
@@ -473,8 +493,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void draw(GameCanvas canvas) {
         if (!isInvisible) {
-            canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
-            canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
+            //canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
+            //canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
         }
     }
 
@@ -559,16 +579,47 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @param t a Lure trap target
      */
     public void trapTarget(Trap t) {
-        target = t;
+        if (chasingPlayer()) {
+            trap = t;
+            target = t;
+            isLured = true;
+            t.markHit();
+        }
     }
 
+    /** Whether the chicken is currently chasing a player */
+    private boolean chasingPlayer(){
+        return target.equals(player);
+    }
+
+    public Trap getTrap(){
+        return trap;
+    }
     /**
      * Resets the chicken's target to the player
      *
      */
     public void resetTarget() {
         target = player;
+        isLured = false;
+        trap = null;
     }
+
+    /**
+     * Returns the chicken's current target
+     * @return  the current target
+     */
+    public Obstacle getTarget(){
+        return target;
+    }
+
+    /**
+     * Whether the chicken is currently lured
+     */
+    public boolean isLured(){
+        return isLured;
+    }
+
 
     /**
      * updates the isStunned condition for the chicken
@@ -576,7 +627,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      *
      * @param stun  whether the chicken is stunned
      */
-    public void setStunned(Boolean stun){
+    public void setStunned(boolean stun){
         isStunned = stun;
     }
 
@@ -608,7 +659,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @param newForce     the new value of the forceCache
      * @param isForce       whether the new force is a force (otherwise it is a velocity)
      * */
-    public void setForceCache(Vector2 newForce, Boolean isForce){
+    public void setForceCache(Vector2 newForce, boolean isForce){
         forceCache.set(newForce);
         this.isBeingForced = isForce;
     }
@@ -618,7 +669,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      *
      * @param invisible whether the chicken should be invisible
      */
-    public void setInvisible(Boolean invisible){
+    public void setInvisible(boolean invisible){
         isInvisible = invisible;
     }
 
@@ -626,7 +677,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * Accessor for hit
      * @return  the value of hit
      */
-    public Boolean getHit(){
+    public boolean getHit(){
         return hit;
     }
 }

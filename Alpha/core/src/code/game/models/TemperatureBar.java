@@ -17,14 +17,30 @@ public class TemperatureBar {
     ///** Texture atlas to support a temperature bar */
     //private Texture tempTexture;
     // tempBar is a "texture atlas." Break it up into parts.
-    /** Temperature background */
-    private TextureRegion tempBackground;
-    /** Middle portion of the temperature forground (colored region) */
-    private TextureRegion tempForeground;
+    /** Empty temperature bar */
+    private TextureRegion tempEmpty;
+    /** Yellow temperature bar */
+    private TextureRegion tempYellow;
+    /** Orange temperature bar */
+    private TextureRegion tempOrange;
+    /** Red temperature bar */
+    private TextureRegion tempRed;
+    /** Med temperature bar flame */
+    private TextureRegion medFlame;
+    /** Large temperature bar flame */
+    private TextureRegion lrgFlame;
 
     //private int WIDTH = 1;
     //private int HEIGHT = 300;
 
+    /** The x position of the temperature bar (if drawing from center) */
+    private float cx_temp;
+    /** The y position of the temperature bar (if drawing from center) */
+    private float cy_temp;
+    /** The x position of the temperature bar (if drawing from edge) */
+    private float ex_temp;
+    /** The x position of the temperature bar (if drawing from edge) */
+    private float ey_temp;
 
     /**Using to determine how fast the chicken cooks */
     private final float TEMPERATURE_TIMER = 1f;
@@ -43,18 +59,19 @@ public class TemperatureBar {
     private BitmapFont font = new BitmapFont();
 
     /**Create a new temperature bar with temperature range 0 thru max*/
-    public TemperatureBar(TextureRegion back, TextureRegion front, int max){
+    public TemperatureBar(TextureRegion empty, TextureRegion yellow, TextureRegion orange,
+                          TextureRegion red, TextureRegion medFlame, TextureRegion lrgFlame,
+                          int max){
         maxTemperature = max;
         temperature = 0;
-        //init temperature bar
-        //gatherTempAssets();
-        tempBackground = back;
-        tempForeground = front;
-        /*ProgressBar.ProgressBarStyle barStyle =
-                new ProgressBar.ProgressBarStyle(new TextureRegionDrawable(back),
-                        new TextureRegionDrawable(front));
-        barStyle.knobBefore = barStyle.knob;
-        tempBar = new ProgressBar(0, maxTemperature, 1, true, barStyle);*/
+
+        // Setting assets
+        tempEmpty = empty;
+        tempYellow = yellow;
+        tempOrange = orange;
+        tempRed = red;
+        this.medFlame = medFlame;
+        this.lrgFlame = lrgFlame;
     }
 
     /** Returns the temperature of the chicken
@@ -108,7 +125,7 @@ public class TemperatureBar {
      *
      * @param amt - the amount to decrease by
      */
-    public void reduceTemp(int amt) {
+    public void reduceTemp(float amt) {
         temperature -= Math.max(0,amt);
     }
 
@@ -127,15 +144,46 @@ public class TemperatureBar {
     }
     public void draw(GameCanvas canvas){
         //draw temperature
-        float scale = 1.5f;
-        //0.045 bottom, 0.965 top
-        canvas.draw(tempBackground, Color.WHITE, 1220f, 250f,  tempBackground.getRegionWidth()/scale, tempBackground.getRegionHeight()/scale);
-        canvas.draw(tempForeground, 0.045f+((temperature*0.92f)/maxTemperature), Color.WHITE,
-                tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale, 1220f, 250f,
-                tempForeground.getRegionWidth() / scale, tempForeground.getRegionHeight() / scale);
-        //tempBar.draw(canvas, temperature);
-        //canvas.drawText("Temp: "+tempBar.getValue(), font, 500,565);
-       // canvas.drawText("Temp: "+temperature, font, 575,565);
+        float scale = 0.75f;
+        float fscale = 0.65f;
+        float angle = (float)(3*Math.PI)/2;
+        //0.04 bottom, 0.94 top
+
+        TextureRegion bar;
+        TextureRegion flame;
+        if (cx_temp == 0) { cx_temp = 25 + tempEmpty.getRegionHeight()*scale/2; }
+        if (cy_temp == 0) { cy_temp = canvas.getHeight() - 90; }
+        if (ex_temp == 0) { ex_temp = 268; }
+        if (ey_temp == 0) { ey_temp = canvas.getHeight()/2 + 4; }
+        // Draw the empty temperature bar
+        if (temperature/maxTemperature <= 0.22) {
+            bar = tempYellow;
+        } else if (temperature/maxTemperature <= 0.6) {
+            bar = tempOrange;
+            canvas.draw(medFlame, Color.WHITE, medFlame.getRegionWidth()/2, medFlame.getRegionHeight()/2,
+                    cx_temp+180,  cy_temp-3, angle, fscale, fscale);
+        } else {
+            bar = tempRed;
+            canvas.draw(lrgFlame, Color.WHITE, lrgFlame.getRegionWidth()/2, lrgFlame.getRegionHeight()/2,
+                    cx_temp+200,  cy_temp-6, angle, fscale, fscale);
+        }
+
+        canvas.draw(tempEmpty, Color.WHITE, tempEmpty.getRegionWidth()/2, tempEmpty.getRegionHeight()/2,
+                        cx_temp,  cy_temp, angle, scale, scale);
+        canvas.draw(bar, 0.04f+((temperature*0.91f)/maxTemperature),
+                270, Color.WHITE, bar.getRegionWidth()*scale/2,
+                tempYellow.getRegionHeight()/2, ex_temp, ey_temp,
+                bar.getRegionWidth()*scale, bar.getRegionHeight()*scale);
+
+/*        canvas.draw(tempEmpty, Color.WHITE, 1220f, 250f,  tempEmpty.getRegionWidth()/scale,
+                tempEmpty.getRegionHeight()/scale);*/
+        /*canvas.draw(tempYellow, 0.045f+((temperature*0.92f)/maxTemperature), Color.WHITE,
+                tempYellow.getRegionWidth() / scale, tempYellow.getRegionHeight() / scale, 1220f, 250f,
+                tempYellow.getRegionWidth() / scale, tempYellow.getRegionHeight() / scale);
+*/
+/*        canvas.draw(tempYellow, 0.045f+((temperature*0.92f)/maxTemperature), Color.WHITE,
+                tempYellow.getRegionWidth() / scale, tempYellow.getRegionHeight() / scale, 1220f, 250f,
+                tempYellow.getRegionWidth() / scale, tempYellow.getRegionHeight() / scale);*/
 
     }
 }

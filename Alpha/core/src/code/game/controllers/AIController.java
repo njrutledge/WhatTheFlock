@@ -28,6 +28,8 @@ public class AIController {
     protected JsonValue unique;
     /** The player character that the enemy will follow */
     private GameObject target;
+    /** The chef that the enemy wants to attack */
+    private Chef chef;
     /** The speed that the enemy chases the player */
     //TODO: make final after technical
     private float chaseSpeed;
@@ -37,53 +39,28 @@ public class AIController {
     private final float INVULN_TIME = 1f;
     /** Counter for Invulnerability timer*/
     private float invuln_counter = INVULN_TIME;
-    /** Time to move perpendicular to a wall upon collision before returning to normal AI */
-    private final float SIDEWAYS_TIME = 0.1f;
-    /** Counter for sideways movement timer*/
-    private float sideways_counter = SIDEWAYS_TIME;
     /** Time to remain stationary after hitting the player */
     private final float STOP_DUR;
     /** Counter for stop movement timer*/
     private float stop_counter;
-    /** True if the chicken has just been hit and the knockback has not yet been applied*/
-    private boolean hit = false;
 
-    private final int FIRE_MULT = 2;
-
-    private boolean finishA = false;
-
-    private boolean soundCheck = true;
-
-    private float attack_timer = -1f;
-
-    private float attack_charge = 0f;
-
-    private float ATTACK_CHARGE = 0.4f;
-
-    private boolean hitboxOut = false;
-
-
-    private float ATTACK_DUR = 0.2f;
-
-    private CircleShape attackHit;
-
-    private float ATTACK_RADIUS = 1.5f;
-
-    protected FilmStrip animator;
     /** Reference to texture origin */
     protected Vector2 origin;
 
     /** The chicken being controlled by this controller */
     private Chicken chicken;
-    /** The chef that this chicken is targeting*/
-    private Chef chef;
     /** The states of the finite state machine for chicken AI*/
-    public static enum FSM{
-        CHASE, /** Chicken is chasing the player, but not in attack range yet*/
-        KNOCKBACK,/** The chicken has just taken damage and is receiving a knockback force*/
-        STUNNED,/** The chicken has recently taken damage, but not receiving a knockback force*/
-        STOP, /** The chicken has recently attacked and is recovering before performing an action */
-        ATTACK /** The chicken is attacking the chef */
+    public enum FSM{
+        /** Chicken is chasing the player, but not in attack range yet*/
+        CHASE,
+        /** The chicken has just taken damage and is receiving a knockback force*/
+        KNOCKBACK,
+        /** The chicken has recently taken damage, but not receiving a knockback force*/
+        STUNNED,
+        /** The chicken has recently attacked and is recovering before performing an action */
+        STOP,
+        /** The chicken is attacking the chef */
+        ATTACK
     }
 
     // Pathfinding
@@ -130,6 +107,14 @@ public class AIController {
     }
 
     /**
+     * if any of the tiles are null
+     * @return
+     */
+    private boolean anyTilesNull(){
+        /*return (child_tile == null || start_tile == null || move_tile == null || target_tile == null);*/
+        return false;
+    }
+    /**
      * If applicable, change the FSM state for this AI controller based on the current state and
      * recent interactions between the chicken and traps/chef
      */
@@ -141,7 +126,7 @@ public class AIController {
                 } else if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
                 }
-                else if (chicken.isAttacking()) {
+                else if (!chicken.isLured() && chicken.isAttacking()) {
                     state = FSM.ATTACK;
                 }
                 break;
@@ -163,7 +148,7 @@ public class AIController {
                     state = FSM.KNOCKBACK;
                 }
                 else if (stop_counter >= STOP_DUR) {
-                    if (chicken.isTouching()) {
+                    if (!chicken.isLured() && chicken.isTouching()) {
                         state = FSM.ATTACK; chicken.startAttack();
                     }
                     else { state = FSM.CHASE; }
@@ -173,11 +158,11 @@ public class AIController {
                 if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
+                else if ((chicken.isLured() || chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())) {
+                    state = FSM.CHASE;
+                }
                 else if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
-                }
-                else if (chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching()) {
-                    state = FSM.CHASE;
                 }
                 break;
             default: // This shouldn't happen
@@ -200,6 +185,7 @@ public class AIController {
         if (state == FSM.ATTACK && target.isActive()) {
             chicken.attack(dt);
         }
+        target = (GameObject) chicken.getTarget();
     }
 
     /**
@@ -210,13 +196,14 @@ public class AIController {
         switch(state){
             case CHASE:
                 move();
+                if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
                 temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
                 temp.nor();
                 temp.scl(chaseSpeed * chicken.getSlow());
                 chicken.setForceCache(temp, false);
                 break;
             case KNOCKBACK:
-                temp.set(target.getPosition().sub(chicken.getPosition()));
+                temp.set(chef.getPosition().sub(chicken.getPosition()));
                 temp.nor();
                 temp.scl(-knockback);
                 chicken.setForceCache(temp, true);
@@ -331,15 +318,15 @@ public class AIController {
         open.clear();
         closed.clear();
         grid.clearCosts();
-
         start_tile = grid.getTile(chicken.getX(), chicken.getY());
         start_tile.setGcost(0);
         start_tile.setHcost(distance(target.getPosition(), grid.getPosition(start_tile.getRow(), start_tile.getCol())));
         start_tile.setFcost(start_tile.getHcost());
         open.add(start_tile);
-        target_tile = grid.getTile(target.getX(), target.getY());
+        target_tile = grid.getTile(target.getX(), target.getY()); //could be getting a null tile?
         AStar();
 
+        if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
         // Moving in a straight line?
         //TODO: remove after testing
         if (child_tile == null){
@@ -354,8 +341,10 @@ public class AIController {
         if (target_tile == null){
             int stop = 4;
         }
+
         if ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile) {
-            move_tile = child_tile;
+                move_tile = child_tile;
         }
+
     }
 }

@@ -1,6 +1,7 @@
 package code.game.interfaces;
 
 import code.game.models.Chef;
+import code.game.models.GameObject;
 import code.game.models.Trap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -46,7 +47,7 @@ public interface ChickenInterface {
 
     public boolean isAttacking();
 
-    public boolean chasingPlayer(Chef player);
+    public boolean chasingObject(GameObject player);
 
     public void setChaseSpeed(float spd);
 
@@ -103,7 +104,7 @@ public interface ChickenInterface {
      *
      * @param stun  whether the chicken is stunned
      */
-    public void setStunned(Boolean stun);
+    public void setStunned(boolean stun);
 
     /** If the enemy is still alive
      * @return true if chicken health > 0*/
@@ -120,12 +121,12 @@ public interface ChickenInterface {
      * @param newForce     the new value of the forceCache
      * @param isForce       whether the new force is a force (otherwise it is a velocity)
      * */
-    public void setForceCache(Vector2 newForce, Boolean isForce);
+    public void setForceCache(Vector2 newForce, boolean isForce);
 
     /**
      * Set the isInvisible boolean, which determines whether to draw the chicken on the screen
      *
      * @param invisible whether the chicken should be invisible
      */
-    public void setInvisible(Boolean invisible);
+    public void setInvisible(boolean invisible);
 }

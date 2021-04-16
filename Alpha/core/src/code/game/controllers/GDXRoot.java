@@ -14,12 +14,12 @@
  package code.game.controllers;
 
 import code.assets.AssetDirectory;
+import code.game.display.LevelSelectMode;
+import code.game.display.LoadingMode;
+import code.game.display.MainMenuMode;
 import code.game.views.GameCanvas;
 import code.util.ScreenListener;
 import com.badlogic.gdx.*;
-//import edu.cornell.gdiac.game.rocket.*;
-//import edu.cornell.gdiac.game.ragdoll.*;
-
 
 /**
  * Root class for a LibGDX.  
@@ -39,6 +39,10 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameCanvas canvas;
 	/** Player mode for the asset loading screen (CONTROLLER CLASS) */
 	private LoadingMode loading;
+	/** Player mode for the menu screen (CONTROLLER CLASS)*/
+	private MainMenuMode menu;
+	/** Player mode for the level selection screen (CONTROLLER CLASS)*/
+	private LevelSelectMode levelselect;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	/** List of all WorldControllers */
@@ -118,30 +122,71 @@ public class GDXRoot extends Game implements ScreenListener {
 		if (screen == loading) {
 			directory = loading.getAssets();
 			controller.gatherAssets(directory);
-			controller.setScreenListener(this);
+			//controller.setScreenListener(this);
 			controller.setCanvas(canvas);
 			controller.initGrid();
-			if(exitCode == GameController.EASY){
-				controller.initEasy();
-			} else if (exitCode == GameController.MED){
-				controller.initMed();
-			} else if (exitCode == GameController.HARD){
-				controller.initHard();
-			}
-			controller.reset();
-			setScreen(controller);
-			
+
+			//make other modes with assets
+			menu = new MainMenuMode(directory, canvas);
+			levelselect = new LevelSelectMode(directory, canvas);
+
+			//set listeners
+			controller.setScreenListener(this);
+			menu.setScreenListener(this);
+			levelselect.setScreenListener(this);
+
 			loading.dispose();
 			loading = null;
-		} else if (exitCode == GameController.EXIT_NEXT) {
+
+			//menu.activateInputProcessor(true);
+			setScreen(menu);
+			//setScreen(levelselect);
+		}
+		else if (screen == menu){
+			//menu.activateInputProcessor(false);
+			menu.reset();
+			switch (exitCode){
+				case MainMenuMode.START: //TODO go to level select
+					//controller.reset();
+					levelselect.reset();
+					//levelselect.activateInputProcessor(true);
+					setScreen(levelselect);
+					break;
+				case MainMenuMode.GUIDE: //TODO go to guide
+					break;
+				case MainMenuMode.OPTIONS: //TODO go to options
+					break;
+				case MainMenuMode.QUIT: //TODO go to quit
+					// We quit the main application
+					Gdx.app.exit();
+					break;
+			}
+		}
+		else if (screen == levelselect){
 			controller.reset();
-			setScreen(controller);
-		} else if (exitCode == GameController.EXIT_PREV) {
-			controller.reset();
-			setScreen(controller);
-		} else if (exitCode == GameController.EXIT_QUIT) {
-			// We quit the main application
-			Gdx.app.exit();
+			//levelselect.activateInputProcessor(false);
+			if(exitCode == 0){
+				controller.populateLevel(levelselect.getLevelSelected());
+				levelselect.reset();
+				setScreen(controller);
+			}
+		}
+		else if (screen == controller){
+			switch (exitCode){
+				case GameController.EXIT_NEXT:
+					menu.reset();
+					setScreen(menu);
+					break;
+				case GameController.EXIT_PREV:
+					menu.reset();
+					setScreen(menu);
+					break;
+				case GameController.EXIT_QUIT:
+					//go back to menu select screen
+					menu.reset();
+					setScreen(menu);
+					break;
+			}
 		}
 	}
 
