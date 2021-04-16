@@ -249,6 +249,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
 	/** Reference to the active stove object */
 	private Stove ActiveStove;
+	/** Which stove (index) was the last to be used */
+	private int lastStove;
+	/** Other possible choices for the stove */
+	private List<Integer> nonActiveStoves = new ArrayList<>();
 	/** List of all inactive stoves in the level */
 	private List<Stove> Stoves = new ArrayList<>();
 	/** Timer for the current active stove */
@@ -506,6 +510,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		others.clear();
 		chickens.clear();
 		ActiveStove = null;
+		lastStove = 0;
 		Stoves.clear();
 		world.dispose();
 		spawnPoints.clear();
@@ -654,7 +659,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					Stoves.add(stove);
 					if (ActiveStove == null){
 						ActiveStove = stove;
+						lastStove = 0;
 						ActiveStove.setActive();
+					} else {
+						nonActiveStoves.add(nonActiveStoves.size() + 1);
 					}
 					break;
 				case LEVEL_CHEF:
@@ -965,7 +973,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (Stoves.size() > 1 && gameTime > stoveTimer + STOVE_RESET) {
 			stoveTimer = gameTime;
 			ActiveStove.setInactive();
-			ActiveStove = Stoves.get(MathUtils.random(0, Stoves.size() - 1));
+			int ind = nonActiveStoves.remove(MathUtils.random(0, nonActiveStoves.size() - 1));
+			nonActiveStoves.add(lastStove);
+			ActiveStove = Stoves.get(ind);
+			lastStove = ind;
 			ActiveStove.setActive();
 		}
 
