@@ -1189,25 +1189,30 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
 		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
 				ChickenAttack.getHEIGHT(), chef, chicken, type);
-		attack.setDrawScale(scale);
-		addQueuedObject(attack);
-		switch (type) {
-			case Basic:
-				nuggetAttack.stop();
-				nuggetAttack.play(DEFAULT_VOL);
-				break;
-			case Projectile:
-				shreddedAttack.stop();
-				shreddedAttack.play(DEFAULT_VOL);
-				break;
-			case Charge:
-				if (chicken.getType() == Chicken.ChickenType.Buffalo){
-					buffaloAttack.stop();
-					buffaloAttack.play(DEFAULT_VOL);
-				}
-				break;
+		if (type == ChickenAttack.AttackType.Charge && grid.isObstacleAt(attack.getX(), attack.getY())) {
+			attack.markRemoved(true);
+			chicken.forceStopAttack();
+		} else {
+			chicken.setChickenAttack(attack);
+			attack.setDrawScale(scale);
+			addQueuedObject(attack);
+			switch (type) {
+				case Basic:
+					nuggetAttack.stop();
+					nuggetAttack.play(DEFAULT_VOL);
+					break;
+				case Projectile:
+					shreddedAttack.stop();
+					shreddedAttack.play(DEFAULT_VOL);
+					break;
+				case Charge:
+					if (chicken.getType() == Chicken.ChickenType.Buffalo) {
+						buffaloAttack.stop();
+						buffaloAttack.play(DEFAULT_VOL);
+					}
+					break;
 
-
+			}
 		}
 	}
 

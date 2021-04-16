@@ -13,7 +13,7 @@ public class BuffaloChicken extends Chicken {
     ///////// altered or removed, but should provide a good base to start with.
 
     /** Radius of chicken's sensor */
-    private final float SENSOR_RADIUS = 5f;
+    private final float SENSOR_RADIUS = 10f;
     /** Time it takes for the chicken to begin their attack after colliding with their target */
     private final float CHARGE_DUR = 1f;
     /** Time it takes for the chicken to recover from attacking */
@@ -80,7 +80,7 @@ public class BuffaloChicken extends Chicken {
     public void setRunning(boolean running) { this.running = running; }
 
     @Override
-    public void interruptAttack() { stopAttack(true); setStopped(true); setRunning(false); }
+    public void interruptAttack() { setRunning(false); stopAttack(); setStopped(true); doneAttack = true; }
 
     public float getStopDur() { return STOP_DUR; }
 
@@ -103,6 +103,7 @@ public class BuffaloChicken extends Chicken {
         }
         super.update(dt);
     }
+
 
     /**
      * Draws the physics object.
