@@ -1,0 +1,7 @@
+{
+  "pillars": "levels/pillars.json",
+  "boxed in!!": "levels/boxedIn.json",
+  "Cornered": "levels/manta.json",
+  "HUDTEST": "levels/HUDTEST.json",
+  "TEST": "levels/TEST.json"
+}

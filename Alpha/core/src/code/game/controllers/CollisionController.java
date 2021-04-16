@@ -163,7 +163,7 @@ public class CollisionController implements CollisionControllerInterface {
                 handleChickenTrap(c1, fd1, (Trap) bd2, fd2);
                 break;
             case ATTACK:
-                if (fd1 == FixtureType.CHICKEN_HITBOX)
+                if (fd1 == FixtureType.CHICKEN_HURTBOX)
                 { handleChickenChickenAttack(c1, fd1, (ChickenAttack) bd2, fd2); }
                 break;
         }
