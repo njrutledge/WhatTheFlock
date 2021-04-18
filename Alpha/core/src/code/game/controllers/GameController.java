@@ -512,6 +512,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		ActiveStove = null;
 		lastStove = 0;
 		Stoves.clear();
+		nonActiveStoves.clear();
 		world.dispose();
 		spawnPoints.clear();
 		
@@ -973,6 +974,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (Stoves.size() > 1 && gameTime > stoveTimer + STOVE_RESET) {
 			stoveTimer = gameTime;
 			ActiveStove.setInactive();
+			System.out.println(nonActiveStoves);
 			int ind = nonActiveStoves.remove(MathUtils.floor(MathUtils.random(0, nonActiveStoves.size() - 1)));
 			nonActiveStoves.add(lastStove);
 			ActiveStove = Stoves.get(ind);
