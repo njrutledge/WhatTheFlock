@@ -64,10 +64,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Health of the chicken*/
     // All of these variables will be put into a FSM in AIController eventually
     private float health;
-    /** Time until invulnerability after getting hit wears off */
-    private final float INVULN_TIME = 1f;
-    /** Counter for Invulnerability timer*/
-    protected float invuln_counter = INVULN_TIME;
     /** Time to move perpendicular to a wall upon collision before returning to normal AI */
     private final float SIDEWAYS_TIME = 0.1f;
     /** Counter for sideways movement timer*/
@@ -526,7 +522,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             }
             attack_timer = -1f;
             charge_time = -1f;
-            invuln_counter = 0;
+            hitboxOut = false;
             hitboxOut = false;
             hit = true;
             isStunned = true;
