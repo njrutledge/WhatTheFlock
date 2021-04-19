@@ -82,7 +82,10 @@ public class GDXRoot extends Game implements ScreenListener {
 		// Call dispose on our children
 		setScreen(null);
 		controller.dispose();
-
+		loading.dispose();
+		menu.dispose();
+		levelselect.dispose();
+		//TODO dispose others if needed
 		canvas.dispose();
 		canvas = null;
 	
