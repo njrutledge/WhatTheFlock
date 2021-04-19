@@ -99,6 +99,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture buffaloTexture;
 	/** Texture asset for the shredded chicken */
 	private Texture shreddedTexture;
+	/** Texture asset for the dino chicken */
+	private Texture dinoTexture;
 
 
 	///** Texture asset for temp bar*/
@@ -442,6 +444,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
+		dinoTexture = directory.getEntry("char:dino", Texture.class);
 		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
 		slapSideTexture = directory.getEntry("char:slapSide", Texture.class);
 		slapDownTexture = directory.getEntry("char:slapDown", Texture.class);
@@ -999,6 +1002,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				spawnChicken(Chicken.ChickenType.Buffalo);
 			} else if (chicken == 2) {
 				spawnChicken(Chicken.ChickenType.Shredded);
+			} else if (chicken == 3) {
+				spawnChicken(Chicken.ChickenType.DinoNugget);
 			}
 			lastEnemySpawnTime = gameTime;
 			enemiesLeft -= 1;
@@ -1116,12 +1121,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
 			((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
 			enemy.setTexture(shreddedTexture);
-		}
-		else{
+		} else if (type == Chicken.ChickenType.Buffalo){
 			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(buffaloTexture);
+		} else if (type == Chicken.ChickenType.DinoNugget){
+			enemy = new DinoChicken(constants.get("chicken"), constants.get("dino"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(dinoTexture);
+		} else { // Should not reach this state
+			assert false;
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 		}
-
 		enemy.setDrawScale(scale);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy, GameObject.ObjectType.CHICKEN);
