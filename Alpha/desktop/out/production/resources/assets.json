@@ -1,0 +1,130 @@
+{
+	"textures": {
+        "enviro:earth" : {
+            "file":  "enviro/earthtile.png",
+            "wrapU": "repeated",
+            "wrapV": "repeated"
+        },
+        "enviro:wall:center": "enviro/wall.png",
+        "enviro:wall:left": "enviro/wall_l.png",
+        "enviro:wall:right": "enviro/wall_r.png",
+      "enviro:wall:top": "enviro/wall_t.png",
+      "enviro:wall:bottom": "enviro/wall_b.png",
+      "enviro:wall:yellow:center": {
+        "file": "enviro/ywall.png",
+        "wrapU": "repeated",
+        "wrapV": "repeated"
+      },
+        "enviro:wall:yellow:bottom": "enviro/ywall_b.png",
+        "enviro:stove": "enviro/stove.png",
+        "enviro:trap:spike": "enviro/spiketrap.png",
+        "enviro:trap:spot": "enviro/trapspot.png",
+        "enviro:trap:cooler": "enviro/cooler.png",
+        "enviro:trap:slow": "enviro/slow.png",
+        "enviro:background": "enviro/background_2.png",
+        "enviro:spawn": "enviro/fridge.png",
+
+        "char:chicken": "characters/chicken.png",
+        "char:chef":"characters/chef_animation_run.png",
+        "char:bullet": "characters/bullet.png",
+        "char:nugget": "characters/nugget.png",
+        "char:buffalo": "characters/buffalo_animation_walk.png",
+        "char:shredded": "characters/shredded.png",
+        "char:nuggetBar": "characters/nuggetBar.png",
+        "char:egg": "characters/egg.png",
+        "char:slapSide": "characters/chef_animation_attackSide.png",
+        "char:slapDown": "characters/chef_animation_attackDown_color.png",
+        "char:slapUp": "characters/chef_animation_attackUp.png",
+        "char:chefHurt": "characters/chef_animation_hurt.png",
+        "char:chefIdle": "characters/chef_animation_idle.png",
+
+
+        "background:levelselect": "ui/levelselect/cuttingboard.png",
+        "background:menu": "ui/loading/temp_menu_bkg.png",
+
+        "ui:menu:start": "ui/loading/mainmenu_start.png",
+        "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
+        "ui:menu:options": "ui/loading/mainmenu_options.png",
+        "ui:menu:quit": "ui/loading/mainmenu_quit.png",
+
+        "ui:knife": "ui/levelselect/cleaver_placeholder_empty.png",
+        "ui:arrowRight": "ui/levelselect/arrowRight.png",
+        "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
+
+        "ui:tempBar": {
+          "file":      "ui/HUD_tempbar_noflame.png",
+          "atlas":     {
+            "empty" : [55, 60, 140, 600],
+            "yellow" : [285, 60, 369, 600],
+            "orange" : [522, 61, 605, 601],
+            "red" : [746, 58, 829, 598]
+          }
+        },
+      "ui:tempBarMedFlame": {
+        "file":      "ui/HUD_2tempbar_flame.png",
+        "atlas":     {
+          "flame" : [0, 0, 154, 225]
+        }
+      },
+      "ui:tempBarLargeFlame": {
+        "file":      "ui/HUD_3tempbar_flame.png",
+        "atlas":     {
+          "flame" : [0, 0, 186, 236]
+        }
+      },
+        "ui:healthUnit": {
+            "file": "ui/final_hearts.png",
+            "atlas": {
+              "full": [75, 55, 160, 125],
+              "half": [240, 55, 325, 125]
+          }
+      }
+    },
+    "jsons"  : {
+        "constants": "constants.json",
+        "levels": "levels.json"
+    },
+    "sounds" : {
+        "sound:chef:jump" : "sounds/chef/jump.mp3",
+        "sound:chef:pew"  : "sounds/chef/slap_1.ogg",
+        "sound:chef:plop" : "sounds/chef/plop.mp3",
+        "sound:chef:emptySlap" : "sounds/chef/empty_slap_2.ogg",
+        "sound:chef:squelch": "sounds/chef/squelch.ogg",
+        "sound:chef:oof": "sounds/chef/chef_hurt_2.ogg",
+
+        "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt_1.ogg",
+        "sound:chick:nugget:attack" : "sounds/chicken/nug_attack_1.ogg",
+
+        "sound:chick:buffalo:charge" : "sounds/chicken/buffalo_charge.ogg",
+        "sound:chick:buffalo:attack" : "sounds/chicken/buffalo_attack.ogg",
+
+        "sound:chick:shredded:attack" : "sounds/chicken/shredded_attack.ogg",
+        "sound:chick:shredded:hurt" : "sounds/chicken/shredded_hurt.ogg",
+        "sound:chick:eggsplosion" : "sounds/chicken/eggsplosion.ogg",
+
+
+        "sound:chick:fire" : "sounds/chicken/set_ablaze_cluck.ogg",
+
+        "sound:trap:fireLinger" : "sounds/trap/fire_linger_1.ogg",
+        "sound:trap:fireTrig" : "sounds/trap/fire_trigger_2.ogg",
+        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg",
+
+        "sound:music:theme1" : "sounds/music/WTF_main_theme_draft3.ogg",
+
+        "sound:music:levelSel" : "sounds/music/WTF_Menu.ogg"
+    },
+    "fonts": {
+        "font:retro": {
+            "file": "ui/fonts/RetroGame.ttf",
+            "size": 64
+        },
+        "font:minecraft": {
+            "file": "ui/fonts/Minecraft.ttf",
+            "size": 16
+        },
+        "font:lightPixel": {
+          "file": "ui/fonts/LightPixel7.ttf",
+          "size": 64
+        }
+    }
+}
