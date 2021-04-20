@@ -114,6 +114,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     private float ATTACK_RADIUS = 1.5f;
 
     protected FilmStrip attack_animator;
+    protected FilmStrip hurt_animator;
     protected FilmStrip animator;
     /** Current animation frame for this shell */
     protected float animeframe;
@@ -493,6 +494,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
     }
 
+    /** Sets the hurt animation filmstrip*/
+    public void setHurtTexture(Texture texture) {
+        hurt_animator = new FilmStrip(texture, 1, 5);
+        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+    }
+
     /**
      * Set texture for the chicken healthbar
      * @param texture texture for chicken healthbar
@@ -530,7 +537,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void takeDamage(float damage) {
         if (!isStunned) {
-
+            animeframe = 0;
             if (status_timer >= 0) {
                 health -= damage * FIRE_MULT;
             } else {

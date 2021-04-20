@@ -105,7 +105,13 @@ public class NuggetChicken extends Chicken {
      */
     @Override
     public void update(float dt) {
-        if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
+
+        if (isStunned) {
+            animeframe += animation_speed*4;
+            if (animeframe >= 5) {
+                animeframe -= 5;
+            }
+        } else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
             animeframe += animation_speed;
             if (animeframe >= num_anim_frames) {
                 animeframe -= num_anim_frames;
@@ -131,11 +137,12 @@ public class NuggetChicken extends Chicken {
         if (isAttacking && attack_animator != null) {
             attack_animator.setFrame((int) animeframe);
             canvas.draw(attack_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
-        } else if (!isInvisible){
+        } else if (!isStunned){
             animator.setFrame((int) animeframe);
             canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
-        } else {
-            //canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
+        } else if (isStunned){
+            hurt_animator.setFrame((int)(animeframe));
+            canvas.draw(hurt_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
         }
     }
 
