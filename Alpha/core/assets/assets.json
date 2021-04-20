@@ -29,6 +29,7 @@
         "char:bullet": "characters/bullet.png",
         "char:nugget": "characters/nugget_animation_walk.png",
         "char:dino": "characters/dino_animation_walk.png",
+        "char:dinoAttack": "characters/dino_animation_attack.png",
         "char:buffalo": "characters/buffalo_animation_walk.png",
         "char:shredded": "characters/shredded.png",
         "char:nuggetBar": "characters/nuggetBar.png",

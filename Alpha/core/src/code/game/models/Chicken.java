@@ -84,6 +84,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected boolean doneAttack = false;
     /** Whether the chicken should stop their attack after running */
     private boolean stopThisAttack = false;
+
+    protected boolean isAttacking = false;
     /** Whether or not the chicken's sensor is touching its target (Not up-to-date)
      * Touching might not always be up to date as a chicken that is
      * currently performing an attack may stop touching from being
@@ -106,15 +108,15 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Time since the chicken began charging up their attack */
     protected float charge_time = -1f;
 
-
     protected boolean hitboxOut = false;
     protected float ATTACK_DUR = 0.5f;
 
-
-
     private float ATTACK_RADIUS = 1.5f;
 
+    protected FilmStrip attack_animator;
     protected FilmStrip animator;
+    /** Current animation frame for this shell */
+    protected float animeframe;
     /** Reference to texture origin */
     protected Vector2 origin;
     /** slowness modifier for chicken speed */
@@ -180,6 +182,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         max_health = (int)(unique.getFloat("maxhealth",0) * (mh/100));
         faceRight = true;
 
+        animeframe = 0.0f;
         health = max_health;
         this.data = data;
         this.unique = unique;
@@ -349,6 +352,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     @Override
     public void update(float dt) {
+
         if (!isLured) {
             if (getLinearVelocity().x > 0) {
                 faceRight = true;
@@ -387,6 +391,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * Start an attack
      */
     public void startAttack() {
+        setIsAttacking(true);
+        animeframe = 0;
         if (!isRunning()) {
             touching = true;
             doneAttack = false;
@@ -398,6 +404,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     }
 
     public void stopAttack() {
+        animeframe = 0;
+        setIsAttacking(false);
         if (!isRunning() && doneAttack) {
             attack_timer = -1f;
             charge_time = -1f;
@@ -448,9 +456,14 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Interrupts the current attack if running */
     public void interruptAttack() { return; }
 
+    /** Sets whether or not the chicken is charging up an attack */
+    public void setIsAttacking(boolean t) {
+         isAttacking = t;
+    }
+
     /** Whether or not the chicken is charging up an attack */
     public boolean isAttacking() {
-        return (charge_time >= 0 || isRunning());
+        return isAttacking;
     }
 
     /** Whether or not the chicken is currently running */
@@ -474,6 +487,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public abstract void setTexture(Texture texture);
 
+    /** Sets the attack animation filmstrip */
+    public void setAttackTexture(Texture texture) {
+        attack_animator = new FilmStrip(texture, 1, 9);
+        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+    }
+
     /**
      * Set texture for the chicken healthbar
      * @param texture texture for chicken healthbar
@@ -488,10 +507,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        if (!isInvisible) {
-            //canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
-            //canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
-        }
+        //Chickens are to each have their own draw methods
     }
 
     /**

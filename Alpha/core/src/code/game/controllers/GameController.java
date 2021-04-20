@@ -101,7 +101,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture shreddedTexture;
 	/** Texture asset for the dino chicken */
 	private Texture dinoTexture;
-
+	/** Texture asset for the dino nugget attack */
+	private Texture dinoAttackTexture;
 
 	///** Texture asset for temp bar*/
 	//private Texture tempTexture;
@@ -445,6 +446,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
 		dinoTexture = directory.getEntry("char:dino", Texture.class);
+		dinoAttackTexture = directory.getEntry("char:dinoAttack", Texture.class);
 		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
 		slapSideTexture = directory.getEntry("char:slapSide", Texture.class);
 		slapDownTexture = directory.getEntry("char:slapDown", Texture.class);
@@ -1127,6 +1129,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else if (type == Chicken.ChickenType.DinoNugget){
 			enemy = new DinoChicken(constants.get("chicken"), constants.get("dino"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(dinoTexture);
+			enemy.setAttackTexture(dinoAttackTexture);
 		} else { // Should not reach this state
 			assert false;
 			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);

@@ -31,8 +31,6 @@ public class NuggetChicken extends Chicken {
     /** The number of animation frames in our filmstrip */
     private int num_anim_frames;
 
-    /** Current animation frame for this shell */
-    private float animeframe;
     /** Nugget scale differences*/
     private float hScale;
     private float wScale;
@@ -97,6 +95,7 @@ public class NuggetChicken extends Chicken {
         animator = new FilmStrip(texture, 1, 8);
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
     }
+
     /**
      * Updates the object's game state (NOT GAME LOGIC).
      *
@@ -111,7 +110,13 @@ public class NuggetChicken extends Chicken {
             if (animeframe >= num_anim_frames) {
                 animeframe -= num_anim_frames;
             }
+        } else if (isAttacking && attack_animator != null){
+            animeframe += animation_speed*2;
+            if (animeframe >= 9) {
+                animeframe -= 9;
+            }
         }
+
         super.update(dt);
     }
 
@@ -123,9 +128,14 @@ public class NuggetChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? 1.0f:-1.0f;
-        animator.setFrame((int) animeframe);
-        if (!isInvisible) {
+        if (isAttacking && attack_animator != null) {
+            attack_animator.setFrame((int) animeframe);
+            canvas.draw(attack_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
+        } else if (!isInvisible){
+            animator.setFrame((int) animeframe);
             canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
+        } else {
+            //canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
         }
     }
 
