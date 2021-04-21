@@ -26,8 +26,10 @@ public class BuffaloChicken extends Chicken {
     /** The number of animation frames in our filmstrip */
     private static final int NUM_ANIM_FRAMES = 10;
 
-    /** Current animation frame for this shell */
-    private float animeframe;
+    /** Animator for buffalo charge ramp up*/
+    protected FilmStrip charge_start_animator;
+    /** Animator for buffalo charging*/
+    protected FilmStrip charge_animator;
 
     /**
      * Creates a new chicken avatar with the given physics data
@@ -94,11 +96,46 @@ public class BuffaloChicken extends Chicken {
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f - 1);
     }
 
+    /**
+     * Animates the charge start texture (moves along the filmstrip)
+     *
+     * @param texture
+     */
+    public void setChargeStartTexture(Texture texture) {
+        charge_start_animator = new FilmStrip(texture, 1, 11);
+        origin = new Vector2(charge_start_animator.getRegionWidth()/2.0f, charge_start_animator.getRegionHeight()/2.0f - 1);
+    }
+
+    /**
+     * Animates the charging texture (moves along the filmstrip)
+     *
+     * @param texture
+     */
+    public void setChargingTexture(Texture texture) {
+        charge_animator = new FilmStrip(texture, 1, 6);
+        origin = new Vector2(charge_animator.getRegionWidth()/2.0f, charge_animator.getRegionHeight()/2.0f - 1);
+    }
+
     public void update(float dt) {
-        if (!isRunning() && !isAttacking()) {
+        if (isStunned) {
+            animeframe += ANIMATION_SPEED * 4;
+            if (animeframe >= 5) {
+                animeframe -= 5;
+            }
+        } else if (!isRunning() && !isAttacking()) {
             animeframe += ANIMATION_SPEED;
             if (animeframe >= NUM_ANIM_FRAMES) {
                 animeframe -= NUM_ANIM_FRAMES;
+            }
+        } else if (isAttacking() && doneCharging()) {
+            animeframe += ANIMATION_SPEED;
+            if (animeframe >= 6) {
+                animeframe -= 6;
+            }
+        } else if (isAttacking()) {
+            animeframe += ANIMATION_SPEED/1.25;
+            if (animeframe >= 11) {
+                animeframe -= 11;
             }
         }
         super.update(dt);
@@ -113,9 +150,18 @@ public class BuffaloChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? 1.0f : -1.0f;
-        animator.setFrame((int)animeframe);
-        if (!isInvisible) {
+        if (isAttacking() && !doneCharging()) {
+            charge_start_animator.setFrame((int) animeframe);
+            canvas.draw(charge_start_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f * effect, 0.25f);
+        } else if (isAttacking() && doneCharging()){
+            charge_animator.setFrame((int) animeframe);
+            canvas.draw(charge_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f * effect, 0.25f);
+        }else if (!isStunned) {
+            animator.setFrame((int)animeframe);
             canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f*effect, 0.25f);
+        } else if (isStunned){
+            hurt_animator.setFrame((int)(animeframe));
+            canvas.draw(hurt_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f*effect, 0.25f);
         }
     }
 

@@ -99,6 +99,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture nuggetHurtTexture;
 	/** Texture asset for the buffalo */
 	private Texture buffaloTexture;
+	/** Texture asset for buffalo hurt texture */
+	private Texture buffaloHurtTexture;
+	/** Texture asset for buffalo start of charge */
+	private Texture buffaloChargeStartTexture;
+	/** Texture asset for buffalo charging */
+	private Texture buffaloChargingTexture;
 	/** Texture asset for the shredded chicken */
 	private Texture shreddedTexture;
 	/** Texture asset for the dino chicken */
@@ -449,6 +455,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
 		nuggetHurtTexture = directory.getEntry("char:nuggetHurt", Texture.class);
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
+		buffaloHurtTexture = directory.getEntry("char:buffaloHurt", Texture.class);
+		buffaloChargeStartTexture = directory.getEntry("char:buffaloStart", Texture.class);
+		buffaloChargingTexture = directory.getEntry("char:buffaloCharge", Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
 		dinoTexture = directory.getEntry("char:dino", Texture.class);
 		dinoAttackTexture = directory.getEntry("char:dinoAttack", Texture.class);
@@ -1133,6 +1142,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else if (type == Chicken.ChickenType.Buffalo){
 			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(buffaloTexture);
+			enemy.setHurtTexture(buffaloHurtTexture);
+			((BuffaloChicken) enemy).setChargeStartTexture(buffaloChargeStartTexture);
+			((BuffaloChicken) enemy).setChargingTexture(buffaloChargingTexture);
 		} else if (type == Chicken.ChickenType.DinoNugget){
 			enemy = new DinoChicken(constants.get("chicken"), constants.get("dino"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(dinoTexture);

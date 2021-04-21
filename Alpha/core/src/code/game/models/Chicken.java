@@ -357,8 +357,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         if (!isLured) {
             if (getLinearVelocity().x > 0) {
                 faceRight = true;
-            } else {
+            } else if (getLinearVelocity().x < 0){
                 faceRight = false;
+            } else {
+                faceRight = faceRight;
             }
         }
         super.update(dt);
