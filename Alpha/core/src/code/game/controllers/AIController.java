@@ -196,7 +196,7 @@ public class AIController {
         switch(state){
             case CHASE:
                 move();
-                if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
+                //if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
                 temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
                 temp.nor();
                 temp.scl(chaseSpeed * chicken.getSlow());

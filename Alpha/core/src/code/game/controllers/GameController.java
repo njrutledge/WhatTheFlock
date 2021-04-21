@@ -1675,6 +1675,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	/**
+	 * If this GameController has been populated with information.
+	 * @return
+	 */
+	public boolean initialized(){
+		return objects == null;
+	}
+	/**
 	 * Dispose of all (non-static) resources allocated to this mode.
 	 */
 	public void dispose() {
