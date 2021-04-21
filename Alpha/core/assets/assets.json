@@ -10,6 +10,10 @@
         "enviro:wall:right": "enviro/wall_r.png",
       "enviro:wall:top": "enviro/wall_t.png",
       "enviro:wall:bottom": "enviro/wall_b.png",
+      "enviro:wall:topleftcorner": "enviro/wall_tlc.png",
+      "enviro:wall:toprightcorner": "enviro/wall_trc.png",
+      "enviro:wall:bottomleftcorner": "enviro/wall_blc.png",
+      "enviro:wall:bottomrightcorner": "enviro/wall_brc.png",
       "enviro:wall:yellow:center": {
         "file": "enviro/ywall.png",
         "wrapU": "repeated",
