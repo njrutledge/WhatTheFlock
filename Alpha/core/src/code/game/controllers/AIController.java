@@ -36,7 +36,7 @@ public class AIController {
     /** The strength of the knockback force the chicken receives after getting slapped*/
     private final float knockback;
     /** Time until invulnerability after getting hit wears off */
-    private final float INVULN_TIME = 1f;
+    private final float INVULN_TIME = 0.5f;
     /** Counter for Invulnerability timer*/
     private float invuln_counter = INVULN_TIME;
     /** Time to remain stationary after hitting the player */
@@ -164,10 +164,6 @@ public class AIController {
                 else if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
                 }
-/*                else if (!chicken.isAttacking() && !chicken.isTouching()) {
-                    state = FSM.CHASE;
-                }*/
-
                 break;
             default: // This shouldn't happen
                 break;
@@ -200,7 +196,7 @@ public class AIController {
         switch(state){
             case CHASE:
                 move();
-                if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
+                //if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
                 temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
                 temp.nor();
                 temp.scl(chaseSpeed * chicken.getSlow());
@@ -226,7 +222,10 @@ public class AIController {
                         if (chicken.doneCharging()) {
                             if (!chicken.isRunning()) {
                                 chicken.setRunning(true);
-                                temp.set(new Vector2(chicken.getDestination()).sub(chicken.getPosition()));
+                                temp.set(chicken.getChickenAttack().getLinearVelocity());
+                            } else {
+                                chicken.setDestination(target.getPosition());
+                                temp.set(chicken.getChickenAttack().updateLinearVelocity());
                             }
                         }
                         else { temp.setZero(); }

@@ -81,10 +81,24 @@ public class GDXRoot extends Game implements ScreenListener {
 	public void dispose() {
 		// Call dispose on our children
 		setScreen(null);
-		controller.dispose();
-
-		canvas.dispose();
-		canvas = null;
+		if(controller.initialized()) {
+			controller.dispose();
+			controller = null;
+		}
+		//loading.dispose();
+		if(menu != null) {
+			menu.dispose();
+			menu = null;
+		}
+		if(levelselect != null) {
+			levelselect.dispose();
+			levelselect = null;
+		}
+		//TODO dispose others if needed
+		if(canvas != null) {
+			canvas.dispose();
+			canvas = null;
+		}
 	
 		// Unload all of the resources
 		// Unload all of the resources
@@ -158,6 +172,7 @@ public class GDXRoot extends Game implements ScreenListener {
 					break;
 				case MainMenuMode.QUIT: //TODO go to quit
 					// We quit the main application
+					dispose();
 					Gdx.app.exit();
 					break;
 			}

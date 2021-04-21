@@ -94,11 +94,24 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture chefTexture;
 	/** Texture asset for the nugget */
 	private Texture nuggetTexture;
+	/** Texture asset for the nugget hurt texture*/
+	private Texture nuggetHurtTexture;
 	/** Texture asset for the buffalo */
 	private Texture buffaloTexture;
+	/** Texture asset for buffalo hurt texture */
+	private Texture buffaloHurtTexture;
+	/** Texture asset for buffalo start of charge */
+	private Texture buffaloChargeStartTexture;
+	/** Texture asset for buffalo charging */
+	private Texture buffaloChargingTexture;
 	/** Texture asset for the shredded chicken */
 	private Texture shreddedTexture;
-
+	/** Texture asset for the dino chicken */
+	private Texture dinoTexture;
+	/** Texture asset for the dino nugget attack */
+	private Texture dinoAttackTexture;
+	/** Texture asset for the dino hurt texture */
+	private Texture dinoHurtTexture;
 
 	///** Texture asset for temp bar*/
 	//private Texture tempTexture;
@@ -256,6 +269,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
 	/** Reference to the active stove object */
 	private Stove ActiveStove;
+	/** Which stove (index) was the last to be used */
+	private int lastStove;
+	/** Other possible choices for the stove */
+	private List<Integer> nonActiveStoves = new ArrayList<>();
 	/** List of all inactive stoves in the level */
 	private List<Stove> Stoves = new ArrayList<>();
 	/** Timer for the current active stove */
@@ -447,8 +464,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("char:nuggetBar", Texture.class));
 		chefTexture = directory.getEntry("char:chef", Texture.class);
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
+		nuggetHurtTexture = directory.getEntry("char:nuggetHurt", Texture.class);
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
+		buffaloHurtTexture = directory.getEntry("char:buffaloHurt", Texture.class);
+		buffaloChargeStartTexture = directory.getEntry("char:buffaloStart", Texture.class);
+		buffaloChargingTexture = directory.getEntry("char:buffaloCharge", Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
+		dinoTexture = directory.getEntry("char:dino", Texture.class);
+		dinoAttackTexture = directory.getEntry("char:dinoAttack", Texture.class);
+		dinoHurtTexture = directory.getEntry("char:dinoHurt", Texture.class);
 		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
 		slapSideTexture = directory.getEntry("char:slapSide", Texture.class);
 		slapDownTexture = directory.getEntry("char:slapDown", Texture.class);
@@ -517,7 +541,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		others.clear();
 		chickens.clear();
 		ActiveStove = null;
+		lastStove = 0;
 		Stoves.clear();
+		nonActiveStoves.clear();
 		world.dispose();
 		spawnPoints.clear();
 		
@@ -682,7 +708,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					Stoves.add(stove);
 					if (ActiveStove == null){
 						ActiveStove = stove;
+						lastStove = 0;
 						ActiveStove.setActive();
+					} else if (nonActiveStoves.size() < Stoves.size() - 1){
+						nonActiveStoves.add(nonActiveStoves.size() + 1);
 					}
 					break;
 				case LEVEL_CHEF:
@@ -993,7 +1022,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (Stoves.size() > 1 && gameTime > stoveTimer + STOVE_RESET) {
 			stoveTimer = gameTime;
 			ActiveStove.setInactive();
-			ActiveStove = Stoves.get(MathUtils.random(0, Stoves.size() - 1));
+			int ind = nonActiveStoves.remove(MathUtils.floor(MathUtils.random(0, nonActiveStoves.size() - 1)));
+			nonActiveStoves.add(lastStove);
+			ActiveStove = Stoves.get(ind);
+			lastStove = ind;
 			ActiveStove.setActive();
 		}
 
@@ -1015,6 +1047,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				spawnChicken(Chicken.ChickenType.Buffalo);
 			} else if (chicken == 2) {
 				spawnChicken(Chicken.ChickenType.Shredded);
+			} else if (chicken == 3) {
+				spawnChicken(Chicken.ChickenType.DinoNugget);
 			}
 			lastEnemySpawnTime = gameTime;
 			enemiesLeft -= 1;
@@ -1128,16 +1162,26 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (type == Chicken.ChickenType.Nugget) {
 			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(nuggetTexture);
+			enemy.setHurtTexture(nuggetHurtTexture);
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
 			((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
 			enemy.setTexture(shreddedTexture);
-		}
-		else{
+		} else if (type == Chicken.ChickenType.Buffalo){
 			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(buffaloTexture);
+			enemy.setHurtTexture(buffaloHurtTexture);
+			((BuffaloChicken) enemy).setChargeStartTexture(buffaloChargeStartTexture);
+			((BuffaloChicken) enemy).setChargingTexture(buffaloChargingTexture);
+		} else if (type == Chicken.ChickenType.DinoNugget){
+			enemy = new DinoChicken(constants.get("chicken"), constants.get("dino"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(dinoTexture);
+			enemy.setAttackTexture(dinoAttackTexture);
+			enemy.setHurtTexture(dinoHurtTexture);
+		} else { // Should not reach this state
+			assert false;
+			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 		}
-
 		enemy.setDrawScale(scale);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy, GameObject.ObjectType.CHICKEN);
@@ -1217,25 +1261,30 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
 		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
 				ChickenAttack.getHEIGHT(), chef, chicken, type);
-		attack.setDrawScale(scale);
-		addQueuedObject(attack);
-		switch (type) {
-			case Basic:
-				nuggetAttack.stop();
-				nuggetAttack.play(DEFAULT_VOL);
-				break;
-			case Projectile:
-				shreddedAttack.stop();
-				shreddedAttack.play(DEFAULT_VOL);
-				break;
-			case Charge:
-				if (chicken.getType() == Chicken.ChickenType.Buffalo){
-					buffaloAttack.stop();
-					buffaloAttack.play(DEFAULT_VOL);
-				}
-				break;
+		if (type == ChickenAttack.AttackType.Charge && grid.isObstacleAt(attack.getX(), attack.getY())) {
+			attack.markRemoved(true);
+			chicken.forceStopAttack();
+		} else {
+			chicken.setChickenAttack(attack);
+			attack.setDrawScale(scale);
+			addQueuedObject(attack);
+			switch (type) {
+				case Basic:
+					nuggetAttack.stop();
+					nuggetAttack.play(DEFAULT_VOL);
+					break;
+				case Projectile:
+					shreddedAttack.stop();
+					shreddedAttack.play(DEFAULT_VOL);
+					break;
+				case Charge:
+					if (chicken.getType() == Chicken.ChickenType.Buffalo) {
+						buffaloAttack.stop();
+						buffaloAttack.play(DEFAULT_VOL);
+					}
+					break;
 
-
+			}
 		}
 	}
 
@@ -1686,6 +1735,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// IGNORE FOR NOW
 	}
 
+	/**
+	 * If this GameController has been populated with information.
+	 * @return
+	 */
+	public boolean initialized(){
+		return objects == null;
+	}
 	/**
 	 * Dispose of all (non-static) resources allocated to this mode.
 	 */

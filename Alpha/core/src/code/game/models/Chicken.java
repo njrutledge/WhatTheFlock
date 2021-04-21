@@ -44,6 +44,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected Obstacle target;
     /** The destination of this chicken, if  not the target's current position */
     protected Vector2 destination;
+    /** The chicken attack belonging to this chicken */
+    protected ChickenAttack chickenAttack;
 
     /** The type of this chicken */
     private ChickenType type;
@@ -62,10 +64,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Health of the chicken*/
     // All of these variables will be put into a FSM in AIController eventually
     private float health;
-    /** Time until invulnerability after getting hit wears off */
-    private final float INVULN_TIME = 1f;
-    /** Counter for Invulnerability timer*/
-    protected float invuln_counter = INVULN_TIME;
     /** Time to move perpendicular to a wall upon collision before returning to normal AI */
     private final float SIDEWAYS_TIME = 0.1f;
     /** Counter for sideways movement timer*/
@@ -82,8 +80,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Whether or not the attack needs to be created for this chicken */
     protected boolean makeAttack = false;
+    /** Whether or not the current attack (including charge-up + run, if applicable) is complete */
+    protected boolean doneAttack = false;
     /** Whether the chicken should stop their attack after running */
     private boolean stopThisAttack = false;
+
+    protected boolean isAttacking = false;
     /** Whether or not the chicken's sensor is touching its target (Not up-to-date)
      * Touching might not always be up to date as a chicken that is
      * currently performing an attack may stop touching from being
@@ -100,23 +102,22 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** The damage modifier from being on fire*/
     private final int FIRE_MULT = 2;
-    //TODO comments
-    protected boolean finishA = false;
     protected boolean soundCheck = false;
     protected float attack_timer = -1f;
 
     /** Time since the chicken began charging up their attack */
     protected float charge_time = -1f;
 
-
     protected boolean hitboxOut = false;
-    protected float ATTACK_DUR = 0.2f;
-
-
+    protected float ATTACK_DUR = 0.5f;
 
     private float ATTACK_RADIUS = 1.5f;
 
+    protected FilmStrip attack_animator;
+    protected FilmStrip hurt_animator;
     protected FilmStrip animator;
+    /** Current animation frame for this shell */
+    protected float animeframe;
     /** Reference to texture origin */
     protected Vector2 origin;
     /** slowness modifier for chicken speed */
@@ -182,6 +183,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         max_health = (int)(unique.getFloat("maxhealth",0) * (mh/100));
         faceRight = true;
 
+        animeframe = 0.0f;
         health = max_health;
         this.data = data;
         this.unique = unique;
@@ -192,6 +194,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         filter.maskBits = 0x0001 | 0x0002 | 0x0004 ;
         setFilterData(filter);
     }
+
+    /** Set the chicken attack belonging to this chicken */
+    public void setChickenAttack(ChickenAttack attack) { chickenAttack = attack; }
+
+    /** Returns the chicken attack belonging to this chicken */
+    public ChickenAttack getChickenAttack() { return chickenAttack; }
 
     /** Returns the json data for this chicken */
     public JsonValue getJsonData(){
@@ -212,6 +220,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Returns the type of this chicken */
     public ChickenType getType() { return type; }
 
+    /** Returns whether the chicken has completed its attack */
+    public boolean getDoneAttack() { return doneAttack; }
+
     /**
      * Sets the current chicken max health
      * @param h - the number to set the max health of the chicken to
@@ -229,10 +240,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public int getMaxHealth(){ return max_health;}
 
     /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> shredded
      * Returns whether an attack object needs to be made for this chicken.
      *
      * @return makeAttack
@@ -346,11 +353,14 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     @Override
     public void update(float dt) {
+
         if (!isLured) {
             if (getLinearVelocity().x > 0) {
                 faceRight = true;
-            } else {
+            } else if (getLinearVelocity().x < 0){
                 faceRight = false;
+            } else {
+                faceRight = faceRight;
             }
         }
         super.update(dt);
@@ -384,8 +394,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * Start an attack
      */
     public void startAttack() {
+        setIsAttacking(true);
+        animeframe = 0;
         if (!isRunning()) {
             touching = true;
+            doneAttack = false;
             hitboxOut = false;
             destination = new Vector2(target.getPosition());
             attack_timer = 0f;
@@ -393,14 +406,33 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         } else { stopThisAttack = false;}
     }
 
-    //TODO: comment
-    public void stopAttack(boolean touching) {
-        if (!isRunning()) {
+    public void stopAttack() {
+        animeframe = 0;
+        setIsAttacking(false);
+        if (!isRunning() && doneAttack) {
             attack_timer = -1f;
             charge_time = -1f;
+            doneAttack = false;
             hitboxOut = false;
+        } else {
+            stopThisAttack = true;
+        }
+    }
+
+    public void forceStopAttack() {
+        attack_timer = -1f;
+        charge_time = -1f;
+        touching = false;
+        doneAttack = false;
+        hitboxOut = false;
+    }
+
+    public void setTouching(boolean touching) {
+        if (!isRunning()) {
             this.touching = touching;
-        } else { stopThisAttack = true; last_touching = touching; }
+        } else {
+            last_touching = touching;
+        }
     }
 
     /** Returns whether or not the chicken should stop their current attack.
@@ -415,8 +447,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @return stopThisAttack
      */
     public boolean stopThisAttack() {
-        if (stopThisAttack && !isRunning()) {
+        if (stopThisAttack && !isRunning() && doneAttack) {
             stopThisAttack = false;
+            stopAttack();
+            setTouching(last_touching);
             return true;
         }
         return false;
@@ -425,9 +459,14 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Interrupts the current attack if running */
     public void interruptAttack() { return; }
 
+    /** Sets whether or not the chicken is charging up an attack */
+    public void setIsAttacking(boolean t) {
+         isAttacking = t;
+    }
+
     /** Whether or not the chicken is charging up an attack */
     public boolean isAttacking() {
-        return (charge_time >= 0 || isRunning());
+        return isAttacking;
     }
 
     /** Whether or not the chicken is currently running */
@@ -451,6 +490,18 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public abstract void setTexture(Texture texture);
 
+    /** Sets the attack animation filmstrip */
+    public void setAttackTexture(Texture texture) {
+        attack_animator = new FilmStrip(texture, 1, 9);
+        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+    }
+
+    /** Sets the hurt animation filmstrip*/
+    public void setHurtTexture(Texture texture) {
+        hurt_animator = new FilmStrip(texture, 1, 5);
+        origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+    }
+
     /**
      * Set texture for the chicken healthbar
      * @param texture texture for chicken healthbar
@@ -465,10 +516,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        if (!isInvisible) {
-            //canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f, 0.025f);
-            //canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+50, getAngle(), 0.08f*(health/max_health), 0.025f);
-        }
+        //Chickens are to each have their own draw methods
     }
 
     /**
@@ -491,7 +539,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void takeDamage(float damage) {
         if (!isStunned) {
-
+            animeframe = 0;
             if (status_timer >= 0) {
                 health -= damage * FIRE_MULT;
             } else {
@@ -499,7 +547,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             }
             attack_timer = -1f;
             charge_time = -1f;
-            invuln_counter = 0;
+            hitboxOut = false;
             hitboxOut = false;
             hit = true;
             isStunned = true;

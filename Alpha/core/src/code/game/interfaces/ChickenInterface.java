@@ -43,7 +43,7 @@ public interface ChickenInterface {
 
     public void startAttack();
 
-    public void stopAttack(boolean touching);
+    public void stopAttack();
 
     public boolean isAttacking();
 
