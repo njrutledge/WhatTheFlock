@@ -467,9 +467,7 @@ public class CollisionController implements CollisionControllerInterface {
 
 
     private void endSlapCollision(GameObject bd1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
-        //TODO make slap class
-        if (bd2.getObjectType().equals(ObjectType.CHICKEN)) {
-        }
+
     }
 
     private void endTrapCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
