@@ -36,7 +36,7 @@ public class AIController {
     /** The strength of the knockback force the chicken receives after getting slapped*/
     private final float knockback;
     /** Time until invulnerability after getting hit wears off */
-    private final float INVULN_TIME = 1f;
+    private final float INVULN_TIME = 0.5f;
     /** Counter for Invulnerability timer*/
     private float invuln_counter = INVULN_TIME;
     /** Time to remain stationary after hitting the player */

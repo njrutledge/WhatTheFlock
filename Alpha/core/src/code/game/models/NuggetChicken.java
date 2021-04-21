@@ -20,11 +20,20 @@ public class NuggetChicken extends Chicken {
     ///////// altered or removed, but should provide a good base to start with.
 
     /** Radius of sensor */
-    private final float SENSOR_RADIUS = 0.8f;
+    private float sensor_radius;
     /** Time it takes for the chicken to begin their attack after colliding with their target */
     private final float CHARGE_DUR = 0.4f;
     /** Time it takes for the chicken to recover from attacking */
-    private final float STOP_DUR = 2f;
+    private final float STOP_DUR = 1f;
+
+    /** How fast we change frames (one frame per 4 calls to update */
+    private float animation_speed;
+    /** The number of animation frames in our filmstrip */
+    private int num_anim_frames;
+
+    /** Nugget scale differences*/
+    private float hScale;
+    private float wScale;
 
     /**
      * Creates a new chicken avatar with the given physics data
@@ -45,7 +54,13 @@ public class NuggetChicken extends Chicken {
     public NuggetChicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
         super(data, unique, x, y, width, height, player, mh, ChickenType.Nugget);
-        sensorRadius = SENSOR_RADIUS;
+        hScale = unique.getFloat("hScale", 1);
+        wScale = unique.getFloat("wScale", 1);
+        animation_speed = unique.getFloat("animation_speed", 0.25f);
+        num_anim_frames = unique.getInt("num_anim_frames", 8);
+        sensor_radius = unique.getFloat("sensor_radius", 0.8f);
+        animeframe = 0.0f;
+        sensorRadius = sensor_radius;
     }
 
     public void attack(float dt) {
@@ -77,8 +92,38 @@ public class NuggetChicken extends Chicken {
     public float getStopDur() { return STOP_DUR; }
 
     public void setTexture(Texture texture) {
-        animator = new FilmStrip(texture, 3, 5);
+        animator = new FilmStrip(texture, 1, 8);
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+    }
+
+    /**
+     * Updates the object's game state (NOT GAME LOGIC).
+     *
+     * We use this method to reset cooldowns, and control animations
+     *
+     * @param dt	Number of seconds since last animation frame
+     */
+    @Override
+    public void update(float dt) {
+
+        if (isStunned) {
+            animeframe += animation_speed*4;
+            if (animeframe >= 5) {
+                animeframe -= 5;
+            }
+        } else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
+            animeframe += animation_speed;
+            if (animeframe >= num_anim_frames) {
+                animeframe -= num_anim_frames;
+            }
+        } else if (isAttacking && attack_animator != null){
+            animeframe += animation_speed*2;
+            if (animeframe >= 9) {
+                animeframe -= 9;
+            }
+        }
+
+        super.update(dt);
     }
 
     /**
@@ -88,9 +133,16 @@ public class NuggetChicken extends Chicken {
      */
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
-        float effect = faceRight ? -1.0f:1.0f;
-        if (!isInvisible) {
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.2f*effect, 0.2f);
+        float effect = faceRight ? 1.0f:-1.0f;
+        if (isAttacking && attack_animator != null) {
+            attack_animator.setFrame((int) animeframe);
+            canvas.draw(attack_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
+        } else if (!isStunned){
+            animator.setFrame((int) animeframe);
+            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
+        } else if (isStunned){
+            hurt_animator.setFrame((int)(animeframe));
+            canvas.draw(hurt_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
         }
     }
 
