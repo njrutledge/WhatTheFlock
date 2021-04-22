@@ -219,6 +219,9 @@ public class CollisionController implements CollisionControllerInterface {
                     case TRAP_ACTIVATION:
                         handleTrapSlap((Trap) bd2, fd2, s1, fd1);
                         break;
+                    case PROJECTILE_ATTACK:
+                        ((ChickenAttack) bd2).reflect(chef.getPosition());
+
                 }
             }
         }
@@ -311,6 +314,13 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChickenChickenAttack(Chicken chicken, Object fd1, ChickenAttack attack, Object fd2){
         attack.collideObject(chicken);
+        if (attack.isReflected()){
+            chicken.takeDamage(dmg);
+            attack.collideObject();
+            if (!chicken.isAlive()) {
+                chicken.markRemoved(true);
+            }
+        }
     }
 
 

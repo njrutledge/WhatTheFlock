@@ -75,6 +75,8 @@ public class ChickenAttack extends GameObject {
      * on the circumference of a circle that is charge_radius distance away
      * from origin_vector. */
     private Vector2 curr_vector;
+    /** Whether the attack has been reflected */
+    private boolean reflected = false;
 
     /** Creates an instance of a basic attack */
     public ChickenAttack(float x, float y, float width, float height, Chef chef, Chicken chicken, AttackType type) {
@@ -177,8 +179,21 @@ public class ChickenAttack extends GameObject {
 
     public void collideObject() {
         if (type == AttackType.Charge) { chicken.setStopped(true); chicken.interruptAttack(); remove = true; }
+        if (type == AttackType.Projectile && reflected){remove = true;}
         //if (type == AttackType.Projectile) { remove = true; } // Delete projectile after colliding with something
     }
+
+    /**
+     * Reflect the projectile in the opposite direction after getting slapped
+     * @param chefPos   position of chef
+     */
+    public void reflect(Vector2 chefPos){
+        setLinearVelocity(getPosition().sub(chefPos).nor().scl(PROJECTILE_SPEED)); // move away from chef
+        reflected = true;
+    }
+
+    /** Get whether the attack has been reflected */
+    public boolean isReflected(){return reflected;}
 
     /** Returns whether the destination has been reached
      *
@@ -306,7 +321,7 @@ public class ChickenAttack extends GameObject {
         } else if (type == AttackType.Explosion) {
             sensorFixture.setUserData(FixtureType.EXPLOSION_ATTACK);
         } else {
-            sensorFixture.setUserData(FixtureType.BASIC_ATTACK);
+            sensorFixture.setUserData(FixtureType.PROJECTILE_ATTACK);
         }
 
         return true;
