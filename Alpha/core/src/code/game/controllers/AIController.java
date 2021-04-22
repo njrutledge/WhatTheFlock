@@ -275,6 +275,19 @@ public class AIController {
         return (float)Math.sqrt(Math.pow(xdiff,2) + Math.pow(ydiff,2));
     }
 
+    /**
+     * Returns the distance between two Grid tiles
+     * @param one
+     * @param two
+     * @return
+     */
+    private float distance(Grid.Tile one, Grid.Tile two){
+        Vector2 a = grid.getPosition(one.getRow(), one.getCol());
+        Vector2 b = grid.getPosition(two.getRow(), two.getCol());
+        float xdiff = b.x - a.x;
+        float ydiff = b.y - a.y;
+        return (float)Math.sqrt(Math.pow(xdiff,2) + Math.pow(ydiff,2));
+    }
     /** This method returns the tile that the chicken will move towards.
      *
      * Using A* algorithm, this method determines the shortest path
@@ -303,7 +316,7 @@ public class AIController {
                     //heuristic function cost
                     float hcost = getHCost(neighbor, curr);
                     // ndist = distance between curr and neighbor
-                    float ndist = distance(grid.getPosition(curr.getRow(), curr.getCol()), grid.getPosition(neighbor.getRow(), neighbor.getCol()));
+                    float ndist = distance(curr, neighbor);
                     float gcost = ndist + curr.getGcost();
                     float fcost = hcost + gcost;
 
@@ -311,7 +324,7 @@ public class AIController {
                         neighbor.setParent(curr);
                         neighbor.setGcost(gcost);
                         neighbor.setHcost(hcost);
-                        neighbor.setFcost(neighbor.getGcost() + distance(grid.getPosition(neighbor.getRow(), neighbor.getCol()), grid.getPosition(target_tile.getRow(), target_tile.getCol())));
+                        neighbor.setFcost(neighbor.getGcost() + distance(neighbor, target_tile));
                         open.add(neighbor);
                     } else {
                         if (fcost < neighbor.getGcost()) {
@@ -332,7 +345,7 @@ public class AIController {
     }
 
     private float getHCost(Grid.Tile neighbor, Grid.Tile curr){
-       float hcost = distance(grid.getPosition(target_tile.getRow(), target_tile.getCol()), grid.getPosition(neighbor.getRow(),neighbor.getCol()));
+       float hcost = distance(target_tile, neighbor);
         for(int row = neighbor.getRow()-1; row <= neighbor.getRow()+1;row++){
             for (int col = neighbor.getCol()-1; col <= neighbor.getCol()+1;col++){
                 if(grid.isObstacleTile(row,col)){
