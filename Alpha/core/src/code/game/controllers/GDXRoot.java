@@ -83,8 +83,9 @@ public class GDXRoot extends Game implements ScreenListener {
 		setScreen(null);
 		if(controller.initialized()) {
 			controller.dispose();
-			controller = null;
+
 		}
+		controller = null;
 		//loading.dispose();
 		if(menu != null) {
 			menu.dispose();
