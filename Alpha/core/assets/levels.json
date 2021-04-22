@@ -3,4 +3,5 @@
   "pillars": "levels/pillars.json",
   "Third times the charm": "levels/threepeat.json",
   "Cornered": "levels/manta.json",
+  "Up": "levels/up.json",
 }
