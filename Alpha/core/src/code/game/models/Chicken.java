@@ -701,4 +701,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public boolean getHit(){
         return hit;
     }
+
+    /**
+     * Get the attack range of this chicken (if the chef is in this range, then the chicken will start attacking)
+     * @return attack range
+     */
+    public float getAttackRange(){return sensorRadius;}
 }
