@@ -80,6 +80,9 @@ public class CollisionController implements CollisionControllerInterface {
     public void beginContact(Contact contact, float potential_dmg) {
         dmg = potential_dmg;
         //TODO: Detect if a collision is with an enemy and have an appropriate interaction
+
+
+        //TODO: check to make sure we are not adding or deleting ANYTING
         //hitbox
         Fixture fix1 = contact.getFixtureA();
         Fixture fix2 = contact.getFixtureB();
@@ -464,9 +467,7 @@ public class CollisionController implements CollisionControllerInterface {
 
 
     private void endSlapCollision(GameObject bd1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
-        //TODO make slap class
-        if (bd2.getObjectType().equals(ObjectType.CHICKEN)) {
-        }
+
     }
 
     private void endTrapCollision(Trap t1, FixtureType fd1, GameObject bd2, FixtureType fd2) {

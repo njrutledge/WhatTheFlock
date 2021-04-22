@@ -15,7 +15,6 @@ import code.audio.SoundBuffer;
 import code.game.models.*;
 import code.game.models.obstacle.BoxObstacle;
 import code.game.models.obstacle.Obstacle;
-import code.game.models.obstacle.PolygonObstacle;
 import code.game.views.GameCanvas;
 import code.util.PooledList;
 import code.util.ScreenListener;
@@ -47,15 +46,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	////////////// its purpose or you may break someone else's work, further comments are below ////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//TODO: CHANGE THIS TO TEST YOUR LEVEL!
-	private final String DEFAULT_LEVEL = "level02";
-
-
 	/** The texture for the background */
 	protected TextureRegion background;
 	/** The texture for center wall */
 	protected TextureRegion wallCenterTile;
-	/** The texture for walls and platforms */
+	/** The texture for walls pieces */
 	protected TextureRegion wallLeftTile;
 	/** The texture for walls and platforms */
 	protected TextureRegion wallRightTile;
@@ -63,6 +58,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected TextureRegion wallTopTile;
 	/** The texture for walls and platforms */
 	protected TextureRegion wallBottomTile;
+	protected TextureRegion wallTopLeftCorner;
+	protected TextureRegion wallTopRightCorner;
+	protected TextureRegion wallBottomLeftCorner;
+	protected TextureRegion wallBottomRightCorner;
 	/** The texture for walls and platforms */
 	protected TextureRegion wallYellowCenterTile;
 	/** The texture for walls and platforms */
@@ -225,9 +224,17 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected static final String LEVEL_WALL_RIGHT = "wall_r";
 	/** Name of top wall in level files */
 	protected static final String LEVEL_WALL_TOP = "wall_t";
-	/** Name of right wall in level files */
+	/** Name of top left corner wall in level files */
+	protected static final String LEVEL_WALL_TLC = "wall_tlc";
+	/** Name of top right corner wall in level files */
+	protected static final String LEVEL_WALL_TRC = "wall_trc";
+	/** Name of bottom left corner wall in level files */
+	protected static final String LEVEL_WALL_BLC = "wall_blc";
+	/** Name of bottom right corner wall in level files */
+	protected static final String LEVEL_WALL_BRC = "wall_brc";
+	/** Name of yellow wall in level files */
 	protected static final String LEVEL_WALL_YELLOW_CENTER = "ywall";
-	/** Name of right wall in level files */
+	/** Name of yellow bottom wall in level files */
 	protected static final String LEVEL_WALL_YELLOW_BOTTOM = "ywall_b";
 	/** Name of spawnpoint in level files */
 	protected static final String LEVEL_SPAWN = "spawn";
@@ -441,6 +448,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		wallBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:bottom", Texture.class ));
 		wallYellowCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:center", Texture.class ));
 		wallYellowBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:bottom", Texture.class ));
+		wallTopLeftCorner = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner", Texture.class));
+		wallTopRightCorner = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner", Texture.class));
+		wallBottomLeftCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomleftcorner", Texture.class));
+		wallBottomRightCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomrightcorner", Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
@@ -561,6 +572,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void populateLevel(JsonValue level) {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
+		reset();
 		levelSave = level;
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
@@ -655,6 +667,22 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				case LEVEL_WALL_RIGHT:
 					//add right wall
 					createWall(defaults, wallRightTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_TLC:
+					//add top left corner
+					createWall(defaults, wallTopLeftCorner, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_TRC:
+					//add top right corner
+					createWall(defaults, wallTopRightCorner, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_BLC:
+					//add bottom left corner
+					createWall(defaults, wallBottomLeftCorner, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_BRC:
+					//add bottom right corner
+					createWall(defaults, wallBottomRightCorner, obstacle_filter, x, y);
 					break;
 				case LEVEL_WALL_YELLOW_CENTER:
 					//add wall
@@ -1386,6 +1414,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void postUpdate(float dt) {
 		// Add any objects created by actions
+		//TODO: look about moving these while loops below world.step()
 		while(!collisionController.getNewTraps().isEmpty()){
 			addObject(collisionController.getNewTraps().poll(), GameObject.ObjectType.TRAP_EFFECT);
 		}

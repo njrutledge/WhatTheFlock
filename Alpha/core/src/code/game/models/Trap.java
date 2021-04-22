@@ -103,7 +103,7 @@ public class Trap extends GameObject implements TrapInterface {
     /**
      * durability of lure
      */
-    private float lure_ammount = 6;
+    private float lure_ammount = 3;
 
     /**
      * max durability of lure
