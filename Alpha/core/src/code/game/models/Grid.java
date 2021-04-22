@@ -70,10 +70,23 @@ public class Grid {
 
     /** Returns whether the tile at (x,y) is an obstacle
      *
+     * @param x     the x coordinate on the canvas?
+     * @param y     the y coordinate on the canvas?
+     *
      * @return whether the tile at (x,y) is an obstacle
      */
     public boolean isObstacleAt(float x, float y) {
         return getTile(x,y).isObstacle();
+    }
+
+    /** Returns whether the tile at [row,col] is an obstacle
+     *
+     * @param row       the row in the grid
+     * @param col       the column in the grid
+     * @return whether the tile at [row,col] is an obstacle
+     */
+    public boolean isObstacleTile(int row, int col){
+        return grid[row][col].isObstacle();
     }
 
     /** Returns the comparator used for comparing Tile FCosts.

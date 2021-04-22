@@ -111,8 +111,8 @@ public class AIController {
      * @return
      */
     private boolean anyTilesNull(){
-        /*return (child_tile == null || start_tile == null || move_tile == null || target_tile == null);*/
-        return false;
+        return (child_tile == null || start_tile == null || move_tile == null || target_tile == null);
+        //return false;
     }
     /**
      * If applicable, change the FSM state for this AI controller based on the current state and
@@ -197,6 +197,28 @@ public class AIController {
             case CHASE:
                 move();
                 //if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
+                Grid.Tile chickTile = grid.getTile(chicken.getX(),chicken.getY());
+                if(grid.isObstacleTile(chickTile.getRow()+1,chickTile.getCol())) {
+                    if (move_tile.getRow() == chickTile.getRow() + 1 && Math.abs(move_tile.getCol() - chickTile.getCol()) == 1) {
+                        int breaking = 1;
+                    }
+                }
+                else if(grid.isObstacleTile(chickTile.getRow()-1,chickTile.getCol())) {
+                    if (move_tile.getRow() == chickTile.getRow() - 1 && Math.abs(move_tile.getCol() - chickTile.getCol()) == 1) {
+                        int breaking = 1;
+                    }
+                }
+                else if(grid.isObstacleTile(chickTile.getRow(),chickTile.getCol()+1)) {
+                    if (move_tile.getCol() == chickTile.getCol() + 1 && Math.abs(move_tile.getRow() - chickTile.getRow()) == 1) {
+                        int breaking = 1;
+                    }
+                }
+                else if (grid.isObstacleTile(chickTile.getRow(), chickTile.getCol()-1)) {
+                    if (move_tile.getCol() == chickTile.getCol() - 1 && Math.abs(move_tile.getRow() - chickTile.getRow()) == 1) {
+                        int breaking = 1;
+                    }
+                }
+                //temp.set(grid.getPosition(move_tile.getRow() - chickTile.getRow(),move_tile.getCol()-chickTile.getCol()));
                 temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
                 temp.nor();
                 temp.scl(chaseSpeed * chicken.getSlow());
@@ -253,6 +275,19 @@ public class AIController {
         return (float)Math.sqrt(Math.pow(xdiff,2) + Math.pow(ydiff,2));
     }
 
+    /**
+     * Returns the distance between two Grid tiles
+     * @param one
+     * @param two
+     * @return
+     */
+    private float distance(Grid.Tile one, Grid.Tile two){
+        Vector2 a = grid.getPosition(one.getRow(), one.getCol());
+        Vector2 b = grid.getPosition(two.getRow(), two.getCol());
+        float xdiff = b.x - a.x;
+        float ydiff = b.y - a.y;
+        return (float)Math.sqrt(Math.pow(xdiff,2) + Math.pow(ydiff,2));
+    }
     /** This method returns the tile that the chicken will move towards.
      *
      * Using A* algorithm, this method determines the shortest path
@@ -277,10 +312,11 @@ public class AIController {
                 return;
             }
             for (Grid.Tile neighbor: curr.getNeighbors()) {
-                if (!neighbor.isObstacle()) {
-                    float hcost = distance(grid.getPosition(target_tile.getRow(), target_tile.getCol()), grid.getPosition(neighbor.getRow(),neighbor.getCol()));
+                if ((!neighbor.isObstacle()) && isReachable(neighbor, curr)) {
+                    //heuristic function cost
+                    float hcost = getHCost(neighbor, curr);
                     // ndist = distance between curr and neighbor
-                    float ndist = distance(grid.getPosition(curr.getRow(), curr.getCol()), grid.getPosition(neighbor.getRow(), neighbor.getCol()));
+                    float ndist = distance(curr, neighbor);
                     float gcost = ndist + curr.getGcost();
                     float fcost = hcost + gcost;
 
@@ -288,7 +324,7 @@ public class AIController {
                         neighbor.setParent(curr);
                         neighbor.setGcost(gcost);
                         neighbor.setHcost(hcost);
-                        neighbor.setFcost(neighbor.getGcost() + distance(grid.getPosition(neighbor.getRow(), neighbor.getCol()), grid.getPosition(target_tile.getRow(), target_tile.getCol())));
+                        neighbor.setFcost(neighbor.getGcost() + distance(neighbor, target_tile));
                         open.add(neighbor);
                     } else {
                         if (fcost < neighbor.getGcost()) {
@@ -306,6 +342,32 @@ public class AIController {
             closed.add(curr);
             open.remove(curr);
         }
+    }
+
+    private float getHCost(Grid.Tile neighbor, Grid.Tile curr){
+       float hcost = distance(target_tile, neighbor);
+        for(int row = neighbor.getRow()-1; row <= neighbor.getRow()+1;row++){
+            for (int col = neighbor.getCol()-1; col <= neighbor.getCol()+1;col++){
+                if(grid.isObstacleTile(row,col)){
+                    hcost++;
+                }
+            }
+        }
+        if(!isReachable(neighbor,curr)){
+            hcost += 5;
+        }
+        return hcost;
+    }
+
+    private boolean isReachable(Grid.Tile spot, Grid.Tile curr){
+        if(spot.getRow()!=curr.getRow() && spot.getCol()!=curr.getCol()) {
+            int diag1Row = spot.getRow();
+            int diag1Col = curr.getCol();
+            int diag2Row = curr.getRow();
+            int diag2Col = spot.getCol();
+            return !(grid.isObstacleTile(diag1Row, diag1Col) || grid.isObstacleTile(diag2Row, diag2Col));
+        }
+        return true;
     }
 
     /** Handles chicken movement.
@@ -326,7 +388,7 @@ public class AIController {
         target_tile = grid.getTile(target.getX(), target.getY()); //could be getting a null tile?
         AStar();
 
-        if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
+        //if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
         // Moving in a straight line?
         //TODO: remove after testing
         if (child_tile == null){
