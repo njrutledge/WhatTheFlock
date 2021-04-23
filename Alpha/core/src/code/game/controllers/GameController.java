@@ -840,6 +840,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			paused = !paused;
 		}
 		for (Chicken chick: ai.keySet()){
+			// Checking for attack here fixes bug where shredded/buffalo would keep chasing even if chef is in attack range
+			if (!chick.isAttacking() && chef.getPosition().dst(chick.getPosition()) < chick.getAttackRange()){
+				chick.startAttack();
+				chick.setTouching(true);
+			}
 			if(chick.isActive()){
 				ai.get(chick).update(dt);
 				for (Obstacle ob: trapEffects){
