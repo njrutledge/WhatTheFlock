@@ -840,6 +840,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			paused = !paused;
 		}
 		for (Chicken chick: ai.keySet()){
+			// Remove ai controller for dead chicken
+			if (chick.isRemoved() && ai.containsKey(chick)){
+				ai.get(chick).die();
+				//ai.remove(chick); // This causes a concurrency error :(
+			}
+			// Check if chicken is in lure range
 			if(chick.isActive()){
 				ai.get(chick).update(dt);
 				for (Obstacle ob: trapEffects){
@@ -1111,6 +1117,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void removeChicken(Obstacle chicken){
 		if(!chicken.isRemoved()) {
 			chicken.markRemoved(true);
+			ai.get(chicken).die();
 			ai.remove(chicken);
 		}
 	}
