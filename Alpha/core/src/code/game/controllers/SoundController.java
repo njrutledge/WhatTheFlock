@@ -195,10 +195,12 @@ public class SoundController {
                     playLevel();
                 }
             case PAUSE:
+                if (timer == 0f) {
+                    playLevel();
+                }
                 levelTheme1.setVolume(musicID, volume * LOUD * PAUSE_VOL);
                 levelTheme2.setVolume(musicID, volume * LOUD * PAUSE_VOL);
                 levelTheme3.setVolume(musicID, volume * LOUD * PAUSE_VOL);
-
         }
 
         timer = MathUtils.clamp(timer - dt, 0f, 600f);
