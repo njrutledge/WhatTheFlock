@@ -350,6 +350,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	private TrapController trapController;
 
+	/** The Sound controller reference */
+	private SoundController sound;
+
 	/** How much time has passed in the game */
 	private float gameTime;
 
@@ -518,6 +521,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//set assets
 		collisionController.setConstants(constants);
 		collisionController.gatherAssets(directory);
+	}
+
+	public void setSoundController(SoundController sound) {
+		this.sound = sound;
+		collisionController.setSound(sound);
 	}
 
 	
@@ -840,6 +848,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			paused = !paused;
 		}
 		for (Chicken chick: ai.keySet()){
+			// Remove ai controller for dead chicken
+			if (chick.isRemoved() && ai.containsKey(chick)){
+				ai.get(chick).die();
+				//ai.remove(chick); // This causes a concurrency error :(
+			}
+			// Check if chicken is in lure range
 			if(chick.isActive()){
 				ai.get(chick).update(dt);
 				for (Obstacle ob: trapEffects){
@@ -934,14 +948,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void update(float dt) {
 		// Music
-		if (gameTime == 0){
-			theme1.stop();
-			theme1.play(DEFAULT_VOL*0.3f);
-		} else if (gameTime > theme1_timer + THEME1_DURATION) {
-			theme1_timer = gameTime;
-			theme1.stop();
-			theme1.play(DEFAULT_VOL*0.3f);
+		if (paused) {
+			sound.playMusic(SoundController.CurrentScreen.PAUSE, dt);
+		} else {
+			sound.playMusic(SoundController.CurrentScreen.LEVEL, dt);
 		}
+
 
 
 		// Process actions in object model
@@ -1111,6 +1123,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void removeChicken(Obstacle chicken){
 		if(!chicken.isRemoved()) {
 			chicken.markRemoved(true);
+			ai.get(chicken).die();
 			ai.remove(chicken);
 		}
 	}
@@ -1253,7 +1266,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			slap.setVX(speed);
 		}
 		addQueuedObject(slap);
-		emptySlap.play(volume);
+		sound.playEmptySlap();
 
 	}
 

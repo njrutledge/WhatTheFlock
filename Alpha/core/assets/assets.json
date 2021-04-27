@@ -102,6 +102,7 @@
         "sound:chef:emptySlap" : "sounds/chef/empty_slap_2.ogg",
         "sound:chef:squelch": "sounds/chef/squelch.ogg",
         "sound:chef:oof": "sounds/chef/chef_hurt_2.ogg",
+        "sound:chef:slap" : "sounds/chef/slap_1.ogg",
 
         "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt_1.ogg",
         "sound:chick:nugget:attack" : "sounds/chicken/nug_attack_1.ogg",
