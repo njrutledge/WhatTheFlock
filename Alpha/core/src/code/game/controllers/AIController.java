@@ -333,16 +333,14 @@ public class AIController {
 
     private float getHCost(Grid.Tile neighbor, Grid.Tile curr){
        float hcost = distance(grid.getPosition(target_tile.getRow(), target_tile.getCol()), grid.getPosition(neighbor.getRow(),neighbor.getCol()));
-        for(int row = neighbor.getRow()-1; row <= neighbor.getRow()+1;row++){
-            for (int col = neighbor.getCol()-1; col <= neighbor.getCol()+1;col++){
+        for(int row = neighbor.getRow()-1; row <= neighbor.getRow()+1;row=row+2){
+            for (int col = neighbor.getCol()-1; col <= neighbor.getCol()+1;col=col+2){
                 if(grid.isObstacleTile(row,col)){
-                    hcost++;
+                    hcost+=10;
                 }
             }
         }
-        if(!isReachable(neighbor,curr)){
-            hcost += 5;
-        }
+        //System.out.println(hcost);
         return hcost;
     }
 
