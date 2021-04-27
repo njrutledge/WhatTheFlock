@@ -1,6 +1,7 @@
 package code.game.display;
 
 import code.assets.AssetDirectory;
+import code.game.controllers.SoundController;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.FilmStrip;
@@ -49,6 +50,8 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     private GameCanvas canvas;
     /** Listener that will update the player mode when we are done */
     private ScreenListener listener;
+    /** Reference to Soundcontroller created by root */
+    private SoundController sound;
 
     /** The height of the canvas window (necessary since sprite origin != screen origin) */
     private int heightY;
@@ -106,8 +109,9 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
      *
      * @param canvas 	The game canvas to draw to
      */
-    public MainMenuMode(AssetDirectory assets, GameCanvas canvas) {
+    public MainMenuMode(AssetDirectory assets, GameCanvas canvas, SoundController sound) {
         this.canvas  = canvas;
+        this.sound = sound;
 
         // Compute the dimensions from the canvas
         resize(canvas.getWidth(),canvas.getHeight());
@@ -172,7 +176,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
      * @param delta Number of seconds since last animation frame
      */
     private void update(float delta) {
-        //do nothing
+        sound.playMusic(SoundController.CurrentScreen.MENU, delta);
     }
 
     /**

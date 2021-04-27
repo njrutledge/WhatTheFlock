@@ -1,10 +1,10 @@
 package code.game.controllers;
 
 import code.assets.AssetDirectory;
-import code.audio.SoundBuffer;
+import code.audio.*;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
 
-import java.awt.*;
 
 public class SoundController {
 
@@ -20,12 +20,15 @@ public class SoundController {
     /** Soft sound multiplier, used to raise volume of softer sounds */
     private final float SOFT = 1.3f;
     /** Enumerator to check what screen we are on for the music */
-    private enum CurrentScreen {
+    public enum CurrentScreen {
         MENU,
         LEVEL,
         PAUSE
     }
-    private CurrentScreen screen = CurrentScreen.MENU;
+    private CurrentScreen screen;
+
+    /** List of all sounds for disposal later */
+    private Array<SoundBuffer> sounds = new Array<>();
 
     //Chef
     /** Sound for when chef attacks, regardless of whether it hits */
@@ -80,39 +83,44 @@ public class SoundController {
     private final float PAUSE_VOL = 0.1f;
 
     /** Menu music */
-    private SoundBuffer menuTheme;
+    private MusicBuffer menuTheme;
     /** Menu music duration */
     private final float MENU_DURATION = 72f;
 
     /** Level music 1 */
-    private SoundBuffer levelTheme1;
+    private MusicBuffer levelTheme1;
     /** Level music 1 duration */
     private final float LEVEL_T_1 = 68f;
 
     /** Level music 2 */
-    private SoundBuffer levelTheme2;
+    private MusicBuffer levelTheme2;
     /** Level music 2 duration */
     private final float LEVEL_T_2 = 0f;
 
     /** Level music 3 */
-    private SoundBuffer levelTheme3;
+    private MusicBuffer levelTheme3;
     /** Level music 3 duration */
     private final float LEVEL_T_3 = 0f;
 
 
+    public SoundController() {
+        screen = CurrentScreen.MENU;
+    }
 
+    public void gatherAssets(AssetDirectory directory) {
 
-
-    public SoundController(AssetDirectory directory) {
         //Chef
         chefHurt = directory.getEntry("sound:chef:oof", SoundBuffer.class);
         emptySlap = directory.getEntry("sound:chef:emptySlap", SoundBuffer.class);
         contactSlap = directory.getEntry("sound:chef:slap", SoundBuffer.class);
+        sounds.add(chefHurt,emptySlap,contactSlap);
 
         //Traps
         fireTrigger = directory.getEntry("sound:trap:fireTrig", SoundBuffer.class);
 
         breadTrigger = directory.getEntry("sound:trap:lureCrumb", SoundBuffer.class);
+
+        sounds.add(fireTrigger, breadTrigger);
 
         //Chickens
         shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
@@ -125,9 +133,13 @@ public class SoundController {
         nuggetAttack = directory.getEntry("sound:chick:nugget:attack", SoundBuffer.class);
         nuggetHurt = directory.getEntry("sound:chick:nugget:hurt", SoundBuffer.class);
 
+        sounds.add(shreddedAttack, shreddedHurt, eggsplosion);
+        sounds.add(buffaloAttack, buffaloCharge);
+        sounds.add(nuggetAttack, nuggetHurt);
+
         //Music
-        menuTheme = directory.getEntry("sound:music:levelSel", SoundBuffer.class);
-        levelTheme1 = directory.getEntry("sound:music:theme1", SoundBuffer.class);
+        menuTheme = directory.getEntry("sound:music:levelSel", MusicBuffer.class);
+        levelTheme1 = directory.getEntry("sound:music:theme1", MusicBuffer.class);
 
     }
 
@@ -136,9 +148,12 @@ public class SoundController {
         sound.play(volume * multiplier);
     }
 
-    private void playMusicInstant(SoundBuffer sound, float multiplier) {
-        sound.stop();
-        musicID = sound.play(volume * multiplier);
+    private void playMusicInstant(MusicBuffer sound, float multiplier) {
+        if (sound != null) {
+            sound.play();
+            sound.setVolume(multiplier * volume);
+        }
+
     }
 
     private void mute() {
@@ -155,7 +170,7 @@ public class SoundController {
         int choose = 0;
         switch (choose) {
             case 0:
-                playMusicInstant(levelTheme1, LOUD);
+                playMusicInstant(levelTheme1, MED);
                 timer = LEVEL_T_1;
                 break;
             case 1:
@@ -169,10 +184,18 @@ public class SoundController {
         }
     }
 
+    public void stopAllMusic() {
+        //menuTheme.stop();
+        //levelTheme1.stop();
+        //levelTheme2.stop();
+        //levelTheme3.stop();
+    }
+
     public void playMusic(CurrentScreen s, float dt) {
         boolean pause = false;
         if (s != screen) {
             timer = 0f;
+            stopAllMusic();
             if (s == CurrentScreen.PAUSE) {
                 pause = true;
             }
@@ -181,26 +204,26 @@ public class SoundController {
 
         switch (screen){
             case MENU:
-                if (timer == 0f) {
-                    timer = MENU_DURATION;
-                    playMusicInstant(menuTheme, LOUD);
-                }
+                //playMusicInstant(menuTheme, LOUD);
+                break;
             case LEVEL:
                 if (pause) {
-                    levelTheme1.setVolume(musicID, volume * LOUD);
-                    levelTheme2.setVolume(musicID, volume * LOUD);
-                    levelTheme3.setVolume(musicID, volume * LOUD);
+                    //levelTheme1.setVolume(volume * MED);
+                    //levelTheme2.setVolume(volume * LOUD);
+                    //levelTheme3.setVolume(volume * LOUD);
                 }
                 if (timer == 0f) {
-                    playLevel();
+                    //playLevel();
                 }
+                break;
             case PAUSE:
                 if (timer == 0f) {
-                    playLevel();
+                    //playLevel();
                 }
-                levelTheme1.setVolume(musicID, volume * LOUD * PAUSE_VOL);
-                levelTheme2.setVolume(musicID, volume * LOUD * PAUSE_VOL);
-                levelTheme3.setVolume(musicID, volume * LOUD * PAUSE_VOL);
+                //levelTheme1.setVolume(volume * MED * PAUSE_VOL);
+                break;
+                //levelTheme2.setVolume(volume * LOUD * PAUSE_VOL);
+                //levelTheme3.setVolume(volume * LOUD * PAUSE_VOL);
         }
 
         timer = MathUtils.clamp(timer - dt, 0f, 600f);
@@ -247,6 +270,16 @@ public class SoundController {
 
     public void playNugHurt() {playInstant(nuggetHurt, MED);}
 
+
+    public void dispose() {
+        for (SoundBuffer s : sounds) {
+            s.dispose();
+        }
+        //levelTheme1.dispose();
+        //menuTheme.dispose();
+
+
+    }
 
 
 

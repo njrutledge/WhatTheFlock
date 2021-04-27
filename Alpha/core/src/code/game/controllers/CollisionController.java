@@ -24,18 +24,9 @@ public class CollisionController implements CollisionControllerInterface {
     public PooledList<Trap> trapCache = new PooledList<Trap>();
 
     private Chef chef;
-    /** Sound for buffalo charging */
-    private SoundBuffer buffaloCharge;
-    /** Sound for nugget hurt */
-    private SoundBuffer nuggetHurt;
 
-    /** Sound for shredded hurt */
-    private SoundBuffer shreddedHurt;
-    /** Sound for eggsplosion */
-    private SoundBuffer eggsplosion;
+    private SoundController sound;
 
-    /** Sound for fire trigger */
-    private SoundBuffer fireTrigger;
 
     public CollisionController(Vector2 scale) {
         trapController = new TrapController(scale);
@@ -50,13 +41,11 @@ public class CollisionController implements CollisionControllerInterface {
     }
 
     public void gatherAssets(AssetDirectory directory){
-        nuggetHurt = directory.getEntry("sound:chick:nugget:hurt", SoundBuffer.class);
-        shreddedHurt = directory.getEntry("sound:chick:shredded:hurt", SoundBuffer.class);
-        buffaloCharge = directory.getEntry("sound:chick:buffalo:charge", SoundBuffer.class);
-        eggsplosion = directory.getEntry("sound:chick:eggsplosion",SoundBuffer.class);
-        fireTrigger = directory.getEntry( "sound:trap:fireTrig", SoundBuffer.class );
         trapController.gatherAssets(directory);
+    }
 
+    public void setSound(SoundController sound) {
+        this.sound = sound;
     }
 
     /**
@@ -256,8 +245,7 @@ public class CollisionController implements CollisionControllerInterface {
             switch (t1.getTrapType()) {
                 case FAULTY_OVEN:
                     t1.markReady(false);
-                    fireTrigger.stop();
-                    fireTrigger.play();
+                    sound.playFireTrap();
                     chef.setDoubleDamage(true);
                     break;
                 case BREAD_BOMB:
@@ -287,8 +275,7 @@ public class CollisionController implements CollisionControllerInterface {
             chicken.setTouching(true);
             switch(chicken.getType()){
                 case Buffalo:
-                    buffaloCharge.stop();
-                    buffaloCharge.play();
+                    sound.playBuffCharge();
                     break;
             }
         }
@@ -301,8 +288,7 @@ public class CollisionController implements CollisionControllerInterface {
         chef.decrementHealth();
         attack.collideObject();
         if(attack.getType().equals(ChickenAttack.AttackType.Projectile)){
-            eggsplosion.stop();
-            eggsplosion.play();
+            sound.playEggsplosion();
         }
     }
 
@@ -331,15 +317,14 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChickenSlap(Chicken c1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
         c1.takeDamage(dmg);
+        sound.playHitSlap();
         switch (c1.getType()){
             case Nugget:
             case Buffalo:
-                nuggetHurt.stop();
-                nuggetHurt.play();
+                sound.playNugHurt();
                 break;
             case Shredded:
-                shreddedHurt.stop();
-                shreddedHurt.play();
+                sound.playShredHurt();
                 break;
         }
 
