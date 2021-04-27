@@ -318,7 +318,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         float width = BUTTON_SCALE * scale * button.getWidth();
         float height = BUTTON_SCALE * scale * button.getHeight();
         float xBound = centerX - width/2; //lower x bound
-        float yBound = centerY - height/2;
+        float yBound = centerY - height/4;
         return ((screenX >= xBound && screenX <= xBound + width) && (screenY >= yBound && screenY <= yBound + height));
     }
     /**

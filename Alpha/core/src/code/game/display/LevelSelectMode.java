@@ -50,7 +50,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Ratio of the knife to the screen */
     private static float KNIFE_RATIO = 1.0f;
     /** Background scale*/
-    private static float BACKGROUND_SCALE = 1.2f;
+    private static float BACKGROUND_SCALE = 1.25f;
     /** Scale of arrows*/
     private static float ARROW_SCALE = 0.5f;
     /**Center the background*/
@@ -272,7 +272,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         canvas.begin();
 
         String text = getText();
-        canvas.drawText(getText(), displayFont, knifeCenterX, textCenterY);
+        canvas.drawText(getText(), displayFont, background.getWidth()/4 - 80, textCenterY);
         //canvas.drawTextCentered(getText(), displayFont, 0.0f);
         canvas.end();
     }
