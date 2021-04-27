@@ -143,7 +143,7 @@ public class AIController {
                 else if (!chicken.isLured() && chicken.isAttacking()) {
                     state = FSM.ATTACK;
                 }
-                else if (isFlanking && !doneFlanking && flankers >= FLANK_THRESHOLD){
+                else if (!chicken.isLured() && isFlanking && !doneFlanking && flankers >= FLANK_THRESHOLD){
                     state = FSM.FLANK;
                     float rand = (float)Math.random();
                     temp.set(target.getPosition());
@@ -175,7 +175,7 @@ public class AIController {
                     targetOffset.setZero();
                     doneFlanking = true;
                 }
-                else if (!isFlanking){
+                else if (!isFlanking || chicken.isLured()){
                     state = FSM.CHASE;
                     targetOffset.setZero();
                     //doneFlanking = true;
@@ -294,6 +294,10 @@ public class AIController {
                 temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
                 temp.nor();
                 temp.scl(chaseSpeed * chicken.getSlow());
+
+                if (chicken.isLured() && chicken.getPosition().dst(target.getPosition()) < 0.5){
+                    temp.setZero();
+                }
                 chicken.setForceCache(temp, false);
                 break;
             case KNOCKBACK:
