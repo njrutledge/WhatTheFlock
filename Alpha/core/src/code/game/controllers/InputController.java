@@ -51,9 +51,6 @@ public class InputController {
 	}
 	
 	// Fields to manage buttons
-	/** Whether the reset button was pressed. */
-	private boolean resetPressed;
-	private boolean resetPrevious;
 	/** Whether the button to advanced worlds was pressed. */
 	private boolean nextPressed;
 	private boolean nextPrevious;
@@ -271,7 +268,7 @@ public class InputController {
 	 *
 	 * @return true if the pause button was pressed
 	 */
-	public boolean didPause() {return pausePressed && !pausePrevious; }
+	public boolean didPause() { return pausePressed && !pausePrevious; }
 
 	/**
 	 * Returns true if the parameter increased button is pressed.
@@ -299,15 +296,6 @@ public class InputController {
 	 * 	@return true if the parameter decreased button was pressed
 	 */
 	public boolean didGridToggle() { return gridToggled && !gridPrevious; }
-
-	/**
-	 * Returns true if the reset button was pressed.
-	 *
-	 * @return true if the reset button was pressed.
-	 */
-	public boolean didReset() {
-		return resetPressed && !resetPrevious;
-	}
 
 	/**
 	 * Returns true if the player wants to go to the next level.
@@ -378,7 +366,6 @@ public class InputController {
 		// Helps us ignore buttons that are held down
 		primePrevious  = primePressed;
 		secondPrevious = secondPressed;
-		resetPrevious  = resetPressed;
 		debugPrevious  = debugPressed;
 		exitPrevious = exitPressed;
 		nextPrevious = nextPressed;
@@ -414,7 +401,6 @@ public class InputController {
 	 * @param scale  The drawing scale
 	 */
 	private void readGamepad(Rectangle bounds, Vector2 scale) {
-		resetPressed = xbox.getStart();
 		exitPressed  = xbox.getBack();
 		nextPressed  = xbox.getRBumper();
 		prevPressed  = xbox.getLBumper();
@@ -452,14 +438,13 @@ public class InputController {
 	 */
 	private void readKeyboard(Rectangle bounds, Vector2 scale, boolean secondary) {
 		// Give priority to gamepad results
-		resetPressed = (secondary && resetPressed) || (Gdx.input.isKeyPressed(Input.Keys.R));
 		debugPressed = (secondary && debugPressed) || (Gdx.input.isKeyPressed(Input.Keys.X));
 		primePressed = (secondary && primePressed) || (Gdx.input.isKeyPressed(Input.Keys.UP));
 		secondPressed = (secondary && secondPressed) || (Gdx.input.isKeyPressed(Input.Keys.UP)) ||
 				(Gdx.input.isKeyPressed(Input.Keys.LEFT)) || (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) ||
 						(Gdx.input.isKeyPressed(Input.Keys.DOWN));
 		nextPressed = (secondary && nextPressed) || (Gdx.input.isKeyPressed(Input.Keys.N));
-		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
+/*		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));*/
 		movementPressed = ((Gdx.input.isKeyPressed(Input.Keys.W)) || (Gdx.input.isKeyPressed(Input.Keys.A)) ||
 				(Gdx.input.isKeyPressed(Input.Keys.S)) || (Gdx.input.isKeyPressed(Input.Keys.D)));
 		trapPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
@@ -469,7 +454,7 @@ public class InputController {
 		paraDecPressed = (Gdx.input.isKeyPressed(Input.Keys.I));
 		paraIncPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		mutePressed = (Gdx.input.isKeyPressed(Input.Keys.M));
-		pausePressed = (Gdx.input.isKeyPressed(Input.Keys.TAB));
+		pausePressed = (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		gridToggled = (Gdx.input.isKeyPressed(Input.Keys.G));
 		
 		// Directional controls

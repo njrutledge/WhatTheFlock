@@ -197,6 +197,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public static final int EXIT_NEXT = 1;
 	/** Exit code for jumping back to previous level */
 	public static final int EXIT_PREV = 2;
+	/** Exit code for pausing the game */
+	public static final int EXIT_PAUSE = 3;
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
@@ -836,9 +838,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			return false;
 		}
 
-		if (InputController.getInstance().didPause()){
-			paused = !paused;
-		}
 		for (Chicken chick: ai.keySet()){
 			// Remove ai controller for dead chicken
 			if (chick.isRemoved() && ai.containsKey(chick)){
@@ -889,13 +888,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			grid_toggle = !grid_toggle;
 		}
 
-		// Handle resets
-		if (input.didReset()) {
-			//TODO implement real pause menu
-			theme1.stop();
-			listener.exitScreen(this, EXIT_QUIT);
-			//reset();
-		}
+
 		if(input.didAdvance()) {
 			chef.decrementHealth();
 		}
@@ -904,7 +897,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 
 		// Now it is time to maybe switch screens.
-		if (input.didExit()) {
+		if (input.didPause()){
+			pause();
+			paused = true;
+			listener.exitScreen(this, EXIT_PAUSE);
+		} else if (input.didExit()) {
 			pause();
 			theme1.stop();
 			listener.exitScreen(this, EXIT_QUIT);
@@ -1579,12 +1576,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
-		if (paused){
-			displayFont.setColor(Color.GREEN);
-			canvas.begin();
-			canvas.drawTextCentered("PAUSED!", displayFont, 0.0f);
-			canvas.end();
-		}
 		// Final message
 		if (complete && !failed) {
 			displayFont.setColor(Color.YELLOW);
@@ -1792,6 +1783,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void resume() {
 		// TODO Auto-generated method stub
+		paused = false;
 	}
 
 	/**

@@ -42,8 +42,18 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     private static int STANDARD_HEIGHT = 700;
     /** Height of the progress bar */
     private static float BUTTON_SCALE  = 0.75f;
-    /** Background scale*/
+    /** Background scale*/  
     private static float BACKGROUND_SCALE = 1.3f;
+    /** Standard height of all buttons */
+    private static int BUTTON_HEIGHT = 62;
+    /** Standard width of Start Button */
+    private static int START_WIDTH = 222;
+    /** Standard width of HTP Button */
+    private static int HTP_WIDTH = 474;
+    /** Standard width of Options Button */
+    private static int OPTIONS_WIDTH = 292;
+    /** Standard width of Quit Button */
+    private static int QUIT_WIDTH = 158;
 
     /** Reference to GameCanvas created by the root */
     private GameCanvas canvas;
@@ -69,9 +79,6 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     public static final int GUIDE  = 2;
     public static final int OPTIONS = 3;
     public static final int QUIT = 4;
-
-    /**The maximum number of buttons you want to support*/
-    private final int NUM_BUTTONS = 10;
 
     /** Whether or not this player mode is still active */
     private boolean active;
@@ -249,8 +256,8 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         buttonsCenterX = width/2;
         startCenterY = height/2;
         howToCenterY = 4 * height/10;
-        optionsCenterY = 3 * height/10;
-        quitCenterY = 2 * height/10;
+        optionsCenterY = 3 * height/10 - 3;
+        quitCenterY = 2 * height/10 - 1;
         heightY = height;
     }
 
@@ -308,11 +315,11 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
      * @param screenY The y axis screen position of the mouse interaction
      * @param centerX The x axis center location of the button
      * @param centerY The y axis center location of the button
-     * @param button The texture of the given button
+     * @param bwidth   The width of the given button
      * */
-    private boolean overButton(Texture button, int screenX, int screenY, int centerX, int centerY){
-        float width = BUTTON_SCALE * scale * button.getWidth();
-        float height = BUTTON_SCALE * scale * button.getHeight();
+    private boolean overButton(int bwidth, int screenX, int screenY, int centerX, int centerY){
+        float width = BUTTON_SCALE * scale * bwidth;
+        float height = BUTTON_SCALE * scale * BUTTON_HEIGHT;
         float xBound = centerX - width/2; //lower x bound
         float yBound = centerY - height/2;
         return ((screenX >= xBound && screenX <= xBound + width) && (screenY >= yBound && screenY <= yBound + height));
@@ -334,13 +341,13 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         screenY = heightY-screenY;
 
         // TODO: Fix scaling
-        if(overButton(start.getTexture(), screenX, screenY, buttonsCenterX, startCenterY)){
+        if(overButton(START_WIDTH, screenX, screenY, buttonsCenterX, startCenterY)){
             pressState = 1;
-        }else if(overButton(howToPlay.getTexture(), screenX, screenY, buttonsCenterX, howToCenterY)){
+        }else if(overButton(HTP_WIDTH, screenX, screenY, buttonsCenterX, howToCenterY)){
             pressState = 2;
-        }else if(overButton(options.getTexture(), screenX, screenY, buttonsCenterX, optionsCenterY)){
+        }else if(overButton(OPTIONS_WIDTH, screenX, screenY, buttonsCenterX, optionsCenterY)){
             pressState = 3;
-        }else if(overButton(quit.getTexture(), screenX, screenY, buttonsCenterX, quitCenterY)) {
+        }else if(overButton(QUIT_WIDTH, screenX, screenY, buttonsCenterX, quitCenterY)) {
             pressState = 4;
         }
         return false;
@@ -429,13 +436,13 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         // Flip to match graphics coordinates
         screenY = heightY-screenY;
         //switch animations
-        if (overButton(start.getTexture(), screenX, screenY, buttonsCenterX, startCenterY)){
+        if (overButton(START_WIDTH, screenX, screenY, buttonsCenterX, startCenterY)){
             start.setFrame(1);
-        } else if(overButton(howToPlay.getTexture(), screenX, screenY, buttonsCenterX, howToCenterY)){
+        } else if(overButton(HTP_WIDTH, screenX, screenY, buttonsCenterX, howToCenterY)){
             howToPlay.setFrame(1);
-        } else if(overButton(options.getTexture(), screenX, screenY, buttonsCenterX, optionsCenterY)){
+        } else if(overButton(OPTIONS_WIDTH, screenX, screenY, buttonsCenterX, optionsCenterY)){
             options.setFrame(1);
-        } else if(overButton(quit.getTexture(), screenX, screenY, buttonsCenterX, quitCenterY)){
+        } else if(overButton(QUIT_WIDTH, screenX, screenY, buttonsCenterX, quitCenterY)){
             quit.setFrame(1);
         }
         return true;
