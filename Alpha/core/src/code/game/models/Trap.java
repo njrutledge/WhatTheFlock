@@ -448,7 +448,7 @@ public class Trap extends GameObject implements TrapInterface {
                 c = fireColor.cpy();
                 break;
             case LURE:
-                c = lureColor.cpy();
+                //c = lureColor.cpy();
                 c.a = Math.max(0,lure_ammount/MAX_LURE_AMMOUNT);
                 break;
             case SLOW:
@@ -465,7 +465,7 @@ public class Trap extends GameObject implements TrapInterface {
                 scale = .2f;
                 break;
             case BREAD_BOMB:
-                c = Color.BROWN.cpy();
+                //c = Color.BROWN.cpy();
                 break;
 
         }
