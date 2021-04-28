@@ -24,8 +24,13 @@ public class Chef extends GameObject implements ChefInterface {
 	//////////////////////////////////////////////////////////////////////////////////////
 	/** the texture of the chef */
 	//private TextureRegion chefTexture;
+    /** Textures of the chef's health */
 	private TextureRegion heartTexture;
 	private TextureRegion halfHeartTexture;
+	/** Texture of the chef's attack buff */
+	private Texture attOffTexture;
+	private TextureRegion attOnTexture;
+
 	private Texture slapTexture;
 	/** The initializing data (to avoid magic numbers) */
 	private final JsonValue data;
@@ -85,7 +90,7 @@ public class Chef extends GameObject implements ChefInterface {
 	/** X offset for health display */
 	private float X_HEALTH = 30;
 	/** Y offset for health display */
-	private float y_health;
+	private int y_health;
 	/** size of each heart */
 	private final int HEART_SIZE = 45;
 	/** The number of hearts, including both full and half hearts.
@@ -305,15 +310,6 @@ public class Chef extends GameObject implements ChefInterface {
 	public void setTrap(boolean bln) { isTrap = bln; }
 
 	/**
-	 * Animates the texture (moves along the filmstrip)
-	 *
-	 * @param texture
-	 */
-	public void setTexture(Texture texture) {
-		animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
-		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
-	}
-	/**
 	 * Animates the up slap
 	 * @param texture
 	 */
@@ -472,19 +468,22 @@ public class Chef extends GameObject implements ChefInterface {
 		return faceRight;
 	}
 
-	//TODO: comment
-	public void setHeartTexture(TextureRegion t){
-		heartTexture = t;
+	/**
+	 * Sets textures for the chef, including heart textures and buff textures.
+	 * @param h	       heart texture
+	 * @param hh       half heart texture
+	 * @param att_off  attack buff off texture
+	 * @param att_on   attack buff on texture
+	 */
+	public void setTextures(Texture c, TextureRegion h, TextureRegion hh, Texture att_off, Texture att_on){
+		animator = new FilmStrip(c, 1, NUM_ANIM_FRAMES);
+		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
+		heartTexture = h;
+		halfHeartTexture = hh;
+		attOffTexture = att_off;
+		attOnTexture = new TextureRegion(att_on);
 	}
 
-	//TODO: comment
-	public void setHalfHeartTexture(TextureRegion t){
-		halfHeartTexture = t;
-	}
-
-	public void setSlapTexture(Texture t){
-		slapTexture = t;
-	}
 	/**
 	 * Creates the game Body(s) for this object, adding them to the world.
 	 *
@@ -657,6 +656,7 @@ public class Chef extends GameObject implements ChefInterface {
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
 		//canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
 		//draw health
+
 		if (y_health == 0) { y_health = canvas.getHeight() - HEART_SIZE - 20; }
 		float x = X_HEALTH;
 		for (int i = 1; i <= full_hearts; i++){
@@ -670,6 +670,15 @@ public class Chef extends GameObject implements ChefInterface {
 				break;
 			}
 			x += HEART_SIZE + HEART_SIZE/3;
+		}
+		if (doubleDamage) {
+			float clip_pixels = 53*(1-damageTimer/DAMAGE_TIME);
+			float clip_scale = (float)(1-0.36-(clip_pixels/194));
+			int add_height = 194-(int)(clip_scale*attOnTexture.getRegionHeight());
+			canvas.draw(attOffTexture, Color.WHITE, X_HEALTH-55, y_health - 180, attOffTexture.getWidth(), attOffTexture.getHeight());
+			canvas.draw(attOnTexture, clip_scale, 0, Color.WHITE,
+					attOnTexture.getRegionWidth()/2, attOnTexture.getRegionHeight()/2, X_HEALTH-55, y_health-180+add_height,
+					attOnTexture.getRegionWidth(), attOnTexture.getRegionHeight());
 		}
 	}
 	

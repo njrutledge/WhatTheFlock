@@ -69,6 +69,8 @@
         "ui:pause:options": "ui/pause/pausemenu_options.png",
         "ui:pause:quit": "ui/pause/pausemenu_quit.png",
 
+        "ui:att_off": "ui/attbuff_off.png",
+        "ui:att_on": "ui/attbuff_on.png",
         "ui:tempBar": {
           "file":      "ui/HUD_tempbar_noflame.png",
           "atlas":     {
