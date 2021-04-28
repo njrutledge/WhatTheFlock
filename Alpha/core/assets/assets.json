@@ -52,6 +52,7 @@
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",
         "background:menu": "ui/loading/temp_menu_bkg.png",
+        "background:pause": "ui/pause/pausemenu.png",
 
         "ui:menu:start": "ui/loading/mainmenu_start.png",
         "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
@@ -61,6 +62,12 @@
         "ui:knife": "ui/levelselect/cleaver_placeholder_empty.png",
         "ui:arrowRight": "ui/levelselect/arrowRight.png",
         "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
+        "ui:back": "ui/levelselect/back_placeholder.png",
+
+        "ui:pause:continue": "ui/pause/pausemenu_continue.png",
+        "ui:pause:restart": "ui/pause/pausemenu_restart.png",
+        "ui:pause:options": "ui/pause/pausemenu_options.png",
+        "ui:pause:quit": "ui/pause/pausemenu_quit.png",
 
         "ui:tempBar": {
           "file":      "ui/HUD_tempbar_noflame.png",
@@ -137,6 +144,14 @@
         "font:lightPixel": {
           "file": "ui/fonts/LightPixel7.ttf",
           "size": 64
-        }
+        },
+      "font:PTSans64": {
+        "file": "ui/fonts/PTSans.ttf",
+        "size": 64
+      },
+      "font:PTSans32": {
+        "file": "ui/fonts/PTSans.ttf",
+        "size": 32
+      }
     }
 }
