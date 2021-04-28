@@ -1,7 +1,7 @@
 {
-  "open-concept": "levels/easyish.json",
-  "pillars": "levels/pillars.json",
-  "Third times the charm": "levels/threepeat.json",
+  "Open-Concept": "levels/easyish.json",
+  "Pillars": "levels/pillars.json",
+  "Third Time's the Charm": "levels/threepeat.json",
   "Cornered": "levels/manta.json",
-  "Up": "levels/up.json",
+  "Up": "levels/up.json"
 }

@@ -22,9 +22,12 @@
         "enviro:wall:yellow:bottom": "enviro/ywall_b.png",
         "enviro:stove": "enviro/stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
+        "enviro:trap:toaster": "enviro/toaster.png",
+        "enviro:trap:bread": "enviro/breadlure.png",
         "enviro:trap:spot": "enviro/trapspot.png",
         "enviro:trap:cooler": "enviro/cooler.png",
         "enviro:trap:slow": "enviro/slow.png",
+        "enviro:trap:toaster": "enviro/toaster.png",
         "enviro:background": "enviro/background_2.png",
         "enviro:spawn": "enviro/fridge.png",
 
@@ -32,6 +35,7 @@
         "char:chef":"characters/chef_animation_run.png",
         "char:bullet": "characters/bullet.png",
         "char:nugget": "characters/nugget_animation_walk.png",
+        "char:nuggetAttack": "characters/nugget_animation_attack.png",
         "char:nuggetHurt": "characters/nugget_animation_hurt.png",
         "char:dino": "characters/dino_animation_walk.png",
         "char:dinoAttack": "characters/dino_animation_attack.png",
@@ -41,7 +45,10 @@
         "char:buffaloCharge": "characters/buffalo_animation_chargeRun.png",
         "char:buffaloStart": "characters/buffalo_animation_chargeStart.png",
         "char:shredded": "characters/shredded.png",
+        "char:hot" : "characters/hot.png",
         "char:nuggetBar": "characters/nuggetBar.png",
+        "char:eggSpin" : "characters/egg_animation_spin.png",
+        "char:eggSplat" : "characters/egg_animation_splat.png",
         "char:egg": "characters/egg.png",
         "char:slapSide": "characters/chef_animation_attackSide.png",
         "char:slapDown": "characters/chef_animation_attackDown_color.png",
@@ -52,6 +59,7 @@
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",
         "background:menu": "ui/loading/temp_menu_bkg.png",
+        "background:pause": "ui/pause/pausemenu.png",
 
         "ui:menu:start": "ui/loading/mainmenu_start.png",
         "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
@@ -61,7 +69,15 @@
         "ui:knife": "ui/levelselect/cleaver_placeholder_empty.png",
         "ui:arrowRight": "ui/levelselect/arrowRight.png",
         "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
+        "ui:back": "ui/levelselect/back_placeholder.png",
 
+        "ui:pause:continue": "ui/pause/pausemenu_continue.png",
+        "ui:pause:restart": "ui/pause/pausemenu_restart.png",
+        "ui:pause:options": "ui/pause/pausemenu_options.png",
+        "ui:pause:quit": "ui/pause/pausemenu_quit.png",
+
+        "ui:att_off": "ui/attbuff_off.png",
+        "ui:att_on": "ui/attbuff_on.png",
         "ui:tempBar": {
           "file":      "ui/HUD_tempbar_noflame.png",
           "atlas":     {
@@ -137,6 +153,14 @@
         "font:lightPixel": {
           "file": "ui/fonts/LightPixel7.ttf",
           "size": 64
-        }
+        },
+      "font:PTSans64": {
+        "file": "ui/fonts/PTSans.ttf",
+        "size": 64
+      },
+      "font:PTSans32": {
+        "file": "ui/fonts/PTSans.ttf",
+        "size": 32
+      }
     }
 }

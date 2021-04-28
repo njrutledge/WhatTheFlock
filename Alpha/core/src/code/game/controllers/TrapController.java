@@ -22,6 +22,10 @@ public class TrapController implements TrapControllerInterface {
     private JsonValue constants;
     /** Texture Region for Fridge traps */
     private TextureRegion trapFridgeTexture;
+    /** Texture Region for the Toaster traps*/
+    private TextureRegion trapToasterTexture;
+    /** Texture Region for the Bread trap*/
+    private TextureRegion trapBreadTexture;
     /** Texture Region for Slow traps */
     private TextureRegion trapSlowTexture;
     /** Texture Region for default traps */
@@ -41,6 +45,8 @@ public class TrapController implements TrapControllerInterface {
         constants = directory.getEntry( "constants", JsonValue.class );
         trapSlowTexture = new TextureRegion(directory.getEntry("enviro:trap:slow", Texture.class));
         trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
+        trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster", Texture.class));
+        trapBreadTexture = new TextureRegion(directory.getEntry("enviro:trap:bread", Texture.class));
     }
 
     /**
@@ -129,11 +135,11 @@ public class TrapController implements TrapControllerInterface {
     }
 
     private Trap createLure(Trap breadBomb){
-        float twidth = trapDefaultTexture.getRegionWidth()/drawscale.x;
-        float theight = trapDefaultTexture.getRegionHeight()/drawscale.y;
+        float twidth = trapBreadTexture.getRegionWidth()/drawscale.x;
+        float theight = trapBreadTexture.getRegionHeight()/drawscale.y;
         Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), breadBomb.getWidth(), breadBomb.getHeight(), Trap.type.LURE);
         trap.setDrawScale(breadBomb.getDrawScale());
-        trap.setTexture(trapDefaultTexture);
+        trap.setTexture(trapBreadTexture);
         return trap;
     }
 
