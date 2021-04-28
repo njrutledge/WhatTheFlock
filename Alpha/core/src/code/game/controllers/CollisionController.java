@@ -209,7 +209,8 @@ public class CollisionController implements CollisionControllerInterface {
                         handleTrapSlap((Trap) bd2, fd2, s1, fd1);
                         break;
                     case PROJECTILE_ATTACK:
-                        ((ChickenAttack) bd2).reflect(chef.getPosition());
+                        //((ChickenAttack) bd2).reflect(chef.getPosition());
+                        break;
 
                 }
             }
