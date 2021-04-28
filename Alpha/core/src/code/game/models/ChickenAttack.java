@@ -13,6 +13,7 @@ public class ChickenAttack extends GameObject {
     public enum AttackType {
         Basic,
         Charge,
+        Knockback,
         Projectile,
         Explosion
     }
