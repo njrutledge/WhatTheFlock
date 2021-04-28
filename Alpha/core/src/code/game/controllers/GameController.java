@@ -94,6 +94,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture chefTexture;
 	/** Texture asset for the nugget */
 	private Texture nuggetTexture;
+	/** Texture asset for nugget attack */
+	private Texture nuggetAttackTexture;
 	/** Texture asset for the nugget hurt texture*/
 	private Texture nuggetHurtTexture;
 	/** Texture asset for the buffalo */
@@ -474,6 +476,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chefTexture = directory.getEntry("char:chef", Texture.class);
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
 		nuggetHurtTexture = directory.getEntry("char:nuggetHurt", Texture.class);
+		nuggetAttackTexture = directory.getEntry("char:nuggetAttack", Texture.class);
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 		buffaloHurtTexture = directory.getEntry("char:buffaloHurt", Texture.class);
 		buffaloChargeStartTexture = directory.getEntry("char:buffaloStart", Texture.class);
@@ -1069,6 +1072,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				spawnChicken(Chicken.ChickenType.Shredded);
 			} else if (chicken == 3) {
 				spawnChicken(Chicken.ChickenType.DinoNugget);
+			} else if (chicken == 4) {
+				//spawnChicken(hot chick type)
 			}
 			lastEnemySpawnTime = gameTime;
 			enemiesLeft -= 1;
@@ -1186,6 +1191,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (type == Chicken.ChickenType.Nugget) {
 			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(nuggetTexture);
+			enemy.setAttackTexture(nuggetAttackTexture);
 			enemy.setHurtTexture(nuggetHurtTexture);
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
