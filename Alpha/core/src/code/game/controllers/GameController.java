@@ -1058,6 +1058,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				spawnChicken(Chicken.ChickenType.Shredded);
 			} else if (chicken == 3) {
 				spawnChicken(Chicken.ChickenType.DinoNugget);
+			} else if (chicken == 4) {
+				//spawnChicken(hot chick type)
 			}
 			lastEnemySpawnTime = gameTime;
 			enemiesLeft -= 1;
