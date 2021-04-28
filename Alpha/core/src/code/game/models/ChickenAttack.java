@@ -57,7 +57,7 @@ public class ChickenAttack extends GameObject {
     /** The maximum length of time a projectile attack can exist */
     private final float PROJECTILE_MAX_AGE = 2f;
     /** Speed of projectiles */
-    private final float PROJECTILE_SPEED = 8f;
+    private final float PROJECTILE_SPEED = 6f;
     /** The starting speed of a charge attack */
     private final float CHARGE_SPEED = 4.0f;
 

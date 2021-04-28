@@ -37,7 +37,7 @@
 		"density": 0.1,
 		"maxspeed": 5.0,
 		"chasespeed": 4,
-		"knockback": 20.0,
+		"knockback": 30.0,
 		"maxhealth": 5,
 		"num_anim_frames": 8,
 		"animation_speed": 0.25,
@@ -71,7 +71,7 @@
 		"damping": 0.2,
 		"maxspeed": 6.0,
 		"chasespeed": 3.5,
-		"knockback": 20.0,
+		"knockback": 30.0,
 		"maxhealth": 5,
 		"sensor": {
 			"shrink" : 0.6,
@@ -89,6 +89,19 @@
 		"sensor": {
 			"shrink" : 0.6,
 			"height" : 0.1
+		}
+	},
+	"hot" : {
+		"shrink": [0.6, 0.4],
+		"density": 0.1,
+		"damping": 0.2,
+		"maxspeed": 6.0,
+		"chasespeed": 3.5,
+		"knockback": 30.0,
+		"maxhealth": 5,
+		"sensor": {
+			"shrink": 0.6,
+			"height": 0.1
 		}
 	},
 	"stove" : {
