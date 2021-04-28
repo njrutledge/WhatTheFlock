@@ -108,6 +108,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture buffaloChargingTexture;
 	/** Texture asset for the shredded chicken */
 	private Texture shreddedTexture;
+	/** Texture asset for the hot chick */
+	private Texture hotTexture;
 	/** Texture asset for the dino chicken */
 	private Texture dinoTexture;
 	/** Texture asset for the dino nugget attack */
@@ -482,6 +484,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		buffaloChargeStartTexture = directory.getEntry("char:buffaloStart", Texture.class);
 		buffaloChargingTexture = directory.getEntry("char:buffaloCharge", Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
+		hotTexture = directory.getEntry("char:hot", Texture.class);
 		dinoTexture = directory.getEntry("char:dino", Texture.class);
 		dinoAttackTexture = directory.getEntry("char:dinoAttack", Texture.class);
 		dinoHurtTexture = directory.getEntry("char:dinoHurt", Texture.class);
@@ -1073,7 +1076,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			} else if (chicken == 3) {
 				spawnChicken(Chicken.ChickenType.DinoNugget);
 			} else if (chicken == 4) {
-				//spawnChicken(hot chick type)
+				spawnChicken(Chicken.ChickenType.Hot);
 			}
 			lastEnemySpawnTime = gameTime;
 			enemiesLeft -= 1;
@@ -1195,9 +1198,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			enemy.setHurtTexture(nuggetHurtTexture);
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
-			((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
+			//((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
 			enemy.setTexture(shreddedTexture);
-		} else if (type == Chicken.ChickenType.Buffalo){
+		} else if (type == Chicken.ChickenType.Hot){
+			enemy = new HotChicken(constants.get("chicken"), constants.get("hot"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(hotTexture);
+		}
+		else if (type == Chicken.ChickenType.Buffalo){
 			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(buffaloTexture);
 			enemy.setHurtTexture(buffaloHurtTexture);

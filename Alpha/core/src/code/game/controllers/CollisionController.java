@@ -338,6 +338,9 @@ public class CollisionController implements CollisionControllerInterface {
             case Shredded:
                 sound.playShredHurt();
                 break;
+            case Hot:
+                //TODO Hot Chick sounds
+                break;
         }
 
         if (!c1.isAlive()) {

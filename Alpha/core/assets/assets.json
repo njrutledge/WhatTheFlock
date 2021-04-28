@@ -42,6 +42,7 @@
         "char:buffaloCharge": "characters/buffalo_animation_chargeRun.png",
         "char:buffaloStart": "characters/buffalo_animation_chargeStart.png",
         "char:shredded": "characters/shredded.png",
+        "char:hot" : "characters/hot.png",
         "char:nuggetBar": "characters/nuggetBar.png",
         "char:eggSpin" : "characters/egg_animation_spin.png",
         "char:eggSplat" : "characters/egg_animation_splat.png",

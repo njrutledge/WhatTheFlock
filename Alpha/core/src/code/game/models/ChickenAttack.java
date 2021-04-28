@@ -135,7 +135,7 @@ public class ChickenAttack extends GameObject {
                 destination = chicken.target.getPosition();
                 setLinearVelocity(destination.sub(chicken.getPosition()).nor().scl(PROJECTILE_SPEED)); // move towards destination
                 setSensor(true); // Set sensor to avoid projectile bouncing off of chicken body
-                texture = ((ShreddedChicken)chicken).getProjectileTexture();
+                //texture = ((ShreddedChicken)chicken).getProjectileTexture();
                 break;
             case Explosion:
                 destination = getPosition();

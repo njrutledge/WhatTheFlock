@@ -34,7 +34,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         Nugget,
         DinoNugget,
         Buffalo,
-        Shredded
+        Shredded,
+        Hot
     }
 
     // Path finding

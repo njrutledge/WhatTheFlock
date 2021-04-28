@@ -1,18 +1,18 @@
 package code.game.models;
 
+import code.game.views.GameCanvas;
 import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
-import code.game.views.GameCanvas;
 
 /**
- * The shredded chicken attacks the player by throwing projectile eggs that can damage the player and
+ * The hot chicken attacks the player by throwing projectile eggs that can damage the player and
  * disable the stove.
  */
-public class ShreddedChicken extends Chicken {
+public class HotChicken extends Chicken {
     ///////// Currently only dude methods which I thought were important are included, they will likely need to be
     ///////// altered or removed, but should provide a good base to start with.
 
@@ -33,7 +33,7 @@ public class ShreddedChicken extends Chicken {
      * converts the physics units to pixels.
      *
      * @param data  	The physics constants for all chickens
-     * @param unique    The unique physics constants for Shredded
+     * @param unique    The unique physics constants for hot chick
      * @param x         The x axis location of this chicken
      * @param y         The y axis location of this chicken
      * @param width		The object width in physics units
@@ -41,9 +41,9 @@ public class ShreddedChicken extends Chicken {
      * @param player    The target player
      * @param mh        The max health of the chicken
      */
-    public ShreddedChicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
+    public HotChicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
-        super(data, unique, x, y, width, height, player, mh, ChickenType.Shredded);
+        super(data, unique, x, y, width, height, player, mh, ChickenType.Hot);
         sensorRadius = SENSOR_RADIUS;
     }
 
@@ -86,12 +86,20 @@ public class ShreddedChicken extends Chicken {
     public float getStopDur() { return STOP_DUR; }
 
     /**
-     * Set the texture of the shredded chicken
+     * Set the texture of the hot chicken
      * @param texture  the object texture for drawing purposes.
      */
     public void setTexture(Texture texture) {
         animator = new FilmStrip(texture, 1, 1);
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+    }
+
+    /**
+     * Set the new egg texture
+     * @param texture   new egg texture
+     */
+    public void setProjectileTexture(TextureRegion texture) {
+        eggTexture = texture;
     }
 
     /** Get the egg texture
