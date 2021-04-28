@@ -85,6 +85,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
 	private TextureRegion trapSpotTexture;
+	/** Texture asset for toaster trap */
+	private TextureRegion trapToasterTexture;
 	/** Texture asset for the shredded chicken egg projectile */
 	private TextureRegion eggTexture;
 	/** Texture asset for the spawnpoint*/
@@ -136,6 +138,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Health textures*/
 	private TextureRegion heartTexture;
 	private TextureRegion halfHeartTexture;
+
+	/** Attack buff textures */
+	private Texture attOffTexture;
+	private Texture attOnTexture;
 
 	/**Slap attack texture strips*/
 	private Texture slapSideTexture;
@@ -469,6 +475,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
+		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 			//characters
@@ -506,6 +513,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		tempLrgFlame = directory.getEntry("ui:tempBarLargeFlame.flame", TextureRegion.class);
 		heartTexture = directory.getEntry("ui:healthUnit.full", TextureRegion.class);
 		halfHeartTexture = directory.getEntry("ui:healthUnit.half", TextureRegion.class);
+		attOffTexture = directory.getEntry("ui:att_off", Texture.class);
+		attOnTexture = directory.getEntry("ui:att_on", Texture.class);
 
 		//fonts
 		displayFont = directory.getEntry( "font:retro" ,BitmapFont.class);
@@ -743,9 +752,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					float cheight = 32/scale.y;
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
-					chef.setTexture(chefTexture);
-					chef.setHeartTexture(heartTexture);
-					chef.setHalfHeartTexture(halfHeartTexture);
+					chef.setTextures(chefTexture, heartTexture, halfHeartTexture, attOffTexture, attOnTexture);
 					chef.setSlapSideTexture(slapSideTexture);
 					chef.setSlapUpTexture(slapUpTexture);
 					chef.setHurtTexture(chefHurtTexture);
@@ -1347,6 +1354,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		switch (t){
 			case FRIDGE:
 				trapTexture = trapCoolerTexture;
+				break;
+			case BREAD_BOMB:
+				trapTexture = trapToasterTexture;
 				break;
 		}
 		float twidth = trapTexture.getRegionWidth()/scale.x;

@@ -22,9 +22,12 @@
         "enviro:wall:yellow:bottom": "enviro/ywall_b.png",
         "enviro:stove": "enviro/stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
+        "enviro:trap:toaster": "enviro/toaster.png",
+        "enviro:trap:bread": "enviro/breadlure.png",
         "enviro:trap:spot": "enviro/trapspot.png",
         "enviro:trap:cooler": "enviro/cooler.png",
         "enviro:trap:slow": "enviro/slow.png",
+        "enviro:trap:toaster": "enviro/toaster.png",
         "enviro:background": "enviro/background_2.png",
         "enviro:spawn": "enviro/fridge.png",
 
@@ -73,6 +76,8 @@
         "ui:pause:options": "ui/pause/pausemenu_options.png",
         "ui:pause:quit": "ui/pause/pausemenu_quit.png",
 
+        "ui:att_off": "ui/attbuff_off.png",
+        "ui:att_on": "ui/attbuff_on.png",
         "ui:tempBar": {
           "file":      "ui/HUD_tempbar_noflame.png",
           "atlas":     {
