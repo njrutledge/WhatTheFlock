@@ -1,7 +1,9 @@
 package code.game.models;
 
 import code.game.views.GameCanvas;
+import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -77,6 +79,22 @@ public class ChickenAttack extends GameObject {
     private Vector2 curr_vector;
     /** Whether the attack has been reflected */
     private boolean reflected = false;
+    /** Filmstrips for egg animations */
+    private FilmStrip eggSpin;
+    private FilmStrip eggSplat;
+    /** Origin positions of egg textures */
+    Vector2 originSpin = new Vector2();
+    Vector2 originSplat = new Vector2();
+    /** Speed of egg animations */
+    private static float egg_animation_speed = 0.15f;
+    /** Sped of egg breaking animation */
+    private static float egg_break_speed = 0.025f;
+    /** Current animation frame for the egg */
+    private float animeframe = 0;
+    /** whether the projectile egg is breaking */
+    private boolean breaking = false;
+    /** Whether the projectile egg has finished breaking */
+    private boolean broken = false;
 
     /** Creates an instance of a basic attack */
     public ChickenAttack(float x, float y, float width, float height, Chef chef, Chicken chicken, AttackType type) {
@@ -188,8 +206,11 @@ public class ChickenAttack extends GameObject {
      * @param chefPos   position of chef
      */
     public void reflect(Vector2 chefPos){
-        setLinearVelocity(getPosition().sub(chefPos).nor().scl(PROJECTILE_SPEED)); // move away from chef
-        reflected = true;
+        if (!breaking) {
+            age = 0;
+            setLinearVelocity(getPosition().sub(chefPos).nor().scl(PROJECTILE_SPEED)); // move away from chef
+            reflected = true;
+        }
     }
 
     /** Get whether the attack has been reflected */
@@ -327,14 +348,16 @@ public class ChickenAttack extends GameObject {
         return true;
     }
 
-    /**
-     * Set the texture for this attack
-     * @param texture   the texture for this attack
-     */
-    public void setTexture(TextureRegion texture){
-        this.texture = texture;
-        origin.x = texture.getRegionWidth()/2.0f;
-        origin.y = texture.getRegionHeight()/2.0f;
+
+    public void setEggAnimators(Texture spin, Texture splat){
+        eggSpin = new FilmStrip(spin, 1, 8);
+        eggSplat = new FilmStrip(splat, 1,4);
+
+        originSpin.x = eggSpin.getRegionWidth()/2;
+        originSpin.y = eggSpin.getRegionHeight()/2;
+
+        originSplat.x = eggSplat.getRegionWidth()/2;
+        originSplat.y = eggSplat.getRegionHeight()/2;
     }
 
     /**
@@ -347,7 +370,14 @@ public class ChickenAttack extends GameObject {
             case Basic:
                 break;
             case Projectile:
-                canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x - 50, getY() * drawScale.x - 60, getAngle(), 0.25f, 0.25f);
+                if (!breaking) {
+                    eggSpin.setFrame((int) animeframe);
+                    canvas.draw(eggSpin, Color.WHITE, originSpin.x, originSpin.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 0.25f, 0.25f);
+                }
+                else{
+                    eggSplat.setFrame((int) animeframe);
+                    canvas.draw(eggSplat, Color.WHITE, originSplat.x, originSplat.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 0.15f, 0.15f);
+                }
                 break;
             case Explosion:
                 //canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 2, 2);
@@ -365,5 +395,47 @@ public class ChickenAttack extends GameObject {
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
         canvas.drawPhysics(sensorShape,Color.RED,getX(),getY(),drawScale.x,drawScale.y);
+    }
+
+    /**
+     * Updates the object's game state (NOT GAME LOGIC).
+     *
+     * We use this method to reset cooldowns, and control animations
+     *
+     * @param dt	Number of seconds since last animation frame
+     */
+    @Override
+    public void update(float dt) {
+        super.update(dt);
+        if (!breaking) {
+            animeframe += egg_animation_speed * 4;
+            if (animeframe >= 8) {
+                animeframe -= 8;
+            }
+        }
+        else{
+            animeframe += egg_break_speed * 4;
+            if (animeframe >= 4){
+                animeframe -= 4;
+                broken = true;
+            }
+        }
+
+    }
+
+    public void beginSplat(){
+        if(!breaking) {
+            breaking = true;
+            animeframe = 0;
+            setLinearVelocity(Vector2.Zero);
+        }
+    }
+
+    public boolean readyToRemove(){
+        return broken;
+    }
+
+    public boolean isBreaking(){
+        return breaking;
     }
 }

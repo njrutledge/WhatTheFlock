@@ -42,6 +42,8 @@
         "char:buffaloStart": "characters/buffalo_animation_chargeStart.png",
         "char:shredded": "characters/shredded.png",
         "char:nuggetBar": "characters/nuggetBar.png",
+        "char:eggSpin" : "characters/egg_animation_spin.png",
+        "char:eggSplat" : "characters/egg_animation_splat.png",
         "char:egg": "characters/egg.png",
         "char:slapSide": "characters/chef_animation_attackSide.png",
         "char:slapDown": "characters/chef_animation_attackDown_color.png",

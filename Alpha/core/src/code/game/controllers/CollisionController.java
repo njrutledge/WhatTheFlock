@@ -288,8 +288,10 @@ public class CollisionController implements CollisionControllerInterface {
      * Handles an interaction between a given chef and a chicken attack
      */
     private void handleChefChickenAttack(Chef chef, Object fd1, ChickenAttack attack, Object fd2){
-        chef.decrementHealth();
-        attack.collideObject();
+        if (!attack.getType().equals(ChickenAttack.AttackType.Projectile) || !attack.isBreaking()) {
+            chef.decrementHealth();
+            attack.collideObject();
+        }
         if(attack.getType().equals(ChickenAttack.AttackType.Projectile)){
             sound.playEggsplosion();
         }
@@ -300,7 +302,7 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChickenChickenAttack(Chicken chicken, Object fd1, ChickenAttack attack, Object fd2){
         attack.collideObject(chicken);
-        if (attack.isReflected()){
+        if (attack.isReflected() && !attack.isBreaking()){
             chicken.takeDamage(dmg);
             attack.collideObject();
             if (!chicken.isAlive()) {

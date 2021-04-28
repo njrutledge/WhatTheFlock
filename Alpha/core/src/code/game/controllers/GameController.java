@@ -141,6 +141,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture chefHurtTexture;
 	private Texture chefIdleTexture;
 
+	/** Egg animation strips */
+	private Texture eggSpinTexture;
+	private Texture eggSplatTexture;
+
 
 	/** The jump sound.  We only want to play once. */
 	private SoundBuffer jumpSound;
@@ -484,6 +488,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
 		chefHurtTexture = directory.getEntry("char:chefHurt", Texture.class);
 		chefIdleTexture = directory.getEntry("char:chefIdle", Texture.class);
+		eggSpinTexture = directory.getEntry("char:eggSpin", Texture.class);
+		eggSplatTexture = directory.getEntry("char:eggSplat", Texture.class);
 
 		//ui
 		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
@@ -1089,6 +1095,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			} else if (obj.getName().equals("chickenAttack")) {
 				ChickenAttack attack = (ChickenAttack)obj;
 				if (attack.atDestination(dt)) {
+					attack.beginSplat();
+				}
+				if (attack.readyToRemove()){
 					attack.markRemoved(true);
 				}
 			}
@@ -1289,6 +1298,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					nuggetAttack.play(DEFAULT_VOL);
 					break;
 				case Projectile:
+					attack.setEggAnimators(eggSpinTexture, eggSplatTexture);
 					shreddedAttack.stop();
 					shreddedAttack.play(DEFAULT_VOL);
 					break;
