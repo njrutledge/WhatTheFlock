@@ -197,6 +197,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public static final int EXIT_NEXT = 1;
 	/** Exit code for jumping back to previous level */
 	public static final int EXIT_PREV = 2;
+	/** Exit code for pausing the game */
+	public static final int EXIT_PAUSE = 3;
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
@@ -349,6 +351,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/**The trap controller for this game*/
 
 	private TrapController trapController;
+
+	/** The Sound controller reference */
+	private SoundController sound;
 
 	/** How much time has passed in the game */
 	private float gameTime;
@@ -520,7 +525,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		collisionController.gatherAssets(directory);
 	}
 
-	
+	public void setSoundController(SoundController sound) {
+		this.sound = sound;
+		collisionController.setSound(sound);
+	}
+
+
 	/**
 	 * Resets the status of the game so that we can play again.
 	 *
@@ -836,15 +846,18 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			return false;
 		}
 
-		if (InputController.getInstance().didPause()){
-			paused = !paused;
-		}
 		for (Chicken chick: ai.keySet()){
+			// Remove ai controller for dead chicken
+			if (chick.isRemoved() && ai.containsKey(chick)){
+				ai.get(chick).die();
+				//ai.remove(chick); // This causes a concurrency error :(
+			}
 			// Checking for attack here fixes bug where shredded/buffalo would keep chasing even if chef is in attack range
 			if (!chick.isAttacking() && chef.getPosition().dst(chick.getPosition()) < chick.getAttackRange()){
 				chick.startAttack();
 				chick.setTouching(true);
 			}
+			// Check if chicken is in lure range
 			if(chick.isActive()){
 				ai.get(chick).update(dt);
 				for (Obstacle ob: trapEffects){
@@ -888,13 +901,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			grid_toggle = !grid_toggle;
 		}
 
-		// Handle resets
-		if (input.didReset()) {
-			//TODO implement real pause menu
-			theme1.stop();
-			listener.exitScreen(this, EXIT_QUIT);
-			//reset();
-		}
+
 		if(input.didAdvance()) {
 			chef.decrementHealth();
 		}
@@ -903,7 +910,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 
 		// Now it is time to maybe switch screens.
-		if (input.didExit()) {
+		if (input.didPause()){
+			pause();
+			paused = true;
+			listener.exitScreen(this, EXIT_PAUSE);
+		} else if (input.didExit()) {
 			pause();
 			theme1.stop();
 			listener.exitScreen(this, EXIT_QUIT);
@@ -939,14 +950,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void update(float dt) {
 		// Music
-		if (gameTime == 0){
-			theme1.stop();
-			theme1.play(DEFAULT_VOL*0.3f);
-		} else if (gameTime > theme1_timer + THEME1_DURATION) {
-			theme1_timer = gameTime;
-			theme1.stop();
-			theme1.play(DEFAULT_VOL*0.3f);
+		if (paused) {
+			sound.playMusic(SoundController.CurrentScreen.PAUSE, dt);
+		} else {
+			sound.playMusic(SoundController.CurrentScreen.LEVEL, dt);
 		}
+
 
 
 		// Process actions in object model
@@ -1116,6 +1125,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void removeChicken(Obstacle chicken){
 		if(!chicken.isRemoved()) {
 			chicken.markRemoved(true);
+			ai.get(chicken).die();
 			ai.remove(chicken);
 		}
 	}
@@ -1258,7 +1268,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			slap.setVX(speed);
 		}
 		addQueuedObject(slap);
-		emptySlap.play(volume);
+		sound.playEmptySlap();
 
 	}
 
@@ -1577,12 +1587,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
-		if (paused){
-			displayFont.setColor(Color.GREEN);
-			canvas.begin();
-			canvas.drawTextCentered("PAUSED!", displayFont, 0.0f);
-			canvas.end();
-		}
 		// Final message
 		if (complete && !failed) {
 			displayFont.setColor(Color.YELLOW);
@@ -1790,6 +1794,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void resume() {
 		// TODO Auto-generated method stub
+		paused = false;
 	}
 
 	/**

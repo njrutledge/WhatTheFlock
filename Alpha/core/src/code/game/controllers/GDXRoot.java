@@ -17,6 +17,7 @@ import code.assets.AssetDirectory;
 import code.game.display.LevelSelectMode;
 import code.game.display.LoadingMode;
 import code.game.display.MainMenuMode;
+import code.game.display.PauseMode;
 import code.game.views.GameCanvas;
 import code.util.ScreenListener;
 import com.badlogic.gdx.*;
@@ -43,10 +44,14 @@ public class GDXRoot extends Game implements ScreenListener {
 	private MainMenuMode menu;
 	/** Player mode for the level selection screen (CONTROLLER CLASS)*/
 	private LevelSelectMode levelselect;
+	/** Player mode for the pause screen (CONTROLLER CLASS)*/
+	private PauseMode pause;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	/** List of all WorldControllers */
 	private GameController controller;
+	/** Sound system for music and audio (CONTROLLER CLASS) */
+	private SoundController sound;
 	
 	/**
 	 * Creates a new game from the configuration settings.
@@ -63,6 +68,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * the asynchronous loader for all other assets.
 	 */
 	public void create() {
+		sound = new SoundController();
 		canvas  = new GameCanvas();
 		loading = new LoadingMode("assets.json",canvas,1);
 
@@ -95,10 +101,19 @@ public class GDXRoot extends Game implements ScreenListener {
 			levelselect.dispose();
 			levelselect = null;
 		}
+		if(pause != null) {
+			pause.dispose();
+			pause = null;
+		}
+
 		//TODO dispose others if needed
 		if(canvas != null) {
 			canvas.dispose();
 			canvas = null;
+		}
+		if (sound != null) {
+			sound.dispose();
+			sound = null;
 		}
 	
 		// Unload all of the resources
@@ -141,14 +156,19 @@ public class GDXRoot extends Game implements ScreenListener {
 			controller.setCanvas(canvas);
 			controller.initGrid();
 
+			sound.gatherAssets(directory);
+			controller.setSoundController(sound);
+
 			//make other modes with assets
-			menu = new MainMenuMode(directory, canvas);
-			levelselect = new LevelSelectMode(directory, canvas);
+			menu = new MainMenuMode(directory, canvas, sound);
+			levelselect = new LevelSelectMode(directory, canvas, sound);
+			pause = new PauseMode(directory, canvas);
 
 			//set listeners
 			controller.setScreenListener(this);
 			menu.setScreenListener(this);
 			levelselect.setScreenListener(this);
+			pause.setScreenListener(this);
 
 			loading.dispose();
 			loading = null;
@@ -181,10 +201,17 @@ public class GDXRoot extends Game implements ScreenListener {
 		else if (screen == levelselect){
 			controller.reset();
 			//levelselect.activateInputProcessor(false);
-			if(exitCode == 0){
-				controller.populateLevel(levelselect.getLevelSelected());
-				levelselect.reset();
-				setScreen(controller);
+			switch(exitCode) {
+				case LevelSelectMode.EXIT_LEVEL:
+					controller.populateLevel(levelselect.getLevelSelected());
+					levelselect.reset();
+					setScreen(controller);
+					break;
+				case LevelSelectMode.EXIT_MENU:
+					menu.reset();
+					levelselect.reset();
+					setScreen(menu);
+					break;
 			}
 		}
 		else if (screen == controller){
@@ -201,6 +228,30 @@ public class GDXRoot extends Game implements ScreenListener {
 					//go back to menu select screen
 					menu.reset();
 					setScreen(menu);
+					break;
+				case GameController.EXIT_PAUSE:
+					setScreen(pause);
+					break;
+
+			}
+		} else if (screen == pause){
+			switch (exitCode){
+				case PauseMode.CONT:
+					pause.reset();
+					controller.resume();
+					setScreen(controller);
+					break;
+				case PauseMode.RESTART:
+					pause.reset();
+					controller.populateLevel(levelselect.getLevelSelected());
+					controller.resume();
+					setScreen(controller);
+					break;
+				case PauseMode.QUIT:
+					pause.reset();
+					controller.resume();
+					controller.reset();
+					setScreen(levelselect);
 					break;
 			}
 		}

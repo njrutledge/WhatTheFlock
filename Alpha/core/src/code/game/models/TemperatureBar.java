@@ -168,22 +168,12 @@ public class TemperatureBar {
                     cx_temp+200,  cy_temp-6, angle, fscale, fscale);
         }
 
-        canvas.draw(tempEmpty, Color.WHITE, tempEmpty.getRegionWidth()/2, tempEmpty.getRegionHeight()/2,
-                        cx_temp,  cy_temp, angle, scale, scale);
+        canvas.draw(tempEmpty, 1, 270, Color.WHITE, tempEmpty.getRegionWidth()*scale/2,
+                tempEmpty.getRegionHeight()/2, ex_temp-1,  ey_temp+1.5f, tempEmpty.getRegionWidth()*scale,
+                tempEmpty.getRegionHeight()*scale);
         canvas.draw(bar, 0.04f+((temperature*0.91f)/maxTemperature),
                 270, Color.WHITE, bar.getRegionWidth()*scale/2,
                 tempYellow.getRegionHeight()/2, ex_temp, ey_temp,
                 bar.getRegionWidth()*scale, bar.getRegionHeight()*scale);
-
-/*        canvas.draw(tempEmpty, Color.WHITE, 1220f, 250f,  tempEmpty.getRegionWidth()/scale,
-                tempEmpty.getRegionHeight()/scale);*/
-        /*canvas.draw(tempYellow, 0.045f+((temperature*0.92f)/maxTemperature), Color.WHITE,
-                tempYellow.getRegionWidth() / scale, tempYellow.getRegionHeight() / scale, 1220f, 250f,
-                tempYellow.getRegionWidth() / scale, tempYellow.getRegionHeight() / scale);
-*/
-/*        canvas.draw(tempYellow, 0.045f+((temperature*0.92f)/maxTemperature), Color.WHITE,
-                tempYellow.getRegionWidth() / scale, tempYellow.getRegionHeight() / scale, 1220f, 250f,
-                tempYellow.getRegionWidth() / scale, tempYellow.getRegionHeight() / scale);*/
-
     }
 }

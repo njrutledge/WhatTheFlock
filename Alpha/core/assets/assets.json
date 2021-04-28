@@ -52,6 +52,7 @@
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",
         "background:menu": "ui/loading/temp_menu_bkg.png",
+        "background:pause": "ui/pause/pausemenu.png",
 
         "ui:menu:start": "ui/loading/mainmenu_start.png",
         "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
@@ -61,6 +62,12 @@
         "ui:knife": "ui/levelselect/cleaver_placeholder_empty.png",
         "ui:arrowRight": "ui/levelselect/arrowRight.png",
         "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
+        "ui:back": "ui/levelselect/back_placeholder.png",
+
+        "ui:pause:continue": "ui/pause/pausemenu_continue.png",
+        "ui:pause:restart": "ui/pause/pausemenu_restart.png",
+        "ui:pause:options": "ui/pause/pausemenu_options.png",
+        "ui:pause:quit": "ui/pause/pausemenu_quit.png",
 
         "ui:tempBar": {
           "file":      "ui/HUD_tempbar_noflame.png",
@@ -102,6 +109,7 @@
         "sound:chef:emptySlap" : "sounds/chef/empty_slap_2.ogg",
         "sound:chef:squelch": "sounds/chef/squelch.ogg",
         "sound:chef:oof": "sounds/chef/chef_hurt_2.ogg",
+        "sound:chef:slap" : "sounds/chef/slap_1.ogg",
 
         "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt_1.ogg",
         "sound:chick:nugget:attack" : "sounds/chicken/nug_attack_1.ogg",
@@ -136,6 +144,14 @@
         "font:lightPixel": {
           "file": "ui/fonts/LightPixel7.ttf",
           "size": 64
-        }
+        },
+      "font:PTSans64": {
+        "file": "ui/fonts/PTSans.ttf",
+        "size": 64
+      },
+      "font:PTSans32": {
+        "file": "ui/fonts/PTSans.ttf",
+        "size": 32
+      }
     }
 }
