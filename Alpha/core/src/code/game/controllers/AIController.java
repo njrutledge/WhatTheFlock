@@ -1,6 +1,7 @@
 package code.game.controllers;
 
 import code.game.models.GameObject;
+import code.util.PooledList;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
@@ -277,7 +278,7 @@ public class AIController {
                 }
                 else if(grid.isObstacleTile(chickTile.getRow()-1,chickTile.getCol())) {
                     if (move_tile.getRow() == chickTile.getRow() - 1 && Math.abs(move_tile.getCol() - chickTile.getCol()) == 1) {
-                        int breaking = 1;
+                       int breaking = 1;
                     }
                 }
                 else if(grid.isObstacleTile(chickTile.getRow(),chickTile.getCol()+1)) {
@@ -292,6 +293,7 @@ public class AIController {
                 }
                 //temp.set(grid.getPosition(move_tile.getRow() - chickTile.getRow(),move_tile.getCol()-chickTile.getCol()));
                 temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
+                //temp = fixTemp(temp);
                 temp.nor();
                 temp.scl(chaseSpeed * chicken.getSlow());
                 chicken.setForceCache(temp, false);
@@ -335,6 +337,29 @@ public class AIController {
         }
     }
 
+    private Vector2 fixTemp(Vector2 temp){
+        Grid.Tile chicken_tile = grid.getTile(chicken.getX(),chicken.getY());
+        //bottom left corner
+        if (Math.abs(chicken_tile.getCol() - move_tile.getCol())==1 && chicken_tile.getRow()==move_tile.getRow()){
+            if(grid.isObstacleTile(move_tile.getRow()+1, move_tile.getCol())){
+                temp.x = 0;
+                temp.y = 1;
+            }else if (grid.isObstacleTile(move_tile.getRow()-1,move_tile.getCol())){
+                temp.x = 0;
+                temp.y = -1;
+            }
+        }else if (chicken_tile.getCol()==move_tile.getCol() && Math.abs(chicken_tile.getRow()-move_tile.getRow())==1){
+            if(grid.isObstacleTile(move_tile.getRow(), move_tile.getCol()+1)){
+                temp.y = 0;
+                temp.y = 1;
+            }else if (grid.isObstacleTile(move_tile.getRow(),move_tile.getCol()-1)){
+                temp.y = 0;
+                temp.x = -1;
+            }
+        }
+        return temp;
+    }
+
     /** Returns the distance between Vectors a and b
      *
      * @param a The first vector
@@ -370,6 +395,7 @@ public class AIController {
      * tile in the path into child_tile.
      */
     public void AStar() {
+        boolean first = true;
         while (!open.isEmpty()) {
             Grid.Tile curr = open.peek();
             if (curr == target_tile) {
@@ -385,7 +411,7 @@ public class AIController {
                 return;
             }
             for (Grid.Tile neighbor: curr.getNeighbors()) {
-                if ((!neighbor.isObstacle()) && isReachable(neighbor, curr)) {
+                if ((!neighbor.isObstacle()) && isReachable(neighbor, curr, first)) {
                     //heuristic function cost
                     float hcost = getHCost(neighbor, curr);
                     // ndist = distance between curr and neighbor
@@ -414,6 +440,7 @@ public class AIController {
             }
             closed.add(curr);
             open.remove(curr);
+            first = false;
         }
     }
 
@@ -422,25 +449,64 @@ public class AIController {
         for(int row = neighbor.getRow()-1; row <= neighbor.getRow()+1;row++){
             for (int col = neighbor.getCol()-1; col <= neighbor.getCol()+1;col++){
                 if(grid.isObstacleTile(row,col)){
-                    hcost++;
+                    hcost+=15;
                 }
             }
         }
-        if(!isReachable(neighbor,curr)){
-            hcost += 5;
-        }
+        //System.out.println(hcost);
         return hcost;
     }
 
-    private boolean isReachable(Grid.Tile spot, Grid.Tile curr){
-        if(spot.getRow()!=curr.getRow() && spot.getCol()!=curr.getCol()) {
-            int diag1Row = spot.getRow();
-            int diag1Col = curr.getCol();
-            int diag2Row = curr.getRow();
-            int diag2Col = spot.getCol();
-            return !(grid.isObstacleTile(diag1Row, diag1Col) || grid.isObstacleTile(diag2Row, diag2Col));
+    private boolean isReachable(Grid.Tile spot, Grid.Tile curr, boolean first){
+        if (first) {
+            PooledList<Grid.Tile> tiles = getChickenTiles();
+            for(Grid.Tile chickSpot : tiles){
+                if (chickSpot.getRow() != curr.getRow() && chickSpot.getCol() != curr.getCol()) {
+                    int diag1Row = chickSpot.getRow();
+                    int diag1Col = curr.getCol();
+                    int diag2Row = curr.getRow();
+                    int diag2Col = spot.getCol();
+                    if(grid.isObstacleTile(diag1Row, diag1Col) || grid.isObstacleTile(diag2Row, diag2Col)){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        } else{
+            if (spot.getRow() != curr.getRow() && spot.getCol() != curr.getCol()) {
+                int diag1Row = spot.getRow();
+                int diag1Col = curr.getCol();
+                int diag2Row = curr.getRow();
+                int diag2Col = spot.getCol();
+                return !(grid.isObstacleTile(diag1Row, diag1Col) || grid.isObstacleTile(diag2Row, diag2Col));
+            }/* else if (spot.getRow() == curr.getRow()) {
+                return !(grid.isObstacleTile(spot.getRow(), spot.getCol() + 1) || grid.isObstacleTile(spot.getRow(), spot.getCol() - 1));
+            } else if ((spot.getCol() == curr.getCol())) {
+                return !(grid.isObstacleTile(spot.getRow() + 1, spot.getCol()) || grid.isObstacleTile(spot.getRow() - 1, spot.getCol()));
+            }*/
         }
         return true;
+    }
+
+    private PooledList<Grid.Tile> getChickenTiles() {
+        float x = chicken.getX();
+        float y = chicken.getY();
+        PooledList<Grid.Tile> tiles = new PooledList<Grid.Tile>();
+        Grid.Tile main = grid.getTile(x,y);
+        tiles.add(main);
+        float xmax = x + chicken.getWidth()/2.0f;
+        float xmin = x - chicken.getWidth()/2.0f;
+        float ymax = y + chicken.getHeight()/2.0f;
+        float ymin = y - chicken.getHeight()/2.0f;
+        for (float ii = x - chicken.getWidth()/2.0f; ii<=x + chicken.getWidth()/2.0f; ii += chicken.getWidth()/2.0f){
+            for (float jj = y - chicken.getHeight()/2.0f; jj <= y + chicken.getHeight()/2.0f; jj += chicken.getWidth()/2.0f){
+                Grid.Tile next = grid.getTile(ii,jj);
+                if(!next.equals(main)){
+                    tiles.add(next);
+                }
+            }
+        }
+        return tiles;
     }
 
     /** Handles chicken movement.

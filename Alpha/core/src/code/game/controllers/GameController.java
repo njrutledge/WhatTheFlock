@@ -85,6 +85,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
 	private TextureRegion trapSpotTexture;
+	/** Texture asset for toaster trap */
+	private TextureRegion trapToasterTexture;
 	/** Texture asset for the shredded chicken egg projectile */
 	private TextureRegion eggTexture;
 	/** Texture asset for the spawnpoint*/
@@ -94,6 +96,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture chefTexture;
 	/** Texture asset for the nugget */
 	private Texture nuggetTexture;
+	/** Texture asset for nugget attack */
+	private Texture nuggetAttackTexture;
 	/** Texture asset for the nugget hurt texture*/
 	private Texture nuggetHurtTexture;
 	/** Texture asset for the buffalo */
@@ -356,6 +360,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	private TrapController trapController;
 
+	/** The Sound controller reference */
+	private SoundController sound;
+
 	/** How much time has passed in the game */
 	private float gameTime;
 
@@ -462,6 +469,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
+		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 			//characters
@@ -471,6 +479,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chefTexture = directory.getEntry("char:chef", Texture.class);
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
 		nuggetHurtTexture = directory.getEntry("char:nuggetHurt", Texture.class);
+		nuggetAttackTexture = directory.getEntry("char:nuggetAttack", Texture.class);
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 		buffaloHurtTexture = directory.getEntry("char:buffaloHurt", Texture.class);
 		buffaloChargeStartTexture = directory.getEntry("char:buffaloStart", Texture.class);
@@ -526,6 +535,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//set assets
 		collisionController.setConstants(constants);
 		collisionController.gatherAssets(directory);
+	}
+
+	public void setSoundController(SoundController sound) {
+		this.sound = sound;
+		collisionController.setSound(sound);
 	}
 
 	
@@ -941,14 +955,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void update(float dt) {
 		// Music
-		if (gameTime == 0){
-			theme1.stop();
-			theme1.play(DEFAULT_VOL*0.3f);
-		} else if (gameTime > theme1_timer + THEME1_DURATION) {
-			theme1_timer = gameTime;
-			theme1.stop();
-			theme1.play(DEFAULT_VOL*0.3f);
+		if (paused) {
+			sound.playMusic(SoundController.CurrentScreen.PAUSE, dt);
+		} else {
+			sound.playMusic(SoundController.CurrentScreen.LEVEL, dt);
 		}
+
 
 
 		// Process actions in object model
@@ -1056,6 +1068,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				spawnChicken(Chicken.ChickenType.Shredded);
 			} else if (chicken == 3) {
 				spawnChicken(Chicken.ChickenType.DinoNugget);
+			} else if (chicken == 4) {
+				//spawnChicken(hot chick type)
 			}
 			lastEnemySpawnTime = gameTime;
 			enemiesLeft -= 1;
@@ -1170,6 +1184,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (type == Chicken.ChickenType.Nugget) {
 			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(nuggetTexture);
+			enemy.setAttackTexture(nuggetAttackTexture);
 			enemy.setHurtTexture(nuggetHurtTexture);
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
@@ -1261,7 +1276,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			slap.setVX(speed);
 		}
 		addQueuedObject(slap);
-		emptySlap.play(volume);
+		sound.playEmptySlap();
 
 	}
 
@@ -1317,6 +1332,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		switch (t){
 			case FRIDGE:
 				trapTexture = trapCoolerTexture;
+				break;
+			case BREAD_BOMB:
+				trapTexture = trapToasterTexture;
 				break;
 		}
 		float twidth = trapTexture.getRegionWidth()/scale.x;

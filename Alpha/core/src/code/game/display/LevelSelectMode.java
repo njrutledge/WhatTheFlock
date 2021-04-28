@@ -2,6 +2,7 @@ package code.game.display;
 
 import code.assets.AssetDirectory;
 import code.audio.SoundBuffer;
+import code.game.controllers.SoundController;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.ScreenListener;
@@ -101,6 +102,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private GameCanvas canvas;
     /** Listener that will update the player mode when we are done */
     private ScreenListener listener;
+    /** Reference to SoundController created by the root */
+    private SoundController sound;
 
     /** The height of the canvas window (necessary since sprite origin != screen origin) */
     private int heightY;
@@ -137,9 +140,10 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * Creates a LevelSelectMode with the default size and position.
      * @param canvas 	The game canvas to draw to
      */
-    public LevelSelectMode(AssetDirectory assets, GameCanvas canvas) {
+    public LevelSelectMode(AssetDirectory assets, GameCanvas canvas, SoundController sound) {
         this.canvas  = canvas;
         this.assets = assets;
+        this.sound = sound;
 
         background = assets.getEntry( "background:levelselect", Texture.class );
         background.setFilter( Texture.TextureFilter.Linear, Texture.TextureFilter.Linear );
@@ -266,12 +270,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @param delta Number of seconds since last animation frame
      */
     private void update(float delta) {
-        themeCounter = MathUtils.clamp(themeCounter - delta, 0f, THEME_DURATION);
-        if (themeCounter == 0) {
-            theme.stop();
-            theme.play(0.2f);
-            themeCounter = THEME_DURATION;
-        }
+        sound.playMusic(SoundController.CurrentScreen.MENU, delta);
     }
 
     /**

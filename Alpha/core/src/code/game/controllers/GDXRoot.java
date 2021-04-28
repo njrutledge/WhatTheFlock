@@ -50,6 +50,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private int current;
 	/** List of all WorldControllers */
 	private GameController controller;
+	/** Sound system for music and audio (CONTROLLER CLASS) */
+	private SoundController sound;
 	
 	/**
 	 * Creates a new game from the configuration settings.
@@ -66,6 +68,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * the asynchronous loader for all other assets.
 	 */
 	public void create() {
+		sound = new SoundController();
 		canvas  = new GameCanvas();
 		loading = new LoadingMode("assets.json",canvas,1);
 
@@ -108,6 +111,10 @@ public class GDXRoot extends Game implements ScreenListener {
 			canvas.dispose();
 			canvas = null;
 		}
+		if (sound != null) {
+			sound.dispose();
+			sound = null;
+		}
 	
 		// Unload all of the resources
 		// Unload all of the resources
@@ -149,9 +156,12 @@ public class GDXRoot extends Game implements ScreenListener {
 			controller.setCanvas(canvas);
 			controller.initGrid();
 
+			sound.gatherAssets(directory);
+			controller.setSoundController(sound);
+
 			//make other modes with assets
-			menu = new MainMenuMode(directory, canvas);
-			levelselect = new LevelSelectMode(directory, canvas);
+			menu = new MainMenuMode(directory, canvas, sound);
+			levelselect = new LevelSelectMode(directory, canvas, sound);
 			pause = new PauseMode(directory, canvas);
 
 			//set listeners
