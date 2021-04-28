@@ -27,9 +27,9 @@ public class NuggetChicken extends Chicken {
     private final float STOP_DUR = 1f;
 
     /** How fast we change frames (one frame per 4 calls to update */
-    private float animation_speed;
+    protected float animation_speed;
     /** The number of animation frames in our filmstrip */
-    private int num_anim_frames;
+    protected int num_anim_frames;
 
     /** Nugget scale differences*/
     private float hScale;
@@ -117,7 +117,7 @@ public class NuggetChicken extends Chicken {
                 animeframe -= num_anim_frames;
             }
         } else if (isAttacking && attack_animator != null){
-            animeframe += animation_speed*2;
+            animeframe += animation_speed;
             if (animeframe >= 9) {
                 animeframe -= 9;
             }

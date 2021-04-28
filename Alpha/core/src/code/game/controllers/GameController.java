@@ -96,6 +96,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture chefTexture;
 	/** Texture asset for the nugget */
 	private Texture nuggetTexture;
+	/** Texture asset for nugget attack */
+	private Texture nuggetAttackTexture;
 	/** Texture asset for the nugget hurt texture*/
 	private Texture nuggetHurtTexture;
 	/** Texture asset for the buffalo */
@@ -199,6 +201,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public static final int EXIT_NEXT = 1;
 	/** Exit code for jumping back to previous level */
 	public static final int EXIT_PREV = 2;
+	/** Exit code for pausing the game */
+	public static final int EXIT_PAUSE = 3;
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
@@ -471,6 +475,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chefTexture = directory.getEntry("char:chef", Texture.class);
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
 		nuggetHurtTexture = directory.getEntry("char:nuggetHurt", Texture.class);
+		nuggetAttackTexture = directory.getEntry("char:nuggetAttack", Texture.class);
 		buffaloTexture = directory.getEntry("char:buffalo",Texture.class);
 		buffaloHurtTexture = directory.getEntry("char:buffaloHurt", Texture.class);
 		buffaloChargeStartTexture = directory.getEntry("char:buffaloStart", Texture.class);
@@ -847,9 +852,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			return false;
 		}
 
-		if (InputController.getInstance().didPause()){
-			paused = !paused;
-		}
 		for (Chicken chick: ai.keySet()){
 			// Remove ai controller for dead chicken
 			if (chick.isRemoved() && ai.containsKey(chick)){
@@ -900,13 +902,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			grid_toggle = !grid_toggle;
 		}
 
-		// Handle resets
-		if (input.didReset()) {
-			//TODO implement real pause menu
-			theme1.stop();
-			listener.exitScreen(this, EXIT_QUIT);
-			//reset();
-		}
+
 		if(input.didAdvance()) {
 			chef.decrementHealth();
 		}
@@ -915,7 +911,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 
 		// Now it is time to maybe switch screens.
-		if (input.didExit()) {
+		if (input.didPause()){
+			pause();
+			paused = true;
+			listener.exitScreen(this, EXIT_PAUSE);
+		} else if (input.didExit()) {
 			pause();
 			theme1.stop();
 			listener.exitScreen(this, EXIT_QUIT);
@@ -1064,6 +1064,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				spawnChicken(Chicken.ChickenType.Shredded);
 			} else if (chicken == 3) {
 				spawnChicken(Chicken.ChickenType.DinoNugget);
+			} else if (chicken == 4) {
+				//spawnChicken(hot chick type)
 			}
 			lastEnemySpawnTime = gameTime;
 			enemiesLeft -= 1;
@@ -1178,6 +1180,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (type == Chicken.ChickenType.Nugget) {
 			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(nuggetTexture);
+			enemy.setAttackTexture(nuggetAttackTexture);
 			enemy.setHurtTexture(nuggetHurtTexture);
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
@@ -1591,12 +1594,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
-		if (paused){
-			displayFont.setColor(Color.GREEN);
-			canvas.begin();
-			canvas.drawTextCentered("PAUSED!", displayFont, 0.0f);
-			canvas.end();
-		}
 		// Final message
 		if (complete && !failed) {
 			displayFont.setColor(Color.YELLOW);
@@ -1804,6 +1801,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void resume() {
 		// TODO Auto-generated method stub
+		paused = false;
 	}
 
 	/**
