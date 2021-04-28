@@ -465,7 +465,7 @@ public class Trap extends GameObject implements TrapInterface {
                 scale = .2f;
                 break;
             case BREAD_BOMB:
-                //c = Color.BROWN.cpy();
+                c = Color.WHITE.cpy();
                 break;
 
         }

@@ -27,6 +27,7 @@
         "enviro:trap:spot": "enviro/trapspot.png",
         "enviro:trap:cooler": "enviro/cooler.png",
         "enviro:trap:slow": "enviro/slow.png",
+        "enviro:trap:toaster": "enviro/toaster.png",
         "enviro:background": "enviro/background_2.png",
         "enviro:spawn": "enviro/fridge.png",
 

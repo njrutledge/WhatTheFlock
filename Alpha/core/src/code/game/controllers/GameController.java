@@ -85,6 +85,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for trap spot*/
 	private TextureRegion trapSpotTexture;
+	/** Texture asset for toaster trap */
+	private TextureRegion trapToasterTexture;
 	/** Texture asset for the shredded chicken egg projectile */
 	private TextureRegion eggTexture;
 	/** Texture asset for the spawnpoint*/
@@ -463,6 +465,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
+		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 			//characters
@@ -1325,6 +1328,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		switch (t){
 			case FRIDGE:
 				trapTexture = trapCoolerTexture;
+				break;
+			case BREAD_BOMB:
+				trapTexture = trapToasterTexture;
 				break;
 		}
 		float twidth = trapTexture.getRegionWidth()/scale.x;
