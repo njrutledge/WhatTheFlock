@@ -32,6 +32,7 @@
         "char:chef":"characters/chef_animation_run.png",
         "char:bullet": "characters/bullet.png",
         "char:nugget": "characters/nugget_animation_walk.png",
+        "char:nuggetAttack": "characters/nugget_animation_attack.png",
         "char:nuggetHurt": "characters/nugget_animation_hurt.png",
         "char:dino": "characters/dino_animation_walk.png",
         "char:dinoAttack": "characters/dino_animation_attack.png",
