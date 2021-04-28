@@ -110,6 +110,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture buffaloChargingTexture;
 	/** Texture asset for the shredded chicken */
 	private Texture shreddedTexture;
+	/** Texture asset for the hot chick */
+	private Texture hotTexture;
 	/** Texture asset for the dino chicken */
 	private Texture dinoTexture;
 	/** Texture asset for the dino nugget attack */
@@ -137,6 +139,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion heartTexture;
 	private TextureRegion halfHeartTexture;
 
+	/** Attack buff textures */
+	private Texture attOffTexture;
+	private Texture attOnTexture;
+
 	/**Slap attack texture strips*/
 	private Texture slapSideTexture;
 	private Texture slapUpTexture;
@@ -144,6 +150,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/**Chef hurt and idle animation strips */
 	private Texture chefHurtTexture;
 	private Texture chefIdleTexture;
+
+	/** Egg animation strips */
+	private Texture eggSpinTexture;
+	private Texture eggSplatTexture;
 
 
 	/** The jump sound.  We only want to play once. */
@@ -481,6 +491,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		buffaloChargeStartTexture = directory.getEntry("char:buffaloStart", Texture.class);
 		buffaloChargingTexture = directory.getEntry("char:buffaloCharge", Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
+		hotTexture = directory.getEntry("char:hot", Texture.class);
 		dinoTexture = directory.getEntry("char:dino", Texture.class);
 		dinoAttackTexture = directory.getEntry("char:dinoAttack", Texture.class);
 		dinoHurtTexture = directory.getEntry("char:dinoHurt", Texture.class);
@@ -490,6 +501,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
 		chefHurtTexture = directory.getEntry("char:chefHurt", Texture.class);
 		chefIdleTexture = directory.getEntry("char:chefIdle", Texture.class);
+		eggSpinTexture = directory.getEntry("char:eggSpin", Texture.class);
+		eggSplatTexture = directory.getEntry("char:eggSplat", Texture.class);
 
 		//ui
 		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
@@ -500,6 +513,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		tempLrgFlame = directory.getEntry("ui:tempBarLargeFlame.flame", TextureRegion.class);
 		heartTexture = directory.getEntry("ui:healthUnit.full", TextureRegion.class);
 		halfHeartTexture = directory.getEntry("ui:healthUnit.half", TextureRegion.class);
+		attOffTexture = directory.getEntry("ui:att_off", Texture.class);
+		attOnTexture = directory.getEntry("ui:att_on", Texture.class);
 
 		//fonts
 		displayFont = directory.getEntry( "font:retro" ,BitmapFont.class);
@@ -536,7 +551,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		collisionController.setSound(sound);
 	}
 
-	
+
 	/**
 	 * Resets the status of the game so that we can play again.
 	 *
@@ -737,9 +752,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					float cheight = 32/scale.y;
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
-					chef.setTexture(chefTexture);
-					chef.setHeartTexture(heartTexture);
-					chef.setHalfHeartTexture(halfHeartTexture);
+					chef.setTextures(chefTexture, heartTexture, halfHeartTexture, attOffTexture, attOnTexture);
 					chef.setSlapSideTexture(slapSideTexture);
 					chef.setSlapUpTexture(slapUpTexture);
 					chef.setHurtTexture(chefHurtTexture);
@@ -857,6 +870,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			if (chick.isRemoved() && ai.containsKey(chick)){
 				ai.get(chick).die();
 				//ai.remove(chick); // This causes a concurrency error :(
+			}
+			// Checking for attack here fixes bug where shredded/buffalo would keep chasing even if chef is in attack range
+			if (!chick.isAttacking() && chef.getPosition().dst(chick.getPosition()) < chick.getAttackRange()){
+				chick.startAttack();
+				chick.setTouching(true);
 			}
 			// Check if chicken is in lure range
 			if(chick.isActive()){
@@ -1065,7 +1083,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			} else if (chicken == 3) {
 				spawnChicken(Chicken.ChickenType.DinoNugget);
 			} else if (chicken == 4) {
-				//spawnChicken(hot chick type)
+				spawnChicken(Chicken.ChickenType.Hot);
 			}
 			lastEnemySpawnTime = gameTime;
 			enemiesLeft -= 1;
@@ -1092,6 +1110,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			} else if (obj.getName().equals("chickenAttack")) {
 				ChickenAttack attack = (ChickenAttack)obj;
 				if (attack.atDestination(dt)) {
+					attack.beginSplat();
+				}
+				if (attack.readyToRemove()){
 					attack.markRemoved(true);
 				}
 			}
@@ -1184,9 +1205,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			enemy.setHurtTexture(nuggetHurtTexture);
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
-			((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
+			//((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
 			enemy.setTexture(shreddedTexture);
-		} else if (type == Chicken.ChickenType.Buffalo){
+		} else if (type == Chicken.ChickenType.Hot){
+			enemy = new HotChicken(constants.get("chicken"), constants.get("hot"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(hotTexture);
+		}
+		else if (type == Chicken.ChickenType.Buffalo){
 			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(buffaloTexture);
 			enemy.setHurtTexture(buffaloHurtTexture);
@@ -1293,6 +1318,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					nuggetAttack.play(DEFAULT_VOL);
 					break;
 				case Projectile:
+					attack.setEggAnimators(eggSpinTexture, eggSplatTexture);
 					shreddedAttack.stop();
 					shreddedAttack.play(DEFAULT_VOL);
 					break;

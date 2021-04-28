@@ -649,9 +649,15 @@ public class GameCanvas {
 		spriteBatch.setColor(tint);
 
 		if (clipScale != -1) {
-			spriteBatch.draw(region.getTexture(), x, y, ox, oy, width, height*clipScale, 1f, 1f, angle,
-					region.getRegionX(), region.getRegionY(), region.getRegionWidth(), (int)(region.getRegionHeight()*clipScale),
-					false, true);
+			if (angle == 0) {
+				spriteBatch.draw(region.getTexture(), x, y, ox, oy, width, (int)(height*clipScale), 1f, 1f, angle,
+						region.getRegionX(), region.getRegionY(), region.getRegionWidth(), (int)(region.getRegionHeight()*clipScale),
+						false, false);
+			} else {
+				spriteBatch.draw(region.getTexture(), x, y, ox, oy, width, height*clipScale, 1f, 1f, angle,
+						region.getRegionX(), region.getRegionY(), region.getRegionWidth(), (int)(region.getRegionHeight() * clipScale),
+						false, true);
+			}
 		} else {
 			spriteBatch.draw(region, x - ox, y - oy, width, height);
 		}

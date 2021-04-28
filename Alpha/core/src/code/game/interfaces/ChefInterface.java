@@ -70,7 +70,7 @@ public interface ChefInterface {
      */
     void setTrap(boolean bln);
 
-    void setTexture(Texture texture);
+    void setTextures(Texture c, TextureRegion h, TextureRegion hh, Texture att_off, Texture att_on);
 
     /**
      * Returns if the character is alive.
@@ -104,8 +104,6 @@ public interface ChefInterface {
      * @return the base damage value for the chef
      */
     float getDamage();
-
-    void setHeartTexture(TextureRegion t);
 
     /**
      * Applies the force to the body of this chef
