@@ -1064,8 +1064,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 						case Basic:
 						case Charge:
 						case Projectile:
-						case Knockback:
 							createChickenAttack(chicken, chicken.getAttackType());
+							break;
+						case Knockback:
+							createKnockbackAttack((ShreddedChicken)chicken);
 						case Explosion:
 							break;
 					}
@@ -1266,6 +1268,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	}
 
+	private void createKnockbackAttack(ShreddedChicken shredded){
+
+		ChickenAttack attack = new ChickenAttack(shredded.getX()-ChickenAttack.getKNOCKWIDTH()/2.0f*MathUtils.cos(shredded.getAttackAngle()),
+				shredded.getY()-ChickenAttack.getKNOCKHEIGHT()/2.0f*MathUtils.sin(shredded.getAttackAngle()),
+				ChickenAttack.getKNOCKWIDTH(), ChickenAttack.getKNOCKHEIGHT(), chef, shredded, ChickenAttack.AttackType.Knockback);
+		attack.setAngle(shredded.getAttackAngle());
+		attack.setDrawScale(scale);
+		addQueuedObject(attack);
+	}
+
 	/** Adds a chickenAttack to the world */
 	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
 		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
@@ -1273,6 +1285,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (type == ChickenAttack.AttackType.Charge && grid.isObstacleAt(attack.getX(), attack.getY())) {
 			attack.markRemoved(true);
 			chicken.forceStopAttack();
+
 		} else {
 			chicken.setChickenAttack(attack);
 			attack.setDrawScale(scale);
