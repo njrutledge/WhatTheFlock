@@ -173,8 +173,7 @@ public class Chef extends GameObject implements ChefInterface {
 		isShooting = false;
 		faceRight = true;
 		max_health = data.getInt("maxhealth",0);
-		//health = max_health;
-		health = 1;
+		health = max_health;
 		full_hearts = (float)Math.ceil(max_health/2.0f);
 		//gatherHealthAssets();
 		shootCooldown = 0;
