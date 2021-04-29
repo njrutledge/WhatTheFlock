@@ -202,6 +202,10 @@ public class Chef extends GameObject implements ChefInterface {
 		}
 	}
 
+	public float getMaxspeed(){
+		return maxspeed;
+	}
+
 	/**Returns whether the chef is cooking.
 	 * @return the cooking status of the chef. */
 	public boolean isCooking() {
@@ -552,25 +556,33 @@ public class Chef extends GameObject implements ChefInterface {
 
 
 		// Velocity too high, clamp it
-		if (Math.abs(getVX()) >= getMaxSpeed()*2) {
+		//TODO: getMaxSpeed needed to be here twice...why?
+		if (Math.abs(getVX()) > getMaxSpeed()) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
 		} else {
-			forceCache.set(getMovement(),0);
-			body.applyForce(forceCache,getPosition(),true);
+			if(getMovement()<0){
+				int breaking = 1;
+			}
+			setVX(getMovement()/*getMaxSpeed()*/);
 		}
 
 		// Velocity too high, clamp it
-		if (Math.abs(getVY()) >= getMaxSpeed()*2) {
+		if (Math.abs(getVY()) > getMaxSpeed()) {
 			setVY(Math.signum(getVY())*getMaxSpeed());
 		} else {
-			forceCache.set(0,getVertMovement());
-			body.applyForce(forceCache,getPosition(),true);
+			setVY(getVertMovement()/*getMaxSpeed()*/);
 		}
+
+
+
 		// Diagonal Velocity is too high (TO CHANGE IN THE FUTURE)
 		if (Math.sqrt(Math.pow(getVX(),2) + Math.pow(getVY(),2)) >= getMaxSpeed()){
 			float angle = MathUtils.atan2(getVY(), getVX());
-			setVY(MathUtils.sin(angle)*getMaxSpeed()/5f);
-			setVX(MathUtils.cos(angle)*getMaxSpeed()/5f);
+			float vx = getVX();
+			float vy = getVY();
+			double speed = Math.sqrt((Math.pow(getVX(),2) + Math.pow(getVY(),2)));
+			setVY(MathUtils.sin(angle)*getMaxSpeed());
+			setVX(MathUtils.cos(angle)*getMaxSpeed());
 		}
 
 		if(isPushed){
@@ -582,12 +594,12 @@ public class Chef extends GameObject implements ChefInterface {
 			}
 		}else {
 			if (getMovement() == 0f) {
-				forceCache.set(0, 0);
-				body.setLinearVelocity(0, 0);
+				//forceCache.set(0, 0);
+				setVX(0);
 			}
 			if (getVertMovement() == 0f) {
-				forceCache.set(0, 0);
-				body.setLinearVelocity(0, 0);
+				//forceCache.set(0, 0);
+				setVY(0);
 			}
 		}
 	}

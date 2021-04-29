@@ -986,8 +986,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 
 		// Process actions in object model
-		chef.setMovement(InputController.getInstance().getHorizontal() * chef.getForce() * 10);
-		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce() * 10);
+		float movement = InputController.getInstance().getHorizontal() * chef.getMaxspeed();
+		chef.setMovement(movement);
+		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getMaxspeed());
 		if (!chef.isCooking()) {
 			chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
 		}
