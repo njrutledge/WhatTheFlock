@@ -17,7 +17,8 @@ public class ChickenAttack extends GameObject {
         Charge,
         Knockback,
         Projectile,
-        Explosion
+        Explosion,
+        Smash
     }
 
     private JsonValue data;
@@ -153,6 +154,11 @@ public class ChickenAttack extends GameObject {
                 filter.maskBits = -1;
                 filter.groupIndex = -1;
                 setFilterData(filter);
+                break;
+            case Smash:
+                destination = getPosition();
+                setLinearVelocity(new Vector2(1,0));
+                System.out.println("smash");
                 break;
         }
     }

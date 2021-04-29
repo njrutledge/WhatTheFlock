@@ -87,6 +87,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion trapSpotTexture;
 	/** Texture asset for toaster trap */
 	private TextureRegion trapToasterTexture;
+	/** Texture asset for slap indicator above traps */
+	private TextureRegion indicatorTexture;
 	/** Texture asset for the shredded chicken egg projectile */
 	private TextureRegion eggTexture;
 	/** Texture asset for the spawnpoint*/
@@ -279,6 +281,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private List<Spawn> spawnPoints = new ArrayList<Spawn>();
 	/** Reference to the temperature*/
 	private TemperatureBar temp;
+
+	/** How much the temperature reduces on each slap */
+	private float temp_reduction;
+
 	///** Reference to the goalDoor (for collision detection) */
 	//private BoxObstacle goalDoor;
 	/** maps chickens to their corresponding AI controllers*/
@@ -478,6 +484,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
+		indicatorTexture = new TextureRegion(directory.getEntry("enviro:indicator", Texture.class));
 			//characters
 		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("char:chicken",Texture.class));
@@ -608,7 +615,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
-		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, 30);
+		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, level.get("temp").asInt());
+		temp_reduction = level.get("temp_reduction").asFloat();
 		temp.setUseCooldown(cooldown);
 
 		doNewPopulate(level);
@@ -980,7 +988,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Process actions in object model
 		chef.setMovement(InputController.getInstance().getHorizontal() * chef.getForce());
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
-		chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
+		if (!chef.isCooking()) {
+			chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
+		}
 		chef.setTrap(InputController.getInstance().didTrap());
 		gameTime += dt;
 
@@ -992,54 +1002,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else {
 			volume = DEFAULT_VOL;
 		}
-
-		// Rotate through player's available traps
-		/*if (InputController.getInstance().didRotateTrapLeft()){
-			if (trapTypeSelected == Trap.type.LURE){
-				trapTypeSelected = Trap.type.FIRE;
-			} else if (trapTypeSelected == Trap.type.SLOW){
-				trapTypeSelected = Trap.type.LURE;
-			} else {
-				trapTypeSelected = Trap.type.SLOW;
-			}
-		} else if (InputController.getInstance().didRotateTrapRight()){
-			if (trapTypeSelected == Trap.type.LURE) {
-				trapTypeSelected = Trap.type.SLOW;
-			} else if (trapTypeSelected == Trap.type.SLOW){
-				trapTypeSelected = Trap.type.FIRE;
-			} else {
-				trapTypeSelected = Trap.type.LURE;
-			}
-		}
-
-		// Change the parameter currently selected
-		if (InputController.getInstance().didParameterToggle()){
-			if (parameterSelected < parameterList.length-1){
-				parameterSelected += 1;
-			} else {
-				parameterSelected = 0;
-			}
-		}
-		// Increase the current parameter
-		if (InputController.getInstance().didParameterIncreased()){
-			if (parameterSelected == 12) {
-				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+1, 1);
-			} else if (parameterSelected == 1) {
-				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+20, 100);
-			}
-			else {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] + 1);
-			}
-		}
-		// Decrease the current parameter
-		if (InputController.getInstance().didParameterDecreased()){
-			if (parameterSelected == 1) {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 20);
-			} else {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 1);
-			}
-		}*/
-
 		
 		// Add a bullet if we fire
 		if (chef.isShooting()) {
@@ -1122,13 +1084,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chef.applyForce();
 
 		// if the chef tries to perform an action, move or gets hit, stop cooking
-		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
-		|| chef.isStunned())){
-			chef.setCooking(false, null);
-		}
-		else{
-			chef.setCooking(chef.inCookingRange(), null);
-		}
+//		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
+//		|| chef.isStunned())){
+//			chef.setCooking(false, null);
+//		}
+//		else{
+//			chef.setCooking(chef.inCookingRange(), null);
+//		}
+
+		chef.setCooking(chef.inCookingRange(), null);
 
 		//update temperature
 		if (chef.isCooking()) {
@@ -1240,7 +1204,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
 		if (temp.getTemperature() > 0){
-			temp.reduceTemp(.5f);
+			temp.reduceTemp(temp_reduction);
 		}
 		/*
 		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
@@ -1352,6 +1316,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	public void trapHelper(float x, float y, Trap.type t){
 		TextureRegion trapTexture = trapDefaultTexture;
+
 		switch (t){
 			case FRIDGE:
 				trapTexture = trapCoolerTexture;
@@ -1365,6 +1330,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t);
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
+		trap.setIndicatorTexture(indicatorTexture);
 		addObject(trap, GameObject.ObjectType.TRAP);
 	}
 

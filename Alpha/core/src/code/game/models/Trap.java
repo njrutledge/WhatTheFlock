@@ -1,7 +1,10 @@
 package code.game.models;
 
 import code.game.interfaces.TrapInterface;
+import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.JsonValue;
@@ -169,6 +172,12 @@ public class Trap extends GameObject implements TrapInterface {
      * Fixture for hit box of active traps
      */
     private Fixture hitFixture;
+    /** texture for slap indicator above trap */
+    private TextureRegion slapIndicator;
+    /** Origin for slapIndicator texture */
+    private Vector2 indicatorOrigin;
+    /** Whether this trap has a slap indicator */
+    private boolean hasIndicator = false;
 
 
     /**
@@ -208,6 +217,7 @@ public class Trap extends GameObject implements TrapInterface {
         }
         durability = MAX_DURABILITY;
         linger = false;
+        indicatorOrigin = new Vector2();
     }
 
     /**
@@ -449,12 +459,12 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case LURE:
                 //c = lureColor.cpy();
-                c.a = Math.max(0,lure_ammount/MAX_LURE_AMMOUNT);
+                c.a = Math.max(0, lure_ammount / MAX_LURE_AMMOUNT);
                 break;
             case SLOW:
                 c = slowColor.cpy();
                 scale = .3f;
-                c.a = Math.max(0,activeTimer/SLOW_ACTIVE_TIME);
+                c.a = Math.max(0, activeTimer / SLOW_ACTIVE_TIME);
                 break;
             /*case FIRE_LINGER:
                 c = Color.FIREBRICK.cpy();
@@ -469,10 +479,13 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
 
         }
-        if(!isReady){
+        if (!isReady) {
             int breaking = 1;
         }
         canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
+        if (hasIndicator && isReady) {
+            canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
+        }
     }
 
     /**
@@ -488,5 +501,11 @@ public class Trap extends GameObject implements TrapInterface {
         if (lHShape != null) {
             canvas.drawPhysics((CircleShape) lHShape, Color.BLUE, getX(), getY(), drawScale.x, drawScale.y);
         }
+    }
+
+    public void setIndicatorTexture(TextureRegion texture){
+        this.slapIndicator = texture;
+        indicatorOrigin.set(texture.getRegionWidth()/2, texture.getRegionHeight()/2);
+        hasIndicator = true;
     }
 }
