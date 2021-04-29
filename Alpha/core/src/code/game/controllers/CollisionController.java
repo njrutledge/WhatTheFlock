@@ -301,7 +301,6 @@ public class CollisionController implements CollisionControllerInterface {
             float max_speed = 300.0f;
             float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
             chef.markSetVelocity(max_speed, angle);
-            sound.playShredAttack();
         }
     }
 
