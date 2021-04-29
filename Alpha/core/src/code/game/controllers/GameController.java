@@ -1047,7 +1047,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
 			int r = (int)Math.floor((maxWaveSize - enemyBoard.size())*Math.random());
-			enemyBoard.add(enemyPool.get(r));
+			enemyBoard.add(enemyPool.get(r)); //TODO FIX BUG HERE: OUT OF BOUNDS IF LENGTH 0 (HIT MAX WAVE)
 			int chicken = enemyPool.remove(r);
 			if (chicken == 0){
 				spawnChicken(Chicken.ChickenType.Nugget);
