@@ -619,6 +619,7 @@ public class Chef extends GameObject implements ChefInterface {
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 
+		//TODO: WHY ARE WE USING THESE CONSTANTS HERE?? WHAT DO THEY MEANa
 		if (isStunned()){
 			animeframe += ANIMATION_SPEED;
 			if (animeframe >= 5) {

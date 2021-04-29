@@ -89,8 +89,12 @@ public class InputController {
 	private boolean mutePrevious;
 
 	/** Whether or not the mute button was pressed. */
-	private boolean pausePressed;
-	private boolean pausePrevious;
+	private boolean escPressed;
+	private boolean escPrevious;
+
+	/** Whether the enter button was pressed */
+	private boolean enterPressed;
+	private boolean enterPrevious;
 
 	/** Whether parameter toggle was pressed*/
 	private boolean paraToggled;
@@ -198,6 +202,13 @@ public class InputController {
 	public boolean didMovementKey() { return movementPressed && !movementPrevious; }
 
 	/**
+	 * Returns true if a movement key is released
+	 *
+	 * @return true if a movement key has been released this frame
+	 */
+	public boolean doneMovementKey() { return !movementPressed && movementPrevious; }
+
+	/**
 	 * Returns true iff a movement key is currently being pressed
 	 * @return a movement key is being pressed
 	 */
@@ -262,13 +273,28 @@ public class InputController {
 	public boolean didMute() {return mutePressed && !mutePrevious; }
 
 	/**
-	 *  Returns true if the pause button is pressed.
+	 *  Returns true if the esc button is pressed.
 	 *  This is a one-press button. It only returns true at the moment it was
 	 *  pressed, and returns false at any frame afterwards.
 	 *
-	 * @return true if the pause button was pressed
+	 * @return true if the esc button was pressed
 	 */
-	public boolean didPause() { return pausePressed && !pausePrevious; }
+	public boolean didESC() { return escPressed && !escPrevious; }
+
+	/**
+	 *  Returns true if the enter button is pressed.
+	 *  This only returns true after the enter button has been lifted.
+	 *
+	 * @return true if the enter button was pressed
+	 */
+	public boolean didEnter() { return !enterPressed && enterPrevious; }
+
+	/** Returns true if the enter button is being held.
+	 *  This returns true as long as the enter button continues to be held.
+	 *
+	 * @return true if enter button is held
+	 */
+	public boolean isEntering() { return enterPrevious; }
 
 	/**
 	 * Returns true if the parameter increased button is pressed.
@@ -377,7 +403,8 @@ public class InputController {
 		paraIncPrevious = paraIncPressed;
 		paraDecPrevious = paraDecPressed;
 		mutePrevious = mutePressed;
-		pausePrevious = pausePressed;
+		escPrevious = escPressed;
+		enterPrevious = enterPressed;
 		gridPrevious = gridToggled;
 		movementPrevious = movementPressed;
 		
@@ -454,8 +481,9 @@ public class InputController {
 		paraDecPressed = (Gdx.input.isKeyPressed(Input.Keys.I));
 		paraIncPressed = (Gdx.input.isKeyPressed(Input.Keys.P));
 		mutePressed = (Gdx.input.isKeyPressed(Input.Keys.M));
-		pausePressed = (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
+		escPressed = (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));
 		gridToggled = (Gdx.input.isKeyPressed(Input.Keys.G));
+		enterPressed = (Gdx.input.isKeyPressed(Input.Keys.ENTER));
 		
 		// Directional controls
 		if (horizontal > 0 && Gdx.input.isKeyPressed(Input.Keys.D)){

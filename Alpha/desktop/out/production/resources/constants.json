@@ -9,11 +9,11 @@
 	"chef" : {
 		"pos": [10, 8.0],
 		"shrink": [0.95, 0.7],
-		"force": 20.0,
+		"force": 50.0,
 		"damping": 10.0,
 		"density": 1.0,
 		"friction": 0.0,
-		"maxspeed": 5.0,
+		"maxspeed": 7,
 		"maxhealth": 6,
 		"jump_force": 5.5,
 		"jump_cool": 30,
@@ -32,12 +32,34 @@
 	"nugget" : {
 		"shrink": [0.7, 0.7],
 		"damping": 0.2,
-		"shrink": [0.95, 0.7],
+		"hScale": 1,
+		"wScale": 1,
+		"density": 0.1,
+		"maxspeed": 7.5,
+		"chasespeed": 6.9,
+		"knockback": 30.0,
+		"maxhealth": 5,
+		"num_anim_frames": 8,
+		"animation_speed": 0.25,
+		"sensor_radius": 0.8,
+		"sensor": {
+			"shrink" : 0.6,
+			"height" : 0.05
+		}
+	},
+	"dino" : {
+		"shrink": [0.7, 0.7],
+		"damping": 0.2,
+		"hScale": 3,
+		"wScale": 3,
 		"density": 0.1,
 		"maxspeed": 5.0,
 		"chasespeed": 4,
 		"knockback": 20.0,
-		"maxhealth": 5,
+		"maxhealth": 15,
+		"num_anim_frames": 11,
+		"animation_speed": 0.15,
+		"sensor_radius": 1.5,
 		"sensor": {
 			"shrink" : 0.6,
 			"height" : 0.05
@@ -48,8 +70,8 @@
 		"density": 0.1,
 		"damping": 0.2,
 		"maxspeed": 6.0,
-		"chasespeed": 3.5,
-		"knockback": 20.0,
+		"chasespeed": 5,
+		"knockback": 30.0,
 		"maxhealth": 5,
 		"sensor": {
 			"shrink" : 0.6,
@@ -69,11 +91,26 @@
 			"height" : 0.1
 		}
 	},
-	"stove" : {
-		"shrink": [0.1,0.1],
+	"hot" : {
+		"shrink": [0.7, 0.7],
+		"density": 0.1,
+		"damping": 0.2,
+		"wscale" : 0.175,
+		"hscale" : 0.175,
+		"maxspeed": 6.0,
+		"chasespeed": 4.0,
+		"knockback": 30.0,
+		"maxhealth": 5,
 		"sensor": {
-			"shrink" : 1.69,
-			"height" : 1.69
+			"shrink": 0.6,
+			"height": 0.1
+		}
+	},
+	"stove" : {
+		"shrink": [0.08,0.08],
+		"sensor": {
+			"shrink" : 1.5,
+			"height" : 1.5
 		}
 	},
 	"trap" : {

@@ -61,7 +61,9 @@
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",
         "background:menu": "ui/loading/temp_menu_bkg.png",
-        "background:pause": "ui/pause/pausemenu.png",
+        "background:pause": "ui/gamemenu/pausemenu.png",
+        "background:win": "ui/gamemenu/winmenu.png",
+        "background:lose": "ui/gamemenu/losemenu.png",
 
         "ui:menu:start": "ui/loading/mainmenu_start.png",
         "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
@@ -73,10 +75,18 @@
         "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
         "ui:back": "ui/levelselect/back_placeholder.png",
 
-        "ui:pause:continue": "ui/pause/pausemenu_continue.png",
-        "ui:pause:restart": "ui/pause/pausemenu_restart.png",
-        "ui:pause:options": "ui/pause/pausemenu_options.png",
-        "ui:pause:quit": "ui/pause/pausemenu_quit.png",
+        "ui:pause:continue": "ui/gamemenu/pausemenu_continue.png",
+        "ui:pause:restart": "ui/gamemenu/pausemenu_restart.png",
+        "ui:pause:options": "ui/gamemenu/pausemenu_options.png",
+        "ui:pause:quit": "ui/gamemenu/pausemenu_quit.png",
+
+        "ui:win:next": "ui/gamemenu/winmenu_next.png",
+        "ui:win:graynext": "ui/gamemenu/winmenu_graynext.png",
+        "ui:win:replay": "ui/gamemenu/winmenu_replay.png",
+        "ui:win:quit": "ui/gamemenu/winmenu_quit.png",
+
+        "ui:lose:retry": "ui/gamemenu/losemenu_retry.png",
+        "ui:lose:quit": "ui/gamemenu/losemenu_quit.png",
 
         "ui:att_off": "ui/attbuff_off.png",
         "ui:att_on": "ui/attbuff_on.png",

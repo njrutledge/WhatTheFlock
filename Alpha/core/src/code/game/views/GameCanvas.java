@@ -95,6 +95,11 @@ public class GameCanvas {
 	/** Cache object to handle raw textures */
 	private TextureRegion holder;
 
+	/** Whether or not to tint all objects gray */
+	private boolean tintGray = false;
+	/** Whether to ignore the tint */
+	private boolean ignore = false;
+
 	/**
 	 * Creates a new GameCanvas determined by the application configuration.
 	 * 
@@ -121,7 +126,13 @@ public class GameCanvas {
 		global = new Matrix4();
 		vertex = new Vector2();
 	}
-		
+
+	/** Set value tintGray. Doing this will override all other tints and colors. */
+	public void setTintGray(boolean value) { tintGray = value; }
+
+	/** Set value ignore. Doing this will override TintGray. */
+	public void setIgnore(boolean value) { ignore = value; }
+
     /**
      * Eliminate any resources that should be garbage collected manually.
      */
@@ -409,7 +420,8 @@ public class GameCanvas {
 		}
 		
 		// Unlike Lab 1, we can shortcut without a master drawing method
-    	spriteBatch.setColor(Color.WHITE);
+		if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+    	else spriteBatch.setColor(Color.WHITE);
 		spriteBatch.draw(image, x,  y);
 	}
 	
@@ -437,7 +449,8 @@ public class GameCanvas {
 		}
 		
 		// Unlike Lab 1, we can shortcut without a master drawing method
-    	spriteBatch.setColor(tint);
+		if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(tint);
 		spriteBatch.draw(image, x,  y, width, height);
 	}
 
@@ -445,7 +458,8 @@ public class GameCanvas {
 	 * */
 	public void draw(ProgressBar progress, Color tint, float x, float y, float sc){
 		progress.setPosition(x, y);
-		progress.setColor(tint);
+		if (tintGray && !ignore) progress.setColor(Color.DARK_GRAY);
+		else progress.setColor(tint);
 		//progress.setWidth(width);
 		//progress.setHeight(height);
 		progress.setScale(sc);
@@ -478,7 +492,7 @@ public class GameCanvas {
 		
 		// Call the master drawing method (more efficient that base method)
 		holder.setRegion(image);
-		draw(holder, tint, x-ox, y-oy, width, height);
+		draw(holder, tintGray && !ignore? Color.DARK_GRAY:tint, x-ox, y-oy, width, height);
 	}
 
 
@@ -514,7 +528,7 @@ public class GameCanvas {
 		
 		// Call the master drawing method (more efficient that base method)
 		holder.setRegion(image);
-		draw(holder,tint,ox,oy,x,y,angle,sx,sy);
+		draw(holder,tintGray  && !ignore? Color.DARK_GRAY:tint,ox,oy,x,y,angle,sx,sy);
 	}
 	
 	/**
@@ -544,7 +558,7 @@ public class GameCanvas {
 		
 		// Call the master drawing method (we have to for transforms)
 		holder.setRegion(image);
-		draw(holder,tint,ox,oy,transform);
+		draw(holder,tintGray && !ignore?Color.DARK_GRAY:tint,ox,oy,transform);
 	}
 	
 	/**
@@ -571,7 +585,9 @@ public class GameCanvas {
 		}
 		
 		// Unlike Lab 1, we can shortcut without a master drawing method
-    	spriteBatch.setColor(Color.WHITE);
+    	if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+    	else spriteBatch.setColor(Color.WHITE);
+
 		spriteBatch.draw(region, x,  y);
 	}
 
@@ -599,7 +615,8 @@ public class GameCanvas {
 		}
 		
 		// Unlike Lab 1, we can shortcut without a master drawing method
-    	spriteBatch.setColor(tint);
+    	if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(tint);
 		spriteBatch.draw(region, x,  y, width, height);
 	}
 
@@ -646,7 +663,8 @@ public class GameCanvas {
 		}
 
 		// Unlike Lab 1, we can shortcut without a master drawing method
-		spriteBatch.setColor(tint);
+		if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(tint);
 
 		if (clipScale != -1) {
 			if (angle == 0) {
@@ -700,7 +718,8 @@ public class GameCanvas {
 		// There is a workaround, but it will break if the bug is fixed.
 		// For now, it is better to set the affine transform directly.
 		computeTransform(ox,oy,x,y,angle,sx,sy);
-		spriteBatch.setColor(tint);
+		if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(tint);
 		spriteBatch.draw(region, region.getRegionWidth(), region.getRegionHeight(), local);
 	}
 
@@ -731,7 +750,8 @@ public class GameCanvas {
 
 		local.set(affine);
 		local.translate(-ox,-oy);				
-		spriteBatch.setColor(tint);
+		if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(tint);
 		spriteBatch.draw(region, region.getRegionWidth(), region.getRegionHeight(), local);
 	}
 
@@ -762,7 +782,8 @@ public class GameCanvas {
 		}
 		
 		// Unlike Lab 1, we can shortcut without a master drawing method
-    	spriteBatch.setColor(Color.WHITE);
+    	if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(Color.WHITE);
 		spriteBatch.draw(region, x,  y);
 	}
 	
@@ -796,7 +817,8 @@ public class GameCanvas {
 		}
 		
 		// Unlike Lab 1, we can shortcut without a master drawing method
-    	spriteBatch.setColor(tint);
+    	if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(tint);
 		spriteBatch.draw(region, x,  y, width, height);
 	}
 	
@@ -832,7 +854,8 @@ public class GameCanvas {
 		}
 		
 		// Unlike Lab 1, we can shortcut without a master drawing method
-    	spriteBatch.setColor(tint);
+		if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(tint);
 		spriteBatch.draw(region, x-ox, y-oy, width, height);
 	}
 	
@@ -870,7 +893,8 @@ public class GameCanvas {
 		}
 		
 		TextureRegion bounds = region.getRegion();
-		spriteBatch.setColor(tint);
+		if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(tint);
 		spriteBatch.draw(region, x, y, ox, oy, 
 						 bounds.getRegionWidth(), bounds.getRegionHeight(), 
 						 sx, sy, 180.0f*angle/(float)Math.PI);
@@ -908,7 +932,8 @@ public class GameCanvas {
 		local.translate(-ox,-oy);
 		computeVertices(local,region.getVertices());
 
-		spriteBatch.setColor(tint);
+		if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
+		else spriteBatch.setColor(tint);
 		spriteBatch.draw(region, 0, 0);
 		
 		// Invert and restore

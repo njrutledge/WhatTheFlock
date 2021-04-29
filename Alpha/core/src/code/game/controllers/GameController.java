@@ -18,6 +18,7 @@ import code.game.models.obstacle.Obstacle;
 import code.game.views.GameCanvas;
 import code.util.PooledList;
 import code.util.ScreenListener;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.math.*;
@@ -209,14 +210,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Time required until active stove is swapped */
 	public static final float STOVE_RESET = 20f;
 
-	/** Exit code for quitting the game */
-	public static final int EXIT_QUIT = 0;
-	/** Exit code for advancing to next level */
-	public static final int EXIT_NEXT = 1;
-	/** Exit code for jumping back to previous level */
-	public static final int EXIT_PREV = 2;
+	/** Exit code for winning the level */
+	public static final int EXIT_WIN = 0;
+	/** Exit code for losing the level */
+	public static final int EXIT_LOSE = 1;
 	/** Exit code for pausing the game */
-	public static final int EXIT_PAUSE = 3;
+	public static final int EXIT_PAUSE = 2;
 	/** How many frames after winning/losing do we continue? */
 	public static final int EXIT_COUNT = 120;
 
@@ -379,6 +378,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** How much time has passed in the game */
 	private float gameTime;
+
+	/** Whether the cursor was in a cached state right before this menu was set as screen */
+	private boolean cached;
 
 	/**Wave-related variables, to be changed to take in input via level editor later */
 	private float[] probs; // probability spread for each chicken
@@ -798,6 +800,22 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	}
 
+	/**
+	 * Activates or deactivates the input processor; called when screen is shown or hidden
+	 * @param b     whether or not to activate or deactivate the input processor
+	 * */
+	private void activateInputProcessor(boolean b){
+		if(b){
+			Gdx.input.setInputProcessor(this);
+			cached = Gdx.input.isCursorCatched();
+			Gdx.input.setCursorCatched(false);
+		}
+		else {
+			Gdx.input.setCursorCatched(cached);
+			Gdx.input.setInputProcessor(null);
+		}
+	}
+
 	private void createWall(JsonValue defaults, TextureRegion texture, Filter obstacle_filter, float x, float y){
 		BoxObstacle obj = new BoxObstacle(x+.5f,y+.5f,1,1);
 		// PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
@@ -941,29 +959,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 
 		// Now it is time to maybe switch screens.
-		if (input.didPause()){
+		if (input.didESC()){
 			pause();
 			paused = true;
 			listener.exitScreen(this, EXIT_PAUSE);
-		} else if (input.didExit()) {
+		} else if (failed) {
+			pause();
+			listener.exitScreen(this, EXIT_LOSE);
+			return false;
+		} else if (complete) {
 			pause();
 			theme1.stop();
-			listener.exitScreen(this, EXIT_QUIT);
+			listener.exitScreen(this, EXIT_WIN);
 			return false;
-		} else if (countdown > 0) {
-			countdown--;
-			return false;
-		} else if (countdown == 0) {
-			if (failed) {
-				reset();
-				populateLevel(levelSave);
-				return false;
-			} else if (complete) {
-				pause();
-				theme1.stop();
-				listener.exitScreen(this, EXIT_NEXT);
-				return false;
-			}
 		}
 		return true;
 	}
@@ -1039,7 +1047,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
 			int r = (int)Math.floor((maxWaveSize - enemyBoard.size())*Math.random());
-			enemyBoard.add(enemyPool.get(r));
+			enemyBoard.add(enemyPool.get(r)); //TODO FIX BUG HERE: OUT OF BOUNDS IF LENGTH 0 (HIT MAX WAVE)
 			int chicken = enemyPool.remove(r);
 			if (chicken == 0){
 				spawnChicken(Chicken.ChickenType.Nugget);
@@ -1606,18 +1614,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
-		// Final message
-		if (complete && !failed) {
-			displayFont.setColor(Color.YELLOW);
-			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("VICTORY!", displayFont, 0.0f);
-			canvas.end();
-		} else if (failed) {
-			displayFont.setColor(Color.RED);
-			canvas.begin(); // DO NOT SCALE
-			canvas.drawTextCentered("FAILURE!", displayFont, 0.0f);
-			canvas.end();
-		}
 	}
 
 	/**
@@ -1664,8 +1660,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/**
 	 * Returns true if the level is completed.
 	 *
-	 * If true, the level will advance after a countdown
-	 *
 	 * @return true if the level is completed.
 	 */
 	public boolean isComplete() {
@@ -1675,14 +1669,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/**
 	 * Sets whether the level is completed.
 	 *
-	 * If true, the level will advance after a countdown
-	 *
 	 * @param value whether the level is completed.
 	 */
 	public void setComplete(boolean value) {
-		if (value) {
-			countdown = EXIT_COUNT;
-		}
 		complete = value;
 	}
 
@@ -1822,6 +1811,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void show() {
 		// Useless if called in outside animation loop
 		active = true;
+		activateInputProcessor(true);
 	}
 
 	/**
@@ -1830,6 +1820,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void hide() {
 		// Useless if called in outside animation loop
 		active = false;
+		activateInputProcessor(false);
 	}
 
 	/**

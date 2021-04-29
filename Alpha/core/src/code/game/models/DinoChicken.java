@@ -88,32 +88,6 @@ public class DinoChicken extends NuggetChicken{
         return true;
     }
 
-
-
-    @Override
-    public void attack(float dt){
-        if (smashTime >= smashCD){
-            smashTime = 0;
-            // Duration that the attack stays on screen
-            attack_timer += dt;
-            if (!hitboxOut) {
-                destination = new Vector2(target.getPosition());
-                setAttackType(ChickenAttack.AttackType.Smash);
-                soundCheck = true;
-                makeAttack = true;
-            }
-            hitboxOut = true;
-            if (attack_timer >= ATTACK_DUR) {
-                // Recharge attack
-                charge_time = 0f;
-                attack_timer = 0f;
-                doneAttack = true;
-                hitboxOut = false;
-            }
-        }
-        super.attack(dt);
-    }
-
     /**
      * Updates the object's game state (NOT GAME LOGIC).
      *
@@ -124,6 +98,11 @@ public class DinoChicken extends NuggetChicken{
     @Override
     public void update(float dt) {
         smashTime += dt;
+        //Every smashCD seconds the dino smashes the ground, knocking away chickens/chef
+        if (smashTime >= smashCD){
+            smashTime = 0;
+            System.out.println("smash");
+        }
 
         super.update(dt);
     }
