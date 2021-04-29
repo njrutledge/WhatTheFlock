@@ -96,6 +96,7 @@ public class AIController {
     int iter = 0;
     /** Vector2 used for calculations to avoid making Vector2's every frame */
     private Vector2 temp = new Vector2();
+    private Vector2 temp2 = new Vector2();
 
     /** The current state of the AI FSM */
     private FSM state;
@@ -142,7 +143,9 @@ public class AIController {
                     state = FSM.STOP;
                 }
                 else if (!chicken.isLured() && chicken.isAttacking()) {
-                    state = FSM.ATTACK;
+                    if (!chicken.getType().equals(Chicken.ChickenType.Buffalo) || canReachTarget() ) {
+                        state = FSM.ATTACK;
+                    }
                 }
                 else if (!chicken.isLured() && isFlanking && !doneFlanking && flankers >= FLANK_THRESHOLD){
                     state = FSM.FLANK;
@@ -172,9 +175,11 @@ public class AIController {
                     targetOffset.setZero();
                 }
                 else if (!chicken.isLured() && chicken.isAttacking()) {
-                    state = FSM.ATTACK;
-                    targetOffset.setZero();
-                    doneFlanking = true;
+                    if (!chicken.getType().equals(Chicken.ChickenType.Buffalo) || canReachTarget() ) {
+                        state = FSM.ATTACK;
+                        targetOffset.setZero();
+                        doneFlanking = true;
+                    }
                 }
                 else if (!isFlanking || chicken.isLured()){
                     state = FSM.CHASE;
@@ -219,7 +224,8 @@ public class AIController {
                 if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
-                else if ((chicken.isLured() || chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())) {
+                else if ((chicken.isLured() || chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching()
+                || (chicken.getType().equals(Chicken.ChickenType.Buffalo) && !canReachTarget()))) {
                     state = FSM.CHASE;
                 }
                 else if (stop_counter < STOP_DUR) {
@@ -567,5 +573,24 @@ public class AIController {
             }
             dead = true;
         }
+    }
+
+    private boolean canReachTarget(){
+        Grid.Tile current = grid.getTile(chicken.getX(), chicken.getY());
+        Grid.Tile goal = grid.getTile(target.getX(), target.getY());
+        temp.set(chicken.getPosition());
+        Vector2 tar = target.getPosition();
+        temp2.set(target.getPosition()).sub(chicken.getPosition()).setLength(temp.dst(target.getPosition())/100f);
+        //spaghetti
+        int count = 0; // for safety to avoid infinite loop
+        while(current != goal && count < 100){
+            if (current.isObstacle()){
+                return false;
+            }
+            temp.add(temp2);
+            current = grid.getTile(temp.x, temp.y);
+            count++;
+        }
+        return true;
     }
 }
