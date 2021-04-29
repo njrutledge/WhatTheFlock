@@ -1,32 +1,36 @@
 package code.game.models;
 
+import code.game.views.GameCanvas;
 import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
-import code.game.views.GameCanvas;
 
 /**
- * The shredded chicken attacks the player by throwing projectile eggs that can damage the player and
+ * The hot chicken attacks the player by throwing projectile eggs that can damage the player and
  * disable the stove.
  */
-public class ShreddedChicken extends Chicken {
+public class HotChicken extends Chicken {
     ///////// Currently only dude methods which I thought were important are included, they will likely need to be
     ///////// altered or removed, but should provide a good base to start with.
 
     /** Radius of sensor */
-    private final float SENSOR_RADIUS = 4f;
+    private final float SENSOR_RADIUS = 8f;
     /** Time it takes for the chicken to begin their attack after colliding with their target */
-    private final float CHARGE_DUR = .5f;
+    private final float CHARGE_DUR = 1f;
     /** Time it takes for the chicken to recover from attacking */
     private final float STOP_DUR = 2f;
-    /** Texture region for egg projectile */
-    private TextureRegion eggTexture;
-    /** Attack angle save */
-    private float attackAngle = 0.0f;
+    /** Animation speed */
+    private final float animation_speed = 0.15f;
+    /** number of animation frames */
+    private final int num_anime_frames = 12;
+    /** width draw scaling */
+    private float wscale;
+    /** height draw scaling */
+    private float hscale;
+
 
     /**
      * Creates a new chicken avatar with the given physics data
@@ -36,7 +40,7 @@ public class ShreddedChicken extends Chicken {
      * converts the physics units to pixels.
      *
      * @param data  	The physics constants for all chickens
-     * @param unique    The unique physics constants for Shredded
+     * @param unique    The unique physics constants for hot chick
      * @param x         The x axis location of this chicken
      * @param y         The y axis location of this chicken
      * @param width		The object width in physics units
@@ -44,9 +48,11 @@ public class ShreddedChicken extends Chicken {
      * @param player    The target player
      * @param mh        The max health of the chicken
      */
-    public ShreddedChicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
+    public HotChicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
-        super(data, unique, x, y, width, height, player, mh, ChickenType.Shredded);
+        super(data, unique, x, y, width, height, player, mh, ChickenType.Hot);
+        wscale = unique.getFloat("wscale", 1);
+        hscale = unique.getFloat("hscale", 1);
         sensorRadius = SENSOR_RADIUS;
     }
 
@@ -56,15 +62,12 @@ public class ShreddedChicken extends Chicken {
      */
     public void attack(float dt) {
         // Charge up before attacking
-        if (charge_time==0){
-            attackAngle = MathUtils.atan2(getY()-target.getY(),getX()-target.getX());
-        }
         charge_time += dt;
         if (charge_time >= CHARGE_DUR){
             // Duration that the attack stays on screen
             attack_timer += dt;
             if (!hitboxOut) {
-                setAttackType(ChickenAttack.AttackType.Knockback);
+                setAttackType(ChickenAttack.AttackType.Projectile);
                 soundCheck = true;
                 makeAttack = true;
             }
@@ -80,10 +83,6 @@ public class ShreddedChicken extends Chicken {
 
     }
 
-    public float getAttackAngle(){
-        return attackAngle;
-    }
-
     /**
      * whether the chicken is done charging an attacking
      */
@@ -96,19 +95,14 @@ public class ShreddedChicken extends Chicken {
     public float getStopDur() { return STOP_DUR; }
 
     /**
-     * Set the texture of the shredded chicken
+     * Set the texture of the hot chicken
      * @param texture  the object texture for drawing purposes.
      */
     public void setTexture(Texture texture) {
-        animator = new FilmStrip(texture, 1, 1);
+        animator = new FilmStrip(texture, 1, 12);
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
     }
 
-    /** Get the egg texture
-     *
-     * @return the egg texture
-     */
-    public TextureRegion getProjectileTexture(){return eggTexture;}
     /**
      * Draws the physics object.
      *
@@ -117,8 +111,9 @@ public class ShreddedChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? -1.0f : 1.0f;
+        animator.setFrame((int) animeframe);
         if (!isInvisible) {
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.4f*effect, 0.5f);
+            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wscale*effect, hscale);
         }
     }
 
@@ -131,6 +126,35 @@ public class ShreddedChicken extends Chicken {
      */
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
+    }
+
+    /**
+     * Updates the object's game state (NOT GAME LOGIC).
+     *
+     * We use this method to reset cooldowns, and control animations
+     *
+     * @param dt	Number of seconds since last animation frame
+     */
+    @Override
+    public void update(float dt) {
+        super.update(dt);
+        if (isStunned) {
+            animeframe += animation_speed*4;
+            if (animeframe >= 5) {
+                animeframe -= 5;
+            }
+        } else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
+            animeframe += animation_speed;
+            if (animeframe >= num_anime_frames) {
+                animeframe -= num_anime_frames;
+            }
+        } else if (isAttacking && attack_animator != null){
+            animeframe += animation_speed;
+            if (animeframe >= 9) {
+                animeframe -= 9;
+            }
+        }
+
     }
 
 }

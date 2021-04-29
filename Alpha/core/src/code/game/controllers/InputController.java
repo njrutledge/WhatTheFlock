@@ -467,10 +467,10 @@ public class InputController {
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-			horizontal += 10.0f;
+			horizontal = 1f;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			horizontal -= 10.0f;
+			horizontal = -1f;
 		}
 
 		if (vertical > 0 && Gdx.input.isKeyPressed(Input.Keys.W)){
@@ -482,10 +482,10 @@ public class InputController {
 		}
 
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-			vertical += 10.0f;
+			vertical = 1f;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
-			vertical -= 10.0f;
+			vertical = -1f;
 		}
 
 		// Directional slap

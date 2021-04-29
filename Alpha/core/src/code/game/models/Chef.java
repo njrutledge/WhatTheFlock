@@ -24,8 +24,13 @@ public class Chef extends GameObject implements ChefInterface {
 	//////////////////////////////////////////////////////////////////////////////////////
 	/** the texture of the chef */
 	//private TextureRegion chefTexture;
+    /** Textures of the chef's health */
 	private TextureRegion heartTexture;
 	private TextureRegion halfHeartTexture;
+	/** Texture of the chef's attack buff */
+	private Texture attOffTexture;
+	private TextureRegion attOnTexture;
+
 	private Texture slapTexture;
 	/** The initializing data (to avoid magic numbers) */
 	private final JsonValue data;
@@ -85,7 +90,7 @@ public class Chef extends GameObject implements ChefInterface {
 	/** X offset for health display */
 	private float X_HEALTH = 30;
 	/** Y offset for health display */
-	private float y_health;
+	private int y_health;
 	/** size of each heart */
 	private final int HEART_SIZE = 45;
 	/** The number of hearts, including both full and half hearts.
@@ -105,6 +110,14 @@ public class Chef extends GameObject implements ChefInterface {
 	private static final float ANIMATION_SPEED = 0.25f;
 	/** The number of animation frames in our filmstrip */
 	private static final int NUM_ANIM_FRAMES = 8;
+	/** True if the chef has been pushed */
+	private boolean isPushed = false;
+	/** saved speed for when the chef is pushed */
+	private float savedSpeed = 0.0f;
+	/** saved angle for when the chef is pushed */
+	private float savedAngle = 0.0f;
+	/** Countdown for how long to be pushed */
+	private int pushedCountdown = 0;
 
 	/** Current animation frame for this shell */
 	private float animeframe;
@@ -124,6 +137,7 @@ public class Chef extends GameObject implements ChefInterface {
 	protected FilmStrip idle_animator;
 	/** Reference to texture origin */
 	protected Vector2 origin;
+
 
 	/**
 	 * Creates a new chef avatar with the given game data
@@ -186,6 +200,10 @@ public class Chef extends GameObject implements ChefInterface {
 		if (b){
 			inCookingRange = true;
 		}
+	}
+
+	public float getMaxspeed(){
+		return maxspeed;
 	}
 
 	/**Returns whether the chef is cooking.
@@ -304,15 +322,6 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void setTrap(boolean bln) { isTrap = bln; }
 
-	/**
-	 * Animates the texture (moves along the filmstrip)
-	 *
-	 * @param texture
-	 */
-	public void setTexture(Texture texture) {
-		animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES);
-		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
-	}
 	/**
 	 * Animates the up slap
 	 * @param texture
@@ -472,19 +481,22 @@ public class Chef extends GameObject implements ChefInterface {
 		return faceRight;
 	}
 
-	//TODO: comment
-	public void setHeartTexture(TextureRegion t){
-		heartTexture = t;
+	/**
+	 * Sets textures for the chef, including heart textures and buff textures.
+	 * @param h	       heart texture
+	 * @param hh       half heart texture
+	 * @param att_off  attack buff off texture
+	 * @param att_on   attack buff on texture
+	 */
+	public void setTextures(Texture c, TextureRegion h, TextureRegion hh, Texture att_off, Texture att_on){
+		animator = new FilmStrip(c, 1, NUM_ANIM_FRAMES);
+		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
+		heartTexture = h;
+		halfHeartTexture = hh;
+		attOffTexture = att_off;
+		attOnTexture = new TextureRegion(att_on);
 	}
 
-	//TODO: comment
-	public void setHalfHeartTexture(TextureRegion t){
-		halfHeartTexture = t;
-	}
-
-	public void setSlapTexture(Texture t){
-		slapTexture = t;
-	}
 	/**
 	 * Creates the game Body(s) for this object, adding them to the world.
 	 *
@@ -542,37 +554,61 @@ public class Chef extends GameObject implements ChefInterface {
 //			body.applyForce(forceCache,getPosition(),true);
 //		}
 
+
 		// Velocity too high, clamp it
-		if (Math.abs(getVX()) >= getMaxSpeed()) {
+		//TODO: getMaxSpeed needed to be here twice...why?
+		if (Math.abs(getVX()) > getMaxSpeed()) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
 		} else {
-			forceCache.set(getMovement(),0);
-			body.applyForce(forceCache,getPosition(),true);
+			if(getMovement()<0){
+				int breaking = 1;
+			}
+			setVX(getMovement()/*getMaxSpeed()*/);
 		}
 
 		// Velocity too high, clamp it
-		if (Math.abs(getVY()) >= getMaxSpeed()) {
+		if (Math.abs(getVY()) > getMaxSpeed()) {
 			setVY(Math.signum(getVY())*getMaxSpeed());
 		} else {
-			forceCache.set(0,getVertMovement());
-			body.applyForce(forceCache,getPosition(),true);
+			setVY(getVertMovement()/*getMaxSpeed()*/);
 		}
+
+
+
 		// Diagonal Velocity is too high (TO CHANGE IN THE FUTURE)
 		if (Math.sqrt(Math.pow(getVX(),2) + Math.pow(getVY(),2)) >= getMaxSpeed()){
 			float angle = MathUtils.atan2(getVY(), getVX());
-			setVY(MathUtils.sin(angle)*getMaxSpeed()/2.5f);
-			setVX(MathUtils.cos(angle)*getMaxSpeed()/2.5f);
+			float vx = getVX();
+			float vy = getVY();
+			double speed = Math.sqrt((Math.pow(getVX(),2) + Math.pow(getVY(),2)));
+			setVY(MathUtils.sin(angle)*getMaxSpeed());
+			setVX(MathUtils.cos(angle)*getMaxSpeed());
 		}
 
-		if (getMovement() == 0f) {
-			forceCache.set(0, 0);
-			body.setLinearVelocity(0,0);
+		if(isPushed){
+			forceCache.set(savedSpeed*MathUtils.cos(savedAngle), savedSpeed*MathUtils.sin(savedAngle));
+			body.applyForce(forceCache, getPosition(), true);
+			pushedCountdown--;
+			if (pushedCountdown==0){
+				isPushed = false;
+			}
+		}else {
+			if (getMovement() == 0f) {
+				//forceCache.set(0, 0);
+				setVX(0);
+			}
+			if (getVertMovement() == 0f) {
+				//forceCache.set(0, 0);
+				setVY(0);
+			}
 		}
-		if (getVertMovement() == 0f){
-			forceCache.set(0,0);
-			body.setLinearVelocity(0,0);
-		}
+	}
 
+	public void markSetVelocity(float speed, float angle){
+		savedAngle = angle;
+		savedSpeed = speed;
+		isPushed = true;
+		pushedCountdown = 30;
 	}
 	
 	/**
@@ -657,6 +693,7 @@ public class Chef extends GameObject implements ChefInterface {
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
 		//canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
 		//draw health
+
 		if (y_health == 0) { y_health = canvas.getHeight() - HEART_SIZE - 20; }
 		float x = X_HEALTH;
 		for (int i = 1; i <= full_hearts; i++){
@@ -670,6 +707,15 @@ public class Chef extends GameObject implements ChefInterface {
 				break;
 			}
 			x += HEART_SIZE + HEART_SIZE/3;
+		}
+		if (doubleDamage) {
+			float clip_pixels = 53*(1-damageTimer/DAMAGE_TIME);
+			float clip_scale = (float)(1-0.36-(clip_pixels/194));
+			int add_height = 194-(int)(clip_scale*attOnTexture.getRegionHeight());
+			canvas.draw(attOffTexture, Color.WHITE, X_HEALTH-55, y_health - 180, attOffTexture.getWidth(), attOffTexture.getHeight());
+			canvas.draw(attOnTexture, clip_scale, 0, Color.WHITE,
+					attOnTexture.getRegionWidth()/2, attOnTexture.getRegionHeight()/2, X_HEALTH-55, y_health-180+add_height,
+					attOnTexture.getRegionWidth(), attOnTexture.getRegionHeight());
 		}
 	}
 	

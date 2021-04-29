@@ -77,6 +77,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion chickenTexture;
 	/** Texture asset for the stove */
 	private TextureRegion stoveTexture;
+	/** Texture asset for active stove*/
+	private TextureRegion stoveActiveTexture;
 	/** Texture asset for default trap (TEMP) */
 	private TextureRegion trapDefaultTexture;
 	/** Texture asset for Fidge trap */
@@ -87,6 +89,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion trapSpotTexture;
 	/** Texture asset for toaster trap */
 	private TextureRegion trapToasterTexture;
+	/** Texture asset for slap indicator above traps */
+	private TextureRegion indicatorTexture;
 	/** Texture asset for the shredded chicken egg projectile */
 	private TextureRegion eggTexture;
 	/** Texture asset for the spawnpoint*/
@@ -110,6 +114,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture buffaloChargingTexture;
 	/** Texture asset for the shredded chicken */
 	private Texture shreddedTexture;
+	/** Texture asset for the hot chick */
+	private Texture hotTexture;
 	/** Texture asset for the dino chicken */
 	private Texture dinoTexture;
 	/** Texture asset for the dino nugget attack */
@@ -137,6 +143,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion heartTexture;
 	private TextureRegion halfHeartTexture;
 
+	/** Attack buff textures */
+	private Texture attOffTexture;
+	private Texture attOnTexture;
+
 	/**Slap attack texture strips*/
 	private Texture slapSideTexture;
 	private Texture slapUpTexture;
@@ -144,6 +154,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/**Chef hurt and idle animation strips */
 	private Texture chefHurtTexture;
 	private Texture chefIdleTexture;
+
+	/** Egg animation strips */
+	private Texture eggSpinTexture;
+	private Texture eggSplatTexture;
 
 
 	/** The jump sound.  We only want to play once. */
@@ -269,6 +283,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private List<Spawn> spawnPoints = new ArrayList<Spawn>();
 	/** Reference to the temperature*/
 	private TemperatureBar temp;
+
+	/** How much the temperature reduces on each slap */
+	private float temp_reduction;
+
 	///** Reference to the goalDoor (for collision detection) */
 	//private BoxObstacle goalDoor;
 	/** maps chickens to their corresponding AI controllers*/
@@ -462,12 +480,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		wallBottomLeftCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomleftcorner", Texture.class));
 		wallBottomRightCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomrightcorner", Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
+		stoveActiveTexture = new TextureRegion(directory.getEntry("enviro:stoveActive", Texture.class));
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
 		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
 		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
+		indicatorTexture = new TextureRegion(directory.getEntry("enviro:indicator", Texture.class));
 			//characters
 		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
 		chickenTexture  = new TextureRegion(directory.getEntry("char:chicken",Texture.class));
@@ -481,6 +501,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		buffaloChargeStartTexture = directory.getEntry("char:buffaloStart", Texture.class);
 		buffaloChargingTexture = directory.getEntry("char:buffaloCharge", Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
+		hotTexture = directory.getEntry("char:hot", Texture.class);
 		dinoTexture = directory.getEntry("char:dino", Texture.class);
 		dinoAttackTexture = directory.getEntry("char:dinoAttack", Texture.class);
 		dinoHurtTexture = directory.getEntry("char:dinoHurt", Texture.class);
@@ -490,6 +511,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
 		chefHurtTexture = directory.getEntry("char:chefHurt", Texture.class);
 		chefIdleTexture = directory.getEntry("char:chefIdle", Texture.class);
+		eggSpinTexture = directory.getEntry("char:eggSpin", Texture.class);
+		eggSplatTexture = directory.getEntry("char:eggSplat", Texture.class);
 
 		//ui
 		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
@@ -500,6 +523,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		tempLrgFlame = directory.getEntry("ui:tempBarLargeFlame.flame", TextureRegion.class);
 		heartTexture = directory.getEntry("ui:healthUnit.full", TextureRegion.class);
 		halfHeartTexture = directory.getEntry("ui:healthUnit.half", TextureRegion.class);
+		attOffTexture = directory.getEntry("ui:att_off", Texture.class);
+		attOnTexture = directory.getEntry("ui:att_on", Texture.class);
 
 		//fonts
 		displayFont = directory.getEntry( "font:retro" ,BitmapFont.class);
@@ -536,7 +561,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		collisionController.setSound(sound);
 	}
 
-	
+
 	/**
 	 * Resets the status of the game so that we can play again.
 	 *
@@ -593,7 +618,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
-		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, 30);
+		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, level.get("temp").asInt());
+		temp_reduction = level.get("temp_reduction").asFloat();
 		temp.setUseCooldown(cooldown);
 
 		doNewPopulate(level);
@@ -715,6 +741,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					Stove stove = new Stove(constants.get(LEVEL_STOVE),x,y,swidth,sheight);
 					stove.setDrawScale(scale);
 					stove.setTexture(stoveTexture);
+					stove.setActiveTexture(stoveActiveTexture);
 					stove.setFilterData(obstacle_filter);
 					addObject(stove, GameObject.ObjectType.WALL);
 					grid.setObstacle(x,y);
@@ -737,9 +764,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					float cheight = 32/scale.y;
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
-					chef.setTexture(chefTexture);
-					chef.setHeartTexture(heartTexture);
-					chef.setHalfHeartTexture(halfHeartTexture);
+					chef.setTextures(chefTexture, heartTexture, halfHeartTexture, attOffTexture, attOnTexture);
 					chef.setSlapSideTexture(slapSideTexture);
 					chef.setSlapUpTexture(slapUpTexture);
 					chef.setHurtTexture(chefHurtTexture);
@@ -858,6 +883,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				ai.get(chick).die();
 				//ai.remove(chick); // This causes a concurrency error :(
 			}
+			// Checking for attack here fixes bug where shredded/buffalo would keep chasing even if chef is in attack range
+			if (!chick.isAttacking() && chef.getPosition().dst(chick.getPosition()) < chick.getAttackRange()){
+				chick.startAttack();
+				chick.setTouching(true);
+			}
 			// Check if chicken is in lure range
 			if(chick.isActive()){
 				ai.get(chick).update(dt);
@@ -960,9 +990,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 
 		// Process actions in object model
-		chef.setMovement(InputController.getInstance().getHorizontal() * chef.getForce());
-		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
-		chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
+		float movement = InputController.getInstance().getHorizontal() * chef.getMaxspeed();
+		chef.setMovement(movement);
+		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getMaxspeed());
+		if (!chef.isCooking()) {
+			chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
+		}
 		chef.setTrap(InputController.getInstance().didTrap());
 		gameTime += dt;
 
@@ -974,54 +1007,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else {
 			volume = DEFAULT_VOL;
 		}
-
-		// Rotate through player's available traps
-		/*if (InputController.getInstance().didRotateTrapLeft()){
-			if (trapTypeSelected == Trap.type.LURE){
-				trapTypeSelected = Trap.type.FIRE;
-			} else if (trapTypeSelected == Trap.type.SLOW){
-				trapTypeSelected = Trap.type.LURE;
-			} else {
-				trapTypeSelected = Trap.type.SLOW;
-			}
-		} else if (InputController.getInstance().didRotateTrapRight()){
-			if (trapTypeSelected == Trap.type.LURE) {
-				trapTypeSelected = Trap.type.SLOW;
-			} else if (trapTypeSelected == Trap.type.SLOW){
-				trapTypeSelected = Trap.type.FIRE;
-			} else {
-				trapTypeSelected = Trap.type.LURE;
-			}
-		}
-
-		// Change the parameter currently selected
-		if (InputController.getInstance().didParameterToggle()){
-			if (parameterSelected < parameterList.length-1){
-				parameterSelected += 1;
-			} else {
-				parameterSelected = 0;
-			}
-		}
-		// Increase the current parameter
-		if (InputController.getInstance().didParameterIncreased()){
-			if (parameterSelected == 12) {
-				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+1, 1);
-			} else if (parameterSelected == 1) {
-				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+20, 100);
-			}
-			else {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] + 1);
-			}
-		}
-		// Decrease the current parameter
-		if (InputController.getInstance().didParameterDecreased()){
-			if (parameterSelected == 1) {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 20);
-			} else {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 1);
-			}
-		}*/
-
 		
 		// Add a bullet if we fire
 		if (chef.isShooting()) {
@@ -1065,7 +1050,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			} else if (chicken == 3) {
 				spawnChicken(Chicken.ChickenType.DinoNugget);
 			} else if (chicken == 4) {
-				//spawnChicken(hot chick type)
+				spawnChicken(Chicken.ChickenType.Hot);
 			}
 			lastEnemySpawnTime = gameTime;
 			enemiesLeft -= 1;
@@ -1085,6 +1070,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 						case Charge:
 						case Projectile:
 							createChickenAttack(chicken, chicken.getAttackType());
+							break;
+						case Knockback:
+							createKnockbackAttack((ShreddedChicken)chicken);
 						case Explosion:
 							break;
 					}
@@ -1092,6 +1080,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			} else if (obj.getName().equals("chickenAttack")) {
 				ChickenAttack attack = (ChickenAttack)obj;
 				if (attack.atDestination(dt)) {
+					attack.beginSplat();
+				}
+				if (attack.readyToRemove()){
 					attack.markRemoved(true);
 				}
 			}
@@ -1100,13 +1091,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chef.applyForce();
 
 		// if the chef tries to perform an action, move or gets hit, stop cooking
-		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
-		|| chef.isStunned())){
-			chef.setCooking(false, null);
-		}
-		else{
-			chef.setCooking(chef.inCookingRange(), null);
-		}
+//		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
+//		|| chef.isStunned())){
+//			chef.setCooking(false, null);
+//		}
+//		else{
+//			chef.setCooking(chef.inCookingRange(), null);
+//		}
+
+		chef.setCooking(chef.inCookingRange(), null);
 
 		//update temperature
 		if (chef.isCooking()) {
@@ -1184,9 +1177,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			enemy.setHurtTexture(nuggetHurtTexture);
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
-			((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
+			//((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
 			enemy.setTexture(shreddedTexture);
-		} else if (type == Chicken.ChickenType.Buffalo){
+		} else if (type == Chicken.ChickenType.Hot){
+			enemy = new HotChicken(constants.get("chicken"), constants.get("hot"), x, y, dwidth, dheight, chef, parameterList[1]);
+			enemy.setTexture(hotTexture);
+		}
+		else if (type == Chicken.ChickenType.Buffalo){
 			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(buffaloTexture);
 			enemy.setHurtTexture(buffaloHurtTexture);
@@ -1214,7 +1211,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
 		if (temp.getTemperature() > 0){
-			temp.reduceTemp(.5f);
+			temp.reduceTemp(temp_reduction);
 		}
 		/*
 		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
@@ -1276,6 +1273,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	}
 
+	private void createKnockbackAttack(ShreddedChicken shredded){
+
+		ChickenAttack attack = new ChickenAttack(shredded.getX()-ChickenAttack.getKNOCKWIDTH()/2.0f*MathUtils.cos(shredded.getAttackAngle()),
+				shredded.getY()-ChickenAttack.getKNOCKHEIGHT()/2.0f*MathUtils.sin(shredded.getAttackAngle()),
+				ChickenAttack.getKNOCKWIDTH(), ChickenAttack.getKNOCKHEIGHT(), chef, shredded, ChickenAttack.AttackType.Knockback);
+		attack.setAngle(shredded.getAttackAngle());
+		attack.setDrawScale(scale);
+		addQueuedObject(attack);
+	}
+
 	/** Adds a chickenAttack to the world */
 	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
 		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
@@ -1283,6 +1290,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (type == ChickenAttack.AttackType.Charge && grid.isObstacleAt(attack.getX(), attack.getY())) {
 			attack.markRemoved(true);
 			chicken.forceStopAttack();
+
 		} else {
 			chicken.setChickenAttack(attack);
 			attack.setDrawScale(scale);
@@ -1293,6 +1301,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					nuggetAttack.play(DEFAULT_VOL);
 					break;
 				case Projectile:
+					attack.setEggAnimators(eggSpinTexture, eggSplatTexture);
 					shreddedAttack.stop();
 					shreddedAttack.play(DEFAULT_VOL);
 					break;
@@ -1325,6 +1334,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	public void trapHelper(float x, float y, Trap.type t){
 		TextureRegion trapTexture = trapDefaultTexture;
+
 		switch (t){
 			case FRIDGE:
 				trapTexture = trapCoolerTexture;
@@ -1338,6 +1348,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t);
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
+		trap.setIndicatorTexture(indicatorTexture);
 		addObject(trap, GameObject.ObjectType.TRAP);
 	}
 

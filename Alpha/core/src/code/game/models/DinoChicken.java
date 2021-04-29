@@ -1,5 +1,7 @@
 package code.game.models;
 
+import code.game.models.obstacle.BoxObstacle;
+import code.game.views.GameCanvas;
 import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
@@ -10,6 +12,11 @@ public class DinoChicken extends NuggetChicken{
 
     /** The initializing data (to avoid magic numbers) */
     private JsonValue data;
+
+    /** Time before the next dino smash*/
+    private float smashTime;
+    /** Cooldown between each smash*/
+    private float smashCD = 5;
 
     /**
      * Creates a new chicken avatar with the given physics data
@@ -31,6 +38,7 @@ public class DinoChicken extends NuggetChicken{
         // The shrink factors fit the image to a tighter hitbox
         super(Jdata, unique, x, y, width, height, player, mh);
         data = Jdata;
+        smashTime = 0;
     }
 
     @Override
@@ -78,6 +86,25 @@ public class DinoChicken extends NuggetChicken{
 
 
         return true;
+    }
+
+    /**
+     * Updates the object's game state (NOT GAME LOGIC).
+     *
+     * We use this method to reset cooldowns, and control animations
+     *
+     * @param dt	Number of seconds since last animation frame
+     */
+    @Override
+    public void update(float dt) {
+        smashTime += dt;
+        //Every smashCD seconds the dino smashes the ground, knocking away chickens/chef
+        if (smashTime >= smashCD){
+            smashTime = 0;
+            System.out.println("smash");
+        }
+
+        super.update(dt);
     }
 
 

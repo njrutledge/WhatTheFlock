@@ -8,6 +8,7 @@ import code.game.models.GameObject;
 import code.game.models.obstacle.Obstacle;
 import code.util.PooledList;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -208,6 +209,10 @@ public class CollisionController implements CollisionControllerInterface {
                     case TRAP_ACTIVATION:
                         handleTrapSlap((Trap) bd2, fd2, s1, fd1);
                         break;
+                    case PROJECTILE_ATTACK:
+                        //((ChickenAttack) bd2).reflect(chef.getPosition());
+                        break;
+
                 }
             }
         }
@@ -285,10 +290,18 @@ public class CollisionController implements CollisionControllerInterface {
      * Handles an interaction between a given chef and a chicken attack
      */
     private void handleChefChickenAttack(Chef chef, Object fd1, ChickenAttack attack, Object fd2){
-        chef.decrementHealth();
-        attack.collideObject();
+        if (!attack.getType().equals(ChickenAttack.AttackType.Projectile) || !attack.isBreaking()) {
+            chef.decrementHealth();
+            attack.collideObject();
+        }
         if(attack.getType().equals(ChickenAttack.AttackType.Projectile)){
             sound.playEggsplosion();
+        }
+        if(attack.getType().equals(ChickenAttack.AttackType.Knockback)){
+            float max_speed = 300.0f;
+            float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
+            chef.markSetVelocity(max_speed, angle);
+            sound.playShredAttack();
         }
     }
 
@@ -297,6 +310,13 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleChickenChickenAttack(Chicken chicken, Object fd1, ChickenAttack attack, Object fd2){
         attack.collideObject(chicken);
+        if (attack.isReflected() && !attack.isBreaking()){
+            chicken.takeDamage(dmg);
+            attack.collideObject();
+            if (!chicken.isAlive()) {
+                chicken.markRemoved(true);
+            }
+        }
     }
 
 
@@ -325,6 +345,9 @@ public class CollisionController implements CollisionControllerInterface {
                 break;
             case Shredded:
                 sound.playShredHurt();
+                break;
+            case Hot:
+                //TODO Hot Chick sounds
                 break;
         }
 
