@@ -988,7 +988,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Process actions in object model
 		chef.setMovement(InputController.getInstance().getHorizontal() * chef.getForce());
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getForce());
-		chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
+		if (!chef.isCooking()) {
+			chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
+		}
 		chef.setTrap(InputController.getInstance().didTrap());
 		gameTime += dt;
 
@@ -1081,13 +1083,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chef.applyForce();
 
 		// if the chef tries to perform an action, move or gets hit, stop cooking
-		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
-		|| chef.isStunned())){
-			chef.setCooking(false, null);
-		}
-		else{
-			chef.setCooking(chef.inCookingRange(), null);
-		}
+//		if ((InputController.getInstance().isMovementPressed()|| InputController.getInstance().didSecondary()
+//		|| chef.isStunned())){
+//			chef.setCooking(false, null);
+//		}
+//		else{
+//			chef.setCooking(chef.inCookingRange(), null);
+//		}
+
+		chef.setCooking(chef.inCookingRange(), null);
 
 		//update temperature
 		if (chef.isCooking()) {
