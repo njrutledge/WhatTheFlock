@@ -559,8 +559,8 @@ public class Chef extends GameObject implements ChefInterface {
 		// Diagonal Velocity is too high (TO CHANGE IN THE FUTURE)
 		if (Math.sqrt(Math.pow(getVX(),2) + Math.pow(getVY(),2)) >= getMaxSpeed()){
 			float angle = MathUtils.atan2(getVY(), getVX());
-			setVY(MathUtils.sin(angle)*getMaxSpeed()/2.5f);
-			setVX(MathUtils.cos(angle)*getMaxSpeed()/2.5f);
+			setVY(MathUtils.sin(angle)*getMaxSpeed());
+			setVX(MathUtils.cos(angle)*getMaxSpeed());
 		}
 
 		if (getMovement() == 0f) {
