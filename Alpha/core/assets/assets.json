@@ -21,6 +21,7 @@
       },
         "enviro:wall:yellow:bottom": "enviro/ywall_b.png",
         "enviro:stove": "enviro/stove.png",
+        "enviro:stoveActive": "enviro/lit_stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
         "enviro:trap:toaster": "enviro/toaster.png",
         "enviro:trap:bread": "enviro/breadlure.png",
