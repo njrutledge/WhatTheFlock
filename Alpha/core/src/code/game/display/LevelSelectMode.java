@@ -248,7 +248,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
     /** Returns true if there is a level available after the current one */
     public boolean levelAvailable() {
-        System.out.println(leftIndex + highlightedIndex + 1 < numLevels);
         return leftIndex + highlightedIndex + 1 < numLevels;
     }
 
@@ -390,7 +389,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             if (highlightedIndex > 0) { highlightedIndex -= 1;
             } else if (leftIndex > 0) { switchToLevel(false); }
         }
-        System.out.println(leftIndex);
     }
 
     /**
