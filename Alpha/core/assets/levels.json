@@ -1,6 +1,7 @@
 {
   "Tutorial": "levels/tutorial.json",
   "Gettin' Toasty": "levels/toasty.json",
+  "Piece of Toast": "levels/baitswitch.json",
   "Open-Concept": "levels/easyish.json",
   "Pillars": "levels/pillars.json",
   "Third Time's the Charm": "levels/threepeat.json",
