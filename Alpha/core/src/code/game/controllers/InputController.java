@@ -470,7 +470,7 @@ public class InputController {
 			horizontal = 1f;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-			horizontal -= 1f;
+			horizontal = -1f;
 		}
 
 		if (vertical > 0 && Gdx.input.isKeyPressed(Input.Keys.W)){

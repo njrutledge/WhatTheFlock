@@ -552,7 +552,7 @@ public class Chef extends GameObject implements ChefInterface {
 
 
 		// Velocity too high, clamp it
-		if (Math.abs(getVX()) >= getMaxSpeed()) {
+		if (Math.abs(getVX()) >= getMaxSpeed()*2) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
 		} else {
 			forceCache.set(getMovement(),0);
@@ -560,7 +560,7 @@ public class Chef extends GameObject implements ChefInterface {
 		}
 
 		// Velocity too high, clamp it
-		if (Math.abs(getVY()) >= getMaxSpeed()) {
+		if (Math.abs(getVY()) >= getMaxSpeed()*2) {
 			setVY(Math.signum(getVY())*getMaxSpeed());
 		} else {
 			forceCache.set(0,getVertMovement());
@@ -569,8 +569,8 @@ public class Chef extends GameObject implements ChefInterface {
 		// Diagonal Velocity is too high (TO CHANGE IN THE FUTURE)
 		if (Math.sqrt(Math.pow(getVX(),2) + Math.pow(getVY(),2)) >= getMaxSpeed()){
 			float angle = MathUtils.atan2(getVY(), getVX());
-			setVY(MathUtils.sin(angle)*getMaxSpeed());
-			setVX(MathUtils.cos(angle)*getMaxSpeed());
+			setVY(MathUtils.sin(angle)*getMaxSpeed()/5f);
+			setVX(MathUtils.cos(angle)*getMaxSpeed()/5f);
 		}
 
 		if(isPushed){
