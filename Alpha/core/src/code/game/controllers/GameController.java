@@ -1000,54 +1000,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else {
 			volume = DEFAULT_VOL;
 		}
-
-		// Rotate through player's available traps
-		/*if (InputController.getInstance().didRotateTrapLeft()){
-			if (trapTypeSelected == Trap.type.LURE){
-				trapTypeSelected = Trap.type.FIRE;
-			} else if (trapTypeSelected == Trap.type.SLOW){
-				trapTypeSelected = Trap.type.LURE;
-			} else {
-				trapTypeSelected = Trap.type.SLOW;
-			}
-		} else if (InputController.getInstance().didRotateTrapRight()){
-			if (trapTypeSelected == Trap.type.LURE) {
-				trapTypeSelected = Trap.type.SLOW;
-			} else if (trapTypeSelected == Trap.type.SLOW){
-				trapTypeSelected = Trap.type.FIRE;
-			} else {
-				trapTypeSelected = Trap.type.LURE;
-			}
-		}
-
-		// Change the parameter currently selected
-		if (InputController.getInstance().didParameterToggle()){
-			if (parameterSelected < parameterList.length-1){
-				parameterSelected += 1;
-			} else {
-				parameterSelected = 0;
-			}
-		}
-		// Increase the current parameter
-		if (InputController.getInstance().didParameterIncreased()){
-			if (parameterSelected == 12) {
-				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+1, 1);
-			} else if (parameterSelected == 1) {
-				parameterList[parameterSelected] = Math.min(parameterList[parameterSelected]+20, 100);
-			}
-			else {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] + 1);
-			}
-		}
-		// Decrease the current parameter
-		if (InputController.getInstance().didParameterDecreased()){
-			if (parameterSelected == 1) {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 20);
-			} else {
-				parameterList[parameterSelected] = Math.max(0, parameterList[parameterSelected] - 1);
-			}
-		}*/
-
 		
 		// Add a bullet if we fire
 		if (chef.isShooting()) {
