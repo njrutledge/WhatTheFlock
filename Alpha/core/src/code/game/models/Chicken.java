@@ -458,7 +458,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     }
 
     /** Interrupts the current attack if running */
-    public void interruptAttack() { return; }
+    public void interruptAttack() { System.out.println("interrupting"); }
 
     /** Sets whether or not the chicken is charging up an attack */
     public void setIsAttacking(boolean t) {
@@ -545,6 +545,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
                 health -= damage * FIRE_MULT;
             } else {
                 health -= damage;
+            }
+            if (chickenAttack != null){
+                chickenAttack.collideObject();
             }
             attack_timer = -1f;
             charge_time = -1f;
