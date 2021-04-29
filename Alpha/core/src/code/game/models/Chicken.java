@@ -605,7 +605,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             trap = t;
             target = t;
             isLured = true;
-            t.markHit();
         }
     }
 
