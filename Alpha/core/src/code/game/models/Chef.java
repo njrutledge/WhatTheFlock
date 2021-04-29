@@ -110,6 +110,14 @@ public class Chef extends GameObject implements ChefInterface {
 	private static final float ANIMATION_SPEED = 0.25f;
 	/** The number of animation frames in our filmstrip */
 	private static final int NUM_ANIM_FRAMES = 8;
+	/** True if the chef has been pushed */
+	private boolean isPushed = false;
+	/** saved speed for when the chef is pushed */
+	private float savedSpeed = 0.0f;
+	/** saved angle for when the chef is pushed */
+	private float savedAngle = 0.0f;
+	/** Countdown for how long to be pushed */
+	private int pushedCountdown = 0;
 
 	/** Current animation frame for this shell */
 	private float animeframe;
@@ -129,6 +137,7 @@ public class Chef extends GameObject implements ChefInterface {
 	protected FilmStrip idle_animator;
 	/** Reference to texture origin */
 	protected Vector2 origin;
+
 
 	/**
 	 * Creates a new chef avatar with the given game data
@@ -192,6 +201,10 @@ public class Chef extends GameObject implements ChefInterface {
 		if (b){
 			inCookingRange = true;
 		}
+	}
+
+	public float getMaxspeed(){
+		return maxspeed;
 	}
 
 	/**Returns whether the chef is cooking.
@@ -542,37 +555,61 @@ public class Chef extends GameObject implements ChefInterface {
 //			body.applyForce(forceCache,getPosition(),true);
 //		}
 
+
 		// Velocity too high, clamp it
-		if (Math.abs(getVX()) >= getMaxSpeed()) {
+		//TODO: getMaxSpeed needed to be here twice...why?
+		if (Math.abs(getVX()) > getMaxSpeed()) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
 		} else {
-			forceCache.set(getMovement(),0);
-			body.applyForce(forceCache,getPosition(),true);
+			if(getMovement()<0){
+				int breaking = 1;
+			}
+			setVX(getMovement()/*getMaxSpeed()*/);
 		}
 
 		// Velocity too high, clamp it
-		if (Math.abs(getVY()) >= getMaxSpeed()) {
+		if (Math.abs(getVY()) > getMaxSpeed()) {
 			setVY(Math.signum(getVY())*getMaxSpeed());
 		} else {
-			forceCache.set(0,getVertMovement());
-			body.applyForce(forceCache,getPosition(),true);
+			setVY(getVertMovement()/*getMaxSpeed()*/);
 		}
+
+
+
 		// Diagonal Velocity is too high (TO CHANGE IN THE FUTURE)
 		if (Math.sqrt(Math.pow(getVX(),2) + Math.pow(getVY(),2)) >= getMaxSpeed()){
 			float angle = MathUtils.atan2(getVY(), getVX());
-			setVY(MathUtils.sin(angle)*getMaxSpeed()/2.5f);
-			setVX(MathUtils.cos(angle)*getMaxSpeed()/2.5f);
+			float vx = getVX();
+			float vy = getVY();
+			double speed = Math.sqrt((Math.pow(getVX(),2) + Math.pow(getVY(),2)));
+			setVY(MathUtils.sin(angle)*getMaxSpeed());
+			setVX(MathUtils.cos(angle)*getMaxSpeed());
 		}
 
-		if (getMovement() == 0f) {
-			forceCache.set(0, 0);
-			body.setLinearVelocity(0,0);
+		if(isPushed){
+			forceCache.set(savedSpeed*MathUtils.cos(savedAngle), savedSpeed*MathUtils.sin(savedAngle));
+			body.applyForce(forceCache, getPosition(), true);
+			pushedCountdown--;
+			if (pushedCountdown==0){
+				isPushed = false;
+			}
+		}else {
+			if (getMovement() == 0f) {
+				//forceCache.set(0, 0);
+				setVX(0);
+			}
+			if (getVertMovement() == 0f) {
+				//forceCache.set(0, 0);
+				setVY(0);
+			}
 		}
-		if (getVertMovement() == 0f){
-			forceCache.set(0,0);
-			body.setLinearVelocity(0,0);
-		}
+	}
 
+	public void markSetVelocity(float speed, float angle){
+		savedAngle = angle;
+		savedSpeed = speed;
+		isPushed = true;
+		pushedCountdown = 30;
 	}
 	
 	/**

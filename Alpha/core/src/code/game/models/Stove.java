@@ -3,6 +3,7 @@ package code.game.models;
 import code.game.interfaces.StoveInterface;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
@@ -12,6 +13,8 @@ public class Stove extends GameObject implements StoveInterface {
     private JsonValue data;
 
     private CircleShape sensorShape;
+
+    private TextureRegion active_texture;
 
     private boolean active = false;
 
@@ -74,6 +77,13 @@ public class Stove extends GameObject implements StoveInterface {
     public void setActive() {active = true;}
 
     /**
+     * Sets the active texture for the stove
+     */
+    public void setActiveTexture(TextureRegion texture){
+        active_texture = texture;
+    }
+
+    /**
      * Sets the stove to inactive so that the chef cannot cook from it
      */
     public void setInactive() {active = false;}
@@ -89,7 +99,11 @@ public class Stove extends GameObject implements StoveInterface {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.draw(texture, (active ? (lit ? Color.RED : Color.WHITE) : Color.DARK_GRAY),origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
+        if (active) {
+            canvas.draw(active_texture, lit ? Color.RED : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
+        } else {
+            canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
+        }
     }
 
     /**

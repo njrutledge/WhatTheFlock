@@ -4,6 +4,7 @@ import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
@@ -17,13 +18,15 @@ public class ShreddedChicken extends Chicken {
     ///////// altered or removed, but should provide a good base to start with.
 
     /** Radius of sensor */
-    private final float SENSOR_RADIUS = 8f;
+    private final float SENSOR_RADIUS = 4f;
     /** Time it takes for the chicken to begin their attack after colliding with their target */
-    private final float CHARGE_DUR = 1f;
+    private final float CHARGE_DUR = .5f;
     /** Time it takes for the chicken to recover from attacking */
     private final float STOP_DUR = 2f;
     /** Texture region for egg projectile */
     private TextureRegion eggTexture;
+    /** Attack angle save */
+    private float attackAngle = 0.0f;
 
     /**
      * Creates a new chicken avatar with the given physics data
@@ -53,12 +56,15 @@ public class ShreddedChicken extends Chicken {
      */
     public void attack(float dt) {
         // Charge up before attacking
+        if (charge_time==0){
+            attackAngle = MathUtils.atan2(getY()-target.getY(),getX()-target.getX());
+        }
         charge_time += dt;
         if (charge_time >= CHARGE_DUR){
             // Duration that the attack stays on screen
             attack_timer += dt;
             if (!hitboxOut) {
-                setAttackType(ChickenAttack.AttackType.Projectile);
+                setAttackType(ChickenAttack.AttackType.Knockback);
                 soundCheck = true;
                 makeAttack = true;
             }
@@ -72,6 +78,10 @@ public class ShreddedChicken extends Chicken {
             }
         }
 
+    }
+
+    public float getAttackAngle(){
+        return attackAngle;
     }
 
     /**

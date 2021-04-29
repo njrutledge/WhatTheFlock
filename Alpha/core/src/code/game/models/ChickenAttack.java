@@ -15,8 +15,9 @@ public class ChickenAttack extends GameObject {
     public enum AttackType {
         Basic,
         Charge,
+        Knockback,
         Projectile,
-        Explosion
+        Explosion,
     }
 
     private JsonValue data;
@@ -44,6 +45,10 @@ public class ChickenAttack extends GameObject {
     private static final float WIDTH = 0.1f;
     /** The height of chicken attacks */
     private static final float HEIGHT = 0.1f;
+    /** The width of chicken knockback attacks */
+    private static final float KNOCKWIDTH = 5.0f;
+    /** The height of chicken knockback attacks */
+    private static final float KNOCKHEIGHT = 1.0f;
     /** The width of an explosion */
     private final float EXP_RADIUS = 2.0f;
 
@@ -140,6 +145,19 @@ public class ChickenAttack extends GameObject {
             case Explosion:
                 destination = getPosition();
                 break;
+            case Knockback:
+                //float angle =(MathUtils.atan2(chicken.getY()-chef.getY(),chicken.getX()-chef.getX()));
+                //setAngle(angle);
+                setSensor(true);
+                //setX(x-25*width*MathUtils.cos(angle));
+                //setY(y-25*width*MathUtils.sin(angle));
+                destination = getPosition();
+                filter = new Filter();
+                filter.categoryBits = 0x0008;
+                filter.maskBits = -1;
+                filter.groupIndex = -1;
+                setFilterData(filter);
+                break;
         }
     }
 
@@ -177,11 +195,23 @@ public class ChickenAttack extends GameObject {
      * */
     public static float getWIDTH() { return WIDTH; }
 
-    /** Returns the width of chicken attacks
+    /** Returns the height of chicken attacks
      *
-     * @return WIDTH
+     * @return HEIGHT
      * */
     public static float getHEIGHT() { return HEIGHT; }
+
+    /** Returns the width of chicken knockback attacks
+     *
+     * @return KNOCKWIDTH
+     * */
+    public static float getKNOCKWIDTH() { return KNOCKWIDTH; }
+
+    /** Returns the height of chicken knockback attacks
+     *
+     * @return KNOCKHEIGHT
+     * */
+    public static float getKNOCKHEIGHT() { return KNOCKHEIGHT; }
 
     /** Returns the type of the chicken attack
      *

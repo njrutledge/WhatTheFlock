@@ -8,6 +8,7 @@ import code.game.models.GameObject;
 import code.game.models.obstacle.Obstacle;
 import code.util.PooledList;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
@@ -295,6 +296,12 @@ public class CollisionController implements CollisionControllerInterface {
         }
         if(attack.getType().equals(ChickenAttack.AttackType.Projectile)){
             sound.playEggsplosion();
+        }
+        if(attack.getType().equals(ChickenAttack.AttackType.Knockback)){
+            float max_speed = 300.0f;
+            float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
+            chef.markSetVelocity(max_speed, angle);
+            sound.playShredAttack();
         }
     }
 
