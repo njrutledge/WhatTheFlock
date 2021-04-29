@@ -22,8 +22,15 @@ public class HotChicken extends Chicken {
     private final float CHARGE_DUR = 1f;
     /** Time it takes for the chicken to recover from attacking */
     private final float STOP_DUR = 2f;
-    /** Texture region for egg projectile */
-    private TextureRegion eggTexture;
+    /** Animation speed */
+    private final float animation_speed = 0.15f;
+    /** number of animation frames */
+    private final int num_anime_frames = 12;
+    /** width draw scaling */
+    private float wscale;
+    /** height draw scaling */
+    private float hscale;
+
 
     /**
      * Creates a new chicken avatar with the given physics data
@@ -44,6 +51,8 @@ public class HotChicken extends Chicken {
     public HotChicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
         super(data, unique, x, y, width, height, player, mh, ChickenType.Hot);
+        wscale = unique.getFloat("wscale", 1);
+        hscale = unique.getFloat("hscale", 1);
         sensorRadius = SENSOR_RADIUS;
     }
 
@@ -90,23 +99,10 @@ public class HotChicken extends Chicken {
      * @param texture  the object texture for drawing purposes.
      */
     public void setTexture(Texture texture) {
-        animator = new FilmStrip(texture, 1, 1);
+        animator = new FilmStrip(texture, 1, 12);
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
     }
 
-    /**
-     * Set the new egg texture
-     * @param texture   new egg texture
-     */
-    public void setProjectileTexture(TextureRegion texture) {
-        eggTexture = texture;
-    }
-
-    /** Get the egg texture
-     *
-     * @return the egg texture
-     */
-    public TextureRegion getProjectileTexture(){return eggTexture;}
     /**
      * Draws the physics object.
      *
@@ -115,8 +111,9 @@ public class HotChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? -1.0f : 1.0f;
+        animator.setFrame((int) animeframe);
         if (!isInvisible) {
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.4f*effect, 0.5f);
+            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wscale*effect, hscale);
         }
     }
 
@@ -129,6 +126,35 @@ public class HotChicken extends Chicken {
      */
     public void drawDebug(GameCanvas canvas) {
         super.drawDebug(canvas);
+    }
+
+    /**
+     * Updates the object's game state (NOT GAME LOGIC).
+     *
+     * We use this method to reset cooldowns, and control animations
+     *
+     * @param dt	Number of seconds since last animation frame
+     */
+    @Override
+    public void update(float dt) {
+        super.update(dt);
+        if (isStunned) {
+            animeframe += animation_speed*4;
+            if (animeframe >= 5) {
+                animeframe -= 5;
+            }
+        } else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
+            animeframe += animation_speed;
+            if (animeframe >= num_anime_frames) {
+                animeframe -= num_anime_frames;
+            }
+        } else if (isAttacking && attack_animator != null){
+            animeframe += animation_speed;
+            if (animeframe >= 9) {
+                animeframe -= 9;
+            }
+        }
+
     }
 
 }
