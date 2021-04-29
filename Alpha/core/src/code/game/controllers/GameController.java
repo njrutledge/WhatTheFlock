@@ -279,6 +279,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private List<Spawn> spawnPoints = new ArrayList<Spawn>();
 	/** Reference to the temperature*/
 	private TemperatureBar temp;
+
+	/** How much the temperature reduces on each slap */
+	private float temp_reduction;
+
 	///** Reference to the goalDoor (for collision detection) */
 	//private BoxObstacle goalDoor;
 	/** maps chickens to their corresponding AI controllers*/
@@ -608,7 +612,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
-		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, 30);
+		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, level.get("temp").asInt());
+		temp_reduction = level.get("temp_reduction").asFloat();
 		temp.setUseCooldown(cooldown);
 
 		doNewPopulate(level);
@@ -1239,7 +1244,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
 		if (temp.getTemperature() > 0){
-			temp.reduceTemp(.5f);
+			temp.reduceTemp(temp_reduction);
 		}
 		/*
 		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
