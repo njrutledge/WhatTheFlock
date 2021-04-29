@@ -62,7 +62,8 @@ public class TemperatureBar {
     public TemperatureBar(TextureRegion empty, TextureRegion yellow, TextureRegion orange,
                           TextureRegion red, TextureRegion medFlame, TextureRegion lrgFlame,
                           int max){
-        maxTemperature = max;
+        //maxTemperature = max;
+        maxTemperature = 1;
         temperature = 0;
 
         // Setting assets

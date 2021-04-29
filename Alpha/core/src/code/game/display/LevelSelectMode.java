@@ -2,6 +2,7 @@ package code.game.display;
 
 import code.assets.AssetDirectory;
 import code.audio.SoundBuffer;
+import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
@@ -16,7 +17,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -48,6 +50,12 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private static int STANDARD_WIDTH  = 800;
     /** Standard window height (for scaling) */
     private static int STANDARD_HEIGHT = 700;
+
+    /** Width of the game world in Box2d units */
+    protected static final float DEFAULT_WIDTH  = 48.0f;
+    /** Height of the game world in Box2d units */
+    protected static final float DEFAULT_HEIGHT = 27.0f;
+
     /** Height of info text character */
     private static float INFO_HEIGHT = 28;
     /** Width of info text character */
@@ -68,11 +76,32 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private static float DIST = 300;
     /** Shadow offset */
     private static float SHADOW_OFFSET = 35;
+    /** Entering offset (offset of knife when player is holding enter) */
+    private static float HOVER_OFFSET = 10;
 
     /** Exit code signaling that a level has been selected */
     public static final int EXIT_LEVEL = 0;
     /** Exit code signaling that we are returning to the main menu */
     public static final int EXIT_MENU = 1;
+
+    /** Time to wait before we begin scrolling */
+    private final float SCROLL_WAIT_TIME = 0.6f;
+    /** Rate of scroll */
+    private final float SCROLL_RATE = 0.25f;
+
+    /** Time since a button was held down */
+    private float pressDownTime = 0f;
+    /** The direction of the scroll: -1 for left, 1 for right */
+    private int scrollDirection = 0;
+    /** Whether scrolling has began */
+    private boolean scrolling = false;
+    /** Whether mouse click is attempting to scroll */
+    private boolean isMouseScrolling = false;
+
+    /** The bounds for the game screen */
+    private Rectangle bounds;
+    /** The scale of the game */
+    private Vector2 vscale;
 
     /**Center the background*/
     private int bkgCenterX;
@@ -131,6 +160,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private boolean active;
     /** The index of the highlighted knife */
     private int highlightedIndex;
+    /** The index of the previous highlighted knife (only for back button) */
+    private int prevHighlighted;
     /** Whether left arrow is highlighted */
     private boolean leftHighlighted;
     /** Whether right arrow is highlighted */
@@ -159,6 +190,9 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         //TODO probably want to share some font assets
         levels = assets.getEntry("levels", JsonValue.class );
         theme = assets.getEntry("sound:music:levelSel", SoundBuffer.class);
+
+        this.bounds = new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT);
+        this.vscale = new Vector2(1,1);
 
         resize(canvas.getWidth(),canvas.getHeight());
 
@@ -195,18 +229,44 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         }
     }
 
+    /** Sets which knife is highlighted
+     *
+     * @param mouseEnter whether a mouse click was used to enter this screen
+     */
+    public void setHighlightedIndex(boolean mouseEnter) {
+        if (mouseEnter) { highlightedIndex = 1; }
+        else { highlightedIndex = 0; }
+    }
+
+    /** Sets the value of levelSelected to the next level
+     *  This method also updates highlightedIndex and leftIndex. */
+    public void setNextLevel() {
+        if (highlightedIndex == 2) { leftIndex += 1; }
+        else { highlightedIndex += 1; }
+        levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]);
+    }
+
+    /** Returns true if there is a level available after the current one */
+    public boolean levelAvailable() {
+        System.out.println(leftIndex + highlightedIndex + 1 < numLevels);
+        return leftIndex + highlightedIndex + 1 < numLevels;
+    }
+
     /**
-     * Sets the JSON value of levelSelected to the given name, specified in levelselect.json
+     * Returns the JSON value of levelSelected to the given name, specified in levelselect.json
+     *
+     * @return JSONValue representing the desired level
      * */
-    private void setLevelSelected(String name){
+    private JsonValue getLevelJSON(String name){
         JsonReader json = new JsonReader();
         try{
-            JsonValue jsonVal = json.parse(Gdx.files.internal(levels.getString(name)));
-            levelSelected = jsonVal;
+            return json.parse(Gdx.files.internal(levels.getString(name)));
         }catch (Exception e){
             e.printStackTrace();
         }
+        return null;
     }
+
     /**Resets this screen*/
     public void reset(){
         theme.stop();
@@ -222,6 +282,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         return levelSelected;
     }
 
+    /** Gets the
     /**
      * Checks if pressState pressed level
      * @return  whether or not pressed a knife
@@ -245,7 +306,11 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
     /**Switch to the next level, loop back around at edges */
     private void switchToLevel(boolean right){
-        if (right) { leftIndex += 1; } else { leftIndex -= 1; }
+        if (right) {
+            leftIndex += 1;
+        } else {
+            leftIndex -= 1;
+        }
     }
 
     private String getText(int i){
@@ -258,6 +323,136 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     public void dispose() {
         assets.unloadAssets();
         assets.dispose();
+    }
+
+    /** Processes a keyboard input and produces the appropriate response.
+     *
+     * @param action the action being processed
+     * */
+    private void keyPressed(String action) {
+        switch (action) {
+            case "SELECTING":
+                break;
+            case "ENTERING":
+                pressState = 1;
+                break;
+            case "ENTERED":
+                pressState = 2;
+                if (highlightedIndex != -1) {
+                    levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]);
+                } else { pressState = 8; }
+                break;
+            case "ESCAPE":
+                pressState = 8;
+                break;
+        }
+    }
+
+    /** Returns whether or not to scroll to the next panel
+     *
+     * @param dt   time since last frame
+     * @return     whether or not to scroll to the next panel
+     */
+    private boolean processScrolling(float dt) {
+        boolean valid = false;
+        pressDownTime += dt;
+        if (!scrolling && pressDownTime >= SCROLL_WAIT_TIME) { scrolling = true; pressDownTime = 0; }
+        else if (scrolling && pressDownTime >= SCROLL_RATE) { valid = true; }
+        if (scrolling && !valid) { return false; }
+        if (!scrolling && scrollDirection != 0) { return false; }
+        pressDownTime = 0;
+        scroll();
+        return true;
+    }
+
+    /** Returns whether or not to process the pre-update loop.
+     *
+     * This function will return false if the user is holding down
+     * the scrolling key and it is not yet time to move on to the next
+     * panel, or true otherwise. This function will also return true
+     * if the user has let go of the scrolling key.
+     */
+    private boolean handleScrolling(float dt, InputController input) {
+        if ((input.doneMovementKey() && input.getHorizontal() == 0)
+           || (scrollDirection == 1 && input.getHorizontal() < 0)
+           || (scrollDirection == -1 && input.getHorizontal() > 0)) {
+            scrollDirection = 0; scrolling = false; pressDownTime = 0; return true;
+         }
+        return processScrolling(dt);
+    }
+
+    /** Scrolls to the next panel */
+    private void scroll() {
+        if (scrollDirection == 1) {
+            if (highlightedIndex < 2) { highlightedIndex = (highlightedIndex + 1) % 3;
+            } else if (leftIndex + 3 < numLevels) { switchToLevel(true); }
+        } else {
+            if (highlightedIndex > 0) { highlightedIndex -= 1;
+            } else if (leftIndex > 0) { switchToLevel(false); }
+        }
+        System.out.println(leftIndex);
+    }
+
+    /**
+     * Returns whether to process the update loop
+     *
+     * At the start of the update loop, we check if it is time
+     * to switch to a new game mode.  If not, the update proceeds
+     * normally.
+     *
+     * @param dt	Number of seconds since last animation frame
+     *
+     * @return whether to process the update loop
+     */
+    private boolean preUpdateHelper(float dt){
+        InputController input = InputController.getInstance();
+        input.readInput(bounds, vscale);
+        if (scrollDirection != 0) {
+            if (!isMouseScrolling && !handleScrolling(dt, input)) return true;
+            if (isMouseScrolling && !processScrolling(dt)) return true;
+        }
+        if (input.didESC()) { Gdx.input.setCursorCatched(true); keyPressed("ESCAPE"); return false; }
+        else if (input.isMovementPressed()) {
+            Gdx.input.setCursorCatched(true);
+            if (input.getHorizontal() != 0) {
+                if (scrollDirection == 0 && input.getHorizontal() > 0) {
+                    scrollDirection = 1;
+                    scroll();
+                }
+                else if (scrollDirection == 0 && input.getHorizontal() < 0) {
+                    scrollDirection = -1;
+                    scroll();
+                }
+            } else {
+                if (input.getVertical() < 0 && highlightedIndex != -1) {
+                    prevHighlighted = highlightedIndex; highlightedIndex = -1;
+                }
+                else if (input.getVertical() > 0 && highlightedIndex == -1) {
+                    highlightedIndex = prevHighlighted;
+                }
+            }
+        } else if (input.didEnter()) {
+            keyPressed("ENTERED");
+            return false;
+        } else if (input.isEntering()) {
+            keyPressed("ENTERING");
+        }
+        return true;
+    }
+
+    /**
+     * Returns whether to process the update loop
+     *
+     * At the start of the update loop, we check if it is time
+     * to switch to a new game mode.  If not, the update proceeds
+     * normally.
+     *
+     * @param dt	Number of seconds since last animation frame
+     *
+     * @return whether to process the update loop
+     */
+    private boolean preUpdate(float dt) {
+        return preUpdateHelper(dt);
     }
 
     /**
@@ -292,12 +487,15 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         for (int i = 0; i < 3; i++) {
             // Draw the knife
             if (i == highlightedIndex) {
-                canvas.draw(knifeTexture, Color.DARK_GRAY, knifeTexture.getWidth()/2, knifeTexture.getHeight()/2,
-                        knifeCenterX+DIST*highlightedIndex-SHADOW_OFFSET, knifeCenterY-SHADOW_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+                canvas.draw(knifeTexture, Color.BLACK, knifeTexture.getWidth()/2, knifeTexture.getHeight()/2,
+                        knifeCenterX+DIST*highlightedIndex-SHADOW_OFFSET-HOVER_OFFSET, knifeCenterY-SHADOW_OFFSET-HOVER_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+                Color color = pressState == 1 ? Color.SLATE : Color.WHITE;
+                canvas.draw(knifeTexture, color, knifeTexture.getWidth() / 2, knifeTexture.getHeight() / 2,
+                        knifeCenterX + DIST * i-HOVER_OFFSET, knifeCenterY-HOVER_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+            } else {
+                canvas.draw(knifeTexture, Color.WHITE, knifeTexture.getWidth() / 2, knifeTexture.getHeight() / 2,
+                        knifeCenterX + DIST * i, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
             }
-            canvas.draw(knifeTexture, Color.WHITE, knifeTexture.getWidth()/2, knifeTexture.getHeight()/2,
-                    knifeCenterX+DIST*i, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
-
 
             // Draw level name
             text = getText(leftIndex+i);
@@ -336,7 +534,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             canvas.draw(arrowRightTexture, rightTint, arrowRightTexture.getWidth() / 2, arrowRightTexture.getHeight() / 2,
                     rightArrowCenterX, arrowCenterY, 0, ARROW_SCALE * scale, ARROW_SCALE * scale);
         }
-        canvas.draw(backTexture, Color.WHITE, backTexture.getWidth()/2, backTexture.getHeight()/2,
+        canvas.draw(backTexture, highlightedIndex == -1 ? Color.CORAL: Color.WHITE, backTexture.getWidth()/2, backTexture.getHeight()/2,
                 backCenterX, backCenterY, 0, BACK_SCALE*scale, BACK_SCALE*scale);
         canvas.end();
     }
@@ -352,6 +550,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      */
     public void render(float delta) {
         if (active) {
+            preUpdate(delta);
             update(delta);
             draw();
             if (validLevelSelected() && listener != null){
@@ -457,9 +656,10 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @param screenY The y axis screen position of the mouse interaction
      * @param centerX The x axis center location of the button
      * @param centerY The y axis center location of the button
+     * @param touchDown Whether we are processing a touch down
      * @param button The texture of the given button
      * */
-    private int overKnife(Texture button, float screenX, float screenY, float centerX, float centerY){
+    private int overKnife(Texture button, float screenX, float screenY, float centerX, float centerY, boolean touchDown){
         float width = KNIFE_RATIO * scale * BLADE_WIDTH;
         float height = KNIFE_RATIO * scale * BLADE_HEIGHT;
         int i;
@@ -468,12 +668,10 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         else if (screenX <= centerX + width/2 + DIST) { i = 1; xBound = centerX + DIST - width/2; }
         else { i = 2; xBound = centerX + DIST*2 - width/2; }
         yBound = centerY - height/2;
-/*        float xBound = centerX - width/2; //lower x bound
-        float yBound = centerY - height/2;*/
         if ((screenX >= xBound && screenX <= xBound + width) && (screenY >= yBound && screenY <= yBound + height)) {
             return i;
         }
-        return -1;
+        return touchDown ? -1 : highlightedIndex;
     }
     /**
      * Returns if this position is over the given ARROW button
@@ -522,13 +720,20 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @return whether to hand the event to other listeners.
      */
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        Gdx.input.setCursorCatched(false);
         screenY = heightY-screenY;
 
         if(leftIndex - 1 >= 0 && overArrow(arrowLeftTexture, screenX, screenY, leftArrowCenterX, arrowCenterY)){
             pressState = 3;
+            scrollDirection = -1;
+            isMouseScrolling = true;
+            scroll();
         }else if(leftIndex + 3 < numLevels && overArrow(arrowRightTexture, screenX, screenY, rightArrowCenterX, arrowCenterY)){
             pressState = 5;
-        } else if(overKnife(knifeTexture, screenX, screenY, bladeCenterX, bladeCenterY) >= 0) {
+            scrollDirection = 1;
+            isMouseScrolling = true;
+            scroll();
+        } else if(overKnife(knifeTexture, screenX, screenY, bladeCenterX, bladeCenterY, true) >= 0) {
             pressState = 1;
         } else if (overBack(backTexture, screenX, screenY, backCenterX, backCenterY)) {
             pressState = 7;
@@ -551,14 +756,18 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         if (pressState == 1){
             pressState = 2;
-            setLevelSelected(levelList[leftIndex + highlightedIndex]);
+            levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]);
             return false;
         }else if (pressState == 3){
             pressState = 4;
-            switchToLevel(false);
+            isMouseScrolling = false;
+            scrolling = false;
+            scrollDirection = 0;
         }else if (pressState == 5){
             pressState = 6;
-            switchToLevel(true);
+            isMouseScrolling = false;
+            scrolling = false;
+            scrollDirection = 0;
         } else if (pressState == 7){
             pressState = 8;
 
@@ -635,8 +844,16 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @return whether to hand the event to other listeners.
      */
     public boolean mouseMoved(int screenX, int screenY) {
+        Gdx.input.setCursorCatched(false);
         screenY = heightY-screenY;
-        highlightedIndex = overKnife(knifeTexture, screenX, screenY, bladeCenterX, bladeCenterY);
+        if (overBack(backTexture, screenX, screenY, backCenterX, backCenterY)) {
+            if (highlightedIndex != -1) {
+                prevHighlighted = highlightedIndex;
+                highlightedIndex = -1;
+            }
+        } else {
+            highlightedIndex = overKnife(knifeTexture, screenX, screenY, bladeCenterX, bladeCenterY, false);
+        }
         leftHighlighted = overArrow(arrowLeftTexture, screenX, screenY, leftArrowCenterX, arrowCenterY);
         rightHighlighted = overArrow(arrowRightTexture, screenX, screenY, rightArrowCenterX, arrowCenterY);
         return true;

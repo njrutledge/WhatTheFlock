@@ -17,7 +17,7 @@ import code.assets.AssetDirectory;
 import code.game.display.LevelSelectMode;
 import code.game.display.LoadingMode;
 import code.game.display.MainMenuMode;
-import code.game.display.PauseMode;
+import code.game.display.GameMenuMode;
 import code.game.views.GameCanvas;
 import code.util.ScreenListener;
 import com.badlogic.gdx.*;
@@ -44,8 +44,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private MainMenuMode menu;
 	/** Player mode for the level selection screen (CONTROLLER CLASS)*/
 	private LevelSelectMode levelselect;
-	/** Player mode for the pause screen (CONTROLLER CLASS)*/
-	private PauseMode pause;
+	/** Player mode for the gamemenu screen (CONTROLLER CLASS)*/
+	private GameMenuMode gamemenu;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	/** List of all WorldControllers */
@@ -82,7 +82,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	/** 
 	 * Called when the Application is destroyed. 
 	 *
-	 * This is preceded by a call to pause().
+	 * This is preceded by a call to gamemenu().
 	 */
 	public void dispose() {
 		// Call dispose on our children
@@ -101,9 +101,9 @@ public class GDXRoot extends Game implements ScreenListener {
 			levelselect.dispose();
 			levelselect = null;
 		}
-		if(pause != null) {
-			pause.dispose();
-			pause = null;
+		if(gamemenu != null) {
+			gamemenu.dispose();
+			gamemenu = null;
 		}
 
 		//TODO dispose others if needed
@@ -162,13 +162,13 @@ public class GDXRoot extends Game implements ScreenListener {
 			//make other modes with assets
 			menu = new MainMenuMode(directory, canvas, sound);
 			levelselect = new LevelSelectMode(directory, canvas, sound);
-			pause = new PauseMode(directory, canvas);
+			gamemenu = new GameMenuMode(directory, canvas);
 
 			//set listeners
 			controller.setScreenListener(this);
 			menu.setScreenListener(this);
 			levelselect.setScreenListener(this);
-			pause.setScreenListener(this);
+			gamemenu.setScreenListener(this);
 
 			loading.dispose();
 			loading = null;
@@ -179,12 +179,10 @@ public class GDXRoot extends Game implements ScreenListener {
 		}
 		else if (screen == menu){
 			//menu.activateInputProcessor(false);
-			menu.reset();
 			switch (exitCode){
 				case MainMenuMode.START: //TODO go to level select
-					//controller.reset();
 					levelselect.reset();
-					//levelselect.activateInputProcessor(true);
+					levelselect.setHighlightedIndex(menu.didMouseEnter());
 					setScreen(levelselect);
 					break;
 				case MainMenuMode.GUIDE: //TODO go to guide
@@ -216,39 +214,49 @@ public class GDXRoot extends Game implements ScreenListener {
 		}
 		else if (screen == controller){
 			switch (exitCode){
-				case GameController.EXIT_NEXT:
-					menu.reset();
-					setScreen(menu);
+				case GameController.EXIT_WIN:
+					gamemenu.setLevelAvailable(levelselect.levelAvailable());
+					gamemenu.setMode(GameMenuMode.Mode.WIN);
+					setScreen(gamemenu);
 					break;
-				case GameController.EXIT_PREV:
-					menu.reset();
-					setScreen(menu);
-					break;
-				case GameController.EXIT_QUIT:
-					//go back to menu select screen
-					menu.reset();
-					setScreen(menu);
+				case GameController.EXIT_LOSE:
+					gamemenu.setMode(GameMenuMode.Mode.LOSE);
+					setScreen(gamemenu);
 					break;
 				case GameController.EXIT_PAUSE:
-					setScreen(pause);
+					gamemenu.setMode(GameMenuMode.Mode.PAUSE);
+					setScreen(gamemenu);
 					break;
-
 			}
-		} else if (screen == pause){
+
+		} else if (screen == gamemenu){
 			switch (exitCode){
-				case PauseMode.CONT:
-					pause.reset();
-					controller.resume();
-					setScreen(controller);
+				case GameMenuMode.CONT:
+					switch(gamemenu.getMode()){
+						case PAUSE:
+							gamemenu.reset();
+							controller.resume();
+							setScreen(controller);
+							break;
+						case WIN:
+							gamemenu.reset();
+							controller.reset();
+							levelselect.setNextLevel();
+							controller.populateLevel(levelselect.getLevelSelected());
+							setScreen(controller);
+							break;
+					}
 					break;
-				case PauseMode.RESTART:
-					pause.reset();
+				case GameMenuMode.RESTART:
+					gamemenu.reset();
 					controller.populateLevel(levelselect.getLevelSelected());
 					controller.resume();
 					setScreen(controller);
 					break;
-				case PauseMode.QUIT:
-					pause.reset();
+				case GameMenuMode.OPTIONS:
+					break;
+				case GameMenuMode.QUIT:
+					gamemenu.reset();
 					controller.resume();
 					controller.reset();
 					setScreen(levelselect);

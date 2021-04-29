@@ -1,6 +1,7 @@
 package code.game.display;
 
 import code.assets.AssetDirectory;
+import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
@@ -16,6 +17,8 @@ import com.badlogic.gdx.controllers.ControllerMapping;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 public class MainMenuMode implements Screen, InputProcessor, ControllerListener {
     // There are TWO asset managers.  One to load the loading screen.  The other to load the assets
@@ -41,6 +44,12 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     private static int STANDARD_WIDTH  = 800;
     /** Standard window height (for scaling) */
     private static int STANDARD_HEIGHT = 700;
+
+    /** Width of the game world in Box2d units */
+    protected static final float DEFAULT_WIDTH  = 48.0f;
+    /** Height of the game world in Box2d units */
+    protected static final float DEFAULT_HEIGHT = 27.0f;
+
     /** Height of the progress bar */
     private static float BUTTON_SCALE  = 0.75f;
     /** Background scale*/  
@@ -68,6 +77,9 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     /** Scaling factor for when the student changes the resolution. */
     private float scale;
 
+    /** Whether level select was entered by mouse click */
+    private boolean mouseEnter = false;
+
     /**
      * The current state of the play button
      * 0 for nothing,
@@ -82,6 +94,16 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     public static final int GUIDE  = 2;
     public static final int OPTIONS = 3;
     public static final int QUIT = 4;
+
+    /** The bounds for the game screen */
+    private Rectangle bounds;
+    /** The scale of the game */
+    private Vector2 vscale;
+
+    /** The option that is currently being selected
+     *  0 for start, 1 for play, 2 for options, 3 for quit
+     * */
+    private int selected;
 
     /** Whether or not this player mode is still active */
     private boolean active;
@@ -134,10 +156,14 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         quitTexture = internal.getEntry("ui:menu:quit", Texture.class);
         quit = new FilmStrip(quitTexture, 1, 2);
 
+        this.bounds = new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT);
+        this.vscale = new Vector2(1,1);
+
         background = internal.getEntry( "background:menu", Texture.class );
         background.setFilter( Texture.TextureFilter.Linear, Texture.TextureFilter.Linear );
         pressState = 0;
-
+        selected = 0;
+        start.setFrame(1);
         //Gdx.input.setInputProcessor( this );
 
         // Let ANY connected controller start the game.
@@ -171,8 +197,81 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     /** Resets the menu */
     public void reset(){
         pressState = 0;
+        mouseEnter = false;
     }
 
+    /** Returns whether the select screen was entered by mouse click */
+    public boolean didMouseEnter() { return mouseEnter; }
+
+    /** Processes a keyboard input and produces the appropriate response.
+     *
+     * @param action the action being processed
+     * */
+    private void keyPressed(String action) {
+        switch (action) {
+            case "SELECTING":
+                if (selected == 0) { start.setFrame(1); }
+                else if (selected == 1) { howToPlay.setFrame(1); }
+                else if (selected == 2) { options.setFrame(1); }
+                else { quit.setFrame(1); }
+                resetButtons();
+                break;
+            case "ENTERING":
+                pressState = selected + 1;
+                break;
+            case "ENTERED":
+                pressState = selected + 11;
+                break;
+        }
+    }
+
+    /**
+     * Returns whether to process the update loop
+     *
+     * At the start of the update loop, we check if it is time
+     * to switch to a new game mode.  If not, the update proceeds
+     * normally.
+     *
+     * @param dt	Number of seconds since last animation frame
+     *
+     * @return whether to process the update loop
+     */
+    private boolean preUpdateHelper(float dt){
+        InputController input = InputController.getInstance();
+        input.readInput(bounds, vscale);
+        if (input.didMovementKey() && input.getVertical() != 0) {
+            Gdx.input.setCursorCatched(true);
+            if (input.getVertical() < 0) { selected = (selected + 1) % 4; }
+            else { selected = selected == 0 ? 3 : selected-1; }
+            keyPressed("SELECTING");
+        } else if (input.didEnter()) {
+            Gdx.input.setCursorCatched(true);
+            keyPressed("ENTERED");
+            return false;
+        } else if (input.isEntering()) {
+            Gdx.input.setCursorCatched(true);
+            keyPressed("ENTERING");
+        }
+        return true;
+    }
+
+    /**
+     * Returns whether to process the update loop
+     *
+     * At the start of the update loop, we check if it is time
+     * to switch to a new game mode.  If not, the update proceeds
+     * normally.
+     *
+     * @param dt	Number of seconds since last animation frame
+     *
+     * @return whether to process the update loop
+     */
+    private boolean preUpdate(float dt) {
+        return preUpdateHelper(dt);
+    }
+
+
+    /**
     /**
      * Update the status of this player mode.
      *
@@ -232,6 +331,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
      */
     public void render(float delta) {
         if (active) {
+            preUpdate(delta);
             update(delta);
             draw();
             if(somethingSelected() && listener != null){
@@ -325,7 +425,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         float width = BUTTON_SCALE * scale * bwidth;
         float height = BUTTON_SCALE * scale * BUTTON_HEIGHT;
         float xBound = centerX - width/2; //lower x bound
-        float yBound = centerY - height/4;
+        float yBound = centerY - height/2;
         return ((screenX >= xBound && screenX <= xBound + width) && (screenY >= yBound && screenY <= yBound + height));
     }
     /**
@@ -346,6 +446,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
 
         // TODO: Fix scaling
         if(overButton(START_WIDTH, screenX, screenY, buttonsCenterX, startCenterY)){
+            mouseEnter = true;
             pressState = 1;
         }else if(overButton(HTP_WIDTH, screenX, screenY, buttonsCenterX, howToCenterY)){
             pressState = 2;
@@ -422,10 +523,10 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
 
     /** Reset the default button animations */
     private void resetButtons(){
-        start.setFrame(0);
-        howToPlay.setFrame(0);
-        options.setFrame(0);
-        quit.setFrame(0);
+        if (selected != 0) { start.setFrame(0); }
+        if (selected != 1) { howToPlay.setFrame(0); }
+        if (selected != 2) { options.setFrame(0); }
+        if (selected != 3) { quit.setFrame(0); }
     }
 
     /**
@@ -436,19 +537,24 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
      * @return whether to hand the event to other listeners.
      */
     public boolean mouseMoved(int screenX, int screenY) {
-        resetButtons();
+        Gdx.input.setCursorCatched(false);
         // Flip to match graphics coordinates
         screenY = heightY-screenY;
         //switch animations
         if (overButton(START_WIDTH, screenX, screenY, buttonsCenterX, startCenterY)){
+            selected = 0;
             start.setFrame(1);
         } else if(overButton(HTP_WIDTH, screenX, screenY, buttonsCenterX, howToCenterY)){
+            selected = 1;
             howToPlay.setFrame(1);
         } else if(overButton(OPTIONS_WIDTH, screenX, screenY, buttonsCenterX, optionsCenterY)){
+            selected = 2;
             options.setFrame(1);
         } else if(overButton(QUIT_WIDTH, screenX, screenY, buttonsCenterX, quitCenterY)){
+            selected = 3;
             quit.setFrame(1);
         }
+        resetButtons();
         return true;
     }
 
