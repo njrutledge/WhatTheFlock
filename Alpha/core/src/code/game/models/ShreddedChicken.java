@@ -17,7 +17,7 @@ public class ShreddedChicken extends Chicken {
     ///////// altered or removed, but should provide a good base to start with.
 
     /** Radius of sensor */
-    private final float SENSOR_RADIUS = 8f;
+    private final float SENSOR_RADIUS = 4f;
     /** Time it takes for the chicken to begin their attack after colliding with their target */
     private final float CHARGE_DUR = 1f;
     /** Time it takes for the chicken to recover from attacking */
@@ -58,7 +58,7 @@ public class ShreddedChicken extends Chicken {
             // Duration that the attack stays on screen
             attack_timer += dt;
             if (!hitboxOut) {
-                setAttackType(ChickenAttack.AttackType.Projectile);
+                setAttackType(ChickenAttack.AttackType.Knockback);
                 soundCheck = true;
                 makeAttack = true;
             }

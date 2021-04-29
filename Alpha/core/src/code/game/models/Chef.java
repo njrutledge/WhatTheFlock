@@ -110,6 +110,14 @@ public class Chef extends GameObject implements ChefInterface {
 	private static final float ANIMATION_SPEED = 0.25f;
 	/** The number of animation frames in our filmstrip */
 	private static final int NUM_ANIM_FRAMES = 8;
+	/** True if the chef has been pushed */
+	private boolean isPushed = false;
+	/** saved speed for when the chef is pushed */
+	private float savedSpeed = 0.0f;
+	/** saved angle for when the chef is pushed */
+	private float savedAngle = 0.0f;
+	/** Countdown for how long to be pushed */
+	private int pushedCountdown = 0;
 
 	/** Current animation frame for this shell */
 	private float animeframe;
@@ -129,6 +137,7 @@ public class Chef extends GameObject implements ChefInterface {
 	protected FilmStrip idle_animator;
 	/** Reference to texture origin */
 	protected Vector2 origin;
+
 
 	/**
 	 * Creates a new chef avatar with the given game data
@@ -541,6 +550,7 @@ public class Chef extends GameObject implements ChefInterface {
 //			body.applyForce(forceCache,getPosition(),true);
 //		}
 
+
 		// Velocity too high, clamp it
 		if (Math.abs(getVX()) >= getMaxSpeed()) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
@@ -563,15 +573,30 @@ public class Chef extends GameObject implements ChefInterface {
 			setVX(MathUtils.cos(angle)*getMaxSpeed());
 		}
 
-		if (getMovement() == 0f) {
-			forceCache.set(0, 0);
-			body.setLinearVelocity(0,0);
+		if(isPushed){
+			forceCache.set(savedSpeed*MathUtils.cos(savedAngle), savedSpeed*MathUtils.sin(savedAngle));
+			body.applyForce(forceCache, getPosition(), true);
+			pushedCountdown--;
+			if (pushedCountdown==0){
+				isPushed = false;
+			}
+		}else {
+			if (getMovement() == 0f) {
+				forceCache.set(0, 0);
+				body.setLinearVelocity(0, 0);
+			}
+			if (getVertMovement() == 0f) {
+				forceCache.set(0, 0);
+				body.setLinearVelocity(0, 0);
+			}
 		}
-		if (getVertMovement() == 0f){
-			forceCache.set(0,0);
-			body.setLinearVelocity(0,0);
-		}
+	}
 
+	public void markSetVelocity(float speed, float angle){
+		savedAngle = angle;
+		savedSpeed = speed;
+		isPushed = true;
+		pushedCountdown = 30;
 	}
 	
 	/**

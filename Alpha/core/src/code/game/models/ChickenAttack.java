@@ -15,6 +15,7 @@ public class ChickenAttack extends GameObject {
     public enum AttackType {
         Basic,
         Charge,
+        Knockback,
         Projectile,
         Explosion,
         Smash
@@ -99,7 +100,7 @@ public class ChickenAttack extends GameObject {
 
     /** Creates an instance of a basic attack */
     public ChickenAttack(float x, float y, float width, float height, Chef chef, Chicken chicken, AttackType type) {
-        super(x, y, width, height, ObjectType.ATTACK);
+        super(x, y, type != AttackType.Knockback ? width : 50.0f*width, type!= AttackType.Knockback ? height : 10.0f*height, ObjectType.ATTACK);
         this.type = type;
         this.chicken = chicken;
         this.target = new Vector2(chicken.getDestination());
@@ -140,6 +141,19 @@ public class ChickenAttack extends GameObject {
                 break;
             case Explosion:
                 destination = getPosition();
+                break;
+            case Knockback:
+                float angle =(MathUtils.atan2(chicken.getY()-chef.getY(),chicken.getX()-chef.getX()));
+                setAngle(angle);
+                setSensor(true);
+                setX(x-25*width*MathUtils.cos(angle));
+                setY(y-25*width*MathUtils.sin(angle));
+                destination = getPosition();
+                filter = new Filter();
+                filter.categoryBits = 0x0008;
+                filter.maskBits = -1;
+                filter.groupIndex = -1;
+                setFilterData(filter);
                 break;
             case Smash:
                 destination = getPosition();
