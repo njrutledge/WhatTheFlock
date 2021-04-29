@@ -218,7 +218,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			switch (exitCode){
 				case GameController.EXIT_NEXT:
 					menu.reset();
-					setScreen(menu);
+					setScreen(levelselect);
 					break;
 				case GameController.EXIT_PREV:
 					menu.reset();
