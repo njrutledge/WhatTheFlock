@@ -392,8 +392,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private float waveStartTime; // when did this wave start
 	private float lastEnemySpawnTime; // when did the last enemy spawn
 	// the total pool of enemies for this level
-	private ArrayList<Integer> enemyPool; // the enemies in the pool but not on the board
-	private ArrayList<Integer> enemyBoard; // the enemies on the board
+	private ArrayList<Integer> enemyPool = new ArrayList<>(); // the enemies in the pool but not on the board
+	private ArrayList<Integer> enemyBoard = new ArrayList<>(); // the enemies on the board
 
 
 	/**
