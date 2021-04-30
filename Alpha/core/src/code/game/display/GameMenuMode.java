@@ -70,6 +70,11 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
     private Texture loseQuitTexture;
     private FilmStrip loseQuit;
 
+    /**Gray background texture*/
+    private Texture grayTexture;
+    /** Whether or not this texture has been drawn*/
+    private boolean grayDrawn;
+
     /**
      * The current state of the game menu
      * 0 for nothing,
@@ -109,6 +114,8 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
     private static int PQUIT_WIDTH = 158;
     /** Scale for all pause buttons */
     private final float PBUTTON_SCALE = .66f;
+    /** Scale of Gray Texture */
+    private final float GRAY_BKG_SCALE = 1.0f;
 
     // Coordinates for pause menu assets
     private float pButtonsCenterX;
@@ -228,6 +235,8 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
         loseQuitTexture = internal.getEntry("ui:lose:quit", Texture.class);
         loseQuit = new FilmStrip(loseQuitTexture, 1, 2);
 
+        grayDrawn = false;
+        grayTexture = internal.getEntry("background:gray", Texture.class);
         pressState = 0;
 
         // Let ANY connected controller start the game.
@@ -307,6 +316,7 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
         pressState = 0;
         setSelected();
         resetButtons();
+        grayDrawn = false;
     }
 
     /** Processes a keyboard input and produces the appropriate response.
@@ -419,6 +429,15 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
      * prefer this in lecture.
      */
     private void draw() {
+        if(!grayDrawn){
+            canvas.begin();
+            canvas.draw(grayTexture, new Color(1, 1, 1, 0.1f), grayTexture.getWidth()/2, grayTexture.getHeight()/2,
+                    bkgCenterX, bkgCenterY, 0, GRAY_BKG_SCALE* scale, GRAY_BKG_SCALE * scale);
+            System.out.println("drew gray");
+            grayDrawn = true;
+            canvas.end();
+        }
+
         canvas.begin();
         canvas.setIgnore(true);
         switch(mode) {
@@ -433,6 +452,7 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
                         pButtonsCenterX, pOptionsCenterY, 0, PBUTTON_SCALE * scale, PBUTTON_SCALE * scale);
                 canvas.draw(pauseQuit, Color.WHITE, pauseQuit.getRegionWidth()/2, pauseQuit.getRegionHeight()/2,
                         pButtonsCenterX, pQuitCenterY, 0, PBUTTON_SCALE * scale, PBUTTON_SCALE * scale);
+
                 break;
             case WIN:
                 canvas.draw(winMenu, Color.WHITE, winMenu.getWidth()/2, winMenu.getHeight()/2,

@@ -64,6 +64,7 @@
         "background:pause": "ui/gamemenu/pausemenu.png",
         "background:win": "ui/gamemenu/winmenu.png",
         "background:lose": "ui/gamemenu/losemenu.png",
+        "background:gray": "ui/gray_background.png",
 
         "ui:menu:start": "ui/loading/mainmenu_start.png",
         "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
