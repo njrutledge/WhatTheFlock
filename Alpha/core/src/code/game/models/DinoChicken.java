@@ -101,7 +101,6 @@ public class DinoChicken extends NuggetChicken{
         //Every smashCD seconds the dino smashes the ground, knocking away chickens/chef
         if (smashTime >= smashCD){
             smashTime = 0;
-            System.out.println("smash");
         }
 
         super.update(dt);
