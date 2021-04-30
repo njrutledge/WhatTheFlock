@@ -513,8 +513,10 @@ public class AIController {
         target_tile = grid.getTile(target.getX() + targetOffset.x, target.getY() + targetOffset.y); //could be getting a null tile?
         AStar();
 
-        if ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile) {
-                move_tile = child_tile;
+        if (child_tile != null && ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile)) {
+            move_tile = child_tile;
+        } else if (child_tile == null){
+            move_tile = target_tile;
         }
 
     }
