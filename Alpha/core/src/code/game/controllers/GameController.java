@@ -588,6 +588,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		Stoves.clear();
 		nonActiveStoves.clear();
 		world.dispose();
+		enemyPool.clear();
+		enemyBoard.clear();
 		spawnPoints.clear();
 		
 		world = new World(gravity,false);
@@ -1045,9 +1047,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			startWaveSize = Math.min(maxWaveSize, startWaveSize + 1);
 		}
 
-		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
+		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0 && enemyPool.size() > 0){
 			int r = (int)Math.floor((maxWaveSize - enemyBoard.size())*Math.random());
-			enemyBoard.add(enemyPool.get(r)); //TODO FIX BUG HERE: OUT OF BOUNDS IF LENGTH 0 (HIT MAX WAVE)
+			enemyBoard.add(enemyPool.get(r));
 			int chicken = enemyPool.remove(r);
 			if (chicken == 0){
 				spawnChicken(Chicken.ChickenType.Nugget);
