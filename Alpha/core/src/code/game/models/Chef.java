@@ -560,9 +560,6 @@ public class Chef extends GameObject implements ChefInterface {
 		if (Math.abs(getVX()) > getMaxSpeed()) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
 		} else {
-			if(getMovement()<0){
-				int breaking = 1;
-			}
 			setVX(getMovement()/*getMaxSpeed()*/);
 		}
 

@@ -104,6 +104,15 @@ public class HotChicken extends Chicken {
     }
 
     /**
+     * Set the attack texture of the hot chicken
+     * @param texture the appropriate spreadsheet
+     */
+    public void setAttackTexture(Texture texture) {
+        attack_animator = new FilmStrip(texture, 1, 17);
+        origin = new Vector2(attack_animator.getRegionWidth()/2.0f, attack_animator.getRegionHeight()/2.0f);
+    }
+
+    /**
      * Draws the physics object.
      *
      * @param canvas Drawing context
@@ -111,8 +120,11 @@ public class HotChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? -1.0f : 1.0f;
-        animator.setFrame((int) animeframe);
-        if (!isInvisible) {
+        if (isAttacking && attack_animator != null) {
+            attack_animator.setFrame((int) animeframe);
+            canvas.draw(attack_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wscale*effect, hscale);
+        } else if (!isStunned) {
+            animator.setFrame((int) animeframe);
             canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wscale*effect, hscale);
         }
     }
@@ -150,8 +162,8 @@ public class HotChicken extends Chicken {
             }
         } else if (isAttacking && attack_animator != null){
             animeframe += animation_speed;
-            if (animeframe >= 9) {
-                animeframe -= 9;
+            if (animeframe >= 17) {
+                animeframe -= 17;
             }
         }
 

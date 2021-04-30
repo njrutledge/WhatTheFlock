@@ -301,7 +301,6 @@ public class CollisionController implements CollisionControllerInterface {
             float max_speed = 300.0f;
             float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
             chef.markSetVelocity(max_speed, angle);
-            sound.playShredAttack();
         }
     }
 
@@ -369,7 +368,7 @@ public class CollisionController implements CollisionControllerInterface {
             trapController.applyTrap(t2, c1);
         }
         if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)){
-            //t2.markHit();
+            t2.markHit();
         }
     }
 
@@ -405,16 +404,6 @@ public class CollisionController implements CollisionControllerInterface {
 
         Obstacle bd1 = (Obstacle) body1.getUserData();
         Obstacle bd2 = (Obstacle) body2.getUserData();
-
-        //TODO: what does this do...?
-        /*if(bd1.getName().equals("chef") || bd2.getName().equals("chef")){
-            Chef chef = (Chef)(bd1.getName().equals("chef") ? bd1 : bd2);
-            if ((chef.getSensorName().equals(fd2) && chef != bd1)
-                    ||(chef.getSensorName().equals(fd1) && chef != bd2) ){
-                sensorFixtures.remove((chef.equals(bd1)) ? fix2 : fix1);
-            }
-        }*/
-        //process collisions between GameObjects
         if (bd1 instanceof GameObject && bd2 instanceof GameObject) {
             processEndContact((GameObject) bd1, fd1, (GameObject) bd2, fd2);
         }
