@@ -30,6 +30,13 @@ public class SoundController {
     /** List of all sounds for disposal later */
     private Array<SoundBuffer> sounds = new Array<>();
 
+    //UI
+    /** Sound for hitting enter on an item in the menus */
+    private SoundBuffer menuEnter;
+    /** Sound for choosing an item in the menus */
+    private SoundBuffer menuSelecting;
+
+
     //Chef
     /** Sound for when chef attacks, regardless of whether it hits */
     private SoundBuffer emptySlap;
@@ -108,6 +115,10 @@ public class SoundController {
     }
 
     public void gatherAssets(AssetDirectory directory) {
+        //UI
+        menuSelecting = directory.getEntry("sound:menu:selecting", SoundBuffer.class);
+        menuEnter = directory.getEntry("sound:menu:select", SoundBuffer.class);
+        sounds.add(menuEnter,menuSelecting);
 
         //Chef
         chefHurt = directory.getEntry("sound:chef:oof", SoundBuffer.class);
@@ -228,6 +239,11 @@ public class SoundController {
 
 
     //Commented out sounds have not yet been added
+    //UI
+    public void playMenuEnter() {playInstant(menuEnter, LOUD);}
+
+    public void playMenuSelecting() {playInstant(menuSelecting, LOUD);}
+
     //Chef
     public void playChefHurt() {playInstant(chefHurt, MED);}
 

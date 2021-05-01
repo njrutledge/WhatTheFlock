@@ -126,9 +126,9 @@
         "levels": "levels.json"
     },
     "sounds" : {
-        "sound:chef:jump" : "sounds/chef/jump.mp3",
-        "sound:chef:pew"  : "sounds/chef/slap_1.ogg",
-        "sound:chef:plop" : "sounds/chef/plop.mp3",
+        "sound:menu:selecting" : "sounds/ui/menu_ui_selecting.ogg",
+        "sound:menu:select" : "sounds/ui/menu_ui_select.ogg",
+
         "sound:chef:emptySlap" : "sounds/chef/empty_slap_2.ogg",
         "sound:chef:squelch": "sounds/chef/squelch.ogg",
         "sound:chef:oof": "sounds/chef/chef_hurt_2.ogg",
