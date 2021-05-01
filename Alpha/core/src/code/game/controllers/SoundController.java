@@ -80,7 +80,7 @@ public class SoundController {
     /** SoundID for theme playing */
     private long musicID = -1;
     /** Pause volume lowering */
-    private final float PAUSE_VOL = 0.1f;
+    private final float PAUSE_VOL = 0.3f;
 
     /** Menu music */
     private MusicBuffer menuTheme;
@@ -138,8 +138,8 @@ public class SoundController {
         sounds.add(nuggetAttack, nuggetHurt);
 
         //Music
-        menuTheme = directory.getEntry("sound:music:levelSel", MusicBuffer.class);
-        levelTheme1 = directory.getEntry("sound:music:theme1", MusicBuffer.class);
+        menuTheme = directory.getEntry("music:levelSel", MusicBuffer.class);
+        levelTheme1 = directory.getEntry("music:theme1", MusicBuffer.class);
 
     }
 
@@ -149,10 +149,8 @@ public class SoundController {
     }
 
     private void playMusicInstant(MusicBuffer sound, float multiplier) {
-        if (sound != null) {
-            sound.play();
-            sound.setVolume(multiplier * volume);
-        }
+        sound.play();
+        sound.setVolume(multiplier * volume);
 
     }
 
@@ -185,45 +183,42 @@ public class SoundController {
     }
 
     public void stopAllMusic() {
-        //menuTheme.stop();
-        //levelTheme1.stop();
+        menuTheme.stop();
+        levelTheme1.stop();
         //levelTheme2.stop();
         //levelTheme3.stop();
     }
 
     public void playMusic(CurrentScreen s, float dt) {
-        boolean pause = false;
         if (s != screen) {
-            timer = 0f;
-            stopAllMusic();
-            if (s == CurrentScreen.PAUSE) {
-                pause = true;
+            if (screen == CurrentScreen.MENU || s == CurrentScreen.MENU) {
+                timer = 0f;
+                stopAllMusic();
             }
-            screen = s;
         }
+        screen = s;
 
         switch (screen){
             case MENU:
-                //playMusicInstant(menuTheme, LOUD);
+                playMusicInstant(menuTheme, MED);
                 break;
             case LEVEL:
-                if (pause) {
-                    //levelTheme1.setVolume(volume * MED);
-                    //levelTheme2.setVolume(volume * LOUD);
-                    //levelTheme3.setVolume(volume * LOUD);
-                }
                 if (timer == 0f) {
-                    //playLevel();
+                    playLevel();
                 }
+                levelTheme1.setVolume(volume * LOUD);
+                //levelTheme2.setVolume(volume * LOUD);
+                //levelTheme3.setVolume(volume * LOUD);
                 break;
             case PAUSE:
                 if (timer == 0f) {
-                    //playLevel();
+                    playLevel();
                 }
-                //levelTheme1.setVolume(volume * MED * PAUSE_VOL);
-                break;
+                levelTheme1.setVolume(volume * LOUD * PAUSE_VOL);
                 //levelTheme2.setVolume(volume * LOUD * PAUSE_VOL);
                 //levelTheme3.setVolume(volume * LOUD * PAUSE_VOL);
+                break;
+
         }
 
         timer = MathUtils.clamp(timer - dt, 0f, 600f);

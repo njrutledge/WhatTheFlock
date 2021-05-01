@@ -162,7 +162,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			//make other modes with assets
 			menu = new MainMenuMode(directory, canvas, sound);
 			levelselect = new LevelSelectMode(directory, canvas, sound);
-			gamemenu = new GameMenuMode(directory, canvas);
+			gamemenu = new GameMenuMode(directory, canvas, sound);
 
 			//set listeners
 			controller.setScreenListener(this);

@@ -42,10 +42,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** The texture for the back button */
     private Texture backTexture;
 
-    private float themeCounter = 0;
-    private final float THEME_DURATION = 72f;
-    private SoundBuffer theme;
-
     /** Standard window size (for scaling) */
     private static int STANDARD_WIDTH  = 800;
     /** Standard window height (for scaling) */
@@ -189,7 +185,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         infoFont.setColor(Color.BLACK);
         //TODO probably want to share some font assets
         levels = assets.getEntry("levels", JsonValue.class );
-        theme = assets.getEntry("sound:music:levelSel", SoundBuffer.class);
 
         this.bounds = new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT);
         this.vscale = new Vector2(1,1);
@@ -268,8 +263,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
     /**Resets this screen*/
     public void reset(){
-        theme.stop();
-        themeCounter = 0f;
         pressState = -1;
     }
 
@@ -288,7 +281,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      */
     private boolean validLevelSelected(){
         if(pressState == 2){
-            theme.stop();
             return true;
         }
         return false;
