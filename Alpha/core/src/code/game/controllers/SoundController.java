@@ -214,7 +214,7 @@ public class SoundController {
                 playMusicInstant(menuTheme, MED);
                 break;
             case LEVEL:
-                if (timer == 0f) {
+                if (!levelTheme1.isPlaying()) {
                     playLevel();
                 }
                 levelTheme1.setVolume(volume * LOUD);
@@ -222,7 +222,7 @@ public class SoundController {
                 //levelTheme3.setVolume(volume * LOUD);
                 break;
             case PAUSE:
-                if (timer == 0f) {
+                if (!levelTheme1.isPlaying()) {
                     playLevel();
                 }
                 levelTheme1.setVolume(volume * LOUD * PAUSE_VOL);
