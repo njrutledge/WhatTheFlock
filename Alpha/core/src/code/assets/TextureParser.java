@@ -81,8 +81,8 @@ public class TextureParser implements AssetParser<Texture> {
     public void processNext(AssetManager manager, ObjectMap<String,String> keymap) {
         TextureLoader.TextureParameter params = new TextureLoader.TextureParameter();
         if (root.isString()) {
-            params.genMipMaps = false;
-            params.minFilter = Texture.TextureFilter.Linear;
+            params.genMipMaps = true;
+            params.minFilter = Texture.TextureFilter.MipMapLinearLinear;
             params.magFilter = Texture.TextureFilter.Linear;
             params.wrapU = Texture.TextureWrap.ClampToEdge;
             params.wrapV = Texture.TextureWrap.ClampToEdge;
@@ -91,8 +91,8 @@ public class TextureParser implements AssetParser<Texture> {
             keymap.put(root.name(),file);
             manager.load( file,Texture.class, params );
 		} else {
-            params.genMipMaps = root.getBoolean( "mipmaps",false );
-            params.minFilter = ParserUtils.parseFilter(root.get("minFilter"), Texture.TextureFilter.Linear);
+            params.genMipMaps = root.getBoolean( "mipmaps",true );
+            params.minFilter = ParserUtils.parseFilter(root.get("minFilter"), Texture.TextureFilter.MipMapLinearLinear);
             params.magFilter = ParserUtils.parseFilter(root.get("magFilter"), Texture.TextureFilter.Linear);
             params.wrapU = ParserUtils.parseWrap(root.get("wrapU"), Texture.TextureWrap.ClampToEdge);
             params.wrapV = ParserUtils.parseWrap(root.get("wrapV"), Texture.TextureWrap.ClampToEdge);
