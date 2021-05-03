@@ -90,15 +90,7 @@
 
         "ui:att_off": "ui/attbuff_off.png",
         "ui:att_on": "ui/attbuff_on.png",
-        "ui:tempBar": {
-          "file":      "ui/HUD_tempbar_noflame.png",
-          "atlas":     {
-            "empty" : [55, 60, 140, 600],
-            "yellow" : [285, 60, 369, 600],
-            "orange" : [522, 61, 605, 601],
-            "red" : [746, 58, 829, 598]
-          }
-        },
+        "ui:tempBar": "ui/tempbar.png",
       "ui:tempBarMedFlame": {
         "file":      "ui/HUD_2tempbar_flame.png",
         "atlas":     {

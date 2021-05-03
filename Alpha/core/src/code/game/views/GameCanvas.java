@@ -673,8 +673,11 @@ public class GameCanvas {
 						false, false);
 			} else {
 				spriteBatch.draw(region.getTexture(), x, y, ox, oy, width, height*clipScale, 1f, 1f, angle,
-						region.getRegionX(), region.getRegionY(), region.getRegionWidth(), (int)(region.getRegionHeight() * clipScale),
-						false, true);
+						region.getRegionX(), region.getRegionY(), region.getRegionWidth(), (int)(region.getRegionHeight()*clipScale),
+						false, false);
+/*				spriteBatch.draw(region.getTexture(), x, y, ox, oy, width, height*clipScale, 1f, 1f, angle,
+					region.getRegionX(), region.getRegionY(), region.getRegionWidth(), (int)(region.getRegionHeight()*clipScale),
+						false, false);*/
 			}
 		} else {
 			spriteBatch.draw(region, x - ox, y - oy, width, height);
@@ -720,6 +723,7 @@ public class GameCanvas {
 		computeTransform(ox,oy,x,y,angle,sx,sy);
 		if (tintGray && !ignore) spriteBatch.setColor(Color.DARK_GRAY);
 		else spriteBatch.setColor(tint);
+
 		spriteBatch.draw(region, region.getRegionWidth(), region.getRegionHeight(), local);
 	}
 

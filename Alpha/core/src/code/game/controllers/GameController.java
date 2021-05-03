@@ -134,6 +134,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion tempOrange;
 	/**Texture asset for red temp bar */
 	private TextureRegion tempRed;
+	/** Texture asset for the temp bar */
+	private Texture tempBar;
 
 	/**Texture asset for medium flames */
 	private TextureRegion tempMedFlame;
@@ -517,10 +519,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		eggSplatTexture = directory.getEntry("char:eggSplat", Texture.class);
 
 		//ui
-		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
+/*		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
 		tempYellow = directory.getEntry("ui:tempBar.yellow", TextureRegion.class);
 		tempOrange = directory.getEntry("ui:tempBar.orange", TextureRegion.class);
-		tempRed = directory.getEntry("ui:tempBar.red", TextureRegion.class);
+		tempRed = directory.getEntry("ui:tempBar.red", TextureRegion.class);*/
+		tempBar = directory.getEntry("ui:tempBar", Texture.class);
 		tempMedFlame = directory.getEntry("ui:tempBarMedFlame.flame", TextureRegion.class);
 		tempLrgFlame = directory.getEntry("ui:tempBarLargeFlame.flame", TextureRegion.class);
 		heartTexture = directory.getEntry("ui:healthUnit.full", TextureRegion.class);
@@ -620,7 +623,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
 		volume = constants.getFloat("volume", 1.0f);
-		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, level.get("temp").asInt());
+		temp = new TemperatureBar(tempBar, tempMedFlame, tempLrgFlame, level.get("temp").asInt(),
+				canvas.getWidth(), canvas.getHeight());
 		temp_reduction = level.get("temp_reduction").asFloat();
 		temp.setUseCooldown(cooldown);
 
