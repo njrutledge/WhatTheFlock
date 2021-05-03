@@ -271,26 +271,6 @@ public class AIController {
                 move();
                 //if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
                 Grid.Tile chickTile = grid.getTile(chicken.getX(),chicken.getY());
-                if(grid.isObstacleTile(chickTile.getRow()+1,chickTile.getCol())) {
-                    if (move_tile.getRow() == chickTile.getRow() + 1 && Math.abs(move_tile.getCol() - chickTile.getCol()) == 1) {
-                        int breaking = 1;
-                    }
-                }
-                else if(grid.isObstacleTile(chickTile.getRow()-1,chickTile.getCol())) {
-                    if (move_tile.getRow() == chickTile.getRow() - 1 && Math.abs(move_tile.getCol() - chickTile.getCol()) == 1) {
-                       int breaking = 1;
-                    }
-                }
-                else if(grid.isObstacleTile(chickTile.getRow(),chickTile.getCol()+1)) {
-                    if (move_tile.getCol() == chickTile.getCol() + 1 && Math.abs(move_tile.getRow() - chickTile.getRow()) == 1) {
-                        int breaking = 1;
-                    }
-                }
-                else if (grid.isObstacleTile(chickTile.getRow(), chickTile.getCol()-1)) {
-                    if (move_tile.getCol() == chickTile.getCol() - 1 && Math.abs(move_tile.getRow() - chickTile.getRow()) == 1) {
-                        int breaking = 1;
-                    }
-                }
                 //temp.set(grid.getPosition(move_tile.getRow() - chickTile.getRow(),move_tile.getCol()-chickTile.getCol()));
                 temp.set(grid.getPosition(move_tile.getRow(), move_tile.getCol()).sub(chicken.getPosition()));
                 //temp = fixTemp(temp);
@@ -483,11 +463,7 @@ public class AIController {
                 int diag2Row = curr.getRow();
                 int diag2Col = spot.getCol();
                 return !(grid.isObstacleTile(diag1Row, diag1Col) || grid.isObstacleTile(diag2Row, diag2Col));
-            }/* else if (spot.getRow() == curr.getRow()) {
-                return !(grid.isObstacleTile(spot.getRow(), spot.getCol() + 1) || grid.isObstacleTile(spot.getRow(), spot.getCol() - 1));
-            } else if ((spot.getCol() == curr.getCol())) {
-                return !(grid.isObstacleTile(spot.getRow() + 1, spot.getCol()) || grid.isObstacleTile(spot.getRow() - 1, spot.getCol()));
-            }*/
+            }
         }
         return true;
     }
@@ -537,24 +513,10 @@ public class AIController {
         target_tile = grid.getTile(target.getX() + targetOffset.x, target.getY() + targetOffset.y); //could be getting a null tile?
         AStar();
 
-        //if (anyTilesNull()) {return;} //TODO fix the real issues, bandaid
-        // Moving in a straight line?
-        //TODO: remove after testing
-        if (child_tile == null){
-            int stop = 1;
-        }
-        if (start_tile == null){
-            int stop = 2;
-        }
-        if (move_tile == null){
-            int stop = 3;
-        }
-        if (target_tile == null){
-            int stop = 4;
-        }
-
-        if ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile) {
-                move_tile = child_tile;
+        if (child_tile != null && ((child_tile.getRow() != start_tile.getRow() && child_tile.getCol() != start_tile.getCol()) || move_tile == target_tile)) {
+            move_tile = child_tile;
+        } else if (child_tile == null){
+            move_tile = target_tile;
         }
 
     }

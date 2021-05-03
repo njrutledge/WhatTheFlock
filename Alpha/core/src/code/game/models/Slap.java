@@ -41,7 +41,7 @@ public class Slap extends GameObject {
         } else {
             this.width = width;
             this.height = height/2.0f;
-            offset *= (direction == 1 ? 1 : -1);
+            offset *= (direction == 1 ? 1 : -0.5);
             setY(y + offset);
             setX(x - offset*ofratio);
             setAngle((float)(1*Math.PI/24));

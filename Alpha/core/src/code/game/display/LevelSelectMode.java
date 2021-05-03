@@ -42,10 +42,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** The texture for the back button */
     private Texture backTexture;
 
-    private float themeCounter = 0;
-    private final float THEME_DURATION = 72f;
-    private SoundBuffer theme;
-
     /** Standard window size (for scaling) */
     private static int STANDARD_WIDTH  = 800;
     /** Standard window height (for scaling) */
@@ -189,7 +185,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         infoFont.setColor(Color.BLACK);
         //TODO probably want to share some font assets
         levels = assets.getEntry("levels", JsonValue.class );
-        theme = assets.getEntry("sound:music:levelSel", SoundBuffer.class);
 
         this.bounds = new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT);
         this.vscale = new Vector2(1,1);
@@ -234,7 +229,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @param mouseEnter whether a mouse click was used to enter this screen
      */
     public void setHighlightedIndex(boolean mouseEnter) {
-        if (mouseEnter) { highlightedIndex = 1; }
+        if (mouseEnter) { highlightedIndex = 1;}
         else { highlightedIndex = 0; }
     }
 
@@ -248,7 +243,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
     /** Returns true if there is a level available after the current one */
     public boolean levelAvailable() {
-        System.out.println(leftIndex + highlightedIndex + 1 < numLevels);
         return leftIndex + highlightedIndex + 1 < numLevels;
     }
 
@@ -269,8 +263,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
     /**Resets this screen*/
     public void reset(){
-        theme.stop();
-        themeCounter = 0f;
         pressState = -1;
     }
 
@@ -288,10 +280,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @return  whether or not pressed a knife
      */
     private boolean validLevelSelected(){
-        if(pressState == 2){
-            theme.stop();
-            return true;
-        }
+        if(pressState == 2){ return true; }
         return false;
     }
 
@@ -390,7 +379,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             if (highlightedIndex > 0) { highlightedIndex -= 1;
             } else if (leftIndex > 0) { switchToLevel(false); }
         }
-        System.out.println(leftIndex);
     }
 
     /**
@@ -415,6 +403,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         else if (input.isMovementPressed()) {
             Gdx.input.setCursorCatched(true);
             if (input.getHorizontal() != 0) {
+                sound.playMenuSelecting();
                 if (scrollDirection == 0 && input.getHorizontal() > 0) {
                     scrollDirection = 1;
                     scroll();
@@ -425,14 +414,17 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 }
             } else {
                 if (input.getVertical() < 0 && highlightedIndex != -1) {
+                    sound.playMenuSelecting();
                     prevHighlighted = highlightedIndex; highlightedIndex = -1;
                 }
                 else if (input.getVertical() > 0 && highlightedIndex == -1) {
+                    sound.playMenuSelecting();
                     highlightedIndex = prevHighlighted;
                 }
             }
         } else if (input.didEnter()) {
             keyPressed("ENTERED");
+            sound.playMenuEnter();
             return false;
         } else if (input.isEntering()) {
             keyPressed("ENTERING");
@@ -727,15 +719,19 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             pressState = 3;
             scrollDirection = -1;
             isMouseScrolling = true;
+            sound.playMenuSelecting();
             scroll();
         }else if(leftIndex + 3 < numLevels && overArrow(arrowRightTexture, screenX, screenY, rightArrowCenterX, arrowCenterY)){
             pressState = 5;
             scrollDirection = 1;
             isMouseScrolling = true;
+            sound.playMenuSelecting();
             scroll();
         } else if(overKnife(knifeTexture, screenX, screenY, bladeCenterX, bladeCenterY, true) >= 0) {
+            sound.playMenuSelecting();
             pressState = 1;
         } else if (overBack(backTexture, screenX, screenY, backCenterX, backCenterY)) {
+            sound.playMenuSelecting();
             pressState = 7;
         }
 
@@ -770,7 +766,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             scrollDirection = 0;
         } else if (pressState == 7){
             pressState = 8;
-
         }
         return true;
     }

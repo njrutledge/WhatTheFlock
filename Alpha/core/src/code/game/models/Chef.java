@@ -561,9 +561,6 @@ public class Chef extends GameObject implements ChefInterface {
 		if (Math.abs(getVX()) > getMaxSpeed()) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
 		} else {
-			if(getMovement()<0){
-				int breaking = 1;
-			}
 			setVX(getMovement()/*getMaxSpeed()*/);
 		}
 
@@ -623,6 +620,7 @@ public class Chef extends GameObject implements ChefInterface {
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 
+		//TODO: WHY ARE WE USING THESE CONSTANTS HERE?? WHAT DO THEY MEANa
 		if (isStunned()){
 			animeframe += ANIMATION_SPEED;
 			if (animeframe >= 5) {

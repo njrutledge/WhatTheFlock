@@ -117,6 +117,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture shreddedTexture;
 	/** Texture asset for the hot chick */
 	private Texture hotTexture;
+	/** Texture asset for the hot chick's attack*/
+	private Texture hotAttackTexture;
 	/** Texture asset for the dino chicken */
 	private Texture dinoTexture;
 	/** Texture asset for the dino nugget attack */
@@ -161,44 +163,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Egg animation strips */
 	private Texture eggSpinTexture;
 	private Texture eggSplatTexture;
-
-
-	/** The jump sound.  We only want to play once. */
-	private SoundBuffer jumpSound;
-	private long jumpId = -1;
-	/** The weapon fire sound.  We only want to play once. */
-	private SoundBuffer fireSound;
-	private long fireId = -1;
-	/** The weapon pop sound.  We only want to play once. */
-	private SoundBuffer plopSound;
-	private long plopId = -1;
-	/** The default sound volume */
-	private float volume;
-
-	private SoundBuffer chickHurt;
-	private SoundBuffer chickAttack;
-	private long cSoundID = -2;
-	private SoundBuffer fireTrig;
-	private SoundBuffer fireLinger;
-	private SoundBuffer lureCrumb;
-	private SoundBuffer emptySlap;
-	private SoundBuffer chickOnFire;
-	private SoundBuffer slowSquelch;
-	private SoundBuffer chefOof;
-
-	/** Sound for shredded attack */
-	private SoundBuffer shreddedAttack;
-	/** Sound for buffalo charging */
-	private SoundBuffer buffaloAttack;
-	/** Sound for nugget attack */
-	private SoundBuffer nuggetAttack;
-
-	private final float THEME1_DURATION = 68f;
-	private float theme1_timer;
-	private SoundBuffer theme1;
-
-
-	private final float DEFAULT_VOL = 0.5F;
 
 	///** The current number of chickens */
 	//private int chickens;
@@ -394,8 +358,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private float waveStartTime; // when did this wave start
 	private float lastEnemySpawnTime; // when did the last enemy spawn
 	// the total pool of enemies for this level
-	private ArrayList<Integer> enemyPool; // the enemies in the pool but not on the board
-	private ArrayList<Integer> enemyBoard; // the enemies on the board
+	private ArrayList<Integer> enemyPool = new ArrayList<>(); // the enemies in the pool but not on the board
+	private ArrayList<Integer> enemyBoard = new ArrayList<>(); // the enemies on the board
 
 
 	/**
@@ -506,6 +470,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		buffaloChargingTexture = directory.getEntry("char:buffaloCharge", Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
 		hotTexture = directory.getEntry("char:hot", Texture.class);
+		hotAttackTexture = directory.getEntry("char:hotAttack", Texture.class);
 		dinoTexture = directory.getEntry("char:dino", Texture.class);
 		dinoAttackTexture = directory.getEntry("char:dinoAttack", Texture.class);
 		dinoHurtTexture = directory.getEntry("char:dinoHurt", Texture.class);
@@ -534,25 +499,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//fonts
 		displayFont = directory.getEntry( "font:retro" ,BitmapFont.class);
 
-		//sounds
-			//chef
-		jumpSound = directory.getEntry( "sound:chef:jump", SoundBuffer.class );
-		fireSound = directory.getEntry( "sound:chef:pew", SoundBuffer.class );
-		plopSound = directory.getEntry( "sound:chef:plop", SoundBuffer.class );
-		emptySlap = directory.getEntry( "sound:chef:emptySlap", SoundBuffer.class );
-		slowSquelch = directory.getEntry("sound:chef:squelch", SoundBuffer.class);
-		chefOof = directory.getEntry("sound:chef:oof", SoundBuffer.class);
-			//chicken
-		chickOnFire = directory.getEntry( "sound:chick:fire", SoundBuffer.class );
-
-		lureCrumb = directory.getEntry( "sound:trap:lureCrumb", SoundBuffer.class );
-
-		theme1 = directory.getEntry("sound:music:theme1", SoundBuffer.class);
-
-		shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
-		buffaloAttack = directory.getEntry("sound:chick:buffalo:attack", SoundBuffer.class);
-		nuggetAttack = directory.getEntry("sound:chick:nugget:attack", SoundBuffer.class);
-
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
 		levels = directory.getEntry("levels", JsonValue.class );
@@ -574,7 +520,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void reset() {
 		Vector2 gravity = new Vector2(world.getGravity() );
-		theme1.stop();
 		
 		for(Obstacle obj : objects) {
 			obj.deactivatePhysics(world);
@@ -591,6 +536,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		Stoves.clear();
 		nonActiveStoves.clear();
 		world.dispose();
+		enemyPool.clear();
+		enemyBoard.clear();
 		spawnPoints.clear();
 		
 		world = new World(gravity,false);
@@ -622,12 +569,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		levelSave = level;
 		grid.clearObstacles();
 		world.setGravity( new Vector2(0,0) );
-		volume = constants.getFloat("volume", 1.0f);
 		temp = new TemperatureBar(tempBar, tempMedFlame, tempLrgFlame, level.get("temp").asInt(),
 				canvas.getWidth(), canvas.getHeight());
 		temp_reduction = level.get("temp_reduction").asFloat();
 		temp.setUseCooldown(cooldown);
 
+		
 		doNewPopulate(level);
 		//add chef here!
 		addObject(chef, GameObject.ObjectType.NULL);
@@ -973,7 +920,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			return false;
 		} else if (complete) {
 			pause();
-			theme1.stop();
 			listener.exitScreen(this, EXIT_WIN);
 			return false;
 		}
@@ -992,12 +938,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param dt	Number of seconds since last animation frame
 	 */
 	public void update(float dt) {
+
 		// Music
-		if (paused) {
-			sound.playMusic(SoundController.CurrentScreen.PAUSE, dt);
-		} else {
-			sound.playMusic(SoundController.CurrentScreen.LEVEL, dt);
-		}
+		sound.playMusic(SoundController.CurrentScreen.LEVEL, dt);
+
 
 
 
@@ -1013,11 +957,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		if(InputController.getInstance().didMute()){
 			muted = !muted;
-		}
-		if (muted) {
-			volume = 0;
-		} else {
-			volume = DEFAULT_VOL;
 		}
 		
 		// Add a bullet if we fire
@@ -1049,7 +988,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			startWaveSize = Math.min(maxWaveSize, startWaveSize + 1);
 		}
 
-		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
+		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0 && enemyPool.size() > 0){
 			int r = (int)Math.floor((maxWaveSize - enemyBoard.size())*Math.random());
 			enemyBoard.add(enemyPool.get(r));
 			int chicken = enemyPool.remove(r);
@@ -1194,6 +1133,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else if (type == Chicken.ChickenType.Hot){
 			enemy = new HotChicken(constants.get("chicken"), constants.get("hot"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(hotTexture);
+			enemy.setAttackTexture(hotAttackTexture);
 		}
 		else if (type == Chicken.ChickenType.Buffalo){
 			enemy = new BuffaloChicken(constants.get("chicken"), constants.get("buffalo"), x, y, dwidth, dheight, chef, parameterList[1]);
@@ -1293,6 +1233,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		attack.setAngle(shredded.getAttackAngle());
 		attack.setDrawScale(scale);
 		addQueuedObject(attack);
+		sound.playShredAttack();
 	}
 
 	/** Adds a chickenAttack to the world */
@@ -1309,18 +1250,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			addQueuedObject(attack);
 			switch (type) {
 				case Basic:
-					nuggetAttack.stop();
-					nuggetAttack.play(DEFAULT_VOL);
+					sound.playNugAttack();
 					break;
 				case Projectile:
 					attack.setEggAnimators(eggSpinTexture, eggSplatTexture);
-					shreddedAttack.stop();
-					shreddedAttack.play(DEFAULT_VOL);
+					sound.playShredAttack();
 					break;
 				case Charge:
 					if (chicken.getType() == Chicken.ChickenType.Buffalo) {
-						buffaloAttack.stop();
-						buffaloAttack.play(DEFAULT_VOL);
+						sound.playBuffAttack();
 					}
 					break;
 
@@ -1437,15 +1375,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void pause() {
 		//stop all sounds
-		if (jumpSound.isPlaying( jumpId )) {
-			jumpSound.stop(jumpId);
-		}
-		if (plopSound.isPlaying( plopId )) {
-			plopSound.stop(plopId);
-		}
-		if (fireSound.isPlaying( fireId )) {
-			fireSound.stop(fireId);
-		}
 	}
 
 	/**
@@ -1634,7 +1563,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @return the new sound instance for this asset.
 	 */
 	public long playSound(SoundBuffer sound, long soundId) {
-		return playSound( sound, soundId, volume);
+		return playSound( sound, soundId, 0);
 	}
 
 
@@ -1654,10 +1583,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @return the new sound instance for this asset.
 	 */
 	public long playSound(SoundBuffer sound, long soundId, float volume) {
-		if (soundId != -1 && sound.isPlaying( soundId )) {
-			sound.stop( soundId );
-		}
-		return sound.play(volume);
+		return 0;
 	}
 
 	/**
