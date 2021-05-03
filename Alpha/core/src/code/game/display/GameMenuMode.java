@@ -2,6 +2,7 @@ package code.game.display;
 
 import code.assets.AssetDirectory;
 import code.game.controllers.InputController;
+import code.game.controllers.SoundController;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.FilmStrip;
@@ -187,6 +188,9 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
     /** The scale of the game */
     private Vector2 vscale;
 
+    /** Reference to the SoundController created in GDXRoot */
+    private SoundController sound;
+
     /**
      * Creates a MainMenuMode with the default size and position.
      *
@@ -197,8 +201,9 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
      *
      * @param canvas 	The game canvas to draw to
      */
-    public GameMenuMode(AssetDirectory assets, GameCanvas canvas) {
+    public GameMenuMode(AssetDirectory assets, GameCanvas canvas, SoundController sound) {
         this.canvas  = canvas;
+        this.sound = sound;
 
         // Compute the dimensions from the canvas
         resize(canvas.getWidth(),canvas.getHeight());
@@ -371,6 +376,7 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
                 if (input.getVertical() < 0) { selected = (selected + 1) % 4; }
                 else { selected = selected == 0 ? 3 : selected - 1; }
                 keyPressed("SELECTING");
+                sound.playMenuSelecting();
             } else if (input.getHorizontal() != 0) {
                 Gdx.input.setCursorCatched(true);
                 if (mode == Mode.WIN) {
@@ -383,12 +389,15 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
                         selected = selected + 1 == 2 ? 3 : selected + 1;
                         selected = selected > 3 ? 0 : selected;
                     }
+                    sound.playMenuSelecting();
                 } else if (mode == Mode.LOSE) { selected = selected == 1 ? 3 : 1; }
                 keyPressed("SELECTING");
+                sound.playMenuSelecting();
             }
         } else if (input.didEnter()) {
             Gdx.input.setCursorCatched(true);
             keyPressed("ENTERED");
+            sound.playMenuEnter();
             return false;
         }
         return true;
@@ -419,6 +428,7 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
      * @param delta Number of seconds since last animation frame
      */
     private void update(float delta) {
+        sound.playMusic(SoundController.CurrentScreen.PAUSE, delta);
     }
 
     /**
@@ -624,28 +634,37 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
             case PAUSE:
                 if(overButton(PCONT_WIDTH, screenX, screenY, pButtonsCenterX, pContCenterY)){
                     pressState = 1;
+                    sound.playMenuEnter();
                 }else if(overButton(PRESTART_WIDTH, screenX, screenY, pButtonsCenterX, pRestartCenterY)){
                     pressState = 2;
+                    sound.playMenuEnter();
                 }else if(overButton(POPTIONS_WIDTH, screenX, screenY, pButtonsCenterX, pOptionsCenterY)){
                     pressState = 3;
+                    sound.playMenuEnter();
                 }else if(overButton(PQUIT_WIDTH, screenX, screenY, pButtonsCenterX, pQuitCenterY)) {
                     pressState = 4;
+                    sound.playMenuEnter();
                 }
                 break;
             case WIN:
                 if(levelAvailable && overButton(WNEXT_WIDTH, screenX, screenY, wNextCenterX, wButtonsCenterY)){
                     pressState = 1;
+                    sound.playMenuEnter();
                 }else if (overButton(WREPLAY_WIDTH, screenX, screenY, wReplayCenterX, wButtonsCenterY)){
                     pressState = 2;
+                    sound.playMenuEnter();
                 } else if (overButton(WQUIT_WIDTH, screenX, screenY, wQuitCenterX, wButtonsCenterY)){
                     pressState = 4;
+                    sound.playMenuEnter();
                 }
                 break;
             case LOSE:
                 if(overButton(LRETRY_WIDTH, screenX, screenY, lRetryCenterX, lButtonsCenterY)){
                     pressState = 2;
+                    sound.playMenuEnter();
                 } else if (overButton(LQUIT_WIDTH, screenX, screenY, lQuitCenterX, lButtonsCenterY)){
                     pressState = 4;
+                    sound.playMenuEnter();
                 }
                 break;
         }

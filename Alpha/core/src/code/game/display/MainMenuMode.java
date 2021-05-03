@@ -201,7 +201,10 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     }
 
     /** Returns whether the select screen was entered by mouse click */
-    public boolean didMouseEnter() { return mouseEnter; }
+    public boolean didMouseEnter() {
+        sound.playMenuEnter();
+        return mouseEnter;
+    }
 
     /** Processes a keyboard input and produces the appropriate response.
      *
@@ -244,9 +247,11 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
             if (input.getVertical() < 0) { selected = (selected + 1) % 4; }
             else { selected = selected == 0 ? 3 : selected-1; }
             keyPressed("SELECTING");
+            sound.playMenuSelecting();
         } else if (input.didEnter()) {
             Gdx.input.setCursorCatched(true);
             keyPressed("ENTERED");
+            sound.playMenuEnter();
             return false;
         } else if (input.isEntering()) {
             Gdx.input.setCursorCatched(true);
