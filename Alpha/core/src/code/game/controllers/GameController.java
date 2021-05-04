@@ -195,7 +195,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Height of the game world in Box2d units */
 	protected static final float DEFAULT_HEIGHT = 27.0f;
 	/** The default value of gravity (going down) */
-	protected static final float DEFAULT_GRAVITY = -4.9f;
+	protected static final float DEFAULT_GRAVITY = 0f;
 
 	/** Name of center wall in level files */
 	protected static final String LEVEL_WALL_CENTER = "wall";
@@ -564,8 +564,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
 		reset();
 		levelSave = level;
-		grid.clearObstacles();
-		world.setGravity( new Vector2(0,0) );
+		//world.setGravity( new Vector2(0,0) );
 		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, level.get("temp").asInt());
 		temp_reduction = level.get("temp_reduction").asFloat();
 		temp.setUseCooldown(cooldown);
@@ -586,8 +585,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	private void doNewPopulate(JsonValue level){
-		grid.clearObstacles();
 		initGrid();
+		grid.clearObstacles();
 		String[] stuff = level.get("items").asStringArray();
 		JsonValue defaults = constants.get("defaults");
 		probs = level.get("spawn_probs").asFloatArray();
@@ -1660,7 +1659,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	public void initGrid(){
-		grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
+		grid = new Grid(1920, 1080, scale);
 	}
 
 	/**
@@ -1673,7 +1672,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
-		// IGNORE FOR NOW
+		//IGNORE FOR NOW
 	}
 
 	/**
