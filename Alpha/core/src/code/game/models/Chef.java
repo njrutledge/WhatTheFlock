@@ -663,7 +663,8 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
-
+		float yScaleShift = 0.5f;
+		float xScaleShift = 0.5f;
 		if (isStunned()) {
 			hurt_animator.setFrame((int) animeframe);
 			canvas.draw(hurt_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
