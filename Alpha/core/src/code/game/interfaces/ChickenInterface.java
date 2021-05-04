@@ -81,9 +81,9 @@ public interface ChickenInterface {
      *
      * @param duration a duration for the fire effect in seconds.
      */
-    public void applyFire(float duration);
-
-    public void letItBurn();
+//    public void applyFire(float duration);
+//
+//    public void letItBurn();
 
     /**
      * Sets the chicken's target to the specific Lure trap
