@@ -280,8 +280,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         Color c = Color.WHITE.cpy();
         c.r = .9f;
         c.g = .9f;
-        c.b = 1f;
-        return c;
+        c.b = 1;
+        return Color.WHITE;
     }
 
     /**

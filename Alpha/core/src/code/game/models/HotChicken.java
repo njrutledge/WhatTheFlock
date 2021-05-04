@@ -120,12 +120,13 @@ public class HotChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? -1.0f : 1.0f;
+        Color c = getColor();
         if (isAttacking && attack_animator != null) {
             attack_animator.setFrame((int) animeframe);
-            canvas.draw(attack_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wscale*effect, hscale);
+            canvas.draw(attack_animator,c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wscale*effect, hscale);
         } else if (!isStunned) {
             animator.setFrame((int) animeframe);
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wscale*effect, hscale);
+            canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wscale*effect, hscale);
         }
     }
 

@@ -150,18 +150,19 @@ public class BuffaloChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? 1.0f : -1.0f;
+        Color c = getColor();
         if (isAttacking() && !doneCharging()) {
             charge_start_animator.setFrame((int) animeframe);
-            canvas.draw(charge_start_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f * effect, 0.25f);
+            canvas.draw(charge_start_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f * effect, 0.25f);
         } else if (isAttacking() && doneCharging()){
             charge_animator.setFrame((int) animeframe);
-            canvas.draw(charge_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f * effect, 0.25f);
+            canvas.draw(charge_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f * effect, 0.25f);
         }else if (!isStunned) {
             animator.setFrame((int)animeframe);
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f*effect, 0.25f);
+            canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f*effect, 0.25f);
         } else if (isStunned){
             hurt_animator.setFrame((int)(animeframe));
-            canvas.draw(hurt_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f*effect, 0.25f);
+            canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.25f*effect, 0.25f);
         }
     }
 

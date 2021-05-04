@@ -134,15 +134,27 @@ public class NuggetChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? 1.0f:-1.0f;
-        if (isAttacking && attack_animator != null) {
-            attack_animator.setFrame((int) animeframe);
-            canvas.draw(attack_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
-        } else if (!isStunned){
-            animator.setFrame((int) animeframe);
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
-        } else if (isStunned){
-            hurt_animator.setFrame((int)(animeframe));
-            canvas.draw(hurt_animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f*effect*wScale, 0.1f*hScale);
+        Color c = null;
+        //GameCanvas.BlendState state = canvas.getBlendState();
+        for(int ii=0; ii<=1;ii++) {
+            if(ii==0){
+                canvas.setBlendState(GameCanvas.BlendState.ADDITIVE);
+                c = getColor();
+            }else{
+                canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
+                c = Color.WHITE.cpy();
+            }
+
+            if (isAttacking && attack_animator != null) {
+                attack_animator.setFrame((int) animeframe);
+                canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+            } else if (!isStunned) {
+                animator.setFrame((int) animeframe);
+                canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+            } else if (isStunned) {
+                hurt_animator.setFrame((int) (animeframe));
+                canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+            }
         }
     }
 
