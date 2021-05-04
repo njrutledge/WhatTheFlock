@@ -97,6 +97,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Texture asset for the spawnpoint*/
 	private TextureRegion spawnTexture;
 
+	private float gridWidth;
+	private float gridHeight;
+
 	/** Texture asset for the chef*/
 	private Texture chefTexture;
 	/** Texture asset for the nugget */
@@ -1654,8 +1657,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void setCanvas(GameCanvas canvas) {
 		this.canvas = canvas;
-		this.scale.x = canvas.getWidth()/bounds.getWidth();
-		this.scale.y = canvas.getHeight()/bounds.getHeight();
+		//scale needs to be based on 1920x1080 for the grid
+		this.scale.x = 1920/bounds.getWidth();
+		this.scale.y = 1080/bounds.getHeight();
 	}
 
 	public void initGrid(){
