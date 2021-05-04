@@ -663,30 +663,30 @@ public class Chef extends GameObject implements ChefInterface {
 	 */
 	public void draw(GameCanvas canvas) {
 		float effect = faceRight ? 1.0f : -1.0f;
-		float yScaleShift = 0.5f;
-		float xScaleShift = 0.5f;
+		float yScaleShift = 0.365f;
+		float xScaleShift = 0.365f;
 		if (isStunned()) {
 			hurt_animator.setFrame((int) animeframe);
-			canvas.draw(hurt_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
+			canvas.draw(hurt_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect*xScaleShift, yScaleShift);
 		} else if (Math.abs(getMovement()) + Math.abs(getVertMovement()) == 0 && shootCooldown <= 0){
 			idle_animator.setFrame((int)animeframe);
-			canvas.draw(idle_animator,doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
+			canvas.draw(idle_animator,doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect*xScaleShift, yScaleShift);
 		} else if (shootCooldown <= 0 && (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0)) {
 			animator.setFrame((int)animeframe);
-			canvas.draw(animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect/4, 0.25f);
+			canvas.draw(animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect*xScaleShift, yScaleShift);
 		} else if (shootCooldown > 0) {
 			if (slapFace == 1) {
 				slap_up_animator.setFrame((int) animeframe);
-				canvas.draw(slap_up_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect / 4, 0.25f);
+				canvas.draw(slap_up_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect*xScaleShift, yScaleShift);
 			} else if (slapFace == 3) {
 				slap_down_animator.setFrame((int) animeframe);
-				canvas.draw(slap_down_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect / 4, 0.25f);
+				canvas.draw(slap_down_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), effect*xScaleShift, yScaleShift);
 			} else if (slapFace == 2) {
 				slap_side_animator.setFrame((int) animeframe);
-				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), 0.25f, 0.25f);
+				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), xScaleShift, yScaleShift);
 			} else if (slapFace == 4){
 				slap_side_animator.setFrame((int) animeframe);
-				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), -0.25f, 0.25f);
+				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), -1*xScaleShift, yScaleShift);
 			}
 		}
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
