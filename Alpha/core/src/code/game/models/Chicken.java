@@ -125,8 +125,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     private float slow = 1f;
     /** Timer used to keep track of trap effects */
     protected float status_timer = -1.0f;
-    /** True iff the chicken is currently on fire from the fire trap */
-    private boolean cookin = false;
     /** Texture for chicken healthbar */
     private TextureRegion healthBar;
 
@@ -145,7 +143,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Whether the chicken is being slowed */
     private boolean inSlow = false;
     /** Ammount to increase or decrease the slow modifier */
-    private float SLOW_EFFECT = 0.33f;
+    private float SLOW_EFFECT = 0.5f;
     /** Whether the chicken is being lured */
     private boolean isLured = false;
 
@@ -274,6 +272,19 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public float getSlow(){ return slow;}
 
     /**
+     * Returns the chicken tint based on the slow modifier
+     *
+     * @return a color for the chicken
+     */
+    public Color getColor(){
+        Color c = Color.WHITE.cpy();
+        c.r = .9f;
+        c.g = .9f;
+        c.b = 1f;
+        return c;
+    }
+
+    /**
      * Returns the direction the chicken is facing.
      *
      * @return faceRight - true if facing right
@@ -366,9 +377,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         }
         super.update(dt);
         applyForce();
-        if (!cookin) {
-            status_timer = Math.max(status_timer - dt, -1f);
-        }
         if(inSlow){
             applySlow(SLOW_EFFECT*dt);
         }else {
@@ -579,21 +587,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void inSlow(boolean bool) { inSlow = bool;}
 
-    /**
-     * Applies the fire effect by giving the chicken a countdown timer
-     * representing the remaining time of the fire effect
-     *
-     * @param duration a duration for the fire effect in seconds.
-     */
-    public void applyFire(float duration) {
-        status_timer = duration;
-        cookin = true;
-    }
-
-    //TODO: comment
-    public void letItBurn() {
-        cookin = false;
-    }
 
     /**
      * Sets the chicken's target to the specific Lure trap
