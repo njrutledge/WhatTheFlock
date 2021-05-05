@@ -49,24 +49,23 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** The texture for the background */
 	protected TextureRegion background;
-	/** The texture for center wall */
+	//~~~~~~~~~~~~~~~ The textures for walls ~~~~~~~~~~~~~~~~~~~~~
 	protected TextureRegion wallCenterTile;
-	/** The texture for walls pieces */
 	protected TextureRegion wallLeftTile;
-	/** The texture for walls and platforms */
 	protected TextureRegion wallRightTile;
-	/** The texture for walls and platforms */
-	protected TextureRegion wallTopTile;
-	/** The texture for walls and platforms */
 	protected TextureRegion wallBottomTile;
-	protected TextureRegion wallTopLeftCorner;
-	protected TextureRegion wallTopRightCorner;
+	protected TextureRegion wallTopTile;
+	protected TextureRegion wallTop2Tile;
+	protected TextureRegion wallTopLeftCornerTile;
+	protected TextureRegion wallTopRightCornerTile;
+	protected TextureRegion wallTopLeftCorner2Tile;
+	protected TextureRegion wallTopRightCorner2Tile;
 	protected TextureRegion wallBottomLeftCorner;
 	protected TextureRegion wallBottomRightCorner;
-	/** The texture for walls and platforms */
 	protected TextureRegion wallYellowCenterTile;
-	/** The texture for walls and platforms */
 	protected TextureRegion wallYellowBottomTile;
+	protected TextureRegion wallCeilingTile;
+	protected TextureRegion wallCeilingBottomTile;
 
 	/** The font for giving messages to the player */
 	protected BitmapFont displayFont;
@@ -86,8 +85,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion trapCoolerTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
-	/** Texture asset for trap spot*/
-	private TextureRegion trapSpotTexture;
 	/** Texture asset for toaster trap */
 	private TextureRegion trapToasterTexture;
 	/** Texture asset for slap indicator above traps */
@@ -199,7 +196,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected static final float DEFAULT_HEIGHT = 27.0f;
 	/** The default value of gravity (going down) */
 	protected static final float DEFAULT_GRAVITY = 0f;
-
+/** ~~~~~~~~~~~~~~~~~~~~~~~ LEVEL FILE KEYS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 	/** Name of center wall in level files */
 	protected static final String LEVEL_WALL_CENTER = "wall";
 	/** Name of bottom wall in level files */
@@ -210,10 +207,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected static final String LEVEL_WALL_RIGHT = "wall_r";
 	/** Name of top wall in level files */
 	protected static final String LEVEL_WALL_TOP = "wall_t";
+	/** Name of top2 wall in level files */
+	protected static final String LEVEL_WALL_TOP2 = "wall_t_2";
 	/** Name of top left corner wall in level files */
 	protected static final String LEVEL_WALL_TLC = "wall_tlc";
 	/** Name of top right corner wall in level files */
 	protected static final String LEVEL_WALL_TRC = "wall_trc";
+	/** Name of top left corner wall in level files */
+	protected static final String LEVEL_WALL_TLC2 = "wall_tlc_2";
+	/** Name of top right corner wall in level files */
+	protected static final String LEVEL_WALL_TRC2 = "wall_trc_2";
 	/** Name of bottom left corner wall in level files */
 	protected static final String LEVEL_WALL_BLC = "wall_blc";
 	/** Name of bottom right corner wall in level files */
@@ -222,6 +225,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected static final String LEVEL_WALL_YELLOW_CENTER = "ywall";
 	/** Name of yellow bottom wall in level files */
 	protected static final String LEVEL_WALL_YELLOW_BOTTOM = "ywall_b";
+	/** Name of ceiling wall in level files */
+	protected static final String LEVEL_WALL_CEILING = "ceiling";
+	/**Name of ceiling bottom wall in level files */
+	protected static final String LEVEL_WALL_CEILING_BOTTOM = "ceiling_b";
 	/** Name of spawnpoint in level files */
 	protected static final String LEVEL_SPAWN = "spawn";
 	/** Name of stove in level files */
@@ -234,7 +241,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected static final String LEVEL_FIRE = "fire";
 	/** Name of chef in level files */
 	protected static final String LEVEL_CHEF = "chef";
-
+/** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 	///** Whether or not the player is cooking, true is they are and false otherwise*/
 	//private boolean cooking;
 
@@ -440,21 +447,25 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:center", Texture.class ));
 		wallLeftTile = new TextureRegion(directory.getEntry( "enviro:wall:left", Texture.class ));
 		wallRightTile = new TextureRegion(directory.getEntry( "enviro:wall:right", Texture.class ));
-		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
 		wallBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:bottom", Texture.class ));
 		wallYellowCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:center", Texture.class ));
 		wallYellowBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:bottom", Texture.class ));
-		wallTopLeftCorner = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner", Texture.class));
-		wallTopRightCorner = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner", Texture.class));
+		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
+		wallTopLeftCornerTile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner", Texture.class));
+		wallTopRightCornerTile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner", Texture.class));
+		wallTop2Tile = new TextureRegion(directory.getEntry( "enviro:wall:top2", Texture.class ));
+		wallTopLeftCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner2", Texture.class));
+		wallTopRightCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner2", Texture.class));
 		wallBottomLeftCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomleftcorner", Texture.class));
 		wallBottomRightCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomrightcorner", Texture.class));
+		wallCeilingTile = new TextureRegion(directory.getEntry("enviro:wall:ceiling", Texture.class));
+		wallCeilingBottomTile = new TextureRegion(directory.getEntry("enviro:wall:ceiling:bottom", Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
 		stoveActiveTexture = new TextureRegion(directory.getEntry("enviro:stoveActive", Texture.class));
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
 		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
-		trapSpotTexture = new TextureRegion(directory.getEntry("enviro:trap:spot", Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 		indicatorTexture = new TextureRegion(directory.getEntry("enviro:indicator", Texture.class));
 			//characters
@@ -648,6 +659,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					//add top wall
 					createWall(defaults, wallTopTile, obstacle_filter, x, y);
 					break;
+				case LEVEL_WALL_TOP2:
+					//add top wall
+					createWall(defaults, wallTop2Tile, obstacle_filter, x, y);
+					break;
 				case LEVEL_WALL_BOTTOM:
 					//add bottom wall
 					createWall(defaults, wallBottomTile, obstacle_filter, x, y);
@@ -662,11 +677,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					break;
 				case LEVEL_WALL_TLC:
 					//add top left corner
-					createWall(defaults, wallTopLeftCorner, obstacle_filter, x, y);
+					createWall(defaults, wallTopLeftCornerTile, obstacle_filter, x, y);
 					break;
 				case LEVEL_WALL_TRC:
 					//add top right corner
-					createWall(defaults, wallTopRightCorner, obstacle_filter, x, y);
+					createWall(defaults, wallTopRightCornerTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_TLC2:
+					//add top left corner
+					createWall(defaults, wallTopLeftCorner2Tile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_TRC2:
+					//add top right corner
+					createWall(defaults, wallTopRightCorner2Tile, obstacle_filter, x, y);
 					break;
 				case LEVEL_WALL_BLC:
 					//add bottom left corner
@@ -683,6 +706,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				case LEVEL_WALL_YELLOW_BOTTOM:
 					//add wall
 					createWall(defaults, wallYellowBottomTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_CEILING:
+					//add ceiling
+					createWall(defaults, wallCeilingTile, obstacle_filter, x, y);
+					break;
+				case LEVEL_WALL_CEILING_BOTTOM:
+					//add ceiling
+					createWall(defaults, wallCeilingBottomTile, obstacle_filter, x, y);
 					break;
 				case LEVEL_STOVE:
 					// Add stove

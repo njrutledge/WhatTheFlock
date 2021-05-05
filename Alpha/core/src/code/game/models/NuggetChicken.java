@@ -136,13 +136,14 @@ public class NuggetChicken extends Chicken {
         float effect = faceRight ? 1.0f:-1.0f;
         Color c = null;
         //GameCanvas.BlendState state = canvas.getBlendState();
-        for(int ii=0; ii<=1;ii++) {
+        for(int ii=0; ii<=0;ii++) {
             if(ii==0){
-                canvas.setBlendState(GameCanvas.BlendState.ADDITIVE);
+                canvas.setBlendState(GameCanvas.BlendState.ALPHA_BLEND);
                 c = getColor();
             }else{
                 canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
                 c = Color.WHITE.cpy();
+                c.a = .75f;
             }
 
             if (isAttacking && attack_animator != null) {
@@ -156,6 +157,7 @@ public class NuggetChicken extends Chicken {
                 canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
             }
         }
+        canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
     }
 
     /**

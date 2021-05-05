@@ -211,7 +211,7 @@ public class SoundController {
 
         switch (screen){
             case MENU:
-                playMusicInstant(menuTheme, MED);
+                playMusicInstant(menuTheme, LOUD);
                 break;
             case LEVEL:
                 if (!levelTheme1.isPlaying()) {
