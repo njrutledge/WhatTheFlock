@@ -554,6 +554,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             } else {
                 health -= damage;
             }
+            if (chickenAttack != null){
+                chickenAttack.collideObject();
+            }
             attack_timer = -1f;
             charge_time = -1f;
             hitboxOut = false;
