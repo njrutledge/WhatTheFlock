@@ -302,6 +302,7 @@ public class CollisionController implements CollisionControllerInterface {
             float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
             chef.markSetVelocity(max_speed, angle);
         }
+        sound.playChefHurt();
     }
 
     /**
