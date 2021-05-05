@@ -116,7 +116,7 @@ public class NuggetChicken extends Chicken {
             if (animeframe >= num_anim_frames) {
                 animeframe -= num_anim_frames;
             }
-        } else if (isAttacking && attack_animator != null){
+        } else if (isAttacking && attack_animator != null && !isLured()){
             animeframe += animation_speed;
             if (animeframe >= 9) {
                 animeframe -= 9;
@@ -145,7 +145,7 @@ public class NuggetChicken extends Chicken {
                 c = Color.WHITE.cpy();
             }
 
-            if (isAttacking && attack_animator != null) {
+            if (isAttacking && attack_animator != null && !isLured()) {
                 attack_animator.setFrame((int) animeframe);
                 canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
             } else if (!isStunned) {
