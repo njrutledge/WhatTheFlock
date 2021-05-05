@@ -1058,11 +1058,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				}
 			} else if (obj.getName().equals("chickenAttack")) {
 				ChickenAttack attack = (ChickenAttack)obj;
-				if (attack.atDestination(dt)) {
-					attack.beginSplat();
-				}
-				if (attack.readyToRemove()){
-					attack.markRemoved(true);
+				if (!attack.isRemoved()) {
+					if (attack.atDestination(dt)) {
+						attack.beginSplat();
+					}
+					if (attack.readyToRemove()) {
+						attack.markRemoved(true);
+					}
 				}
 			}
 		}
@@ -1258,6 +1260,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		ChickenAttack attack = new ChickenAttack(shredded.getX()-ChickenAttack.getKNOCKWIDTH()/2.0f*MathUtils.cos(shredded.getAttackAngle()),
 				shredded.getY()-ChickenAttack.getKNOCKHEIGHT()/2.0f*MathUtils.sin(shredded.getAttackAngle()),
 				ChickenAttack.getKNOCKWIDTH(), ChickenAttack.getKNOCKHEIGHT(), chef, shredded, ChickenAttack.AttackType.Knockback);
+		shredded.setChickenAttack(attack);
 		attack.setAngle(shredded.getAttackAngle());
 		attack.setDrawScale(scale);
 		addQueuedObject(attack);
