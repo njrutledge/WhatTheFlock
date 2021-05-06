@@ -48,7 +48,7 @@
 		}
 	},
 	"dino" : {
-		"shrink": [0.7, 0.7],
+		"shrink": [1.1, 1.1],
 		"damping": 0.2,
 		"hScale": 4,
 		"wScale": 4,

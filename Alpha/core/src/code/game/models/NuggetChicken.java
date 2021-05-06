@@ -32,8 +32,8 @@ public class NuggetChicken extends Chicken {
     protected int num_anim_frames;
 
     /** Nugget scale differences*/
-    private float hScale;
-    private float wScale;
+    protected float hScale;
+    protected float wScale;
 
     /**
      * Creates a new chicken avatar with the given physics data
