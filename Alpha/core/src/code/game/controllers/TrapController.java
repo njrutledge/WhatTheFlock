@@ -76,15 +76,15 @@ public class TrapController implements TrapControllerInterface {
      */
     public void stopTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
-            case LURE:
+            case BREAD_LURE:
                 //c.resetTarget();
                 break;
             case SLOW:
                 c.inSlow(false);
                 break;
-            case BREAD_BOMB:
+            case TOASTER:
             case HOT_SAUCE:
-            case FRIDGE:
+            case COOLER:
                 //do nothing!
                 break;
         }
@@ -124,7 +124,7 @@ public class TrapController implements TrapControllerInterface {
     private Trap createLure(Trap breadBomb){
         float twidth = trapBreadTexture.getRegionWidth()/drawscale.x;
         float theight = trapBreadTexture.getRegionHeight()/drawscale.y;
-        Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), twidth, theight, Trap.type.LURE);
+        Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), twidth, theight, Trap.type.BREAD_LURE);
         trap.setDrawScale(breadBomb.getDrawScale());
         trap.setTexture(trapBreadTexture);
         return trap;

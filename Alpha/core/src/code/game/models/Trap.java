@@ -1,6 +1,7 @@
 package code.game.models;
 
 import code.game.interfaces.TrapInterface;
+import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -15,13 +16,13 @@ public class Trap extends GameObject implements TrapInterface {
      * Enumeration to encode the trap type
      */
     public enum type {
-        LURE,
+        BREAD_LURE,
         SLOW,
         //FIRE,
         //FIRE_LINGER,
-        FRIDGE,
+        COOLER,
         HOT_SAUCE,
-        BREAD_BOMB
+        TOASTER
     }
 
     /**
@@ -177,7 +178,8 @@ public class Trap extends GameObject implements TrapInterface {
     private Vector2 indicatorOrigin;
     /** Whether this trap has a slap indicator */
     private boolean hasIndicator = false;
-
+    /** The animation corresponding to the trap*/
+    private FilmStrip animation;
 
     /**
      * Creates a new Trap model with the given game data
@@ -203,7 +205,7 @@ public class Trap extends GameObject implements TrapInterface {
         setName("trap");
         trapType = t;
         //setSensorName("trapSensor");
-        if (!trapType.equals(type.LURE)){
+        if (!trapType.equals(type.BREAD_LURE)){
             setSensor(true);
         }else{
             setBullet(true);
@@ -217,6 +219,11 @@ public class Trap extends GameObject implements TrapInterface {
         durability = MAX_DURABILITY;
         linger = false;
         indicatorOrigin = new Vector2();
+    }
+
+    /**Sets the animation corresponding to this trap*/
+    public void setAnimation(FilmStrip f){
+        animation = f;
     }
 
     /**
@@ -279,7 +286,7 @@ public class Trap extends GameObject implements TrapInterface {
      */
     public boolean decrementDurability() {
         switch (trapType) {
-            case LURE:
+            case BREAD_LURE:
                 lure_ammount--;
                 break;
             /*case FIRE:
@@ -314,8 +321,8 @@ public class Trap extends GameObject implements TrapInterface {
         }*/
 
         switch(trapType){
-            case FRIDGE:
-            case BREAD_BOMB:
+            case COOLER:
+            case TOASTER:
             case HOT_SAUCE:
                 if (!isReady) {
                     readyTimer -= delta;
@@ -331,7 +338,7 @@ public class Trap extends GameObject implements TrapInterface {
                     activeTimer -= delta;
                 }
                 break;
-            case LURE:
+            case BREAD_LURE:
                 if (invuln){
                     invulnTimer -= delta;
                     if(invulnTimer <= 0){
@@ -382,7 +389,7 @@ public class Trap extends GameObject implements TrapInterface {
         sensorDef.isSensor = true;
         sensorShape = new CircleShape();
         switch (trapType) {
-            case LURE:
+            case BREAD_LURE:
                 sensorShape.setRadius(LURE_RADIUS);
                 FixtureDef sensHurt = new FixtureDef();
                 sensHurt.isSensor = true;
@@ -407,8 +414,8 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case FIRE_LINGER:
                 sensorShape.setRadius(FIRE_LINGER_RADIUS);
-            */case FRIDGE:
-            case BREAD_BOMB:
+            */case COOLER:
+            case TOASTER:
             case HOT_SAUCE:
                 sensorShape.setRadius(ACTIVATION_RADIUS);
                 sensorDef.shape = sensorShape;
@@ -431,13 +438,13 @@ public class Trap extends GameObject implements TrapInterface {
     public void markReady(boolean bool){
         if(isReady && !bool){
             switch(trapType){
-                case FRIDGE:
+                case COOLER:
                     readyTimer = FRIDGE_RECHARGE_TIME;
                     break;
                 case HOT_SAUCE:
                     readyTimer = FAULTY_OVEN_RECHARGE_TIME;
                     break;
-                case BREAD_BOMB:
+                case TOASTER:
                     readyTimer = BREAD_BOMB_RECHARGE_TIME;
             }
         }
@@ -452,11 +459,12 @@ public class Trap extends GameObject implements TrapInterface {
     public void draw(GameCanvas canvas) {
         Color c = Color.WHITE.cpy();
         float scale = .1f;
+        int frame = 0;
         switch (trapType) {
             case HOT_SAUCE:
                 c = fireColor.cpy();
                 break;
-            case LURE:
+            case BREAD_LURE:
                 //c = lureColor.cpy();
                 c.a = Math.max(0, lure_ammount / MAX_LURE_AMMOUNT);
                 break;
@@ -469,21 +477,43 @@ public class Trap extends GameObject implements TrapInterface {
                 c = Color.FIREBRICK.cpy();
                 break;
                 */
-            case FRIDGE:
+            case COOLER:
                 c = Color.BLUE.cpy();
                 scale = .2f;
                 break;
-            case BREAD_BOMB:
+            case TOASTER:
                 c = Color.WHITE.cpy();
+                if(animation.getFrame() < 6){
+                    frame = animation.getFrame() + 1;
+                }
+                else if (!isReady){
+                    //switch between frames 6 and 7
+                    frame = (animation.getFrame() == 6 ? 7:6);
+                }
+                else{
+                    frame = animation.getFrame();
+                    if(animation.getFrame() < animation.getSize() - 1){
+                        frame++;
+                    }
+                }
                 break;
 
         }
-        if (!isReady) {
-            int breaking = 1;
+        if(animation != null){
+            animation.setFrame(frame);
+            canvas.draw(animation, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
+            if (hasIndicator && isReady) {
+                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
+            }
         }
-        canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
-        if (hasIndicator && isReady) {
-            canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
+        else {
+            if (!isReady) {
+                int breaking = 1;
+            }
+            canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
+            if (hasIndicator && isReady) {
+                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
+            }
         }
     }
 

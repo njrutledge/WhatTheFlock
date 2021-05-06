@@ -251,11 +251,11 @@ public class CollisionController implements CollisionControllerInterface {
                     sound.playFireTrap();
                     chef.setDoubleDamage(true);
                     break;
-                case BREAD_BOMB:
+                case TOASTER:
                     t1.markReady(false);
                     trapCache.addAll(trapController.createLures(t1));
                     break;
-                case FRIDGE:
+                case COOLER:
                     t1.markReady(false);
                     trapCache.add(trapController.createSlow(t1));
                     break;
@@ -366,7 +366,7 @@ public class CollisionController implements CollisionControllerInterface {
         if(fd1 != null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
             trapController.applyTrap(t2, c1);
         }
-        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)){
+        if(t2.getTrapType().equals(Trap.type.BREAD_LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)){
             t2.markHit();
         }
     }
@@ -481,12 +481,12 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void endChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
-        if(t2.getTrapType().equals(Trap.type.LURE) && fd2!= null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)
+        if(t2.getTrapType().equals(Trap.type.BREAD_LURE) && fd2!= null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)
                 && fd1!=null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
             c1.stopAttack();
         }
         trapController.stopTrap(t2, c1);
-        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT)){
+        if(t2.getTrapType().equals(Trap.type.BREAD_LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT)){
             t2.removeHit();
         }
 
