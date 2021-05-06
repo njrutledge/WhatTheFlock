@@ -106,7 +106,7 @@ public class Trap extends GameObject implements TrapInterface {
     /**
      * durability of lure
      */
-    private float lure_ammount = 3;
+    private float lure_amount = 3;
 
     /**
      * max durability of lure
@@ -180,7 +180,8 @@ public class Trap extends GameObject implements TrapInterface {
     private boolean hasIndicator = false;
     /** The animation corresponding to the trap*/
     private FilmStrip animation;
-
+    /** The delay on the animation */
+    private int anim_delay = 0;
     /**
      * Creates a new Trap model with the given game data
      * <p>
@@ -287,7 +288,7 @@ public class Trap extends GameObject implements TrapInterface {
     public boolean decrementDurability() {
         switch (trapType) {
             case BREAD_LURE:
-                lure_ammount--;
+                lure_amount--;
                 break;
             /*case FIRE:
                 durability = 0; //FIRE transitions into FIRE_LINGER
@@ -345,11 +346,11 @@ public class Trap extends GameObject implements TrapInterface {
                         invuln = false;
                     }
                 }else if(isHit()){
-                    lure_ammount--;
+                    lure_amount--;
                     invuln = true;
                     invulnTimer = INVULN_TIME;
                 }
-                if(lure_ammount <=0){
+                if(lure_amount <=0){
                     markRemoved(true);
                 }
                 break;
@@ -466,7 +467,7 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case BREAD_LURE:
                 //c = lureColor.cpy();
-                c.a = Math.max(0, lure_ammount / MAX_LURE_AMMOUNT);
+                c.a = Math.max(0, lure_amount / MAX_LURE_AMMOUNT);
                 break;
             case SLOW:
                 c = slowColor.cpy();
@@ -483,12 +484,19 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case TOASTER:
                 c = Color.WHITE.cpy();
-                if(animation.getFrame() < 6){
+                if(animation.getFrame() < 5){
                     frame = animation.getFrame() + 1;
                 }
                 else if (!isReady){
                     //switch between frames 6 and 7
-                    frame = (animation.getFrame() == 6 ? 7:6);
+                    frame = animation.getFrame();
+                    if(anim_delay == 0){
+                        anim_delay = 20;
+                        frame = (animation.getFrame() == 5 ? 6:5);
+                    }else {
+                        anim_delay --;
+                    }
+
                 }
                 else{
                     frame = animation.getFrame();
@@ -501,7 +509,7 @@ public class Trap extends GameObject implements TrapInterface {
         }
         if(animation != null){
             animation.setFrame(frame);
-            canvas.draw(animation, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
+            canvas.draw(animation, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
             if (hasIndicator && isReady) {
                 canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
             }
