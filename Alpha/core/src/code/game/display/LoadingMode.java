@@ -79,9 +79,9 @@ public class LoadingMode implements Screen {
 	/** Default budget for asset loader (do nothing but load 60 fps) */
 	private static int DEFAULT_BUDGET = 15;
 	/** Standard window size (for scaling) */
-	private static int STANDARD_WIDTH  = 800;
+	private static int STANDARD_WIDTH  = 1920;
 	/** Standard window height (for scaling) */
-	private static int STANDARD_HEIGHT = 700;
+	private static int STANDARD_HEIGHT = 1080;
 	/** Ratio of the bar width to the screen */
 	private static float BAR_WIDTH_RATIO  = 0.66f;
 	/** Ratio of the bar height to the screen */

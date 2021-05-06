@@ -466,9 +466,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
 		wallTopLeftCornerTile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner", Texture.class));
 		wallTopRightCornerTile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner", Texture.class));
-		wallTop2Tile = new TextureRegion(directory.getEntry( "enviro:wall:top2", Texture.class ));
-		wallTopLeftCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner2", Texture.class));
-		wallTopRightCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner2", Texture.class));
+		//TODO: change top corners back
+		wallTop2Tile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
+		wallTopLeftCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner", Texture.class));
+		wallTopRightCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner", Texture.class));
 		wallBottomLeftCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomleftcorner", Texture.class));
 		wallBottomRightCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomrightcorner", Texture.class));
 		wallCeilingTile = new TextureRegion(directory.getEntry("enviro:wall:ceiling", Texture.class));
@@ -1719,12 +1720,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void setCanvas(GameCanvas canvas) {
 		this.canvas = canvas;
 		//scale needs to be based on 1920x1080 for the grid
-		this.scale.x = 1920/bounds.getWidth();
-		this.scale.y = 1080/bounds.getHeight();
+		this.scale.x = canvas.getWidth()/bounds.getWidth();
+		this.scale.y = canvas.getHeight()/bounds.getHeight();
+		gridHeight = canvas.getHeight();
+		gridWidth = canvas.getWidth();
 	}
 
 	public void initGrid(){
-		grid = new Grid(1920, 1080, scale);
+		grid = new Grid(gridWidth, gridHeight, scale);
 	}
 
 	/**
