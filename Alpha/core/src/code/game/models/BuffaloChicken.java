@@ -150,7 +150,7 @@ public class BuffaloChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? 1.0f : -1.0f;
-        Color c = getColor();
+        Color c = Color.WHITE.cpy();
         float wScale = 0.4f;
         float hScale = 0.4f;
 
