@@ -33,7 +33,7 @@ public class HotChicken extends Chicken {
     private float hscale;
 
     /** data about the hot chick*/
-    JsonValue data;
+    private JsonValue data;
 
 
     /**
