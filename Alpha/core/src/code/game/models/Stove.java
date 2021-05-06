@@ -16,6 +16,8 @@ public class Stove extends GameObject implements StoveInterface {
 
     private TextureRegion active_texture;
 
+    private TextureRegion inactive_texture;
+
     private boolean active = false;
 
     /** Whether or not the stove is lit */
@@ -84,6 +86,11 @@ public class Stove extends GameObject implements StoveInterface {
     }
 
     /**
+     * Sets the inactive texture for the stove
+     */
+    public void setInactiveTexture(TextureRegion texture) { inactive_texture = texture; }
+
+    /**
      * Sets the stove to inactive so that the chef cannot cook from it
      */
     public void setInactive() {active = false;}
@@ -99,10 +106,12 @@ public class Stove extends GameObject implements StoveInterface {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        if (active) {
-            canvas.draw(active_texture, lit ? Color.RED : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .15f, .15f);
-        } else {
+        if (active && !lit) {
             canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .15f, .15f);
+        }  else if (active && lit) {
+            canvas.draw(active_texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .15f, .15f);
+        } else {
+            canvas.draw(inactive_texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .15f, .15f);
         }
     }
 
