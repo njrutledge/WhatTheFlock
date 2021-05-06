@@ -92,7 +92,7 @@
 		}
 	},
 	"hot" : {
-		"shrink": [0.7, 0.7],
+		"shrink": [1, 1],
 		"density": 0.1,
 		"damping": 0.2,
 		"wscale" : 0.35,
