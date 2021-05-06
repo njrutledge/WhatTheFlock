@@ -1,13 +1,11 @@
 package code.game.controllers;
 
 import code.assets.AssetDirectory;
-import code.audio.SoundBuffer;
 import code.game.interfaces.CollisionControllerInterface;
 import code.game.models.*;
 import code.game.models.GameObject;
 import code.game.models.obstacle.Obstacle;
 import code.util.PooledList;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -248,7 +246,7 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleTrapSlap(Trap t1, FixtureType fd1, Slap s2, FixtureType fd2) {
         if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION) && t1.getReady()) {
             switch (t1.getTrapType()) {
-                case FAULTY_OVEN:
+                case HOT_SAUCE:
                     t1.markReady(false);
                     sound.playFireTrap();
                     chef.setDoubleDamage(true);
@@ -302,6 +300,7 @@ public class CollisionController implements CollisionControllerInterface {
             float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
             chef.markSetVelocity(max_speed, angle);
         }
+        sound.playChefHurt();
     }
 
     /**

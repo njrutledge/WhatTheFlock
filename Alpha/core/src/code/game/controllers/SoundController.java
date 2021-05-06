@@ -211,7 +211,7 @@ public class SoundController {
 
         switch (screen){
             case MENU:
-                playMusicInstant(menuTheme, MED);
+                playMusicInstant(menuTheme, LOUD);
                 break;
             case LEVEL:
                 if (!levelTheme1.isPlaying()) {
@@ -245,7 +245,7 @@ public class SoundController {
     public void playMenuSelecting() {playInstant(menuSelecting, LOUD);}
 
     //Chef
-    public void playChefHurt() {playInstant(chefHurt, MED);}
+    public void playChefHurt() {playInstant(chefHurt, LOUD);}
 
     public void playEmptySlap() {playInstant(emptySlap, LOUD);}
 

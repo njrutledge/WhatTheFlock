@@ -121,7 +121,7 @@ public class HotChicken extends Chicken {
         super.draw(canvas);
         float effect = faceRight ? -1.0f : 1.0f;
         Color c = getColor();
-        if (isAttacking && attack_animator != null) {
+        if (isAttacking && attack_animator != null && !isLured()) {
             attack_animator.setFrame((int) animeframe);
             canvas.draw(attack_animator,c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wscale*effect, hscale);
         } else if (!isStunned) {
@@ -161,7 +161,7 @@ public class HotChicken extends Chicken {
             if (animeframe >= num_anime_frames) {
                 animeframe -= num_anime_frames;
             }
-        } else if (isAttacking && attack_animator != null){
+        } else if (isAttacking && attack_animator != null && !isLured()){
             animeframe += animation_speed;
             if (animeframe >= 17) {
                 animeframe -= 17;

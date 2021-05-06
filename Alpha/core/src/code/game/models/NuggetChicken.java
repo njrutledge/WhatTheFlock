@@ -116,7 +116,7 @@ public class NuggetChicken extends Chicken {
             if (animeframe >= num_anim_frames) {
                 animeframe -= num_anim_frames;
             }
-        } else if (isAttacking && attack_animator != null){
+        } else if (isAttacking && attack_animator != null && !isLured()){
             animeframe += animation_speed;
             if (animeframe >= 9) {
                 animeframe -= 9;
@@ -136,16 +136,17 @@ public class NuggetChicken extends Chicken {
         float effect = faceRight ? 1.0f:-1.0f;
         Color c = null;
         //GameCanvas.BlendState state = canvas.getBlendState();
-        for(int ii=0; ii<=1;ii++) {
+        for(int ii=0; ii<=0;ii++) {
             if(ii==0){
-                canvas.setBlendState(GameCanvas.BlendState.ADDITIVE);
+                canvas.setBlendState(GameCanvas.BlendState.ALPHA_BLEND);
                 c = getColor();
             }else{
                 canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
                 c = Color.WHITE.cpy();
+                c.a = .75f;
             }
 
-            if (isAttacking && attack_animator != null) {
+            if (isAttacking && attack_animator != null && !isLured()) {
                 attack_animator.setFrame((int) animeframe);
                 canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
             } else if (!isStunned) {
@@ -156,6 +157,7 @@ public class NuggetChicken extends Chicken {
                 canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
             }
         }
+        canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
     }
 
     /**

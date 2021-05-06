@@ -1,7 +1,6 @@
 package code.game.models;
 
 import code.game.interfaces.TrapInterface;
-import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -21,7 +20,7 @@ public class Trap extends GameObject implements TrapInterface {
         //FIRE,
         //FIRE_LINGER,
         FRIDGE,
-        FAULTY_OVEN,
+        HOT_SAUCE,
         BREAD_BOMB
     }
 
@@ -317,7 +316,7 @@ public class Trap extends GameObject implements TrapInterface {
         switch(trapType){
             case FRIDGE:
             case BREAD_BOMB:
-            case FAULTY_OVEN:
+            case HOT_SAUCE:
                 if (!isReady) {
                     readyTimer -= delta;
                     if (readyTimer <= 0) {
@@ -410,7 +409,7 @@ public class Trap extends GameObject implements TrapInterface {
                 sensorShape.setRadius(FIRE_LINGER_RADIUS);
             */case FRIDGE:
             case BREAD_BOMB:
-            case FAULTY_OVEN:
+            case HOT_SAUCE:
                 sensorShape.setRadius(ACTIVATION_RADIUS);
                 sensorDef.shape = sensorShape;
                 Fixture sensorFixture = body.createFixture(sensorDef);
@@ -435,7 +434,7 @@ public class Trap extends GameObject implements TrapInterface {
                 case FRIDGE:
                     readyTimer = FRIDGE_RECHARGE_TIME;
                     break;
-                case FAULTY_OVEN:
+                case HOT_SAUCE:
                     readyTimer = FAULTY_OVEN_RECHARGE_TIME;
                     break;
                 case BREAD_BOMB:
@@ -454,7 +453,7 @@ public class Trap extends GameObject implements TrapInterface {
         Color c = Color.WHITE.cpy();
         float scale = .1f;
         switch (trapType) {
-            case FAULTY_OVEN:
+            case HOT_SAUCE:
                 c = fireColor.cpy();
                 break;
             case LURE:

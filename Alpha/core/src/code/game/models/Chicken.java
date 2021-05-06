@@ -281,7 +281,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         c.r = .9f;
         c.g = .9f;
         c.b = 1;
-        return Color.WHITE;
+        return Color.CYAN;
     }
 
     /**
@@ -553,6 +553,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
                 health -= damage * FIRE_MULT;
             } else {
                 health -= damage;
+            }
+            if (chickenAttack != null){
+                chickenAttack.collideObject();
             }
             attack_timer = -1f;
             charge_time = -1f;

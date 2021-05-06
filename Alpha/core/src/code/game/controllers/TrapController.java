@@ -30,6 +30,8 @@ public class TrapController implements TrapControllerInterface {
     private TextureRegion trapSlowTexture;
     /** Texture Region for default traps */
     private TextureRegion trapDefaultTexture;
+    /** Number of lures a toaster releases*/
+    private static final int LURE_NUM = 3;
 
     private static Random generator = new Random(0);
 
@@ -58,24 +60,9 @@ public class TrapController implements TrapControllerInterface {
      */
     public boolean applyTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
-            case LURE: //damage
-                //if(!c.getType().equals(Chicken.ChickenType.Shredded)) {
-                //c.trapTarget(t);
-                //}
-                break;
             case SLOW:
                 c.inSlow(true);
                 break;
-            /*case FIRE:
-                TextureRegion trapTexture = t.getTexture();
-                float twidth = trapTexture.getRegionWidth()/drawscale.x;
-                float theight = trapTexture.getRegionHeight()/drawscale.y;
-                Trap trap = new Trap(constants.get("trap"), t.getX(), t.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE, true);
-                trapCache.setDrawScale(drawscale);
-                trapCache.setTexture(trapTexture);
-                //We need to let GameController know that a trap needs to be created
-                return true;
-                break;*/
         }
         return false;
     }
@@ -96,7 +83,7 @@ public class TrapController implements TrapControllerInterface {
                 c.inSlow(false);
                 break;
             case BREAD_BOMB:
-            case FAULTY_OVEN:
+            case HOT_SAUCE:
             case FRIDGE:
                 //do nothing!
                 break;
@@ -111,7 +98,7 @@ public class TrapController implements TrapControllerInterface {
     public PooledList<Trap> createLures(Trap breadBomb){
         /** trap to return if applyTrap is true */
         PooledList<Trap> trapCache = new PooledList<Trap>();
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i < LURE_NUM; i++){
             float angle = rollFloat(72*i, 72*(i+1));
             Trap trap = createLure(breadBomb);
             float speed = 16.0f;
@@ -137,7 +124,7 @@ public class TrapController implements TrapControllerInterface {
     private Trap createLure(Trap breadBomb){
         float twidth = trapBreadTexture.getRegionWidth()/drawscale.x;
         float theight = trapBreadTexture.getRegionHeight()/drawscale.y;
-        Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), breadBomb.getWidth(), breadBomb.getHeight(), Trap.type.LURE);
+        Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), twidth, theight, Trap.type.LURE);
         trap.setDrawScale(breadBomb.getDrawScale());
         trap.setTexture(trapBreadTexture);
         return trap;
@@ -154,17 +141,5 @@ public class TrapController implements TrapControllerInterface {
     private static float rollFloat(float min, float max) {
         return generator.nextFloat() * (max - min) + min;
     }
-
-    /**
-     *  decrement the trap durability, and remove the trap if it breaks.
-     *
-     * @param trap   the trap to decrement durability and possibly remove
-     */
-    private void decrementTrap(Trap trap){
-        if(!trap.isRemoved() && trap.decrementDurability()){
-            trap.markRemoved(true);
-        }
-    }
-
 
 }
