@@ -80,6 +80,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion stoveTexture;
 	/** Texture asset for active stove*/
 	private TextureRegion stoveActiveTexture;
+	/** Texture asset for inactive stove*/
+	private TextureRegion stoveInactiveTexture;
 	/** Texture asset for default trap (TEMP) */
 	private TextureRegion trapDefaultTexture;
 	/** Texture asset for Fidge trap */
@@ -473,6 +475,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		wallCeilingBottomTile = new TextureRegion(directory.getEntry("enviro:wall:ceiling:bottom", Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
 		stoveActiveTexture = new TextureRegion(directory.getEntry("enviro:stoveActive", Texture.class));
+		stoveInactiveTexture = new TextureRegion(directory.getEntry("enviro:stoveInactive", Texture.class));
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
@@ -738,6 +741,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					stove.setDrawScale(scale);
 					stove.setTexture(stoveTexture);
 					stove.setActiveTexture(stoveActiveTexture);
+					stove.setInactiveTexture(stoveInactiveTexture);
 					stove.setFilterData(obstacle_filter);
 					addObject(stove, GameObject.ObjectType.WALL);
 					grid.setObstacle(x,y);
