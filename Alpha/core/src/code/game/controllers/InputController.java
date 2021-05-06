@@ -68,15 +68,8 @@ public class InputController {
 	/** Whether a movement key was pressed*/
 	private boolean movementPressed;
 	private boolean movementPrevious;
-	/** Whether the trap placement button ws pressed */
-	private boolean trapPressed;
-	private boolean trapPrevious;
-	/** Whether or not rotate left through traps is pressed*/
-	private boolean trapRotateLeftPressed;
-	private boolean trapRLPrevious;
-	/** Whether or not rotate right through traps is pressed*/
-	private boolean trapRotateRightPressed;
-	private boolean trapRRPrevious;
+	/** Whether the cook button was pressed */
+	private boolean cookPressed;
 
 	/** Whether the debug toggle was pressed. */
 	private boolean debugPressed;
@@ -234,25 +227,8 @@ public class InputController {
 	 *
 	 * @return true if the trap button was pressed
 	 */
-	public boolean didTrap() {return trapPressed && !trapPrevious; }
+	public boolean didCook() {return cookPressed; }
 
-	/**
-	 * Returns true if the left rotate trap button is pressed.
-	 * This is a one-press button. It only returns true at the moment it was
-	 * pressed, and returns false at any frame afterwards.
-	 *
-	 * 	@return true if the left rotate trap button was pressed
-	 */
-	public boolean didRotateTrapLeft() {return trapRotateLeftPressed && !trapRLPrevious; }
-
-	/**
-	 * Returns true if the right rotate trap button is pressed.
-	 * This is a one-press button. It only returns true at the moment it was
-	 * pressed, and returns false at any frame afterwards.
-	 *
-	 * 	@return true if the right rotate trap button was pressed
-	 */
-	public boolean didRotateTrapRight() {return trapRotateRightPressed && !trapRRPrevious; }
 
 	/**
 	 * Returns true if the parameter toggle button is pressed.
@@ -396,9 +372,6 @@ public class InputController {
 		exitPrevious = exitPressed;
 		nextPrevious = nextPressed;
 		prevPrevious = prevPressed;
-		trapPrevious = trapPressed;
-		trapRLPrevious = trapRotateLeftPressed;
-		trapRRPrevious = trapRotateRightPressed;
 		paraPrevious = paraToggled;
 		paraIncPrevious = paraIncPressed;
 		paraDecPrevious = paraDecPressed;
@@ -474,9 +447,7 @@ public class InputController {
 /*		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));*/
 		movementPressed = ((Gdx.input.isKeyPressed(Input.Keys.W)) || (Gdx.input.isKeyPressed(Input.Keys.A)) ||
 				(Gdx.input.isKeyPressed(Input.Keys.S)) || (Gdx.input.isKeyPressed(Input.Keys.D)));
-		trapPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
-		trapRotateLeftPressed = (Gdx.input.isKeyPressed(Input.Keys.Q));
-		trapRotateRightPressed = (Gdx.input.isKeyPressed(Input.Keys.E));
+		cookPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
 		paraToggled = (Gdx.input.isKeyPressed(Input.Keys.O));
 		paraDecPressed = (Gdx.input.isKeyPressed(Input.Keys.I));
 		paraIncPressed = (Gdx.input.isKeyPressed(Input.Keys.P));

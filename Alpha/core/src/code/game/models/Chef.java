@@ -212,6 +212,10 @@ public class Chef extends GameObject implements ChefInterface {
 		return (isCooking && stove != null && stove.isActive());
 	}
 
+	public Stove getStove(){
+		return stove;
+	}
+
 	/**
 	 * Returns whether the chef is in cooking range of a stove
 	 * @return true iff chef is in range of a stove
@@ -313,14 +317,6 @@ public class Chef extends GameObject implements ChefInterface {
 		slapFace = slapDirection;
 		isShooting = value;
 	}
-
-
-	/**
-	 * Sets whether or not the chef is trying to place a trap
-	 *
-	 * @param bln whether or not the chef is trying to place a trap
-	 */
-	public void setTrap(boolean bln) { isTrap = bln; }
 
 	/**
 	 * Animates the up slap
