@@ -163,7 +163,7 @@ public class Trap extends GameObject implements TrapInterface {
     /** flag for if the trap is invulnerable*/
     private boolean invuln = true;
     /** invulnerability Time */
-    private float INVULN_TIME = 1.5f;
+    private float INVULN_TIME = .75f;
     /**Timer for how long the trap is invulnverable */
     private float invulnTimer = INVULN_TIME;
     /** Counter for how many chickens are hitting this trap */
