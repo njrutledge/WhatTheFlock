@@ -180,10 +180,12 @@ public class Trap extends GameObject implements TrapInterface {
     private boolean hasIndicator = false;
     /** The animation corresponding to the trap*/
     private FilmStrip animation;
-    /** The delay on the animation */
+    /** The current delay on the animation; counter */
     private int anim_delay = 0;
-    /** Maximum delay on the animation*/
-    private int max_delay = 0;
+    /** Frame delay on the trap animation*/
+    private final int FRAME_DELAY = 4;
+    /** Delay on the smoke frame animations*/
+    private final int SMOKE_FRAMES_DELAY = 20;
     /**
      * Creates a new Trap model with the given game data
      * <p>
@@ -469,7 +471,7 @@ public class Trap extends GameObject implements TrapInterface {
                 //play once
                 frame = animation.getFrame();
                 if(anim_delay == 0){
-                    anim_delay = 4;
+                    anim_delay = FRAME_DELAY;
                 }
                 else{
                     anim_delay --;
@@ -501,15 +503,23 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case TOASTER:
                 c = Color.WHITE.cpy();
-
+                frame = animation.getFrame();
                 if(animation.getFrame() < 5){
-                    frame = animation.getFrame() + 1;
+                    if(anim_delay == 0){
+                        anim_delay = FRAME_DELAY;
+                        frame ++;
+                    }
+                    else{
+                        anim_delay --;
+                    }
+                    //frame = animation.getFrame() + 1;
                 }
                 else if (!isReady){
                     //switch between frames 6 and 7 for smoke
-                    frame = animation.getFrame();
+                    c = Color.LIGHT_GRAY.cpy();
+                    //frame = animation.getFrame();
                     if(anim_delay == 0){
-                        anim_delay = 20; //add delay time to be less frenetic
+                        anim_delay = SMOKE_FRAMES_DELAY; //add delay time to be less frenetic
                         frame = (animation.getFrame() == 5 ? 6:5);
                     }else {
                         anim_delay --;
@@ -517,7 +527,7 @@ public class Trap extends GameObject implements TrapInterface {
 
                 }
                 else{
-                    frame = animation.getFrame();
+                    //frame = animation.getFrame();
                     if(animation.getFrame() < animation.getSize() - 1){
                         frame++;
                     }
