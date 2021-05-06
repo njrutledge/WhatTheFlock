@@ -16,6 +16,7 @@ import code.game.models.*;
 import code.game.models.obstacle.BoxObstacle;
 import code.game.models.obstacle.Obstacle;
 import code.game.views.GameCanvas;
+import code.util.FilmStrip;
 import code.util.PooledList;
 import code.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
@@ -87,6 +88,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion enemyHealthBarTexture;
 	/** Texture asset for toaster trap */
 	private TextureRegion trapToasterTexture;
+	/** The texture for animating the Toaster*/
+	private Texture trapToasterActivate;
+	/** Number of frames in Toaster texture*/
+	private final int TOASTER_NUM_FRAMES = 12;
+	/** Texture asset for hot sauce trap */
+	private TextureRegion trapHotSauceTexture;
+	/** Texture for animating Hot Sauce Trap*/
+	private Texture trapHotSauceActivate;
+	/** Number of frames in Hot Sauce texture*/
+	private final int HOTSAUCE_NUM_FRAMES = 8;
 	/** Texture asset for slap indicator above traps */
 	private TextureRegion indicatorTexture;
 	/** Texture asset for the shredded chicken egg projectile */
@@ -277,7 +288,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	boolean done = false;
 	/** The trap the player has currently selected */
-	private Trap.type trapTypeSelected = Trap.type.LURE;
+	private Trap.type trapTypeSelected = Trap.type.BREAD_LURE;
 	/** The parameter from the list of parameters currently selected */
 	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
@@ -466,6 +477,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
 		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
+		trapToasterActivate = directory.getEntry("enviro:trap:toasterActivate", Texture.class);
+
+		trapHotSauceTexture = new TextureRegion(directory.getEntry("enviro:trap:hotSauce", Texture.class));
+		trapHotSauceActivate = directory.getEntry("enviro:trap:hotSauceActivate", Texture.class);
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 		indicatorTexture = new TextureRegion(directory.getEntry("enviro:indicator", Texture.class));
 			//characters
@@ -766,13 +781,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					spawnPoints.add(spawn);
 					break;
 				case LEVEL_SLOW:
-					trapHelper(x, y, Trap.type.FRIDGE);
+					trapHelper(x, y, Trap.type.COOLER);
 					break;
 				case LEVEL_LURE:
-					trapHelper(x, y, Trap.type.BREAD_BOMB);
+					trapHelper(x, y, Trap.type.TOASTER);
 					break;
 				case LEVEL_FIRE:
-					trapHelper(x, y, Trap.type.FAULTY_OVEN);
+					trapHelper(x, y, Trap.type.HOT_SAUCE);
 					break;
 			}
 		}
@@ -890,7 +905,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				ai.get(chick).update(dt);
 				for (Obstacle ob: trapEffects){
 					Trap tr = (Trap)ob;
-					if (tr.getTrapType().equals(Trap.type.LURE) && tr.getPosition().dst(chick.getPosition()) < 6f){
+					if (tr.getTrapType().equals(Trap.type.BREAD_LURE) && tr.getPosition().dst(chick.getPosition()) < 6f){
 						chick.trapTarget(tr);
 					}
 
@@ -1315,18 +1330,26 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	public void trapHelper(float x, float y, Trap.type t){
 		TextureRegion trapTexture = trapDefaultTexture;
-
+		FilmStrip anim = null;
 		switch (t){
-			case FRIDGE:
+			case COOLER:
 				trapTexture = trapCoolerTexture;
 				break;
-			case BREAD_BOMB:
+			case TOASTER:
 				trapTexture = trapToasterTexture;
+				anim = new FilmStrip(trapToasterActivate, 1, TOASTER_NUM_FRAMES);
+				break;
+			case HOT_SAUCE:
+				trapTexture = trapHotSauceTexture;
+				anim = new FilmStrip(trapHotSauceActivate, 1, HOTSAUCE_NUM_FRAMES);
 				break;
 		}
 		float twidth = trapTexture.getRegionWidth()/scale.x;
 		float theight = trapTexture.getRegionHeight()/scale.y;
 		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t);
+		if(anim != null){
+			trap.setAnimation(anim);
+		}
 		trap.setDrawScale(scale);
 		trap.setTexture(trapTexture);
 		trap.setIndicatorTexture(indicatorTexture);

@@ -30,6 +30,8 @@ public class TrapController implements TrapControllerInterface {
     private TextureRegion trapSlowTexture;
     /** Texture Region for default traps */
     private TextureRegion trapDefaultTexture;
+    /** Number of lures a toaster releases*/
+    private static final int LURE_NUM = 3;
 
     private static Random generator = new Random(0);
 
@@ -74,15 +76,15 @@ public class TrapController implements TrapControllerInterface {
      */
     public void stopTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
-            case LURE:
+            case BREAD_LURE:
                 //c.resetTarget();
                 break;
             case SLOW:
                 c.inSlow(false);
                 break;
-            case BREAD_BOMB:
-            case FAULTY_OVEN:
-            case FRIDGE:
+            case TOASTER:
+            case HOT_SAUCE:
+            case COOLER:
                 //do nothing!
                 break;
         }
@@ -96,7 +98,7 @@ public class TrapController implements TrapControllerInterface {
     public PooledList<Trap> createLures(Trap breadBomb){
         /** trap to return if applyTrap is true */
         PooledList<Trap> trapCache = new PooledList<Trap>();
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i < LURE_NUM; i++){
             float angle = rollFloat(72*i, 72*(i+1));
             Trap trap = createLure(breadBomb);
             float speed = 16.0f;
@@ -122,7 +124,7 @@ public class TrapController implements TrapControllerInterface {
     private Trap createLure(Trap breadBomb){
         float twidth = trapBreadTexture.getRegionWidth()/drawscale.x;
         float theight = trapBreadTexture.getRegionHeight()/drawscale.y;
-        Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), twidth, theight, Trap.type.LURE);
+        Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), twidth, theight, Trap.type.BREAD_LURE);
         trap.setDrawScale(breadBomb.getDrawScale());
         trap.setTexture(trapBreadTexture);
         return trap;
