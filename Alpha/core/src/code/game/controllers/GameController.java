@@ -90,9 +90,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion trapToasterTexture;
 	/** The texture for animating the Toaster*/
 	private Texture trapToasterActivate;
+	/** Number of frames in Toaster texture*/
 	private final int TOASTER_NUM_FRAMES = 12;
 	/** Texture asset for hot sauce trap */
 	private TextureRegion trapHotSauceTexture;
+	/** Texture for animating Hot Sauce Trap*/
+	private Texture trapHotSauceActivate;
+	/** Number of frames in Hot Sauce texture*/
+	private final int HOTSAUCE_NUM_FRAMES = 8;
 	/** Texture asset for slap indicator above traps */
 	private TextureRegion indicatorTexture;
 	/** Texture asset for the shredded chicken egg projectile */
@@ -475,6 +480,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		trapToasterActivate = directory.getEntry("enviro:trap:toasterActivate", Texture.class);
 
 		trapHotSauceTexture = new TextureRegion(directory.getEntry("enviro:trap:hotSauce", Texture.class));
+		trapHotSauceActivate = directory.getEntry("enviro:trap:hotSauceActivate", Texture.class);
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 		indicatorTexture = new TextureRegion(directory.getEntry("enviro:indicator", Texture.class));
 			//characters
@@ -1335,6 +1341,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				break;
 			case HOT_SAUCE:
 				trapTexture = trapHotSauceTexture;
+				anim = new FilmStrip(trapHotSauceActivate, 1, HOTSAUCE_NUM_FRAMES);
 				break;
 		}
 		float twidth = trapTexture.getRegionWidth()/scale.x;

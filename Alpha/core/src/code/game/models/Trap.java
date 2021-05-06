@@ -182,6 +182,8 @@ public class Trap extends GameObject implements TrapInterface {
     private FilmStrip animation;
     /** The delay on the animation */
     private int anim_delay = 0;
+    /** Maximum delay on the animation*/
+    private int max_delay = 0;
     /**
      * Creates a new Trap model with the given game data
      * <p>
@@ -463,7 +465,22 @@ public class Trap extends GameObject implements TrapInterface {
         int frame = 0;
         switch (trapType) {
             case HOT_SAUCE:
-                c = fireColor.cpy();
+                //c = Color.GRAY;//fireColor.cpy();
+                //play once
+                frame = animation.getFrame();
+                if(anim_delay == 0){
+                    anim_delay = 4;
+                }
+                else{
+                    anim_delay --;
+                    break;
+                }
+                if(isReady) {
+                    frame = 0;
+                }
+                else if(animation.getFrame() < 7){
+                    frame ++;
+                }
                 break;
             case BREAD_LURE:
                 //c = lureColor.cpy();
@@ -484,14 +501,15 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case TOASTER:
                 c = Color.WHITE.cpy();
+
                 if(animation.getFrame() < 5){
                     frame = animation.getFrame() + 1;
                 }
                 else if (!isReady){
-                    //switch between frames 6 and 7
+                    //switch between frames 6 and 7 for smoke
                     frame = animation.getFrame();
                     if(anim_delay == 0){
-                        anim_delay = 20;
+                        anim_delay = 20; //add delay time to be less frenetic
                         frame = (animation.getFrame() == 5 ? 6:5);
                     }else {
                         anim_delay --;
@@ -509,9 +527,11 @@ public class Trap extends GameObject implements TrapInterface {
         }
         if(animation != null){
             animation.setFrame(frame);
-            canvas.draw(animation, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
+            canvas.draw(animation, isReady ? Color.WHITE: c, origin.x, origin.y,
+                    getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
             if (hasIndicator && isReady) {
-                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
+                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y,
+                        getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
             }
         }
         else {

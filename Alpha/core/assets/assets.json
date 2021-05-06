@@ -30,6 +30,7 @@
         "enviro:stoveInactive": "enviro/inactive_stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
         "enviro:trap:hotSauce": "enviro/hotsauce.png",
+        "enviro:trap:hotSauceActivate": "enviro/hotsauce_activate.png",
         "enviro:trap:toaster": "enviro/toaster.png",
         "enviro:trap:toasterActivate": "enviro/toaster_activate.png",
         "enviro:trap:bread": "enviro/breadlure.png",
