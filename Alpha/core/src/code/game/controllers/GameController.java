@@ -79,8 +79,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion stoveTexture;
 	/** Texture asset for active stove*/
 	private TextureRegion stoveActiveTexture;
+	/** Texture asset for inactive stove*/
+	private TextureRegion stoveInactiveTexture;
 	/** Texture asset for default trap (TEMP) */
-	private TextureRegion trapDefaultTexture;
+	private TextureRegion trapHotSauceTexture;
 	/** Texture asset for Fidge trap */
 	private TextureRegion trapCoolerTexture;
 	/** Texture asset for chicken health bar */
@@ -462,10 +464,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		wallCeilingBottomTile = new TextureRegion(directory.getEntry("enviro:wall:ceiling:bottom", Texture.class));
 		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
 		stoveActiveTexture = new TextureRegion(directory.getEntry("enviro:stoveActive", Texture.class));
+		stoveInactiveTexture = new TextureRegion(directory.getEntry("enviro:stoveInactive", Texture.class));
 			//traps
-		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
+		trapHotSauceTexture = new TextureRegion(directory.getEntry("enviro:trap:hotSauce",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
-		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
+		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster_activate",Texture.class));
 		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
 		indicatorTexture = new TextureRegion(directory.getEntry("enviro:indicator", Texture.class));
 			//characters
@@ -723,6 +726,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					stove.setDrawScale(scale);
 					stove.setTexture(stoveTexture);
 					stove.setActiveTexture(stoveActiveTexture);
+					stove.setInactiveTexture(stoveInactiveTexture);
 					stove.setFilterData(obstacle_filter);
 					addObject(stove, GameObject.ObjectType.WALL);
 					grid.setObstacle(x,y);
@@ -1314,7 +1318,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	public void trapHelper(float x, float y, Trap.type t){
-		TextureRegion trapTexture = trapDefaultTexture;
+		TextureRegion trapTexture = trapHotSauceTexture;
 
 		switch (t){
 			case FRIDGE:
