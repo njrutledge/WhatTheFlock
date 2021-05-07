@@ -723,8 +723,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					break;
 				case LEVEL_STOVE:
 					// Add stove
-					float swidth = stoveTexture.getWidth()/scale.x;
-					float sheight = stoveTexture.getHeight()/scale.y;
+					float swidth = stoveTexture.getWidth()/scale.x*displayScale.x;
+					float sheight = stoveTexture.getHeight()/scale.y*displayScale.y;
 					Stove stove = new Stove(constants.get(LEVEL_STOVE),x,y,swidth,sheight);
 					stove.setDrawScale(scale);
 					stove.setDisplayScale(displayScale);
@@ -1723,7 +1723,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for (Obstacle c : chickens){
 			c.setDrawScale(scale);
 			c.setDisplayScale(displayScale);
-
+			float cwidth = chickenTexture.getRegionWidth()/scale.x;
+			float cheight = chickenTexture.getRegionHeight()/scale.y;
+			((Chicken) c).resize(cwidth,cheight);
 		}
 		for (Obstacle other : others){
 			other.setDrawScale(scale);
