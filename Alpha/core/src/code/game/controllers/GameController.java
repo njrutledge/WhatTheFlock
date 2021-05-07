@@ -108,8 +108,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private final int HOTSAUCE_NUM_FRAMES = 8;
 	/** Texture asset for slap indicator above traps */
 	private TextureRegion indicatorTexture;
-	/** Texture asset for the shredded chicken egg projectile */
-	private TextureRegion eggTexture;
 	/** Texture asset for the spawnpoint*/
 	private TextureRegion spawnTexture;
 
@@ -199,8 +197,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public static final int EXIT_LOSE = 1;
 	/** Exit code for pausing the game */
 	public static final int EXIT_PAUSE = 2;
-	/** How many frames after winning/losing do we continue? */
-	public static final int EXIT_COUNT = 120;
 
 	///** Exit code for starting in Easy */
 	//public static final int EASY = 0;
@@ -279,8 +275,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** How much the temperature reduces on each slap */
 	private float temp_reduction;
 
-	///** Reference to the goalDoor (for collision detection) */
-	//private BoxObstacle goalDoor;
+	/** Whether or not autoCooking is turned on */
+	private boolean autoCook = true;
+
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
 	/** Reference to the active stove object */
@@ -294,11 +291,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Timer for the current active stove */
 	private float stoveTimer;
 
-	boolean done = false;
 	/** The trap the player has currently selected */
 	private Trap.type trapTypeSelected = Trap.type.BREAD_LURE;
-	/** The parameter from the list of parameters currently selected */
-	private int parameterSelected = 0;
 	/** List of all parameter values {player max health, chicken max health, base damage (player), spawn rate (per update frames), initial spawn}*/
 	private int[] parameterList = {3, 100, 2, 100, 2, 6, 30, 10, 5, 5, 5, 5, 0};
 	//TODO MAKE CONSTANT
@@ -342,8 +336,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private boolean debug;
 	/** Whether or not the grid should be displayed */
 	private boolean grid_toggle;
-	/** Countdown active for winning or losing */
-	private int countdown;
 
 	/** Whether or not mute is toggled */
 	private boolean muted = false;
@@ -354,17 +346,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Whether or not the cooldown effect is enabled */
 	private boolean cooldown;
 
-	/** Save of the current level, for resetting */
-	private JsonValue levelSave;
-
 	/** Mark set to handle more sophisticated collision callbacks */
 	protected ObjectSet<Fixture> sensorFixtures;
 
 	/**The collision controller for this game*/
 	private CollisionController collisionController;
-	/**The trap controller for this game*/
-
-	private TrapController trapController;
 
 	/** The Sound controller reference */
 	private SoundController sound;
@@ -423,10 +409,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		setFailure(false);
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
-		//trapController = new TrapController(scale, constants);
-		//collisionController = new CollisionController(trapController);
 		collisionController = new CollisionController(scale);
-		//cooking = false;
 	}
 
 
@@ -448,7 +431,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		failed = false;
 		debug  = false;
 		active = false;
-		countdown = -1;
 	}
 
 	/**
@@ -472,9 +454,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
 		wallTopLeftCornerTile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner", Texture.class));
 		wallTopRightCornerTile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner", Texture.class));
-		wallTop2Tile = new TextureRegion(directory.getEntry( "enviro:wall:top2", Texture.class ));
-		wallTopLeftCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner2", Texture.class));
-		wallTopRightCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner2", Texture.class));
+		//TODO: change top corners back
+		wallTop2Tile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
+		wallTopLeftCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner", Texture.class));
+		wallTopRightCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner", Texture.class));
 		wallBottomLeftCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomleftcorner", Texture.class));
 		wallBottomRightCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomrightcorner", Texture.class));
 		wallCeilingTile = new TextureRegion(directory.getEntry("enviro:wall:ceiling", Texture.class));
@@ -512,7 +495,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		dinoTexture = directory.getEntry("char:dino", Texture.class);
 		dinoAttackTexture = directory.getEntry("char:dinoAttack", Texture.class);
 		dinoHurtTexture = directory.getEntry("char:dinoHurt", Texture.class);
-		eggTexture = new TextureRegion(directory.getEntry("char:egg", Texture.class));
 		slapSideTexture = directory.getEntry("char:slapSide", Texture.class);
 		slapDownTexture = directory.getEntry("char:slapDown", Texture.class);
 		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
@@ -603,7 +585,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void populateLevel(JsonValue level) {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
 		reset();
-		levelSave = level;
 		//world.setGravity( new Vector2(0,0) );
 		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, level.get("temp").asInt());
 		temp_reduction = level.get("temp_reduction").asFloat();
@@ -845,6 +826,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Unused ContactListener method */
 	public void preSolve(Contact contact, Manifold oldManifold) {}
 
+	/** Set the value of autoCooking
+	 * @param val 		boolean value to set autoCooking
+	 */
+	public void setAutoCook(boolean val){
+		autoCook = val;
+	}
+
 	/**
 	 * Callback method for the start of a collision
 	 *
@@ -1004,10 +992,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		float movement = InputController.getInstance().getHorizontal() * chef.getMaxspeed();
 		chef.setMovement(movement);
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getMaxspeed());
-		if (!chef.isCooking()) {
+
+		if (!(chef.isCooking() && (autoCook || InputController.getInstance().didCook()))) {
 			chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
 		}
-		chef.setTrap(InputController.getInstance().didTrap());
 		gameTime += dt;
 
 		if(InputController.getInstance().didMute()){
@@ -1109,11 +1097,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		chef.setCooking(chef.inCookingRange(), null);
 
-		//update temperature
-		if (chef.isCooking()) {
+		//update temperature and stove draw type
+		Stove stove = chef.getStove();
+		if (chef.isCooking() && (autoCook || InputController.getInstance().didCook())) {
 			temp.cook(true);
+			if (stove!=null) chef.getStove().setLit(true);
 		}else {
 			temp.cook(false);
+			if (stove!=null) chef.getStove().setLit(false);
 		}
 
 		temp.update(dt);
@@ -1185,7 +1176,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			enemy.setHurtTexture(nuggetHurtTexture);
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
-			//((ShreddedChicken)enemy).setProjectileTexture(eggTexture);
 			enemy.setTexture(shreddedTexture);
 		} else if (type == Chicken.ChickenType.Hot){
 			enemy = new HotChicken(constants.get("chicken"), constants.get("hot"), x, y, dwidth, dheight, chef, parameterList[1]);
@@ -1610,7 +1600,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		temp.draw(canvas);
 
 		//draw gametime
-		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
+//		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
 	}
@@ -1690,9 +1680,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param value whether the level is failed.
 	 */
 	public void setFailure(boolean value) {
-		if (value) {
-			countdown = EXIT_COUNT;
-		}
 		failed = value;
 	}
 
@@ -1728,12 +1715,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void setCanvas(GameCanvas canvas) {
 		this.canvas = canvas;
 		//scale needs to be based on 1920x1080 for the grid
-		this.scale.x = 1920/bounds.getWidth();
-		this.scale.y = 1080/bounds.getHeight();
+		this.scale.x = canvas.getWidth()/bounds.getWidth();
+		this.scale.y = canvas.getHeight()/bounds.getHeight();
+		gridHeight = canvas.getHeight();
+		gridWidth = canvas.getWidth();
 	}
 
 	public void initGrid(){
-		grid = new Grid(1920, 1080, scale);
+		grid = new Grid(gridWidth, gridHeight, scale);
 	}
 
 	/**

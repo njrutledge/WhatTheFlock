@@ -239,8 +239,7 @@ public class CollisionController implements CollisionControllerInterface {
         chef.setCooking(true, stove);
         chef.setMovement(0);
         chef.setVertMovement(0);
-        stove.setLit(true);
-
+        //stove.setLit(true);
     }
 
     private void handleTrapSlap(Trap t1, FixtureType fd1, Slap s2, FixtureType fd2) {
@@ -504,7 +503,7 @@ public class CollisionController implements CollisionControllerInterface {
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
         chef.setCooking(false, stove);
         chef.setInCookingRange(false);
-        stove.setLit(false);
+        //stove.setLit(false);
     }
 
 }

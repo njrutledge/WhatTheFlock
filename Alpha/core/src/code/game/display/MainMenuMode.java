@@ -298,6 +298,8 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
      * prefer this in lecture.
      */
     private void draw() {
+        //the canvas.clear stops the flashing
+        canvas.clear();
         canvas.begin();
         //canvas.draw(background, 0, 0);
         canvas.draw(background, Color.WHITE, background.getWidth()/2, background.getHeight()/2,

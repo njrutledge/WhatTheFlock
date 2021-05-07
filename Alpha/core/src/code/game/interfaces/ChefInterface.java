@@ -56,20 +56,6 @@ public interface ChefInterface {
      */
     boolean isShooting();
 
-    /**
-     * Returns true if the chef is trying to place a trap.
-     *
-     * @return true if the chef is trying to place a trap.
-     */
-    boolean isTrapping();
-
-    /**
-     * Sets whether or not the chef is trying to place a trap
-     *
-     * @param bln whether or not the chef is trying to place a trap
-     */
-    void setTrap(boolean bln);
-
     void setTextures(Texture c, TextureRegion h, TextureRegion hh, Texture att_off, Texture att_on);
 
     /**

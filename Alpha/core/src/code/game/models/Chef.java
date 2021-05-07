@@ -212,6 +212,10 @@ public class Chef extends GameObject implements ChefInterface {
 		return (isCooking && stove != null && stove.isActive());
 	}
 
+	public Stove getStove(){
+		return stove;
+	}
+
 	/**
 	 * Returns whether the chef is in cooking range of a stove
 	 * @return true iff chef is in range of a stove
@@ -309,18 +313,10 @@ public class Chef extends GameObject implements ChefInterface {
 	 * @param slapDirection what direction the chef is slapping in
 	 */
 	public void setShooting(boolean value, int slapDirection) {
-		if (value) animeframe = 0;
+		if (value && shootCooldown <= 0) animeframe = 0;
 		slapFace = slapDirection;
 		isShooting = value;
 	}
-
-
-	/**
-	 * Sets whether or not the chef is trying to place a trap
-	 *
-	 * @param bln whether or not the chef is trying to place a trap
-	 */
-	public void setTrap(boolean bln) { isTrap = bln; }
 
 	/**
 	 * Animates the up slap
@@ -542,21 +538,8 @@ public class Chef extends GameObject implements ChefInterface {
 		if (!isActive()) {
 			return;
 		}
-		
-		// Don't want to be moving. Damp out player motion
-//		if (getMovement() == 0f) {
-//			forceCache.set(-getDamping()*getVX(),0);
-//			body.applyForce(forceCache,getPosition(),true);
-//		}
 
-		//		if (getVertMovement() == 0f) {
-//			forceCache.set(0,-getDamping()*getVY());
-//			body.applyForce(forceCache,getPosition(),true);
-//		}
-
-
-		// Velocity too high, clamp it
-		//TODO: getMaxSpeed needed to be here twice...why?
+		// Velocity too high, clamp it?
 		if (Math.abs(getVX()) > getMaxSpeed()) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
 		} else {
@@ -619,7 +602,6 @@ public class Chef extends GameObject implements ChefInterface {
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 
-		//TODO: WHY ARE WE USING THESE CONSTANTS HERE?? WHAT DO THEY MEANa
 		if (isStunned()){
 			animeframe += ANIMATION_SPEED;
 			if (animeframe >= 5) {

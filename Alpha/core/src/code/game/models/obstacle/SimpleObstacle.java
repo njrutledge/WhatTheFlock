@@ -767,6 +767,7 @@ public abstract class SimpleObstacle extends Obstacle {
 	public void setTexture(TextureRegion value) {
 		texture = value;
 		origin.set(texture.getRegionWidth()/2.0f, texture.getRegionHeight()/2.0f);
+		//origin.set(texture.getRegionWidth()/2.0f,texture.getRegionHeight());
 	}
 	
 	/**
@@ -776,7 +777,7 @@ public abstract class SimpleObstacle extends Obstacle {
 	 */
 	public void draw(GameCanvas canvas) {
 		if (texture != null) {
-			canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.x,getAngle(),1,1);
+			canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),1,1);
 		}
 	}
 	
