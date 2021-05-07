@@ -142,8 +142,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Texture asset for the dino hurt texture */
 	private Texture dinoHurtTexture;
 
-	///** Texture asset for temp bar*/
-	//private Texture tempTexture;
 	/** Texture asset for empty temp bar */
 	private TextureRegion tempEmpty;
 	/**Texture asset for yellow temp bar */
@@ -1693,7 +1691,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	public void initGrid(){
-		grid = new Grid(gridWidth, gridHeight, scale);
+		grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
 	}
 
 	/**
