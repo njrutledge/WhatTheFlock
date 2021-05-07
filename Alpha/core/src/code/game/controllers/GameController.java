@@ -1723,14 +1723,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for (Obstacle c : chickens){
 			c.setDrawScale(scale);
 			c.setDisplayScale(displayScale);
+
 		}
 		for (Obstacle other : others){
 			other.setDrawScale(scale);
 			other.setDisplayScale(displayScale);
 		}
-		chef.setDrawScale(scale);
-		chef.setDisplayScale(displayScale);
-		grid.resize(width,height,scale);
+		if(chef!= null) {
+			chef.setDrawScale(scale);
+			chef.setDisplayScale(displayScale);
+		}
+		if(grid!=null){
+			grid.resize(width,height,scale);
+		}
 	}
 
 	/**
