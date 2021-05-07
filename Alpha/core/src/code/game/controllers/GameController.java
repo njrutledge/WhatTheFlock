@@ -998,6 +998,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		if (!(chef.isCooking() && (autoCook || InputController.getInstance().didCook()))) {
 			chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
+		} else {
+			chef.setShooting(false, InputController.getInstance().getSlapDirection());
 		}
 		gameTime += dt;
 
