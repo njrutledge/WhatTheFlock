@@ -1283,7 +1283,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		ChickenAttack attack = new ChickenAttack(shredded.getX()-ChickenAttack.getKNOCKWIDTH()/2.0f*MathUtils.cos(shredded.getAttackAngle()),
 				shredded.getY()-ChickenAttack.getKNOCKHEIGHT()/2.0f*MathUtils.sin(shredded.getAttackAngle()),
-				ChickenAttack.getKNOCKWIDTH(), ChickenAttack.getKNOCKHEIGHT(), chef, shredded, ChickenAttack.AttackType.Knockback);
+				ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x, ChickenAttack.getKNOCKHEIGHT()/scale.y*displayScale.y, chef, shredded, ChickenAttack.AttackType.Knockback);
 		shredded.setChickenAttack(attack);
 		attack.setAngle(shredded.getAttackAngle());
 		attack.setDrawScale(scale);
