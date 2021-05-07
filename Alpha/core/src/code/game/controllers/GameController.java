@@ -408,7 +408,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		setFailure(false);
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
-		collisionController = new CollisionController(scale);
+		collisionController = new CollisionController(scale, displayScale);
 	}
 
 
@@ -749,8 +749,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				case LEVEL_CHEF:
 					// Create chef
 					//TODO: FIX AFTER WE HAVE FILMSTRIP!
-					float cwidth  = 16/scale.x;
-					float cheight = 32/scale.y;
+					float cwidth  = 16/scale.x*displayScale.x;
+					float cheight = 32/scale.y*displayScale.y;
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
 					chef.setDisplayScale(displayScale);
@@ -1142,8 +1142,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * Spawn a chicken somewhere in the world, then increments the number of chickens
 	 */
 	private void spawnChicken(Chicken.ChickenType type){
-		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
-		float dheight = chickenTexture.getRegionHeight()/scale.y;
+		float dwidth  = chickenTexture.getRegionWidth()/scale.x*displayScale.x;
+		float dheight = chickenTexture.getRegionHeight()/scale.y*displayScale.y;
 		int index = (int) (Math.random() * spawnPoints.size());
 		Spawn spawn = spawnPoints.get(index);
 		//float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
@@ -1253,7 +1253,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	    slap.setGravityScale(0);
 		*/
 
-		float radius = 8*bulletTexture.getWidth() / (2.0f * scale.x);
+		float radius = 8*bulletTexture.getWidth() / (2.0f * scale.x)*displayScale.y;
 		Slap slap;
 		if(direction == 2 || direction == 4) {
 			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), radius, 0.1f, direction);
@@ -1354,8 +1354,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				anim = new FilmStrip(trapHotSauceActivate, 1, HOTSAUCE_NUM_FRAMES);
 				break;
 		}
-		float twidth = trapTexture.getWidth()/scale.x;
-		float theight = trapTexture.getHeight()/scale.y;
+		float twidth = trapTexture.getWidth()/scale.x*displayScale.x;
+		float theight = trapTexture.getHeight()/scale.y*displayScale.y;
 		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t);
 		if(anim != null){
 			trap.setAnimation(anim);
@@ -1723,8 +1723,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for (Obstacle c : chickens){
 			c.setDrawScale(scale);
 			c.setDisplayScale(displayScale);
-			float cwidth = chickenTexture.getRegionWidth()/scale.x;
-			float cheight = chickenTexture.getRegionHeight()/scale.y;
+			float cwidth = chickenTexture.getRegionWidth()/scale.x*displayScale.x;
+			float cheight = chickenTexture.getRegionHeight()/scale.y*displayScale.y;
 			((Chicken) c).resize(cwidth,cheight);
 		}
 		for (Obstacle other : others){

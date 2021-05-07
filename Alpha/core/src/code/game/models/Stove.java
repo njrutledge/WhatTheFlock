@@ -23,9 +23,6 @@ public class Stove extends GameObject implements StoveInterface {
     /** Whether or not the stove is lit */
     private boolean lit = false;
 
-    /** The font used to draw text on the screen*/
-    private static final BitmapFont font = new BitmapFont();
-
     //TODO: add comment
     public Stove(JsonValue jv, float x, float y, float width, float height) {
         super(x, y,

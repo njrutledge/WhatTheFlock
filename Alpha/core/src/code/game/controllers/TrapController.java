@@ -18,6 +18,8 @@ public class TrapController implements TrapControllerInterface {
     /** The world scale */
     private Vector2 drawscale;
 
+    private Vector2 displayScale;
+
     /** collection of constants */
     private JsonValue constants;
     /** Texture Region for Fridge traps */
@@ -35,8 +37,9 @@ public class TrapController implements TrapControllerInterface {
 
     private static Random generator = new Random(0);
 
-    public TrapController(Vector2 scale){
+    public TrapController(Vector2 scale, Vector2 displayScale){
         drawscale = scale;
+        this.displayScale = displayScale;
     }
 
     public void setConstants (JsonValue cnst){
@@ -112,8 +115,8 @@ public class TrapController implements TrapControllerInterface {
     }
 
     public Trap createSlow(Trap fridge){
-        float twidth = trapSlowTexture.getWidth()/drawscale.x;
-        float theight = trapSlowTexture.getHeight()/drawscale.y;
+        float twidth = trapSlowTexture.getWidth()/drawscale.x*displayScale.x;
+        float theight = trapSlowTexture.getHeight()/drawscale.y*displayScale.y;
         Trap trap = new Trap(constants.get("trap"), fridge.getX(), fridge.getY(), twidth, theight, Trap.type.SLOW);
         trap.setDrawScale(fridge.getDrawScale());
         trap.setTexture(trapSlowTexture);
@@ -122,8 +125,8 @@ public class TrapController implements TrapControllerInterface {
     }
 
     private Trap createLure(Trap breadBomb){
-        float twidth = trapBreadTexture.getWidth()/drawscale.x;
-        float theight = trapBreadTexture.getHeight()/drawscale.y;
+        float twidth = trapBreadTexture.getWidth()/drawscale.x*displayScale.x;
+        float theight = trapBreadTexture.getHeight()/drawscale.y*displayScale.y;
         Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), twidth, theight, Trap.type.BREAD_LURE);
         trap.setDrawScale(breadBomb.getDrawScale());
         trap.setTexture(trapBreadTexture);
