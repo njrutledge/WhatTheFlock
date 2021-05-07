@@ -1294,8 +1294,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** Adds a chickenAttack to the world */
 	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
-		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
-				ChickenAttack.getHEIGHT(), chef, chicken, type);
+		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH()/scale.x*displayScale.x,
+				ChickenAttack.getHEIGHT()/scale.y*displayScale.y, chef, chicken, type);
 		if (type == ChickenAttack.AttackType.Charge && grid.isObstacleAt(attack.getX(), attack.getY())) {
 			attack.markRemoved(true);
 			chicken.forceStopAttack();
