@@ -117,6 +117,7 @@ public class TrapController implements TrapControllerInterface {
         Trap trap = new Trap(constants.get("trap"), fridge.getX(), fridge.getY(), twidth, theight, Trap.type.SLOW);
         trap.setDrawScale(fridge.getDrawScale());
         trap.setTexture(trapSlowTexture);
+        fridge.setChildTrap(trap);
         return trap;
     }
 

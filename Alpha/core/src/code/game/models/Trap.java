@@ -156,6 +156,9 @@ public class Trap extends GameObject implements TrapInterface {
      * Timer for how long the environmental trap is not ready
      */
     private float readyTimer = 0.0f;
+
+    /** The child of this trap */
+    private Trap childTrap;
     /**
      * flag for if the trap is ready to become active
      */
@@ -184,6 +187,8 @@ public class Trap extends GameObject implements TrapInterface {
     private int anim_delay = 0;
     /** Frame delay on the trap animation*/
     private final int FRAME_DELAY = 4;
+    /** Frame delay on cooler*/
+    private final int COOLER_FRAME_DELAY = 40;
     /** Delay on the smoke frame animations*/
     private final int SMOKE_FRAMES_DELAY = 20;
     /**
@@ -306,6 +311,10 @@ public class Trap extends GameObject implements TrapInterface {
 
         return durability == 0;
     }
+    /** Sets a child trap for this trap, if there is one */
+    public void setChildTrap(Trap child){
+        childTrap = child;
+    }
 
     /**
      * Updates the object's game state (NOT GAME LOGIC).
@@ -327,6 +336,9 @@ public class Trap extends GameObject implements TrapInterface {
 
         switch(trapType){
             case COOLER:
+                if(childTrap != null && childTrap.isRemoved()){
+                    childTrap = null;
+                }
             case TOASTER:
             case HOT_SAUCE:
                 if (!isReady) {
@@ -455,7 +467,17 @@ public class Trap extends GameObject implements TrapInterface {
         }
         isReady = bool;
     }
-
+    /** Return the given increment to the frame based on the current anim_delay and the delay specified*/
+    private int incrWithDelay(int delay){
+        if(anim_delay == 0){
+            anim_delay = delay;
+            return 1;
+        }
+        else{
+            anim_delay --;
+            return 0;
+        }
+    }
     /**
      * Draws the game object.
      *
@@ -465,22 +487,24 @@ public class Trap extends GameObject implements TrapInterface {
         Color c = Color.WHITE.cpy();
         float scale = .1f;
         int frame = 0;
+
         switch (trapType) {
             case HOT_SAUCE:
                 //c = Color.GRAY;//fireColor.cpy();
                 //play once
                 frame = animation.getFrame();
-                if(anim_delay == 0){
-                    anim_delay = FRAME_DELAY;
-                }
-                else{
-                    anim_delay --;
-                    break;
-                }
+
                 if(isReady) {
                     frame = 0;
                 }
                 else if(animation.getFrame() < 7){
+                    if(anim_delay == 0){
+                        anim_delay = FRAME_DELAY;
+                    }
+                    else{
+                        anim_delay --;
+                        break;
+                    }
                     frame ++;
                 }
                 break;
@@ -493,14 +517,66 @@ public class Trap extends GameObject implements TrapInterface {
                 scale = .3f;
                 c.a = Math.max(0, activeTimer / SLOW_ACTIVE_TIME);
                 break;
-            /*case FIRE_LINGER:
-                c = Color.FIREBRICK.cpy();
-                break;
-                */
             case COOLER:
-                c = Color.BLUE.cpy();
+                c = Color.WHITE.cpy();//Color.BLUE.cpy();
                 scale = .2f;
-                break;
+                frame = animation.getFrame();
+                // reset frame at beginning if ready
+               if (isReady && frame > 4) {
+                   frame = 0;
+               }
+               //add icicles
+               else if (frame < 4){
+                   //force a delay
+                   if(anim_delay != 0){
+                       anim_delay --;
+                   }
+                   else {
+                       anim_delay = COOLER_FRAME_DELAY;
+                       frame ++;
+                   }
+               }
+               else if (isReady && frame == 4){
+                   break;
+               }
+                // trap has been pressed, open the cooler
+                else if (4 < frame && frame < 10){
+                    if(anim_delay == 0) {
+                        frame++;
+                        anim_delay = FRAME_DELAY;
+                    }
+                    else{
+                        anim_delay --;
+                    }
+                }
+                //flip between 11 and 10 for smoke
+                else if (childTrap != null && childTrap.activeTimer > 0){
+                    if(anim_delay == 0) {
+                        anim_delay = SMOKE_FRAMES_DELAY;
+                        frame = (animation.getFrame() == 10 ? 11 : 10);
+                    }
+                    else{
+                        anim_delay --;
+                    }
+                }
+                //close trap
+               else if(frame < 16 && frame > 9){
+                   if(anim_delay == 0) {
+                       frame++;
+                   }
+                   else {
+                       anim_delay --;
+                   }
+               }
+                //frame 16, reset to 0 and wait
+               else if (frame == 16){
+                   //stay iced
+                   c = Color.BLUE.cpy();
+                   break;
+
+               }
+
+               break;
             case TOASTER:
                 c = Color.WHITE.cpy();
                 frame = animation.getFrame();

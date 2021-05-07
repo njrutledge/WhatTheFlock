@@ -36,6 +36,7 @@
         "enviro:trap:bread": "enviro/breadlure.png",
         "enviro:trap:spot": "enviro/trapspot.png",
         "enviro:trap:cooler": "enviro/cooler.png",
+        "enviro:trap:coolerActivate": "enviro/cooler_activate.png",
         "enviro:trap:slow": "enviro/slow.png",
         "enviro:background": "enviro/background_2.png",
         "enviro:spawn": "enviro/fridge.png",

@@ -308,12 +308,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         // Ground Sensor
         // -------------
         // Previously used to detect double-jumps, but also allows us to see hitboxes
-        Vector2 sensorCenter = new Vector2(0, -getHeight() / 2);
+        Vector2 sensorCenter = new Vector2(0, 0);
         FixtureDef hitboxDef = new FixtureDef();
         hitboxDef.density = data.getFloat("density",0);
         hitboxDef.isSensor = true;
         hitboxShape = new PolygonShape();
-        hitboxShape.setAsBox(getWidth(), getHeight()/2, sensorCenter, 0);
+        hitboxShape.setAsBox(getWidth()*1.5f, getHeight()*1.5f, sensorCenter, 0);
         hitboxDef.shape = hitboxShape;
         Fixture hitboxFixture = body.createFixture(hitboxDef);
         hitboxFixture.setUserData(FixtureType.CHICKEN_HURTBOX);

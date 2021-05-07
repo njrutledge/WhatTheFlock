@@ -76,6 +76,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** Texture asset for the chicken */
 	private TextureRegion chickenTexture;
+	/** Texture asset for chicken health bar */
+	private TextureRegion enemyHealthBarTexture;
+
 	/** Texture asset for the stove */
 	private Texture stoveTexture;
 	/** Texture asset for active stove*/
@@ -86,8 +89,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture trapDefaultTexture;
 	/** Texture asset for Fidge trap */
 	private Texture trapCoolerTexture;
-	/** Texture asset for chicken health bar */
-	private TextureRegion enemyHealthBarTexture;
+	/** Texture for animating Cooler trap*/
+	private Texture trapCoolerActivate;
+	private final int COOLER_NUM_FRAMES = 17;
+
 	/** Texture asset for toaster trap */
 	private Texture trapToasterTexture;
 	/** The texture for animating the Toaster*/
@@ -465,6 +470,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			//traps
 		trapDefaultTexture = directory.getEntry("enviro:trap:spike",Texture.class);
 		trapCoolerTexture = directory.getEntry("enviro:trap:cooler",Texture.class);
+		trapCoolerActivate = directory.getEntry("enviro:trap:coolerActivate", Texture.class);
 		trapToasterTexture = directory.getEntry("enviro:trap:toaster",Texture.class);
 		trapToasterActivate = directory.getEntry("enviro:trap:toasterActivate", Texture.class);
 
@@ -1147,10 +1153,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		float rand = (float)Math.random();
 		float x = spawn.getX();
 		float y = spawn.getY();
-		//DEBUG: change to true to disable spawns
-		if(false){
-			return;
-		}
 		// Spawn chicken at the border of the world
 		/*if (rand < 0.25){
 			x = spawn_xmin;
@@ -1343,6 +1345,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		switch (t){
 			case COOLER:
 				trapTexture = trapCoolerTexture;
+				anim = new FilmStrip(trapCoolerActivate, 1, COOLER_NUM_FRAMES);
 				break;
 			case TOASTER:
 				trapTexture = trapToasterTexture;
@@ -1561,7 +1564,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		temp.draw(canvas);
 
 		//draw gametime
-		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
+//		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
 	}
@@ -1675,19 +1678,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void setCanvas(GameCanvas canvas) {
 		this.canvas = canvas;
-		//scale needs to be based on 1920x1080 for the grid
 		float y = canvas.getHeight();
 		float x = canvas.getWidth();
 		//canvas.setSize(1920, 1080);
 		//canvas.resize();
 		//canvas.resetCamera();
-		//float scale = Gdx.graphics.getBackBufferScale();
 		this.scale.x = x/bounds.getWidth();
 		this.scale.y = y/bounds.getHeight();
+		//everything based off 1080p
 		this.displayScale.x = x/1920f;
 		this.displayScale.y = y/1080f;
-		//this.scale.x = 30.0f;
-		//this.scale.y = 30.0f;
 		gridWidth = x;
 		gridHeight = y;
 	}
@@ -1733,7 +1733,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chef.setDrawScale(scale);
 		chef.setDisplayScale(displayScale);
 		grid.resize(width,height,scale);
-		//IGNORE FOR NOW
 	}
 
 	/**

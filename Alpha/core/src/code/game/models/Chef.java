@@ -313,7 +313,7 @@ public class Chef extends GameObject implements ChefInterface {
 	 * @param slapDirection what direction the chef is slapping in
 	 */
 	public void setShooting(boolean value, int slapDirection) {
-		if (value) animeframe = 0;
+		if (value && shootCooldown <= 0) animeframe = 0;
 		slapFace = slapDirection;
 		isShooting = value;
 	}
@@ -538,21 +538,8 @@ public class Chef extends GameObject implements ChefInterface {
 		if (!isActive()) {
 			return;
 		}
-		
-		// Don't want to be moving. Damp out player motion
-//		if (getMovement() == 0f) {
-//			forceCache.set(-getDamping()*getVX(),0);
-//			body.applyForce(forceCache,getPosition(),true);
-//		}
 
-		//		if (getVertMovement() == 0f) {
-//			forceCache.set(0,-getDamping()*getVY());
-//			body.applyForce(forceCache,getPosition(),true);
-//		}
-
-
-		// Velocity too high, clamp it
-		//TODO: getMaxSpeed needed to be here twice...why?
+		// Velocity too high, clamp it?
 		if (Math.abs(getVX()) > getMaxSpeed()) {
 			setVX(Math.signum(getVX())*getMaxSpeed());
 		} else {
@@ -615,7 +602,6 @@ public class Chef extends GameObject implements ChefInterface {
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 
-		//TODO: WHY ARE WE USING THESE CONSTANTS HERE?? WHAT DO THEY MEANa
 		if (isStunned()){
 			animeframe += ANIMATION_SPEED;
 			if (animeframe >= 5) {

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 
 /**
@@ -31,6 +32,9 @@ public class HotChicken extends Chicken {
     /** height draw scaling */
     private float hscale;
 
+    /** data about the hot chick*/
+    private JsonValue data;
+
 
     /**
      * Creates a new chicken avatar with the given physics data
@@ -54,6 +58,7 @@ public class HotChicken extends Chicken {
         wscale = unique.getFloat("wscale", 1);
         hscale = unique.getFloat("hscale", 1);
         sensorRadius = SENSOR_RADIUS;
+        this.data = data;
     }
 
     /**
@@ -123,11 +128,53 @@ public class HotChicken extends Chicken {
         Color c = Color.WHITE;
         if (isAttacking && attack_animator != null && !isLured()) {
             attack_animator.setFrame((int) animeframe);
-            canvas.draw(attack_animator,c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
+            canvas.draw(attack_animator,c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
         } else if (!isStunned) {
             animator.setFrame((int) animeframe);
-            canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
+            canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
         }
+    }
+
+    /**
+     * Creates the physics Body(s) for this object, adding them to the world.
+     *
+     * This method overrides the base method to keep your ship from spinning.
+     *
+     * @param world Box2D world to store body
+     *
+     * @return true if object allocation succeeded
+     */
+    @Override
+    public boolean activatePhysics(World world) {
+        // create the box from our superclass
+        if (!super.activatePhysics(world)) {
+            return false;
+        }
+        // Ground Sensor
+        // -------------
+        // Previously used to detect double-jumps, but also allows us to see hitboxes
+        Vector2 sensorCenter = new Vector2(0, getHeight());
+        FixtureDef hitboxDef = new FixtureDef();
+        hitboxDef.density = data.getFloat("density",0);
+        hitboxDef.isSensor = true;
+        hitboxShape = new PolygonShape();
+        hitboxShape.setAsBox(getWidth()*1.5f, getHeight()*1.5f, sensorCenter, 0);
+        hitboxDef.shape = hitboxShape;
+        Fixture hitboxFixture = body.createFixture(hitboxDef);
+        hitboxFixture.setUserData(FixtureType.CHICKEN_HURTBOX);
+
+        FixtureDef sensorDef = new FixtureDef();
+        sensorDef.density = data.getFloat("density",0);
+        sensorDef.isSensor = true;
+        sensorShape = new CircleShape();
+        sensorShape.setRadius(sensorRadius);
+        sensorDef.shape = sensorShape;
+        // Ground sensor to represent our feet
+        Fixture sensorFixture = body.createFixture( sensorDef );
+        sensorFixture.setUserData(FixtureType.CHICKEN_HITBOX);//getSensorName());
+
+
+        return true;
     }
 
     /**

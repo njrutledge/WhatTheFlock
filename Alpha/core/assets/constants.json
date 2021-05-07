@@ -17,7 +17,7 @@
 		"maxhealth": 6,
 		"jump_force": 5.5,
 		"jump_cool": 30,
-		"shot_cool": 16,
+		"shot_cool": 30,
 		"sensor": {
 			"shrink" : 0.9,
 			"height" : 0.4
@@ -48,7 +48,7 @@
 		}
 	},
 	"dino" : {
-		"shrink": [0.7, 0.7],
+		"shrink": [1.1, 1.1],
 		"damping": 0.2,
 		"hScale": 4,
 		"wScale": 4,
@@ -79,7 +79,7 @@
 		}
 	},
 	"shredded" : {
-		"shrink": [0.7, 0.7],
+		"shrink": [1.2, 1.2],
 		"density": 0.1,
 		"damping": 0.2,
 		"maxspeed": 5.0,
@@ -92,7 +92,7 @@
 		}
 	},
 	"hot" : {
-		"shrink": [0.7, 0.7],
+		"shrink": [1, 1],
 		"density": 0.1,
 		"damping": 0.2,
 		"wscale" : 0.35,
