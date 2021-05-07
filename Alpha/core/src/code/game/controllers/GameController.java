@@ -76,18 +76,24 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** Texture asset for the chicken */
 	private TextureRegion chickenTexture;
+	/** Texture asset for chicken health bar */
+	private TextureRegion enemyHealthBarTexture;
+
 	/** Texture asset for the stove */
 	private TextureRegion stoveTexture;
 	/** Texture asset for active stove*/
 	private TextureRegion stoveActiveTexture;
 	/** Texture asset for inactive stove*/
 	private TextureRegion stoveInactiveTexture;
+
 	/** Texture asset for default trap (TEMP) */
 	private TextureRegion trapDefaultTexture;
 	/** Texture asset for Fidge trap */
 	private TextureRegion trapCoolerTexture;
-	/** Texture asset for chicken health bar */
-	private TextureRegion enemyHealthBarTexture;
+	/** Texture for animating Cooler trap*/
+	private Texture trapCoolerActivate;
+	private final int COOLER_NUM_FRAMES = 17;
+
 	/** Texture asset for toaster trap */
 	private TextureRegion trapToasterTexture;
 	/** The texture for animating the Toaster*/
@@ -479,6 +485,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			//traps
 		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
 		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
+		trapCoolerActivate = directory.getEntry("enviro:trap:coolerActivate", Texture.class);
+
 		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
 		trapToasterActivate = directory.getEntry("enviro:trap:toasterActivate", Texture.class);
 
@@ -1338,6 +1346,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		switch (t){
 			case COOLER:
 				trapTexture = trapCoolerTexture;
+				anim = new FilmStrip(trapCoolerActivate, 1, COOLER_NUM_FRAMES);
 				break;
 			case TOASTER:
 				trapTexture = trapToasterTexture;
