@@ -313,7 +313,7 @@ public class Chef extends GameObject implements ChefInterface {
 	 * @param slapDirection what direction the chef is slapping in
 	 */
 	public void setShooting(boolean value, int slapDirection) {
-		if (value) animeframe = 0;
+		if (value && shootCooldown <= 0) animeframe = 0;
 		slapFace = slapDirection;
 		isShooting = value;
 	}
