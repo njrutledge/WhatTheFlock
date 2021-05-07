@@ -1591,7 +1591,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		temp.draw(canvas);
 
 		//draw gametime
-		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
+//		canvas.drawText("Time: " + (double) Math.round(gameTime * 10) / 10, new BitmapFont(), 1000, 700);
 		canvas.end();
 
 	}
