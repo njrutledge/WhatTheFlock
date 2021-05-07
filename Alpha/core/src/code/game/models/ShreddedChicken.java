@@ -120,7 +120,7 @@ public class ShreddedChicken extends Chicken {
         float wScale = 0.8f;
         float hScale = 0.7f;
         if (!isInvisible) {
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), wScale*effect, hScale);
+            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
     }
 

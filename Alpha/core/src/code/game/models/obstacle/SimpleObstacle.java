@@ -16,6 +16,7 @@
  */
 package code.game.models.obstacle;
 
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -37,7 +38,7 @@ public abstract class SimpleObstacle extends Obstacle {
 	protected Body body;
 
 	/** The texture for the shape. */
-	protected TextureRegion texture;
+	protected Texture texture;
 
 	/** The texture origin for drawing */
 	protected Vector2 origin;
@@ -752,7 +753,7 @@ public abstract class SimpleObstacle extends Obstacle {
 	 * 
 	 * @return the object texture for drawing purposes.
 	 */
-	public TextureRegion getTexture() {
+	public Texture getTexture() {
 		return texture;
 	}
 	
@@ -764,9 +765,9 @@ public abstract class SimpleObstacle extends Obstacle {
 	 * 
 	 * @param value  the object texture for drawing purposes.
 	 */
-	public void setTexture(TextureRegion value) {
+	public void setTexture(Texture value) {
 		texture = value;
-		origin.set(texture.getRegionWidth()/2.0f, texture.getRegionHeight()/2.0f);
+		origin.set(texture.getWidth()/2.0f, texture.getHeight()/2.0f);
 		//origin.set(texture.getRegionWidth()/2.0f,texture.getRegionHeight());
 	}
 	

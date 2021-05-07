@@ -407,11 +407,11 @@ public class ChickenAttack extends GameObject {
             case Projectile:
                 if (!breaking) {
                     eggSpin.setFrame((int) animeframe);
-                    canvas.draw(eggSpin, Color.WHITE, originSpin.x, originSpin.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 0.25f, 0.25f);
+                    canvas.draw(eggSpin, Color.WHITE, originSpin.x, originSpin.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), displayScale.x*0.25f, displayScale.y*0.25f);
                 }
                 else{
                     eggSplat.setFrame((int) animeframe);
-                    canvas.draw(eggSplat, Color.WHITE, originSplat.x, originSplat.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 0.15f, 0.15f);
+                    canvas.draw(eggSplat, Color.WHITE, originSplat.x, originSplat.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), displayScale.x*0.15f, displayScale.y*0.15f);
                 }
                 break;
             case Explosion:

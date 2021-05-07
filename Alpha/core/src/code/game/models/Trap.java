@@ -538,7 +538,7 @@ public class Trap extends GameObject implements TrapInterface {
         if(animation != null){
             animation.setFrame(frame);
             canvas.draw(animation, isReady ? Color.WHITE: c, origin.x, origin.y,
-                    getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
+                    getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
             if (hasIndicator && isReady) {
                 canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y,
                         getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
@@ -548,9 +548,9 @@ public class Trap extends GameObject implements TrapInterface {
             if (!isReady) {
                 int breaking = 1;
             }
-            canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
+            canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
             if (hasIndicator && isReady) {
-                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
+                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), displayScale.x*0.5f, displayScale.y*0.5f);
             }
         }
     }

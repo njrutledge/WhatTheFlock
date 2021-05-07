@@ -152,12 +152,12 @@ public class GameCanvas {
 	/**
 	 * Returns the width of this canvas
 	 *
-	 * This currently gets its value from Gdx.graphics.getWidth()
+	 * This currently gets its value from Gdx.graphics.getBackBufferWidth(), no longer Gdx.graphics.getWidth()
 	 *
 	 * @return the width of this canvas
 	 */
 	public int getWidth() {
-		return Gdx.graphics.getWidth();
+		return Gdx.graphics.getBackBufferWidth();
 	}
 	
 	/**
@@ -183,12 +183,12 @@ public class GameCanvas {
 	/**
 	 * Returns the height of this canvas
 	 *
-	 * This currently gets its value from Gdx.graphics.getHeight()
+	 * This currently gets its value from Gdx.graphics.getBackBufferHeight, no longer Gdx.graphics.getHeight()
 	 *
 	 * @return the height of this canvas
 	 */
 	public int getHeight() {
-		return Gdx.graphics.getHeight();
+		return Gdx.graphics.getBackBufferHeight();
 	}
 	
 	/**
@@ -217,7 +217,7 @@ public class GameCanvas {
 	 * @return the dimensions of this canvas
 	 */
 	public Vector2 getSize() {
-		return new Vector2(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		return new Vector2(Gdx.graphics.getBackBufferWidth(),Gdx.graphics.getBackBufferHeight());
 	}
 	
 	/**
@@ -384,9 +384,6 @@ public class GameCanvas {
     public void begin() {
 		spriteBatch.setProjectionMatrix(camera.combined);
     	spriteBatch.begin();
-    	//TODO:remove after technical
-		debugRenderTry.setProjectionMatrix(camera.combined);
-		debugRenderTry.begin(ShapeRenderer.ShapeType.Line);
     	active = DrawPass.STANDARD;
     }
 
@@ -395,9 +392,18 @@ public class GameCanvas {
 	 */
     public void end() {
     	spriteBatch.end();
-    	debugRenderTry.end();
     	active = DrawPass.INACTIVE;
     }
+
+	/**
+	 *  Reset the camera's size
+	 */
+	public void resetCamera() {
+		camera = new OrthographicCamera(getWidth(),getHeight());
+		camera.setToOrtho(false);
+		spriteBatch.setProjectionMatrix(camera.combined);
+		debugRender.setProjectionMatrix(camera.combined);
+	}
 
 	/**
 	 * Draws the tinted texture at the given position.

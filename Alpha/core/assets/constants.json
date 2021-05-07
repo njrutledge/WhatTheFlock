@@ -107,7 +107,7 @@
 		}
 	},
 	"stove" : {
-		"shrink": [0.1,0.1],
+		"shrink": [0.125,0.125],
 		"sensor": {
 			"shrink" : 1.5,
 			"height" : 1.5

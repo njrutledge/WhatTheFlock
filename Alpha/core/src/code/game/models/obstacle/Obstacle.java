@@ -50,6 +50,8 @@ public abstract class Obstacle {
     private String nametag;
 	/** Drawing scale to convert game units to pixels */
 	protected Vector2 drawScale;
+	/** Display scale to convert between logical and actual pixels */
+	protected Vector2 displayScale;
 
 	/// Track garbage collection status
 	/** Whether the object should be removed from the world on next pass */
@@ -841,7 +843,7 @@ public abstract class Obstacle {
      * to be small.  So we decouple that scale from the game object.  However,
      * we must track the scale difference to communicate with the scene graph.
      *
-	 * This method does NOT return a reference to the drawing scale. Changes to this 
+	 * This method does NOT return a reference to the drawing scale. Changes to this
 	 * vector will not affect the body.  However, it returns the same vector each time
 	 * its is called, and so cannot be used as an allocator.
 
@@ -849,10 +851,27 @@ public abstract class Obstacle {
      *
      * @return the drawing scale for this game object
      */
-    public Vector2 getDrawScale() { 
+    public Vector2 getDrawScale() {
     	scaleCache.set(drawScale);
-    	return scaleCache; 
+    	return scaleCache;
     }
+
+	/**
+	 * Returns the display scale for this game object
+	 *
+	 * This method does NOT return a reference to the display scale. Changes to this
+	 * vector will not affect the body.  However, it returns the same vector each time
+	 * its is called, and so cannot be used as an allocator.
+
+	 * We allow for the scaling factor to be non-uniform.
+	 *
+	 * @return the display scale for this game object
+	 */
+	public Vector2 getDisplayScale() {
+		scaleCache.set(displayScale);
+		return scaleCache;
+	}
+
     
     /**
      * Sets the drawing scale for this game object
@@ -868,6 +887,10 @@ public abstract class Obstacle {
      */
     public void setDrawScale(Vector2 value) { 
     	setDrawScale(value.x,value.y); 
+	}
+
+	public void setDisplayScale(Vector2 value) {
+    	setDisplayScale(value.x,value.y);
 	}
     
     /**
@@ -886,6 +909,20 @@ public abstract class Obstacle {
     public void setDrawScale(float x, float y) {
     	drawScale.set(x,y);
     }
+
+	/**
+	 * Sets the display scale for this game object
+	 *
+	 * The display scale fixes sizing issues with windows.
+	 *
+	 * We allow for the scaling factor to be non-uniform.
+	 *
+	 * @param x  the x-axis scale for this game object
+	 * @param y  the y-axis scale for this game object
+	 */
+	public void setDisplayScale(float x, float y) {
+		displayScale.set(x,y);
+	}
     	
 	/// DEBUG METHODS
 	/**
@@ -947,6 +984,7 @@ public abstract class Obstacle {
 		
 		// Set the default drawing scale
 		drawScale = new Vector2(1,1);
+		displayScale = new Vector2(1,1);
 	}
 
 	/// Abstract Methods
