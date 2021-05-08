@@ -68,12 +68,19 @@ public class SoundController {
     /** Sound for eggsplosion */
     private SoundBuffer eggsplosion;
 
-    /** Sound for buffalo charging */
+    /** Sound for buffalo attacking */
     private SoundBuffer buffaloAttack;
     /** Sound for buffalo charging */
     private SoundBuffer buffaloCharge;
     /** Sound for buffalo hurt */
     private SoundBuffer buffaloHurt;
+
+    /** Sound for hot chicken attacking */
+    private SoundBuffer hotAttack;
+    /** Sound for hot chicken charging */
+    private SoundBuffer hotCharge;
+    /** Sound for hot chicken hurt */
+    private SoundBuffer hotHurt;
 
     /** Sound for nugget attack */
     private SoundBuffer nuggetAttack;
@@ -136,16 +143,21 @@ public class SoundController {
         //Chickens
         shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
         shreddedHurt = directory.getEntry("sound:chick:shredded:hurt", SoundBuffer.class);
-        eggsplosion = directory.getEntry("sound:chick:eggsplosion",SoundBuffer.class);
 
         buffaloAttack = directory.getEntry("sound:chick:buffalo:attack", SoundBuffer.class);
         buffaloCharge = directory.getEntry("sound:chick:buffalo:charge", SoundBuffer.class);
+
+        hotAttack = directory.getEntry("sound:chick:hot:attack", SoundBuffer.class);
+        hotCharge = directory.getEntry("sound:chick:hot:charge", SoundBuffer.class);
+        hotHurt = directory.getEntry("sound:chick:hot:hurt", SoundBuffer.class);
+        eggsplosion = directory.getEntry("sound:chick:eggsplosion",SoundBuffer.class);
 
         nuggetAttack = directory.getEntry("sound:chick:nugget:attack", SoundBuffer.class);
         nuggetHurt = directory.getEntry("sound:chick:nugget:hurt", SoundBuffer.class);
 
         sounds.add(shreddedAttack, shreddedHurt, eggsplosion);
         sounds.add(buffaloAttack, buffaloCharge);
+        sounds.add(hotAttack, hotCharge, hotHurt);
         sounds.add(nuggetAttack, nuggetHurt);
 
         //Music
@@ -285,6 +297,12 @@ public class SoundController {
     public void playBuffAttack() {playInstant(buffaloAttack, LOUD);}
 
     //public void playBuffHurt() {playInstant(buffaloHurt, LOUD);}
+
+    public void playHotCharge() {playInstant(hotCharge, LOUD);}
+
+    public void playHotAttack() {playInstant(hotAttack, LOUD);}
+
+    public void playHotHurt() {playInstant(hotHurt, LOUD);}
 
     public void playNugAttack() {playInstant(nuggetAttack, LOUD);}
 

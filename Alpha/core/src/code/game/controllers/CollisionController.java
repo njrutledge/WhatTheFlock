@@ -281,6 +281,9 @@ public class CollisionController implements CollisionControllerInterface {
                 case Buffalo:
                     sound.playBuffCharge();
                     break;
+                case Hot:
+                    //sound.playHotCharge(); //not synced yet
+                    break;
             }
         }
     }
@@ -297,6 +300,7 @@ public class CollisionController implements CollisionControllerInterface {
             sound.playEggsplosion();
         }
         if(attack.getType().equals(ChickenAttack.AttackType.Knockback)){
+            sound.playShredAttack();
             float max_speed = 300.0f;
             float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
             chef.markSetVelocity(max_speed, angle);
@@ -346,7 +350,7 @@ public class CollisionController implements CollisionControllerInterface {
                 sound.playShredHurt();
                 break;
             case Hot:
-                //TODO Hot Chick sounds
+                sound.playHotHurt();
                 break;
         }
 
