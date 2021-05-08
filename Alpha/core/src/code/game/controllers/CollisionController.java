@@ -126,7 +126,8 @@ public class CollisionController implements CollisionControllerInterface {
             case SLAP:
                 slapCollision((Slap) bd1, fd1, bd2, fd2);
                 break;
-            case TRAP:
+            case FLOORTRAP:
+            case TABLETRAP:
                 trapCollision((Trap) bd1, fd1, bd2, fd2);
                 break;
         }
@@ -150,7 +151,8 @@ public class CollisionController implements CollisionControllerInterface {
             case SLAP:
                 handleChickenSlap(c1, fd1, bd2, fd2);
                 break;
-            case TRAP:
+            case FLOORTRAP:
+            case TABLETRAP:
                 handleChickenTrap(c1, fd1, (Trap) bd2, fd2);
                 break;
             case ATTACK:
@@ -422,7 +424,8 @@ public class CollisionController implements CollisionControllerInterface {
             case SLAP:
                 endSlapCollision(bd1, fd1, bd2, fd2);
                 break;
-            case TRAP:
+            case FLOORTRAP:
+            case TABLETRAP:
                 endTrapCollision((Trap) bd1, fd1, bd2, fd2);
                 break;
         }
@@ -433,7 +436,8 @@ public class CollisionController implements CollisionControllerInterface {
             case CHEF:
                 endChickenChef(c1, fd1, (Chef) bd2, fd2);
                 break;
-            case TRAP:
+            case FLOORTRAP:
+            case TABLETRAP:
                 if(fd2!= null && fd2.equals(FixtureType.TRAP_HITBOX)) {
                     endChickenTrap(c1, fd1, (Trap) bd2, fd2);
                 }

@@ -33,7 +33,7 @@ public class TrapController implements TrapControllerInterface {
     /** Texture Region for default traps */
     private TextureRegion trapDefaultTexture;
     /** Number of lures a toaster releases*/
-    private static final int LURE_NUM = 3;
+    private static final int LURE_NUM = 2;
 
     private static Random generator = new Random(0);
 

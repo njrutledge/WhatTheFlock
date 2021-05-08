@@ -147,6 +147,9 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /**The total number of levels we have. Should be equal to length of levelList. */
     private int numLevels;
 
+    /** Json for the game save */
+    private JsonValue save;
+
     /** The first knife on the screen, i.e. left-most knife in level select */
     private int leftIndex;
 

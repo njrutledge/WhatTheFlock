@@ -132,7 +132,8 @@
     },
     "jsons"  : {
         "constants": "constants.json",
-        "levels": "levels.json"
+        "levels": "levels.json",
+        "save": "save.json"
     },
     "sounds" : {
         "sound:menu:selecting" : "sounds/ui/menu_ui_selecting.ogg",
@@ -158,7 +159,7 @@
 
         "sound:trap:fireLinger" : "sounds/trap/fire_linger_1.ogg",
         "sound:trap:fireTrig" : "sounds/trap/fire_trigger_2.ogg",
-        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg",
+        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg"
 
 
     },
