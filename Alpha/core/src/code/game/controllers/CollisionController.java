@@ -239,6 +239,7 @@ public class CollisionController implements CollisionControllerInterface {
      */
     private void handleStoveChef(Stove stove, Chef chef) {
         chef.setCooking(true && !chef.isStunned(), stove);
+        chef.setInCookingRange(true);
         chef.setMovement(0);
         chef.setVertMovement(0);
         //stove.setLit(true);
