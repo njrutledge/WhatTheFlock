@@ -1320,7 +1320,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					break;
 				case Projectile:
 					attack.setEggAnimators(eggSpinTexture, eggSplatTexture);
-					sound.playShredAttack();
+					sound.playHotAttack();
 					break;
 				case Charge:
 					if (chicken.getType() == Chicken.ChickenType.Buffalo) {
