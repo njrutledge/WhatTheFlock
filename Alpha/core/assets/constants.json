@@ -38,7 +38,7 @@
 		"maxspeed": 7.0,
 		"chasespeed": 6.0,
 		"knockback": 30.0,
-		"maxhealth": 5,
+		"maxhealth": 1,
 		"num_anim_frames": 8,
 		"animation_speed": 0.25,
 		"sensor_radius": 0.8,
