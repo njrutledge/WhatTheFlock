@@ -21,7 +21,8 @@
 		"sensor": {
 			"shrink" : 0.9,
 			"height" : 0.4
-		}
+		},
+		"base_dmg" : 2
 	},
 	"chicken" : {
 		"force": 20.0,
@@ -35,10 +36,10 @@
 		"hScale": 1.5,
 		"wScale": 1.5,
 		"density": 0.1,
-		"maxspeed": 7.0,
-		"chasespeed": 6.0,
+		"maxspeed": 6.0,
+		"chasespeed": 5.0,
 		"knockback": 30.0,
-		"maxhealth": 5,
+		"maxhealth": 2,
 		"num_anim_frames": 8,
 		"animation_speed": 0.25,
 		"sensor_radius": 0.8,

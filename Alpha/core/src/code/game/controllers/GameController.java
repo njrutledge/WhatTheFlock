@@ -1370,9 +1370,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 
-
+	//TODO modify to make it easier starting out
 	public float damageCalc(){
-		return (temp.getTemperature() <= 0) ? 0 : chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
+		//return (temp.getTemperature() <= 0) ? 0 : chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
+		return chef.getDamage() + 2 * chef.getDamage() * temp.getPercentCooked();
 	}
 
 

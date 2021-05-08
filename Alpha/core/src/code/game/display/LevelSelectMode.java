@@ -1,7 +1,6 @@
 package code.game.display;
 
 import code.assets.AssetDirectory;
-import code.audio.SoundBuffer;
 import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
 import code.game.views.GameCanvas;
@@ -69,7 +68,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Scale of back button */
     private static float BACK_SCALE = 0.75f;
     /** The distance between each knife */
-    private static float DIST = 300;
+    private float dist;
     /** Shadow offset */
     private static float SHADOW_OFFSET = 35;
     /** Entering offset (offset of knife when player is holding enter) */
@@ -480,13 +479,15 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             // Draw the knife
             if (i == highlightedIndex) {
                 canvas.draw(knifeTexture, Color.BLACK, knifeTexture.getWidth()/2, knifeTexture.getHeight()/2,
-                        knifeCenterX+DIST*highlightedIndex-SHADOW_OFFSET-HOVER_OFFSET, knifeCenterY-SHADOW_OFFSET-HOVER_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+                        knifeCenterX+ dist *highlightedIndex-SHADOW_OFFSET-HOVER_OFFSET,
+                        knifeCenterY-SHADOW_OFFSET-HOVER_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
                 Color color = pressState == 1 ? Color.SLATE : Color.WHITE;
                 canvas.draw(knifeTexture, color, knifeTexture.getWidth() / 2, knifeTexture.getHeight() / 2,
-                        knifeCenterX + DIST * i-HOVER_OFFSET, knifeCenterY-HOVER_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+                        knifeCenterX + dist * i-HOVER_OFFSET, knifeCenterY-HOVER_OFFSET, 0,
+                        KNIFE_RATIO * scale, KNIFE_RATIO * scale);
             } else {
                 canvas.draw(knifeTexture, Color.WHITE, knifeTexture.getWidth() / 2, knifeTexture.getHeight() / 2,
-                        knifeCenterX + DIST * i, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+                        knifeCenterX + dist * i, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
             }
 
             // Draw level name
@@ -499,7 +500,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                     layout.setText(infoFont, string + word);
                     if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale) {
                         layout.setText(infoFont, string.substring(0, string.length()-1));
-                        canvas.drawText(string, infoFont, bladeCenterX+DIST*i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
+                        canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
                         row -= 1;
                         string = "";
                     }
@@ -507,14 +508,14 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 }
                 if (string != "") {
                     layout.setText(infoFont, string.substring(0, string.length()-1));
-                    canvas.drawText(string, infoFont, bladeCenterX+DIST*i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
+                    canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
                 }
             }
-            else { canvas.drawText(text, infoFont, bladeCenterX + i*DIST-layout.width/2, bladeCenterY+30+INFO_HEIGHT/2); }
+            else { canvas.drawText(text, infoFont, bladeCenterX + i* dist -layout.width/2, bladeCenterY+30+INFO_HEIGHT/2); }
 
             // Draw level number
             layout.setText(displayFont, ""+(leftIndex+i+1));
-            canvas.drawText(""+(leftIndex+i+1), displayFont, bladeCenterX+DIST*i-layout.width/2, bladeCenterY-20);
+            canvas.drawText(""+(leftIndex+i+1), displayFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY-20);
         }
         //canvas.drawText("|", infoFont, bladeCenterX, bladeCenterY);
         //arrow
@@ -580,7 +581,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
 /*        knifeCenterX = width/2;
         knifeCenterY = height/3;*/
-        knifeCenterX = (float)(width * .18 + knifeTexture.getWidth()/2);
+
+        knifeCenterX = (float)(width / 5 + knifeTexture.getWidth()/2);
         knifeCenterY = height/3;
 
         bladeCenterX = (float)(knifeCenterX - 0.12 * knifeTexture.getWidth());
@@ -588,7 +590,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
         BLADE_WIDTH = knifeTexture.getWidth()*0.75f;
         BLADE_HEIGHT = knifeTexture.getHeight()*0.7f;
-
+        dist = (width/3 - BLADE_WIDTH);
         textCenterY = knifeCenterY;
         heightY = height;
     }
@@ -657,8 +659,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         int i;
         float xBound, yBound;
         if (screenX <= centerX + width/2) { i = 0; xBound = centerX - width/2; }
-        else if (screenX <= centerX + width/2 + DIST) { i = 1; xBound = centerX + DIST - width/2; }
-        else { i = 2; xBound = centerX + DIST*2 - width/2; }
+        else if (screenX <= centerX + width/2 + dist) { i = 1; xBound = centerX + dist - width/2; }
+        else { i = 2; xBound = centerX + dist *2 - width/2; }
         yBound = centerY - height/2;
         if ((screenX >= xBound && screenX <= xBound + width) && (screenY >= yBound && screenY <= yBound + height)) {
             return i;
