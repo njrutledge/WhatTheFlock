@@ -148,13 +148,13 @@ public class NuggetChicken extends Chicken {
 
             if (isAttacking && attack_animator != null && !isLured()) {
                 attack_animator.setFrame((int) animeframe);
-                canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+                canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*0.1f * effect * wScale, displayScale.y*0.1f * hScale);
             } else if (!isStunned) {
                 animator.setFrame((int) animeframe);
-                canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+                canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*0.1f * effect * wScale, displayScale.y*0.1f * hScale);
             } else if (isStunned) {
                 hurt_animator.setFrame((int) (animeframe));
-                canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+                canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*0.1f * effect * wScale, displayScale.y*0.1f * hScale);
             }
         }
         canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);

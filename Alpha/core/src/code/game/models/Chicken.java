@@ -681,6 +681,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         this.isBeingForced = isForce;
     }
 
+    public void resize(float width, float height){
+        super.resize(width, height);
+    }
     /**
      * Set the isInvisible boolean, which determines whether to draw the chicken on the screen
      *

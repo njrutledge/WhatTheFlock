@@ -27,8 +27,8 @@ public class CollisionController implements CollisionControllerInterface {
     private SoundController sound;
 
 
-    public CollisionController(Vector2 scale) {
-        trapController = new TrapController(scale);
+    public CollisionController(Vector2 scale, Vector2 displayScale) {
+        trapController = new TrapController(scale, displayScale);
     }
 
     /**

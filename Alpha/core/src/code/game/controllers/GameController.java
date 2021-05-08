@@ -51,28 +51,28 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** The texture for the background */
 	protected TextureRegion background;
 	//~~~~~~~~~~~~~~~ The textures for walls ~~~~~~~~~~~~~~~~~~~~~
-	protected TextureRegion wallCenterTile;
-	protected TextureRegion wallLeftTile;
-	protected TextureRegion wallRightTile;
-	protected TextureRegion wallBottomTile;
-	protected TextureRegion wallTopTile;
-	protected TextureRegion wallTop2Tile;
-	protected TextureRegion wallTopLeftCornerTile;
-	protected TextureRegion wallTopRightCornerTile;
-	protected TextureRegion wallTopLeftCorner2Tile;
-	protected TextureRegion wallTopRightCorner2Tile;
-	protected TextureRegion wallBottomLeftCorner;
-	protected TextureRegion wallBottomRightCorner;
-	protected TextureRegion wallYellowCenterTile;
-	protected TextureRegion wallYellowBottomTile;
-	protected TextureRegion wallCeilingTile;
-	protected TextureRegion wallCeilingBottomTile;
+	protected Texture wallCenterTile;
+	protected Texture wallLeftTile;
+	protected Texture wallRightTile;
+	protected Texture wallBottomTile;
+	protected Texture wallTopTile;
+	protected Texture wallTop2Tile;
+	protected Texture wallTopLeftCornerTile;
+	protected Texture wallTopRightCornerTile;
+	protected Texture wallTopLeftCorner2Tile;
+	protected Texture wallTopRightCorner2Tile;
+	protected Texture wallBottomLeftCorner;
+	protected Texture wallBottomRightCorner;
+	protected Texture wallYellowCenterTile;
+	protected Texture wallYellowBottomTile;
+	protected Texture wallCeilingTile;
+	protected Texture wallCeilingBottomTile;
 
 	/** The font for giving messages to the player */
 	protected BitmapFont displayFont;
 
 	/** Texture asset for the bullet */
-	private TextureRegion bulletTexture;
+	private Texture bulletTexture;
 
 	/** Texture asset for the chicken */
 	private TextureRegion chickenTexture;
@@ -80,28 +80,27 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion enemyHealthBarTexture;
 
 	/** Texture asset for the stove */
-	private TextureRegion stoveTexture;
+	private Texture stoveTexture;
 	/** Texture asset for active stove*/
-	private TextureRegion stoveActiveTexture;
+	private Texture stoveActiveTexture;
 	/** Texture asset for inactive stove*/
-	private TextureRegion stoveInactiveTexture;
-
+	private Texture stoveInactiveTexture;
 	/** Texture asset for default trap (TEMP) */
-	private TextureRegion trapDefaultTexture;
+	private Texture trapDefaultTexture;
 	/** Texture asset for Fidge trap */
-	private TextureRegion trapCoolerTexture;
+	private Texture trapCoolerTexture;
 	/** Texture for animating Cooler trap*/
 	private Texture trapCoolerActivate;
 	private final int COOLER_NUM_FRAMES = 17;
 
 	/** Texture asset for toaster trap */
-	private TextureRegion trapToasterTexture;
+	private Texture trapToasterTexture;
 	/** The texture for animating the Toaster*/
 	private Texture trapToasterActivate;
 	/** Number of frames in Toaster texture*/
 	private final int TOASTER_NUM_FRAMES = 12;
 	/** Texture asset for hot sauce trap */
-	private TextureRegion trapHotSauceTexture;
+	private Texture trapHotSauceTexture;
 	/** Texture for animating Hot Sauce Trap*/
 	private Texture trapHotSauceActivate;
 	/** Number of frames in Hot Sauce texture*/
@@ -109,7 +108,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Texture asset for slap indicator above traps */
 	private TextureRegion indicatorTexture;
 	/** Texture asset for the spawnpoint*/
-	private TextureRegion spawnTexture;
+	private Texture spawnTexture;
 
 	private float gridWidth;
 	private float gridHeight;
@@ -143,8 +142,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Texture asset for the dino hurt texture */
 	private Texture dinoHurtTexture;
 
-	///** Texture asset for temp bar*/
-	//private Texture tempTexture;
 	/** Texture asset for empty temp bar */
 	private TextureRegion tempEmpty;
 	/**Texture asset for yellow temp bar */
@@ -323,6 +320,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected Rectangle bounds;
 	/** The world scale */
 	protected Vector2 scale;
+	/** The display scale */
+	protected Vector2 displayScale;
 	/** The grid */
 	protected Grid grid;
 
@@ -409,7 +408,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		setFailure(false);
 		world.setContactListener(this);
 		sensorFixtures = new ObjectSet<Fixture>();
-		collisionController = new CollisionController(scale);
+		collisionController = new CollisionController(scale, displayScale);
 	}
 
 
@@ -427,6 +426,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		world = new World(gravity,false);
 		this.bounds = new Rectangle(bounds);
 		this.scale = new Vector2(1,1);
+		this.displayScale = new Vector2(1,1);
 		complete = false;
 		failed = false;
 		debug  = false;
@@ -445,40 +445,39 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//textures
 			//environment
 		background = new TextureRegion(directory.getEntry("enviro:background",Texture.class));
-		wallCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:center", Texture.class ));
-		wallLeftTile = new TextureRegion(directory.getEntry( "enviro:wall:left", Texture.class ));
-		wallRightTile = new TextureRegion(directory.getEntry( "enviro:wall:right", Texture.class ));
-		wallBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:bottom", Texture.class ));
-		wallYellowCenterTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:center", Texture.class ));
-		wallYellowBottomTile = new TextureRegion(directory.getEntry( "enviro:wall:yellow:bottom", Texture.class ));
-		wallTopTile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
-		wallTopLeftCornerTile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner", Texture.class));
-		wallTopRightCornerTile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner", Texture.class));
+		wallCenterTile = directory.getEntry("enviro:wall:center", Texture.class);
+		wallLeftTile = directory.getEntry("enviro:wall:left", Texture.class);
+		wallRightTile = directory.getEntry( "enviro:wall:right", Texture.class);
+		wallBottomTile = directory.getEntry( "enviro:wall:bottom", Texture.class);
+		wallYellowCenterTile = directory.getEntry( "enviro:wall:yellow:center", Texture.class);
+		wallYellowBottomTile = directory.getEntry( "enviro:wall:yellow:bottom", Texture.class);
+		wallTopTile = directory.getEntry( "enviro:wall:top", Texture.class);
+		wallTopLeftCornerTile =directory.getEntry("enviro:wall:topleftcorner", Texture.class);
+		wallTopRightCornerTile = directory.getEntry("enviro:wall:toprightcorner", Texture.class);
 		//TODO: change top corners back
-		wallTop2Tile = new TextureRegion(directory.getEntry( "enviro:wall:top", Texture.class ));
-		wallTopLeftCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:topleftcorner", Texture.class));
-		wallTopRightCorner2Tile = new TextureRegion(directory.getEntry("enviro:wall:toprightcorner", Texture.class));
-		wallBottomLeftCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomleftcorner", Texture.class));
-		wallBottomRightCorner = new TextureRegion(directory.getEntry("enviro:wall:bottomrightcorner", Texture.class));
-		wallCeilingTile = new TextureRegion(directory.getEntry("enviro:wall:ceiling", Texture.class));
-		wallCeilingBottomTile = new TextureRegion(directory.getEntry("enviro:wall:ceiling:bottom", Texture.class));
-		stoveTexture = new TextureRegion(directory.getEntry("enviro:stove",Texture.class));
-		stoveActiveTexture = new TextureRegion(directory.getEntry("enviro:stoveActive", Texture.class));
-		stoveInactiveTexture = new TextureRegion(directory.getEntry("enviro:stoveInactive", Texture.class));
+		wallTop2Tile = directory.getEntry( "enviro:wall:top", Texture.class );
+		wallTopLeftCorner2Tile = directory.getEntry("enviro:wall:topleftcorner", Texture.class);
+		wallTopRightCorner2Tile = directory.getEntry("enviro:wall:toprightcorner", Texture.class);
+		wallBottomLeftCorner = directory.getEntry("enviro:wall:bottomleftcorner", Texture.class);
+		wallBottomRightCorner = directory.getEntry("enviro:wall:bottomrightcorner", Texture.class);
+		wallCeilingTile = directory.getEntry("enviro:wall:ceiling", Texture.class);
+		wallCeilingBottomTile = directory.getEntry("enviro:wall:ceiling:bottom", Texture.class);
+		stoveTexture = directory.getEntry("enviro:stove",Texture.class);
+		stoveActiveTexture = directory.getEntry("enviro:stoveActive", Texture.class);
+		stoveInactiveTexture = directory.getEntry("enviro:stoveInactive", Texture.class);
 			//traps
-		trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
-		trapCoolerTexture = new TextureRegion(directory.getEntry("enviro:trap:cooler",Texture.class));
+		trapDefaultTexture = directory.getEntry("enviro:trap:spike",Texture.class);
+		trapCoolerTexture = directory.getEntry("enviro:trap:cooler",Texture.class);
 		trapCoolerActivate = directory.getEntry("enviro:trap:coolerActivate", Texture.class);
-
-		trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster",Texture.class));
+		trapToasterTexture = directory.getEntry("enviro:trap:toaster",Texture.class);
 		trapToasterActivate = directory.getEntry("enviro:trap:toasterActivate", Texture.class);
 
-		trapHotSauceTexture = new TextureRegion(directory.getEntry("enviro:trap:hotSauce", Texture.class));
+		trapHotSauceTexture = directory.getEntry("enviro:trap:hotSauce", Texture.class);
 		trapHotSauceActivate = directory.getEntry("enviro:trap:hotSauceActivate", Texture.class);
-		spawnTexture = new TextureRegion(directory.getEntry("enviro:spawn", Texture.class));
+		spawnTexture = directory.getEntry("enviro:spawn", Texture.class);
 		indicatorTexture = new TextureRegion(directory.getEntry("enviro:indicator", Texture.class));
 			//characters
-		bulletTexture = new TextureRegion(directory.getEntry("char:bullet",Texture.class));
+		bulletTexture = directory.getEntry("char:bullet",Texture.class);
 		chickenTexture  = new TextureRegion(directory.getEntry("char:chicken",Texture.class));
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("char:nuggetBar", Texture.class));
 		chefTexture = directory.getEntry("char:chef", Texture.class);
@@ -724,10 +723,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					break;
 				case LEVEL_STOVE:
 					// Add stove
-					float swidth = stoveTexture.getRegionWidth()/scale.x;
-					float sheight = stoveTexture.getRegionHeight()/scale.y;
+					float swidth = stoveTexture.getWidth()/scale.x*displayScale.x;
+					float sheight = stoveTexture.getHeight()/scale.y*displayScale.y;
 					Stove stove = new Stove(constants.get(LEVEL_STOVE),x,y,swidth,sheight);
 					stove.setDrawScale(scale);
+					stove.setDisplayScale(displayScale);
 					stove.setTexture(stoveTexture);
 					stove.setActiveTexture(stoveActiveTexture);
 					stove.setInactiveTexture(stoveInactiveTexture);
@@ -749,10 +749,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				case LEVEL_CHEF:
 					// Create chef
 					//TODO: FIX AFTER WE HAVE FILMSTRIP!
-					float cwidth  = 16/scale.x;
-					float cheight = 32/scale.y;
+					float cwidth  = 16/scale.x*displayScale.x;
+					float cheight = 32/scale.y*displayScale.y;
 					chef = new Chef(constants.get(LEVEL_CHEF), x, y, cwidth, cheight);
 					chef.setDrawScale(scale);
+					chef.setDisplayScale(displayScale);
 					chef.setTextures(chefTexture, heartTexture, halfHeartTexture, attOffTexture, attOnTexture);
 					chef.setSlapSideTexture(slapSideTexture);
 					chef.setSlapUpTexture(slapUpTexture);
@@ -767,6 +768,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					Spawn spawn = new Spawn(x, y, 1, 1);
 					spawn.setSensor(true);
 					spawn.setDrawScale(scale);
+					spawn.setDisplayScale(displayScale);
 					spawn.setTexture(spawnTexture);
 					spawn.setName(LEVEL_SPAWN);
 					spawn.setFilterData(spawn_filter);
@@ -803,14 +805,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 	}
 
-	private void createWall(JsonValue defaults, TextureRegion texture, Filter obstacle_filter, float x, float y){
-		BoxObstacle obj = new BoxObstacle(x+.5f,y+.5f,1,1);
+	private void createWall(JsonValue defaults, Texture texture, Filter obstacle_filter, float x, float y){
+		BoxObstacle obj = new BoxObstacle(x+.5f,y+.5f,1,1);//displayScale.x,displayScale.y);
 		// PolygonObstacle obj = new PolygonObstacle(new float[]{x, y, x+1, y, x+1, y+1, x, y+1});
 		obj.setBodyType(BodyDef.BodyType.StaticBody);
 		obj.setDensity(defaults.getFloat( "density", 0.0f ));
 		obj.setFriction(defaults.getFloat( "friction", 0.0f ));
 		obj.setRestitution(defaults.getFloat( "restitution", 0.0f ));
 		obj.setDrawScale(scale);
+		obj.setDisplayScale(displayScale);
 		obj.setTexture(texture);
 		obj.setName(LEVEL_WALL_CENTER);//+ii); If we need to specify name further, its here
 		obj.setFilterData(obstacle_filter);
@@ -995,6 +998,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		if (!(chef.isCooking() && (autoCook || InputController.getInstance().didCook()))) {
 			chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
+		} else {
+			chef.setShooting(false, InputController.getInstance().getSlapDirection());
 		}
 		gameTime += dt;
 
@@ -1139,8 +1144,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * Spawn a chicken somewhere in the world, then increments the number of chickens
 	 */
 	private void spawnChicken(Chicken.ChickenType type){
-		float dwidth  = chickenTexture.getRegionWidth()/scale.x;
-		float dheight = chickenTexture.getRegionHeight()/scale.y;
+		float dwidth  = chickenTexture.getRegionWidth()/scale.x*displayScale.x;
+		float dheight = chickenTexture.getRegionHeight()/scale.y*displayScale.y;
 		int index = (int) (Math.random() * spawnPoints.size());
 		Spawn spawn = spawnPoints.get(index);
 		//float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
@@ -1198,6 +1203,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 		}
 		enemy.setDrawScale(scale);
+		enemy.setDisplayScale(displayScale);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		addObject(enemy, GameObject.ObjectType.CHICKEN);
 		ai.put(enemy, new AIController(enemy, chef, grid));
@@ -1249,7 +1255,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	    slap.setGravityScale(0);
 		*/
 
-		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
+		float radius = 8*bulletTexture.getWidth() / (2.0f * scale.x)*displayScale.y;
 		Slap slap;
 		if(direction == 2 || direction == 4) {
 			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), radius, 0.1f, direction);
@@ -1258,6 +1264,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 		slap.setTexture(bulletTexture);
 		slap.setDrawScale(scale);
+		slap.setDisplayScale(displayScale);
 		// Compute position and velocity
 		float speed = 175;
 		if (direction == 2 || direction == 4) {
@@ -1276,18 +1283,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		ChickenAttack attack = new ChickenAttack(shredded.getX()-ChickenAttack.getKNOCKWIDTH()/2.0f*MathUtils.cos(shredded.getAttackAngle()),
 				shredded.getY()-ChickenAttack.getKNOCKHEIGHT()/2.0f*MathUtils.sin(shredded.getAttackAngle()),
-				ChickenAttack.getKNOCKWIDTH(), ChickenAttack.getKNOCKHEIGHT(), chef, shredded, ChickenAttack.AttackType.Knockback);
+				ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x, ChickenAttack.getKNOCKHEIGHT()/scale.y*displayScale.y, chef, shredded, ChickenAttack.AttackType.Knockback);
 		shredded.setChickenAttack(attack);
 		attack.setAngle(shredded.getAttackAngle());
 		attack.setDrawScale(scale);
+		attack.setDisplayScale(displayScale);
 		addQueuedObject(attack);
 		sound.playShredAttack();
 	}
 
 	/** Adds a chickenAttack to the world */
 	private void createChickenAttack(Chicken chicken, ChickenAttack.AttackType type) {
-		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH(),
-				ChickenAttack.getHEIGHT(), chef, chicken, type);
+		ChickenAttack attack = new ChickenAttack(chicken.getX(), chicken.getY(), ChickenAttack.getWIDTH()/scale.x*displayScale.x,
+				ChickenAttack.getHEIGHT()/scale.y*displayScale.y, chef, chicken, type);
 		if (type == ChickenAttack.AttackType.Charge && grid.isObstacleAt(attack.getX(), attack.getY())) {
 			attack.markRemoved(true);
 			chicken.forceStopAttack();
@@ -1295,6 +1303,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else {
 			chicken.setChickenAttack(attack);
 			attack.setDrawScale(scale);
+			attack.setDisplayScale(displayScale);
 			addQueuedObject(attack);
 			switch (type) {
 				case Basic:
@@ -1331,7 +1340,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	public void trapHelper(float x, float y, Trap.type t){
-		TextureRegion trapTexture = trapDefaultTexture;
+		Texture trapTexture = trapDefaultTexture;
 		FilmStrip anim = null;
 		switch (t){
 			case COOLER:
@@ -1347,13 +1356,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				anim = new FilmStrip(trapHotSauceActivate, 1, HOTSAUCE_NUM_FRAMES);
 				break;
 		}
-		float twidth = trapTexture.getRegionWidth()/scale.x;
-		float theight = trapTexture.getRegionHeight()/scale.y;
+		float twidth = trapTexture.getWidth()/scale.x*displayScale.x;
+		float theight = trapTexture.getHeight()/scale.y*displayScale.y;
 		Trap trap = new Trap(constants.get("trap"), x, y, twidth, theight, t);
 		if(anim != null){
 			trap.setAnimation(anim);
 		}
 		trap.setDrawScale(scale);
+		trap.setDisplayScale(displayScale);
 		trap.setTexture(trapTexture);
 		trap.setIndicatorTexture(indicatorTexture);
 		addObject(trap, GameObject.ObjectType.TRAP);
@@ -1493,54 +1503,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void draw(float dt) {
 		canvas.clear();
-
-		/*String s = "";
-		switch (trapTypeSelected ){
-			case LURE:
-				s = "lure";
-				break;
-			case SLOW:
-				s = "slow";
-				break;
-			/*case FIRE:
-				s = "fire";
-				break;
-		}*/
-
 		canvas.begin();
-		canvas.draw(background,0,0);
-		/*canvas.drawText("Trap Selected: " + s, new BitmapFont(), 100, 540);
-		// Draws out all the parameters and their values
-		String[] parameters = {"player max health: ", "chicken max health: ", "base damage (player): ", "spawn rate: ", "initial spawn: ",
-				"lure durability: ", "slow durability: ", "fire linger durability: ", "fire damage durability: ", "player speed: ",
-				"enemy speed: ", "invulnerability time: ", "invincibility: "};
-		BitmapFont pFont = new BitmapFont();
-		for (int i = 0; i < parameterList.length; i++) {
-			if (i == parameterSelected) {
-				pFont.setColor(Color.YELLOW);
-			} else {
-				pFont.setColor(Color.WHITE);
-			}
-			if (i == 12) {
-				canvas.drawText(parameters[i] + (parameterList[i] == 1? "on":"off"), pFont, 40, 520-14*i);
-			} else if (i == 1){
-				canvas.drawText(parameters[i] + parameterList[i] + "%", pFont, 40, 520 - 14 * i);
-			} else {
-				canvas.drawText(parameters[i] + parameterList[i], pFont, 40, 520 - 14 * i);
-			}
-		}
-		if ((chef.canCook() && (chef.getMovement() == 0f
-				&& chef.getVertMovement() == 0f
-				&& !chef.isShooting()))){
-			stove.setLit(true);
-		}else{
-			stove.setLit(false);
-		}*/
-
-		/*for(Obstacle obj : objects) {
-			obj.draw(canvas);
-		}*/
-
+		canvas.draw(background,Color.WHITE,0,0,background.getRegionWidth()*displayScale.x,background.getRegionHeight()*displayScale.y);
 
 		//priority: Walls < trap effects < traps < chickens < other < chef
 
@@ -1714,15 +1678,22 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	public void setCanvas(GameCanvas canvas) {
 		this.canvas = canvas;
-		//scale needs to be based on 1920x1080 for the grid
-		this.scale.x = canvas.getWidth()/bounds.getWidth();
-		this.scale.y = canvas.getHeight()/bounds.getHeight();
-		gridHeight = canvas.getHeight();
-		gridWidth = canvas.getWidth();
+		float y = canvas.getHeight();
+		float x = canvas.getWidth();
+		//canvas.setSize(1920, 1080);
+		//canvas.resize();
+		//canvas.resetCamera();
+		this.scale.x = x/bounds.getWidth();
+		this.scale.y = y/bounds.getHeight();
+		//everything based off 1080p
+		this.displayScale.x = x/1920f;
+		this.displayScale.y = y/1080f;
+		gridWidth = x;
+		gridHeight = y;
 	}
 
 	public void initGrid(){
-		grid = new Grid(gridWidth, gridHeight, scale);
+		grid = new Grid(canvas.getWidth(), canvas.getHeight(), scale);
 	}
 
 	/**
@@ -1735,7 +1706,40 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
-		//IGNORE FOR NOW
+		this.scale.x = width/bounds.getWidth();
+		this.scale.y = height/bounds.getHeight();
+		this.displayScale.x = width/1920f;
+		this.displayScale.y = height/1080f;
+		for(Obstacle obj : walls){
+			obj.setDrawScale(scale);
+			obj.setDisplayScale(displayScale);
+		}
+		for (Obstacle trapE : trapEffects){
+			trapE.setDrawScale(scale);
+			trapE.setDisplayScale(displayScale);
+		}
+		for (Obstacle trap : traps){
+			trap.setDrawScale(scale);
+			trap.setDisplayScale(displayScale);
+		}
+		for (Obstacle c : chickens){
+			c.setDrawScale(scale);
+			c.setDisplayScale(displayScale);
+			float cwidth = chickenTexture.getRegionWidth()/scale.x*displayScale.x;
+			float cheight = chickenTexture.getRegionHeight()/scale.y*displayScale.y;
+			((Chicken) c).resize(cwidth,cheight);
+		}
+		for (Obstacle other : others){
+			other.setDrawScale(scale);
+			other.setDisplayScale(displayScale);
+		}
+		if(chef!= null) {
+			chef.setDrawScale(scale);
+			chef.setDisplayScale(displayScale);
+		}
+		if(grid!=null){
+			grid.resize(width,height,scale);
+		}
 	}
 
 	/**

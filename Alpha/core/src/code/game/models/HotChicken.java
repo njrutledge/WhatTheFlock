@@ -128,10 +128,10 @@ public class HotChicken extends Chicken {
         Color c = Color.WHITE;
         if (isAttacking && attack_animator != null && !isLured()) {
             attack_animator.setFrame((int) animeframe);
-            canvas.draw(attack_animator,c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), wscale*effect, hscale);
+            canvas.draw(attack_animator,c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
         } else if (!isStunned) {
             animator.setFrame((int) animeframe);
-            canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), wscale*effect, hscale);
+            canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
         }
     }
 
