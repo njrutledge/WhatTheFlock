@@ -1000,7 +1000,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getMaxspeed());
 
 		if (!(chef.isCooking() && (autoCook || InputController.getInstance().didCook()))) {
-			chef.setShooting(InputController.getInstance().didSecondary(), InputController.getInstance().getSlapDirection());
+			chef.setShooting(InputController.getInstance().didSecondary() && !chef.isStunned(), InputController.getInstance().getSlapDirection());
 		} else {
 			chef.setShooting(false, InputController.getInstance().getSlapDirection());
 		}
@@ -1109,7 +1109,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 //			chef.setCooking(chef.inCookingRange(), null);
 //		}
 
-		chef.setCooking(chef.inCookingRange(), null);
+		chef.setCooking(chef.inCookingRange() && !chef.isStunned(), null);
 
 		//update temperature and stove draw type
 		Stove stove = chef.getStove();
