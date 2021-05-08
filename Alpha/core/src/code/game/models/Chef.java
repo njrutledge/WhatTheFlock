@@ -99,7 +99,7 @@ public class Chef extends GameObject implements ChefInterface {
 	/** Time until invulnerability after getting hit wears off */
 	private final float INVULN_TIME = 0.5f;
 	/** Chef base damage */
-	private final float BASE_DAMAGE = 2;
+	private final float BASE_DAMAGE = 1;
 	/** Flag for double damage */
 	private boolean doubleDamage = false;
 	/** Timer for double damage */

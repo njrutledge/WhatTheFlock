@@ -38,7 +38,7 @@
 		"maxspeed": 7.0,
 		"chasespeed": 6.0,
 		"knockback": 30.0,
-		"maxhealth": 1,
+		"maxhealth": 2,
 		"num_anim_frames": 8,
 		"animation_speed": 0.25,
 		"sensor_radius": 0.8,
@@ -56,7 +56,7 @@
 		"maxspeed": 5.0,
 		"chasespeed": 4,
 		"knockback": 20.0,
-		"maxhealth": 15,
+		"maxhealth": 10,
 		"num_anim_frames": 11,
 		"animation_speed": 0.15,
 		"sensor_radius": 1.5,
@@ -72,7 +72,7 @@
 		"maxspeed": 6.0,
 		"chasespeed": 5,
 		"knockback": 30.0,
-		"maxhealth": 5,
+		"maxhealth":4,
 		"sensor": {
 			"shrink" : 0.6,
 			"height" : 0.1
@@ -85,7 +85,7 @@
 		"maxspeed": 5.0,
 		"chasespeed": 3.0,
 		"knockback": 20.0,
-		"maxhealth": 5,
+		"maxhealth": 8,
 		"sensor": {
 			"shrink" : 0.6,
 			"height" : 0.1
