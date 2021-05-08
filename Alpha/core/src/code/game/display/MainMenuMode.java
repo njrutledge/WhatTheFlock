@@ -19,6 +19,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 
 public class MainMenuMode implements Screen, InputProcessor, ControllerListener {
     // There are TWO asset managers.  One to load the loading screen.  The other to load the assets
@@ -119,6 +121,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     private int quitCenterY;
     private int startCenterY;
 
+    private JsonValue save;
     /**
      * Returns true if the user has selected an option from the menu
      *
@@ -155,6 +158,12 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         options = new FilmStrip(optionsTexture, 1, 2);
         quitTexture = internal.getEntry("ui:menu:quit", Texture.class);
         quit = new FilmStrip(quitTexture, 1, 2);
+        save = internal.getEntry("save", JsonValue.class);
+        //load save:
+        canvas.setSize(save.getInt("screen_width"),save.getInt("screen_height"));
+        //canvas.setFullscreen(save.getBoolean("fullscreen"),true);
+        canvas.resetCamera();
+        canvas.resize();
 
         this.bounds = new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT);
         this.vscale = new Vector2(1,1);

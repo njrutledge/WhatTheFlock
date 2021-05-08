@@ -39,6 +39,7 @@ public class DesktopLauncher {
 		config.x = 0;
 		config.y = 0;
 		config.resizable = true;
+		config.title = "WhatTheFlock!";
 		new GDXApp(new GDXRoot(), config);
 	}
 }
