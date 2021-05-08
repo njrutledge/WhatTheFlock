@@ -61,9 +61,14 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Cache for internal force calculations */
     private final Vector2 forceCache = new Vector2();
     /** The max health of the chicken nugget */
-    protected int max_health;
+    private int max_health;
     /** Health of the chicken*/
-    protected float health;
+    // All of these variables will be put into a FSM in AIController eventually
+    private float health;
+    /** Time to move perpendicular to a wall upon collision before returning to normal AI */
+    private final float SIDEWAYS_TIME = 0.1f;
+    /** Counter for sideways movement timer*/
+    private float sideways_counter = SIDEWAYS_TIME;
     /** Whether the chicken was stopped */
     protected boolean stopped;
 
@@ -121,7 +126,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Timer used to keep track of trap effects */
     protected float status_timer = -1.0f;
     /** Texture for chicken healthbar */
-    protected TextureRegion healthBar;
+    private TextureRegion healthBar;
 
     /** Radius of the chicken's sensor. If the chicken's target comes into
      * contact with the sensor, the chicken will attempt to initiate
