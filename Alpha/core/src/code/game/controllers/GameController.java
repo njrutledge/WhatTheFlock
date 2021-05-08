@@ -596,7 +596,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		temp.setUseCooldown(cooldown);
 
 		doNewPopulate(level);
-		progress = new boolean[Stoves.size()];
+		progress = new boolean[4];
 		//add chef here!
 		addObject(chef, GameObject.ObjectType.NULL);
 		//set the chef in the collision controller now that it exists
@@ -1046,19 +1046,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		// Stove updating mechanics
 		float tempProgress = temp.getPercentCooked();
-		int progressIndex = (int)(tempProgress/(1.0f/Stoves.size()));
+		int progressIndex = (int)(tempProgress/(1.0f/4));
 		if (Stoves.size() > 1 && !progress[progressIndex]) {
 			progress[progressIndex] = true;
 			//stoveTimer = gameTime;
 			ActiveStove.setInactive();
-			int ind = Stoves.indexOf(ActiveStove);
-			ActiveStove = Stoves.get((ind + 1) % Stoves.size());
-			ActiveStove.setActive();
-			//int ind = nonActiveStoves.remove(MathUtils.floor(MathUtils.random(0, nonActiveStoves.size() - 1)));
-			//nonActiveStoves.add(lastStove);
-			//ActiveStove = Stoves.get(ind);
-			//lastStove = ind;
+			//int ind = Stoves.indexOf(ActiveStove);
+			//ActiveStove = Stoves.get((ind + 1) % Stoves.size());
 			//ActiveStove.setActive();
+			int ind = nonActiveStoves.remove(MathUtils.floor(MathUtils.random(0, nonActiveStoves.size() - 1)));
+			nonActiveStoves.add(lastStove);
+			ActiveStove = Stoves.get(ind);
+			lastStove = ind;
+			ActiveStove.setActive();
 		}
 
 		// Wave spawning logic
