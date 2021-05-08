@@ -14,15 +14,14 @@ public class Stove extends GameObject implements StoveInterface {
 
     private CircleShape sensorShape;
 
-    private TextureRegion active_texture;
+    private Texture active_texture;
+
+    private Texture inactive_texture;
 
     private boolean active = false;
 
     /** Whether or not the stove is lit */
     private boolean lit = false;
-
-    /** The font used to draw text on the screen*/
-    private static final BitmapFont font = new BitmapFont();
 
     //TODO: add comment
     public Stove(JsonValue jv, float x, float y, float width, float height) {
@@ -79,9 +78,14 @@ public class Stove extends GameObject implements StoveInterface {
     /**
      * Sets the active texture for the stove
      */
-    public void setActiveTexture(TextureRegion texture){
+    public void setActiveTexture(Texture texture){
         active_texture = texture;
     }
+
+    /**
+     * Sets the inactive texture for the stove
+     */
+    public void setInactiveTexture(Texture texture) { inactive_texture = texture; }
 
     /**
      * Sets the stove to inactive so that the chef cannot cook from it
@@ -99,10 +103,12 @@ public class Stove extends GameObject implements StoveInterface {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        if (active) {
-            canvas.draw(active_texture, lit ? Color.RED : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
+        if (active && !lit) {
+            canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.19f, displayScale.y*.19f);
+        }  else if (active && lit) {
+            canvas.draw(active_texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.19f, displayScale.y*.19f);
         } else {
-            canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), .1f, .1f);
+            canvas.draw(inactive_texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.19f, displayScale.y*.19f);
         }
     }
 

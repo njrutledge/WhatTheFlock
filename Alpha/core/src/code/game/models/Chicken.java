@@ -61,14 +61,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Cache for internal force calculations */
     private final Vector2 forceCache = new Vector2();
     /** The max health of the chicken nugget */
-    private int max_health;
+    protected int max_health;
     /** Health of the chicken*/
-    // All of these variables will be put into a FSM in AIController eventually
-    private float health;
-    /** Time to move perpendicular to a wall upon collision before returning to normal AI */
-    private final float SIDEWAYS_TIME = 0.1f;
-    /** Counter for sideways movement timer*/
-    private float sideways_counter = SIDEWAYS_TIME;
+    protected float health;
     /** Whether the chicken was stopped */
     protected boolean stopped;
 
@@ -125,10 +120,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     private float slow = 1f;
     /** Timer used to keep track of trap effects */
     protected float status_timer = -1.0f;
-    /** True iff the chicken is currently on fire from the fire trap */
-    private boolean cookin = false;
     /** Texture for chicken healthbar */
-    private TextureRegion healthBar;
+    protected TextureRegion healthBar;
 
     /** Radius of the chicken's sensor. If the chicken's target comes into
      * contact with the sensor, the chicken will attempt to initiate
@@ -145,7 +138,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Whether the chicken is being slowed */
     private boolean inSlow = false;
     /** Ammount to increase or decrease the slow modifier */
-    private float SLOW_EFFECT = 0.33f;
+    private float SLOW_EFFECT = 0.5f;
     /** Whether the chicken is being lured */
     private boolean isLured = false;
 
@@ -274,6 +267,19 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     public float getSlow(){ return slow;}
 
     /**
+     * Returns the chicken tint based on the slow modifier
+     *
+     * @return a color for the chicken
+     */
+    public Color getColor(){
+        Color c = Color.WHITE.cpy();
+        c.r = .9f;
+        c.g = .9f;
+        c.b = 1;
+        return Color.CYAN;
+    }
+
+    /**
      * Returns the direction the chicken is facing.
      *
      * @return faceRight - true if facing right
@@ -297,12 +303,12 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         // Ground Sensor
         // -------------
         // Previously used to detect double-jumps, but also allows us to see hitboxes
-        Vector2 sensorCenter = new Vector2(0, -getHeight() / 2);
+        Vector2 sensorCenter = new Vector2(0, 0);
         FixtureDef hitboxDef = new FixtureDef();
         hitboxDef.density = data.getFloat("density",0);
         hitboxDef.isSensor = true;
         hitboxShape = new PolygonShape();
-        hitboxShape.setAsBox(getWidth(), getHeight()/2, sensorCenter, 0);
+        hitboxShape.setAsBox(getWidth()*1.5f, getHeight()*1.5f, sensorCenter, 0);
         hitboxDef.shape = hitboxShape;
         Fixture hitboxFixture = body.createFixture(hitboxDef);
         hitboxFixture.setUserData(FixtureType.CHICKEN_HURTBOX);
@@ -366,9 +372,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         }
         super.update(dt);
         applyForce();
-        if (!cookin) {
-            status_timer = Math.max(status_timer - dt, -1f);
-        }
         if(inSlow){
             applySlow(SLOW_EFFECT*dt);
         }else {
@@ -546,6 +549,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             } else {
                 health -= damage;
             }
+            if (chickenAttack != null){
+                chickenAttack.collideObject();
+            }
             attack_timer = -1f;
             charge_time = -1f;
             hitboxOut = false;
@@ -579,21 +585,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      */
     public void inSlow(boolean bool) { inSlow = bool;}
 
-    /**
-     * Applies the fire effect by giving the chicken a countdown timer
-     * representing the remaining time of the fire effect
-     *
-     * @param duration a duration for the fire effect in seconds.
-     */
-    public void applyFire(float duration) {
-        status_timer = duration;
-        cookin = true;
-    }
-
-    //TODO: comment
-    public void letItBurn() {
-        cookin = false;
-    }
 
     /**
      * Sets the chicken's target to the specific Lure trap
@@ -685,6 +676,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         this.isBeingForced = isForce;
     }
 
+    public void resize(float width, float height){
+        super.resize(width, height);
+    }
     /**
      * Set the isInvisible boolean, which determines whether to draw the chicken on the screen
      *

@@ -497,7 +497,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 String string = "";
                 for (String word: text.split(" ")) {
                     layout.setText(infoFont, string + word);
-                    if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale) {
+                    if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale && !string.equals("")) {
                         layout.setText(infoFont, string.substring(0, string.length()-1));
                         canvas.drawText(string, infoFont, bladeCenterX+DIST*i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
                         row -= 1;

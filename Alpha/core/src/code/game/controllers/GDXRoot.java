@@ -136,7 +136,11 @@ public class GDXRoot extends Game implements ScreenListener {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
+		canvas.clear();
+		canvas.setSize(Math.max(width,1280),Math.max(height,720));
 		canvas.resize();
+		if(controller != null) controller.resize(width, height);
+		canvas.resetCamera();
 		super.resize(width,height);
 	}
 	
@@ -153,8 +157,10 @@ public class GDXRoot extends Game implements ScreenListener {
 			directory = loading.getAssets();
 			controller.gatherAssets(directory);
 			//controller.setScreenListener(this);
+
 			controller.setCanvas(canvas);
-			controller.initGrid();
+			//TODO:replace with save value
+			//resize(1280,720);
 
 			sound.gatherAssets(directory);
 			controller.setSoundController(sound);

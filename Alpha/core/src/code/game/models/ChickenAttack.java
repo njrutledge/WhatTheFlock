@@ -96,10 +96,8 @@ public class ChickenAttack extends GameObject {
     private static float egg_break_speed = 0.025f;
     /** Current animation frame for the egg */
     private float animeframe = 0;
-    /** whether the projectile egg is breaking */
+    /** whether the projectile egg is breaking (used for egg animation purposes) */
     private boolean breaking = false;
-    /** Whether the projectile egg has finished breaking */
-    private boolean broken = false;
 
     /** Creates an instance of a basic attack */
     public ChickenAttack(float x, float y, float width, float height, Chef chef, Chicken chicken, AttackType type) {
@@ -226,7 +224,14 @@ public class ChickenAttack extends GameObject {
     }
 
     public void collideObject() {
-        if (type == AttackType.Charge) { chicken.setStopped(true); chicken.interruptAttack(); remove = true; }
+        if (type == AttackType.Charge) {
+            chicken.setStopped(true);
+            chicken.interruptAttack();
+            remove = true;
+        }
+        else if (type == AttackType.Knockback || type == AttackType.Basic){
+            remove = true;
+        }
         if (type == AttackType.Projectile && reflected){remove = true;}
         //if (type == AttackType.Projectile) { remove = true; } // Delete projectile after colliding with something
     }
@@ -252,7 +257,7 @@ public class ChickenAttack extends GameObject {
      */
     public boolean atDestination(float dt) {
         age += dt;
-        if (type == AttackType.Basic) { return true; }
+        if (type == AttackType.Basic || type == AttackType.Knockback) { return true; }
         if ((type==AttackType.Projectile && age> PROJECTILE_MAX_AGE) || remove) { return true; }
         if (type!=AttackType.Charge && distance(getX(), getY(), destination.x, destination.y) < 0.5f && age > ATTACK_DUR) {
             return true;
@@ -402,11 +407,11 @@ public class ChickenAttack extends GameObject {
             case Projectile:
                 if (!breaking) {
                     eggSpin.setFrame((int) animeframe);
-                    canvas.draw(eggSpin, Color.WHITE, originSpin.x, originSpin.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 0.25f, 0.25f);
+                    canvas.draw(eggSpin, Color.WHITE, originSpin.x, originSpin.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), displayScale.x*0.25f, displayScale.y*0.25f);
                 }
                 else{
                     eggSplat.setFrame((int) animeframe);
-                    canvas.draw(eggSplat, Color.WHITE, originSplat.x, originSplat.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), 0.15f, 0.15f);
+                    canvas.draw(eggSplat, Color.WHITE, originSplat.x, originSplat.y, getX() * drawScale.x, getY() * drawScale.x, getAngle(), displayScale.x*0.15f, displayScale.y*0.15f);
                 }
                 break;
             case Explosion:
@@ -428,6 +433,7 @@ public class ChickenAttack extends GameObject {
     }
 
     /**
+     * This should only be called for the egg, not other attacks
      * Updates the object's game state (NOT GAME LOGIC).
      *
      * We use this method to reset cooldowns, and control animations
@@ -447,7 +453,7 @@ public class ChickenAttack extends GameObject {
             animeframe += egg_break_speed * 4;
             if (animeframe >= 4){
                 animeframe -= 4;
-                broken = true;
+                remove = true;
             }
         }
 
@@ -462,7 +468,7 @@ public class ChickenAttack extends GameObject {
     }
 
     public boolean readyToRemove(){
-        return broken;
+        return remove;
     }
 
     public boolean isBreaking(){

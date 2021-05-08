@@ -18,23 +18,28 @@ public class TrapController implements TrapControllerInterface {
     /** The world scale */
     private Vector2 drawscale;
 
+    private Vector2 displayScale;
+
     /** collection of constants */
     private JsonValue constants;
     /** Texture Region for Fridge traps */
-    private TextureRegion trapFridgeTexture;
+    private Texture trapFridgeTexture;
     /** Texture Region for the Toaster traps*/
-    private TextureRegion trapToasterTexture;
+    private Texture trapToasterTexture;
     /** Texture Region for the Bread trap*/
-    private TextureRegion trapBreadTexture;
+    private Texture trapBreadTexture;
     /** Texture Region for Slow traps */
-    private TextureRegion trapSlowTexture;
+    private Texture trapSlowTexture;
     /** Texture Region for default traps */
     private TextureRegion trapDefaultTexture;
+    /** Number of lures a toaster releases*/
+    private static final int LURE_NUM = 3;
 
     private static Random generator = new Random(0);
 
-    public TrapController(Vector2 scale){
+    public TrapController(Vector2 scale, Vector2 displayScale){
         drawscale = scale;
+        this.displayScale = displayScale;
     }
 
     public void setConstants (JsonValue cnst){
@@ -43,10 +48,9 @@ public class TrapController implements TrapControllerInterface {
 
     public void gatherAssets(AssetDirectory directory){
         constants = directory.getEntry( "constants", JsonValue.class );
-        trapSlowTexture = new TextureRegion(directory.getEntry("enviro:trap:slow", Texture.class));
-        trapDefaultTexture = new TextureRegion(directory.getEntry("enviro:trap:spike",Texture.class));
-        trapToasterTexture = new TextureRegion(directory.getEntry("enviro:trap:toaster", Texture.class));
-        trapBreadTexture = new TextureRegion(directory.getEntry("enviro:trap:bread", Texture.class));
+        trapSlowTexture = directory.getEntry("enviro:trap:slow", Texture.class);
+        trapToasterTexture = directory.getEntry("enviro:trap:toaster", Texture.class);
+        trapBreadTexture = directory.getEntry("enviro:trap:bread", Texture.class);
     }
 
     /**
@@ -58,24 +62,9 @@ public class TrapController implements TrapControllerInterface {
      */
     public boolean applyTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
-            case LURE: //damage
-                //if(!c.getType().equals(Chicken.ChickenType.Shredded)) {
-                //c.trapTarget(t);
-                //}
-                break;
             case SLOW:
                 c.inSlow(true);
                 break;
-            /*case FIRE:
-                TextureRegion trapTexture = t.getTexture();
-                float twidth = trapTexture.getRegionWidth()/drawscale.x;
-                float theight = trapTexture.getRegionHeight()/drawscale.y;
-                Trap trap = new Trap(constants.get("trap"), t.getX(), t.getY(), twidth, theight, Trap.type.FIRE_LINGER, Trap.shape.CIRCLE, true);
-                trapCache.setDrawScale(drawscale);
-                trapCache.setTexture(trapTexture);
-                //We need to let GameController know that a trap needs to be created
-                return true;
-                break;*/
         }
         return false;
     }
@@ -89,15 +78,15 @@ public class TrapController implements TrapControllerInterface {
      */
     public void stopTrap(Trap t, Chicken c){
         switch(t.getTrapType()){
-            case LURE:
+            case BREAD_LURE:
                 //c.resetTarget();
                 break;
             case SLOW:
                 c.inSlow(false);
                 break;
-            case BREAD_BOMB:
-            case FAULTY_OVEN:
-            case FRIDGE:
+            case TOASTER:
+            case HOT_SAUCE:
+            case COOLER:
                 //do nothing!
                 break;
         }
@@ -111,7 +100,7 @@ public class TrapController implements TrapControllerInterface {
     public PooledList<Trap> createLures(Trap breadBomb){
         /** trap to return if applyTrap is true */
         PooledList<Trap> trapCache = new PooledList<Trap>();
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i < LURE_NUM; i++){
             float angle = rollFloat(72*i, 72*(i+1));
             Trap trap = createLure(breadBomb);
             float speed = 16.0f;
@@ -126,18 +115,19 @@ public class TrapController implements TrapControllerInterface {
     }
 
     public Trap createSlow(Trap fridge){
-        float twidth = trapSlowTexture.getRegionWidth()/drawscale.x;
-        float theight = trapSlowTexture.getRegionHeight()/drawscale.y;
+        float twidth = trapSlowTexture.getWidth()/drawscale.x*displayScale.x;
+        float theight = trapSlowTexture.getHeight()/drawscale.y*displayScale.y;
         Trap trap = new Trap(constants.get("trap"), fridge.getX(), fridge.getY(), twidth, theight, Trap.type.SLOW);
         trap.setDrawScale(fridge.getDrawScale());
         trap.setTexture(trapSlowTexture);
+        fridge.setChildTrap(trap);
         return trap;
     }
 
     private Trap createLure(Trap breadBomb){
-        float twidth = trapBreadTexture.getRegionWidth()/drawscale.x;
-        float theight = trapBreadTexture.getRegionHeight()/drawscale.y;
-        Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), breadBomb.getWidth(), breadBomb.getHeight(), Trap.type.LURE);
+        float twidth = trapBreadTexture.getWidth()/drawscale.x*displayScale.x;
+        float theight = trapBreadTexture.getHeight()/drawscale.y*displayScale.y;
+        Trap trap = new Trap(constants.get("trap"), breadBomb.getX(), breadBomb.getY(), twidth, theight, Trap.type.BREAD_LURE);
         trap.setDrawScale(breadBomb.getDrawScale());
         trap.setTexture(trapBreadTexture);
         return trap;
@@ -154,17 +144,5 @@ public class TrapController implements TrapControllerInterface {
     private static float rollFloat(float min, float max) {
         return generator.nextFloat() * (max - min) + min;
     }
-
-    /**
-     *  decrement the trap durability, and remove the trap if it breaks.
-     *
-     * @param trap   the trap to decrement durability and possibly remove
-     */
-    private void decrementTrap(Trap trap){
-        if(!trap.isRemoved() && trap.decrementDurability()){
-            trap.markRemoved(true);
-        }
-    }
-
 
 }

@@ -28,7 +28,9 @@ public class Spawn extends GameObject {
      * @param canvas Drawing context
      */
     public void draw(GameCanvas canvas) {
-        canvas.draw(texture, Color.WHITE ,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),.1f,.1f);
+        float wScale = 0.2f;
+        float hScale = 0.2f;
+        canvas.draw(texture, Color.WHITE ,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),displayScale.x*wScale,displayScale.y*hScale);
     }
 
     /**

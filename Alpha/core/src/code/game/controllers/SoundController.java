@@ -151,6 +151,7 @@ public class SoundController {
         //Music
         menuTheme = directory.getEntry("music:levelSel", MusicBuffer.class);
         levelTheme1 = directory.getEntry("music:theme1", MusicBuffer.class);
+        levelTheme2 = directory.getEntry("music:theme2", MusicBuffer.class);
 
     }
 
@@ -175,28 +176,36 @@ public class SoundController {
 
     //Currently does all theme 1 because there is no 2nd or 3rd theme.
     public void playLevel() {
-        //int choose = MathUtils.random(2);
-        int choose = 0;
+        int choose = MathUtils.random(1); //should be in range 2, but only 2 themes for now
         switch (choose) {
             case 0:
                 playMusicInstant(levelTheme1, MED);
                 timer = LEVEL_T_1;
                 break;
             case 1:
-                playMusicInstant(levelTheme2, LOUD);
+                playMusicInstant(levelTheme2, MED);
                 timer = LEVEL_T_2;
                 break;
             case 2:
-                playMusicInstant(levelTheme3, LOUD);
+                playMusicInstant(levelTheme3, MED);
                 timer = LEVEL_T_3;
                 break;
         }
     }
 
+    private boolean musicPlaying() {
+        if (levelTheme1.isPlaying()) {
+            return true;
+        } else if (levelTheme2.isPlaying()) {
+            return true;
+        }
+        return false;
+    }
+
     public void stopAllMusic() {
         menuTheme.stop();
         levelTheme1.stop();
-        //levelTheme2.stop();
+        levelTheme2.stop();
         //levelTheme3.stop();
     }
 
@@ -211,22 +220,22 @@ public class SoundController {
 
         switch (screen){
             case MENU:
-                playMusicInstant(menuTheme, MED);
+                playMusicInstant(menuTheme, LOUD);
                 break;
             case LEVEL:
-                if (!levelTheme1.isPlaying()) {
+                if (!musicPlaying()) {
                     playLevel();
                 }
                 levelTheme1.setVolume(volume * LOUD);
-                //levelTheme2.setVolume(volume * LOUD);
+                levelTheme2.setVolume(volume * LOUD);
                 //levelTheme3.setVolume(volume * LOUD);
                 break;
             case PAUSE:
-                if (!levelTheme1.isPlaying()) {
+                if (!musicPlaying()) {
                     playLevel();
                 }
                 levelTheme1.setVolume(volume * LOUD * PAUSE_VOL);
-                //levelTheme2.setVolume(volume * LOUD * PAUSE_VOL);
+                levelTheme2.setVolume(volume * LOUD * PAUSE_VOL);
                 //levelTheme3.setVolume(volume * LOUD * PAUSE_VOL);
                 break;
 
@@ -245,7 +254,7 @@ public class SoundController {
     public void playMenuSelecting() {playInstant(menuSelecting, LOUD);}
 
     //Chef
-    public void playChefHurt() {playInstant(chefHurt, MED);}
+    public void playChefHurt() {playInstant(chefHurt, LOUD);}
 
     public void playEmptySlap() {playInstant(emptySlap, LOUD);}
 
@@ -286,8 +295,9 @@ public class SoundController {
         for (SoundBuffer s : sounds) {
             s.dispose();
         }
-        //levelTheme1.dispose();
-        //menuTheme.dispose();
+        levelTheme1.dispose();
+        levelTheme2.dispose();
+        menuTheme.dispose();
 
 
     }

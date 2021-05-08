@@ -9,9 +9,12 @@
         "enviro:wall:left": "enviro/wall_l.png",
         "enviro:wall:right": "enviro/wall_r.png",
       "enviro:wall:top": "enviro/wall_t.png",
+      "enviro:wall:top2": "enviro/wall_t_2.png",
       "enviro:wall:bottom": "enviro/wall_b.png",
       "enviro:wall:topleftcorner": "enviro/wall_tlc.png",
       "enviro:wall:toprightcorner": "enviro/wall_trc.png",
+      "enviro:wall:topleftcorner2": "enviro/wall_tlc_2.png",
+      "enviro:wall:toprightcorner2": "enviro/wall_trc_2.png",
       "enviro:wall:bottomleftcorner": "enviro/wall_blc.png",
       "enviro:wall:bottomrightcorner": "enviro/wall_brc.png",
       "enviro:wall:yellow:center": {
@@ -20,15 +23,21 @@
         "wrapV": "repeated"
       },
         "enviro:wall:yellow:bottom": "enviro/ywall_b.png",
+        "enviro:wall:ceiling": "enviro/ceiling.png",
+        "enviro:wall:ceiling:bottom": "enviro/ceiling_b.png",
         "enviro:stove": "enviro/stove.png",
         "enviro:stoveActive": "enviro/lit_stove.png",
+        "enviro:stoveInactive": "enviro/inactive_stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
+        "enviro:trap:hotSauce": "enviro/hotsauce.png",
+        "enviro:trap:hotSauceActivate": "enviro/hotsauce_activate.png",
         "enviro:trap:toaster": "enviro/toaster.png",
+        "enviro:trap:toasterActivate": "enviro/toaster_activate.png",
         "enviro:trap:bread": "enviro/breadlure.png",
         "enviro:trap:spot": "enviro/trapspot.png",
         "enviro:trap:cooler": "enviro/cooler.png",
+        "enviro:trap:coolerActivate": "enviro/cooler_activate.png",
         "enviro:trap:slow": "enviro/slow.png",
-        "enviro:trap:toaster": "enviro/toaster.png",
         "enviro:background": "enviro/background_2.png",
         "enviro:spawn": "enviro/fridge.png",
         "enviro:indicator" : "enviro/slap_indicator.png",
@@ -146,7 +155,8 @@
 
     },
   "music" : {
-    "music:theme1" : "sounds/music/WTF_main_theme_draft3.ogg",
+    "music:theme1" : "sounds/music/WTF_level_1.ogg",
+    "music:theme2" : "sounds/music/WTF_level_2.ogg",
     "music:levelSel" : "sounds/music/WTF_Menu.ogg"
   },
     "fonts": {

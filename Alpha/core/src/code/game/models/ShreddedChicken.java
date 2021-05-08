@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
 
@@ -28,6 +29,8 @@ public class ShreddedChicken extends Chicken {
     /** Attack angle save */
     private float attackAngle = 0.0f;
 
+    private JsonValue data;
+
     /**
      * Creates a new chicken avatar with the given physics data
      *
@@ -47,6 +50,7 @@ public class ShreddedChicken extends Chicken {
     public ShreddedChicken(JsonValue data, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
         // The shrink factors fit the image to a tigher hitbox
         super(data, unique, x, y, width, height, player, mh, ChickenType.Shredded);
+        this.data = data;
         sensorRadius = SENSOR_RADIUS;
     }
 
@@ -109,6 +113,49 @@ public class ShreddedChicken extends Chicken {
      * @return the egg texture
      */
     public TextureRegion getProjectileTexture(){return eggTexture;}
+
+    /**
+     * Creates the physics Body(s) for this object, adding them to the world.
+     *
+     * This method overrides the base method to keep your ship from spinning.
+     *
+     * @param world Box2D world to store body
+     *
+     * @return true if object allocation succeeded
+     */
+    @Override
+    public boolean activatePhysics(World world) {
+        // create the box from our superclass
+        if (!super.activatePhysics(world)) {
+            return false;
+        }
+        // Ground Sensor
+        // -------------
+        // Previously used to detect double-jumps, but also allows us to see hitboxes
+        Vector2 sensorCenter = new Vector2(0, getHeight());
+        FixtureDef hitboxDef = new FixtureDef();
+        hitboxDef.density = data.getFloat("density",0);
+        hitboxDef.isSensor = true;
+        hitboxShape = new PolygonShape();
+        hitboxShape.setAsBox(getWidth()*1.5f, getHeight()*1.5f, sensorCenter, 0);
+        hitboxDef.shape = hitboxShape;
+        Fixture hitboxFixture = body.createFixture(hitboxDef);
+        hitboxFixture.setUserData(FixtureType.CHICKEN_HURTBOX);
+
+        FixtureDef sensorDef = new FixtureDef();
+        sensorDef.density = data.getFloat("density",0);
+        sensorDef.isSensor = true;
+        sensorShape = new CircleShape();
+        sensorShape.setRadius(sensorRadius);
+        sensorDef.shape = sensorShape;
+        // Ground sensor to represent our feet
+        Fixture sensorFixture = body.createFixture( sensorDef );
+        sensorFixture.setUserData(FixtureType.CHICKEN_HITBOX);//getSensorName());
+
+
+        return true;
+    }
+
     /**
      * Draws the physics object.
      *
@@ -117,9 +164,13 @@ public class ShreddedChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? -1.0f : 1.0f;
+        float wScale = 0.8f;
+        float hScale = 0.7f;
         if (!isInvisible) {
-            canvas.draw(animator, (status_timer >= 0) ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), 0.4f*effect, 0.5f);
+            canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
+        canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+ 175, getAngle(), 0.08f, 0.025f);
+        canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+ 175, getAngle(), 0.08f*(health/max_health), 0.025f);
     }
 
     /**

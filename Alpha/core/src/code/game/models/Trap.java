@@ -16,13 +16,13 @@ public class Trap extends GameObject implements TrapInterface {
      * Enumeration to encode the trap type
      */
     public enum type {
-        LURE,
+        BREAD_LURE,
         SLOW,
         //FIRE,
         //FIRE_LINGER,
-        FRIDGE,
-        FAULTY_OVEN,
-        BREAD_BOMB
+        COOLER,
+        HOT_SAUCE,
+        TOASTER
     }
 
     /**
@@ -106,7 +106,7 @@ public class Trap extends GameObject implements TrapInterface {
     /**
      * durability of lure
      */
-    private float lure_ammount = 3;
+    private float lure_amount = 3;
 
     /**
      * max durability of lure
@@ -156,6 +156,9 @@ public class Trap extends GameObject implements TrapInterface {
      * Timer for how long the environmental trap is not ready
      */
     private float readyTimer = 0.0f;
+
+    /** The child of this trap */
+    private Trap childTrap;
     /**
      * flag for if the trap is ready to become active
      */
@@ -163,7 +166,7 @@ public class Trap extends GameObject implements TrapInterface {
     /** flag for if the trap is invulnerable*/
     private boolean invuln = true;
     /** invulnerability Time */
-    private float INVULN_TIME = 1.5f;
+    private float INVULN_TIME = .75f;
     /**Timer for how long the trap is invulnverable */
     private float invulnTimer = INVULN_TIME;
     /** Counter for how many chickens are hitting this trap */
@@ -178,8 +181,16 @@ public class Trap extends GameObject implements TrapInterface {
     private Vector2 indicatorOrigin;
     /** Whether this trap has a slap indicator */
     private boolean hasIndicator = false;
-
-
+    /** The animation corresponding to the trap*/
+    private FilmStrip animation;
+    /** The current delay on the animation; counter */
+    private int anim_delay = 0;
+    /** Frame delay on the trap animation*/
+    private final int FRAME_DELAY = 4;
+    /** Frame delay on cooler*/
+    private final int COOLER_FRAME_DELAY = 40;
+    /** Delay on the smoke frame animations*/
+    private final int SMOKE_FRAMES_DELAY = 20;
     /**
      * Creates a new Trap model with the given game data
      * <p>
@@ -204,7 +215,7 @@ public class Trap extends GameObject implements TrapInterface {
         setName("trap");
         trapType = t;
         //setSensorName("trapSensor");
-        if (!trapType.equals(type.LURE)){
+        if (!trapType.equals(type.BREAD_LURE)){
             setSensor(true);
         }else{
             setBullet(true);
@@ -218,6 +229,11 @@ public class Trap extends GameObject implements TrapInterface {
         durability = MAX_DURABILITY;
         linger = false;
         indicatorOrigin = new Vector2();
+    }
+
+    /**Sets the animation corresponding to this trap*/
+    public void setAnimation(FilmStrip f){
+        animation = f;
     }
 
     /**
@@ -280,8 +296,8 @@ public class Trap extends GameObject implements TrapInterface {
      */
     public boolean decrementDurability() {
         switch (trapType) {
-            case LURE:
-                lure_ammount--;
+            case BREAD_LURE:
+                lure_amount--;
                 break;
             /*case FIRE:
                 durability = 0; //FIRE transitions into FIRE_LINGER
@@ -294,6 +310,10 @@ public class Trap extends GameObject implements TrapInterface {
         }
 
         return durability == 0;
+    }
+    /** Sets a child trap for this trap, if there is one */
+    public void setChildTrap(Trap child){
+        childTrap = child;
     }
 
     /**
@@ -315,9 +335,12 @@ public class Trap extends GameObject implements TrapInterface {
         }*/
 
         switch(trapType){
-            case FRIDGE:
-            case BREAD_BOMB:
-            case FAULTY_OVEN:
+            case COOLER:
+                if(childTrap != null && childTrap.isRemoved()){
+                    childTrap = null;
+                }
+            case TOASTER:
+            case HOT_SAUCE:
                 if (!isReady) {
                     readyTimer -= delta;
                     if (readyTimer <= 0) {
@@ -332,18 +355,18 @@ public class Trap extends GameObject implements TrapInterface {
                     activeTimer -= delta;
                 }
                 break;
-            case LURE:
+            case BREAD_LURE:
                 if (invuln){
                     invulnTimer -= delta;
                     if(invulnTimer <= 0){
                         invuln = false;
                     }
                 }else if(isHit()){
-                    lure_ammount--;
+                    lure_amount--;
                     invuln = true;
                     invulnTimer = INVULN_TIME;
                 }
-                if(lure_ammount <=0){
+                if(lure_amount <=0){
                     markRemoved(true);
                 }
                 break;
@@ -383,7 +406,7 @@ public class Trap extends GameObject implements TrapInterface {
         sensorDef.isSensor = true;
         sensorShape = new CircleShape();
         switch (trapType) {
-            case LURE:
+            case BREAD_LURE:
                 sensorShape.setRadius(LURE_RADIUS);
                 FixtureDef sensHurt = new FixtureDef();
                 sensHurt.isSensor = true;
@@ -408,9 +431,9 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case FIRE_LINGER:
                 sensorShape.setRadius(FIRE_LINGER_RADIUS);
-            */case FRIDGE:
-            case BREAD_BOMB:
-            case FAULTY_OVEN:
+            */case COOLER:
+            case TOASTER:
+            case HOT_SAUCE:
                 sensorShape.setRadius(ACTIVATION_RADIUS);
                 sensorDef.shape = sensorShape;
                 Fixture sensorFixture = body.createFixture(sensorDef);
@@ -432,19 +455,29 @@ public class Trap extends GameObject implements TrapInterface {
     public void markReady(boolean bool){
         if(isReady && !bool){
             switch(trapType){
-                case FRIDGE:
+                case COOLER:
                     readyTimer = FRIDGE_RECHARGE_TIME;
                     break;
-                case FAULTY_OVEN:
+                case HOT_SAUCE:
                     readyTimer = FAULTY_OVEN_RECHARGE_TIME;
                     break;
-                case BREAD_BOMB:
+                case TOASTER:
                     readyTimer = BREAD_BOMB_RECHARGE_TIME;
             }
         }
         isReady = bool;
     }
-
+    /** Return the given increment to the frame based on the current anim_delay and the delay specified*/
+    private int incrWithDelay(int delay){
+        if(anim_delay == 0){
+            anim_delay = delay;
+            return 1;
+        }
+        else{
+            anim_delay --;
+            return 0;
+        }
+    }
     /**
      * Draws the game object.
      *
@@ -453,38 +486,148 @@ public class Trap extends GameObject implements TrapInterface {
     public void draw(GameCanvas canvas) {
         Color c = Color.WHITE.cpy();
         float scale = .1f;
+        int frame = 0;
+
         switch (trapType) {
-            case FAULTY_OVEN:
-                c = fireColor.cpy();
+            case HOT_SAUCE:
+                //c = Color.GRAY;//fireColor.cpy();
+                //play once
+                frame = animation.getFrame();
+
+                if(isReady) {
+                    frame = 0;
+                }
+                else if(animation.getFrame() < 7){
+                    if(anim_delay == 0){
+                        anim_delay = FRAME_DELAY;
+                    }
+                    else{
+                        anim_delay --;
+                        break;
+                    }
+                    frame ++;
+                }
                 break;
-            case LURE:
+            case BREAD_LURE:
                 //c = lureColor.cpy();
-                c.a = Math.max(0, lure_ammount / MAX_LURE_AMMOUNT);
+                c.a = Math.max(0, lure_amount / MAX_LURE_AMMOUNT);
                 break;
             case SLOW:
                 c = slowColor.cpy();
                 scale = .3f;
                 c.a = Math.max(0, activeTimer / SLOW_ACTIVE_TIME);
                 break;
-            /*case FIRE_LINGER:
-                c = Color.FIREBRICK.cpy();
-                break;
-                */
-            case FRIDGE:
-                c = Color.BLUE.cpy();
+            case COOLER:
+                c = Color.WHITE.cpy();//Color.BLUE.cpy();
                 scale = .2f;
-                break;
-            case BREAD_BOMB:
+                frame = animation.getFrame();
+                // reset frame at beginning if ready
+               if (isReady && frame > 4) {
+                   frame = 0;
+               }
+               //add icicles
+               else if (frame < 4){
+                   //force a delay
+                   if(anim_delay != 0){
+                       anim_delay --;
+                   }
+                   else {
+                       anim_delay = COOLER_FRAME_DELAY;
+                       frame ++;
+                   }
+               }
+               else if (isReady && frame == 4){
+                   break;
+               }
+                // trap has been pressed, open the cooler
+                else if (4 < frame && frame < 10){
+                    if(anim_delay == 0) {
+                        frame++;
+                        anim_delay = FRAME_DELAY;
+                    }
+                    else{
+                        anim_delay --;
+                    }
+                }
+                //flip between 11 and 10 for smoke
+                else if (childTrap != null && childTrap.activeTimer > 0){
+                    if(anim_delay == 0) {
+                        anim_delay = SMOKE_FRAMES_DELAY;
+                        frame = (animation.getFrame() == 10 ? 11 : 10);
+                    }
+                    else{
+                        anim_delay --;
+                    }
+                }
+                //close trap
+               else if(frame < 16 && frame > 9){
+                   if(anim_delay == 0) {
+                       frame++;
+                   }
+                   else {
+                       anim_delay --;
+                   }
+               }
+                //frame 16, reset to 0 and wait
+               else if (frame == 16){
+                   //stay iced
+                   c = Color.BLUE.cpy();
+                   break;
+
+               }
+
+               break;
+            case TOASTER:
                 c = Color.WHITE.cpy();
+                frame = animation.getFrame();
+                if(animation.getFrame() < 5){
+                    if(anim_delay == 0){
+                        anim_delay = FRAME_DELAY;
+                        frame ++;
+                    }
+                    else{
+                        anim_delay --;
+                    }
+                    //frame = animation.getFrame() + 1;
+                }
+                else if (!isReady){
+                    //switch between frames 6 and 7 for smoke
+                    c = Color.LIGHT_GRAY.cpy();
+                    //frame = animation.getFrame();
+                    if(anim_delay == 0){
+                        anim_delay = SMOKE_FRAMES_DELAY; //add delay time to be less frenetic
+                        frame = (animation.getFrame() == 5 ? 6:5);
+                    }else {
+                        anim_delay --;
+                    }
+
+                }
+                else{
+                    //frame = animation.getFrame();
+                    if(animation.getFrame() < animation.getSize() - 1){
+                        frame++;
+                    }
+                }
                 break;
 
         }
-        if (!isReady) {
-            int breaking = 1;
+        if(animation != null){
+            animation.setFrame(frame);
+            canvas.draw(animation, isReady ? Color.WHITE: c, origin.x, origin.y,
+                    getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
+            if (hasIndicator && isReady) {
+                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y,
+                        getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
+            }
         }
-        canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), scale, scale);
-        if (hasIndicator && isReady) {
-            canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
+        else {
+            if (!isReady) {
+                int breaking = 1;
+            }
+            canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
+            if (hasIndicator && isReady) {
+                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), displayScale.x*0.5f, displayScale.y*0.5f);
+            }
         }
     }
 

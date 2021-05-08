@@ -1,13 +1,11 @@
 package code.game.controllers;
 
 import code.assets.AssetDirectory;
-import code.audio.SoundBuffer;
 import code.game.interfaces.CollisionControllerInterface;
 import code.game.models.*;
 import code.game.models.GameObject;
 import code.game.models.obstacle.Obstacle;
 import code.util.PooledList;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -29,8 +27,8 @@ public class CollisionController implements CollisionControllerInterface {
     private SoundController sound;
 
 
-    public CollisionController(Vector2 scale) {
-        trapController = new TrapController(scale);
+    public CollisionController(Vector2 scale, Vector2 displayScale) {
+        trapController = new TrapController(scale, displayScale);
     }
 
     /**
@@ -241,23 +239,22 @@ public class CollisionController implements CollisionControllerInterface {
         chef.setCooking(true, stove);
         chef.setMovement(0);
         chef.setVertMovement(0);
-        stove.setLit(true);
-
+        //stove.setLit(true);
     }
 
     private void handleTrapSlap(Trap t1, FixtureType fd1, Slap s2, FixtureType fd2) {
         if(fd1!=null && fd1.equals(FixtureType.TRAP_ACTIVATION) && t1.getReady()) {
             switch (t1.getTrapType()) {
-                case FAULTY_OVEN:
+                case HOT_SAUCE:
                     t1.markReady(false);
                     sound.playFireTrap();
                     chef.setDoubleDamage(true);
                     break;
-                case BREAD_BOMB:
+                case TOASTER:
                     t1.markReady(false);
                     trapCache.addAll(trapController.createLures(t1));
                     break;
-                case FRIDGE:
+                case COOLER:
                     t1.markReady(false);
                     trapCache.add(trapController.createSlow(t1));
                     break;
@@ -302,6 +299,7 @@ public class CollisionController implements CollisionControllerInterface {
             float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
             chef.markSetVelocity(max_speed, angle);
         }
+        sound.playChefHurt();
     }
 
     /**
@@ -367,7 +365,7 @@ public class CollisionController implements CollisionControllerInterface {
         if(fd1 != null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
             trapController.applyTrap(t2, c1);
         }
-        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)){
+        if(t2.getTrapType().equals(Trap.type.BREAD_LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)){
             t2.markHit();
         }
     }
@@ -482,12 +480,12 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void endChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
-        if(t2.getTrapType().equals(Trap.type.LURE) && fd2!= null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)
+        if(t2.getTrapType().equals(Trap.type.BREAD_LURE) && fd2!= null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)
                 && fd1!=null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
             c1.stopAttack();
         }
         trapController.stopTrap(t2, c1);
-        if(t2.getTrapType().equals(Trap.type.LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT)){
+        if(t2.getTrapType().equals(Trap.type.BREAD_LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT)){
             t2.removeHit();
         }
 
@@ -505,7 +503,7 @@ public class CollisionController implements CollisionControllerInterface {
         //if (chef.getSensorName().equals(fd2) && stove.getSensorName().equals(fd1)){
         chef.setCooking(false, stove);
         chef.setInCookingRange(false);
-        stove.setLit(false);
+        //stove.setLit(false);
     }
 
 }

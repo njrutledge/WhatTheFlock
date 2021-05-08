@@ -30,10 +30,10 @@ public class Grid {
      * @param height    the height of the canvas
      */
     public Grid(float width, float height, Vector2 scale) {
-        cell_width = width/scale.x/COLS;
+        cell_width  = width/scale.x/COLS;
         cell_height = height/scale.y/ROWS;
 
-        canvas_width = width;
+        canvas_width  = width;
         canvas_height = height;
 
         comparator = new TileComparator();
@@ -46,6 +46,15 @@ public class Grid {
         }
         populate();
     }
+
+    public void resize(float width, float height, Vector2 scale){
+        cell_width  = width/scale.x/COLS;
+        cell_height = height/scale.y/ROWS;
+
+        canvas_width  = width;
+        canvas_height = height;
+    }
+
 
     public void clearObstacles(){
         for (int ii = 0; ii < ROWS; ii++){

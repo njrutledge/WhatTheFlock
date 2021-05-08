@@ -443,7 +443,7 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
             canvas.begin();
             canvas.draw(grayTexture, new Color(1, 1, 1, 0.1f), grayTexture.getWidth()/2, grayTexture.getHeight()/2,
                     bkgCenterX, bkgCenterY, 0, GRAY_BKG_SCALE* scale, GRAY_BKG_SCALE * scale);
-            System.out.println("drew gray");
+            //System.out.println("drew gray");
             grayDrawn = true;
             canvas.end();
         }

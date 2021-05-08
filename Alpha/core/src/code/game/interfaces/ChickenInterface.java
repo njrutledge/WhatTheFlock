@@ -76,16 +76,6 @@ public interface ChickenInterface {
     public void removeSlow(float strength);
 
     /**
-     * Applies the fire effect by giving the chicken a countdown timer
-     * representing the remaining time of the fire effect
-     *
-     * @param duration a duration for the fire effect in seconds.
-     */
-    public void applyFire(float duration);
-
-    public void letItBurn();
-
-    /**
      * Sets the chicken's target to the specific Lure trap
      *
      * @param t a Lure trap target

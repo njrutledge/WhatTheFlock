@@ -3,6 +3,7 @@ package code.game.models;
 import code.game.models.obstacle.BoxObstacle;
 import code.game.views.GameCanvas;
 import code.util.FilmStrip;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
@@ -64,12 +65,12 @@ public class DinoChicken extends NuggetChicken{
         // Ground Sensor
         // -------------
         // Previously used to detect double-jumps, but also allows us to see hitboxes
-        Vector2 sensorCenter = new Vector2(0, -getHeight()*1.25f);
+        Vector2 sensorCenter = new Vector2(0, getHeight()/2);
         FixtureDef hitboxDef = new FixtureDef();
         hitboxDef.density = data.getFloat("density",0);
         hitboxDef.isSensor = true;
         hitboxShape = new PolygonShape();
-        hitboxShape.setAsBox(getWidth(), getHeight()/2, sensorCenter, 0);
+        hitboxShape.setAsBox(getWidth()*1.5f, getHeight()*1.5f, sensorCenter, 0);
         hitboxDef.shape = hitboxShape;
         Fixture hitboxFixture = body.createFixture(hitboxDef);
         hitboxFixture.setUserData(FixtureType.CHICKEN_HURTBOX);
@@ -86,6 +87,42 @@ public class DinoChicken extends NuggetChicken{
 
 
         return true;
+    }
+
+    /**
+     * Draws the physics object.
+     *
+     * @param canvas Drawing context
+     */
+    @Override
+    public void draw(GameCanvas canvas) {
+        float effect = faceRight ? 1.0f:-1.0f;
+        Color c = null;
+        //GameCanvas.BlendState state = canvas.getBlendState();
+        for(int ii=1; ii<=1;ii++) {
+            if(ii==0){
+                canvas.setBlendState(GameCanvas.BlendState.ALPHA_BLEND);
+                c = getColor();
+            }else{
+                canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
+                c = Color.WHITE.cpy();
+                //c.a = .75f;
+            }
+
+            if (isAttacking && attack_animator != null && !isLured()) {
+                attack_animator.setFrame((int) animeframe);
+                canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+            } else if (!isStunned) {
+                animator.setFrame((int) animeframe);
+                canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+            } else if (isStunned) {
+                hurt_animator.setFrame((int) (animeframe));
+                canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+            }
+        }
+        canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
+        canvas.draw(healthBar, Color.FIREBRICK, 0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+ 100, getAngle(), 0.08f, 0.025f);
+        canvas.draw(healthBar, Color.GREEN,     0, origin.y, getX() * drawScale.x-17, getY() * drawScale.y+ 100, getAngle(), 0.08f*(health/max_health), 0.025f);
     }
 
     /**

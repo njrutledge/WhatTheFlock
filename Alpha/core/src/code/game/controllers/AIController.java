@@ -496,6 +496,7 @@ public class AIController {
      * This move function utilizes A* pathfinding.
      */
     public void move() {
+        //targetOffset= new Vector2(0,0);
         float x = target.getX() + targetOffset.x;
         float y = target.getY() + targetOffset.y;
         if(!grid.inBounds(grid.getTile(x, y).getRow(), grid.getTile(x, y).getCol()) || grid.getTile(x, y).isObstacle()){

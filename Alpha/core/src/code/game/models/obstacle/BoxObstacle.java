@@ -149,7 +149,7 @@ public class BoxObstacle extends SimpleObstacle {
 	/**
 	 * Reset the polygon vertices in the shape to match the dimension.
 	 */
-	private void resize(float width, float height) {
+	protected void resize(float width, float height) {
 		// Make the box with the center in the center
 		vertices[0] = -width/2.0f;
 		vertices[1] = -height/2.0f;
@@ -195,7 +195,7 @@ public class BoxObstacle extends SimpleObstacle {
 	@Override
 	public void draw(GameCanvas canvas){
 		if (texture != null) {
-			canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.x,getAngle(),1,1);
+			canvas.draw(texture,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y,getAngle(),displayScale.x,displayScale.y);
 		}
 	}
 
