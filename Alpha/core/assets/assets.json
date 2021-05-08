@@ -163,7 +163,8 @@
 
     },
   "music" : {
-    "music:theme1" : "sounds/music/WTF_main_theme_draft3.ogg",
+    "music:theme1" : "sounds/music/WTF_level_1.ogg",
+    "music:theme2" : "sounds/music/WTF_level_2.ogg",
     "music:levelSel" : "sounds/music/WTF_Menu.ogg"
   },
     "fonts": {
