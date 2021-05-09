@@ -1314,10 +1314,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	private void createKnockbackAttack(ShreddedChicken shredded){
-
-		ChickenAttack attack = new ChickenAttack(shredded.getX()-ChickenAttack.getKNOCKWIDTH()/2.0f*MathUtils.cos(shredded.getAttackAngle()),
-				shredded.getY()-ChickenAttack.getKNOCKHEIGHT()/2.0f*MathUtils.sin(shredded.getAttackAngle()),
-				ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x, ChickenAttack.getKNOCKHEIGHT()/scale.y*displayScale.y, chef, shredded, ChickenAttack.AttackType.Knockback);
+		float x = shredded.getX()-ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x/2.0f*MathUtils.cos(shredded.getAttackAngle());
+		float y = shredded.getY()-ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x/2.0f*MathUtils.sin(shredded.getAttackAngle());
+		ChickenAttack attack = new ChickenAttack(x, y, ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x,
+				ChickenAttack.getKNOCKHEIGHT()/scale.y*displayScale.y, chef, shredded, ChickenAttack.AttackType.Knockback);
 		shredded.setChickenAttack(attack);
 		attack.setAngle(shredded.getAttackAngle());
 		attack.setDrawScale(scale);
@@ -1768,7 +1768,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
-		Vector2 scaleOLD = scale;
+		Vector2 scaleOLD = scale.cpy();
 		this.scale.x = width/bounds.getWidth();///1.2f;
 		this.scale.y = height/bounds.getHeight();///1.2f;
 		this.displayScale.x = width/1920f;///1.2f;
