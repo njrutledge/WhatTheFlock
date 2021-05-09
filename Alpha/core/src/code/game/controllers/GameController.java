@@ -92,6 +92,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture trapCoolerTexture;
 	/** Texture for animating Cooler trap*/
 	private Texture trapCoolerActivate;
+	/** Texture for when chicken is frozen*/
+	private TextureRegion trapFrozenTexture;
 	private final int COOLER_NUM_FRAMES = 17;
 
 	/** Texture asset for toaster trap */
@@ -474,6 +476,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		trapDefaultTexture = directory.getEntry("enviro:trap:spike",Texture.class);
 		trapCoolerTexture = directory.getEntry("enviro:trap:cooler",Texture.class);
 		trapCoolerActivate = directory.getEntry("enviro:trap:coolerActivate", Texture.class);
+		trapFrozenTexture = new TextureRegion(directory.getEntry("enviro:trap:icecube",Texture.class));
 		trapToasterTexture = directory.getEntry("enviro:trap:toaster",Texture.class);
 		trapToasterActivate = directory.getEntry("enviro:trap:toasterActivate", Texture.class);
 
@@ -1238,6 +1241,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		enemy.setDrawScale(scale);
 		enemy.setDisplayScale(displayScale);
 		enemy.setBarTexture(enemyHealthBarTexture);
+		enemy.setSlowTexture(trapFrozenTexture);
 		addObject(enemy, GameObject.ObjectType.CHICKEN);
 		ai.put(enemy, new AIController(enemy, chef, grid));
 	}

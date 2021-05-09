@@ -38,6 +38,7 @@
         "enviro:trap:cooler": "enviro/cooler.png",
         "enviro:trap:coolerActivate": "enviro/cooler_activate.png",
         "enviro:trap:slow": "enviro/slow.png",
+        "enviro:trap:icecube": "enviro/ice_cube.png",
         "enviro:background": "enviro/background_2.png",
         "enviro:spawn": "enviro/fridge.png",
         "enviro:indicator" : "enviro/slap_indicator.png",
