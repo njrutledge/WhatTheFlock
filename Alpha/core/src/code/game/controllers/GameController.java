@@ -261,8 +261,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
-	/** Holds save game data */
-	private JsonValue save;
+	/** game save */
+	private Save save;
 	/** Reference to the character chef */
 	private Chef chef;
 	/** array of chicken spawn points */
@@ -524,7 +524,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
-		save = directory.getEntry("save", JsonValue.class);
+		save = new Save(directory.getEntry("save", JsonValue.class));
 		//set assets
 		collisionController.setConstants(constants);
 		collisionController.gatherAssets(directory);
@@ -870,7 +870,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		collisionController.endContact(contact, sensorFixtures);
 	}
 
-	public void setOptions(OptionData o){
+	public void setOptions(Save o){
 		o.screen_width = Math.max(o.screen_width, 1280);
 		o.screen_height = Math.max(o.screen_height,720);
 		if(canvas.getWidth()!=o.screen_width || canvas.getHeight()!=o.screen_height) {
@@ -883,9 +883,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		saveOptions(o);
 	}
 
-	private void saveOptions(OptionData o){
+	private void saveOptions(Save o){
 		Json json = new Json();
-		String jstring = json.toJson(new OptionData(o,save.getInt("furthest_level")));
+		String jstring = json.toJson(new Save(o,save.furthest_level));
 		FileHandle file = Gdx.files.local("save.json");
 		file.writeString(jstring, false);
 	}
@@ -972,14 +972,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Toggle grid
 		if (input.didGridToggle()) {
 			grid_toggle = !grid_toggle;
-		}
-
-
-		if(input.didAdvance()) {
-			chef.decrementHealth();
-		}
-		if(input.didRetreat()) {
-			killChickens();
 		}
 
 		// Now it is time to maybe switch screens.
@@ -1765,44 +1757,51 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
+		Vector2 scaleOLD = scale;
 		this.scale.x = width/bounds.getWidth();///1.2f;
 		this.scale.y = height/bounds.getHeight();///1.2f;
 		this.displayScale.x = width/1920f;///1.2f;
 		this.displayScale.y = height/1080f;///1.2f;
-		for(Obstacle obj : walls){
-			obj.setDrawScale(scale);
-			obj.setDisplayScale(displayScale);
+		if(!scaleOLD.equals(scale)) {
+			for (Obstacle obj : walls) {
+				obj.setDrawScale(scale);
+				obj.setDisplayScale(displayScale);
+			}
+			for (Obstacle trapE : trapEffects) {
+				trapE.setDrawScale(scale);
+				trapE.setDisplayScale(displayScale);
+			}
+			for (Obstacle trap : floorTraps) {
+				trap.setDrawScale(scale);
+				trap.setDisplayScale(displayScale);
+			}
+			for (Obstacle c : chickens) {
+				c.setDrawScale(scale);
+				c.setDisplayScale(displayScale);
+				float cwidth = chickenTexture.getRegionWidth() / scale.x * displayScale.x;
+				float cheight = chickenTexture.getRegionHeight() / scale.y * displayScale.y;
+				((Chicken) c).resize(cwidth, cheight);
+			}
+			for (Obstacle other : others) {
+				other.setDrawScale(scale);
+				other.setDisplayScale(displayScale);
+			}
+			if (chef != null) {
+				chef.setDrawScale(scale);
+				chef.setDisplayScale(displayScale);
+			}
+			if (grid != null) {
+				grid.resize(width, height, scale);
+			}
+			if (canvas != null) {
+				save.screen_width = width;
+				save.screen_height = height;
+			}
 		}
-		for (Obstacle trapE : trapEffects){
-			trapE.setDrawScale(scale);
-			trapE.setDisplayScale(displayScale);
-		}
-		for (Obstacle trap : floorTraps){
-			trap.setDrawScale(scale);
-			trap.setDisplayScale(displayScale);
-		}
-		for (Obstacle c : chickens){
-			c.setDrawScale(scale);
-			c.setDisplayScale(displayScale);
-			float cwidth = chickenTexture.getRegionWidth()/scale.x*displayScale.x;
-			float cheight = chickenTexture.getRegionHeight()/scale.y*displayScale.y;
-			((Chicken) c).resize(cwidth,cheight);
-		}
-		for (Obstacle other : others){
-			other.setDrawScale(scale);
-			other.setDisplayScale(displayScale);
-		}
-		if(chef!= null) {
-			chef.setDrawScale(scale);
-			chef.setDisplayScale(displayScale);
-		}
-		if(grid!=null){
-			grid.resize(width,height,scale);
-		}
-		if(canvas!=null) {
-			OptionData od = new OptionData(width, height, true);
-			setOptions(od);
-		}
+	}
+	public void updateSave(Save s){
+		setOptions(s);
+		save = s;
 	}
 
 	/**
@@ -1820,10 +1819,23 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			obj.deactivatePhysics(world);
 		}
 		objects.clear();
+		walls.clear();
+		tableTraps.clear();
+		floorTraps.clear();
+		trapEffects.clear();
+		others.clear();
+		chickens.clear();
 		addQueue.clear();
 		world.dispose();
 		objects = null;
+		walls = null;
+		tableTraps = null;
+		floorTraps = null;
+		trapEffects = null;
+		others = null;
+		chickens = null;
 		addQueue = null;
+		chef = null;
 		bounds = null;
 		scale  = null;
 		world  = null;
@@ -1925,26 +1937,5 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	@Override
 	public boolean scrolled(float amountX, float amountY) {
 		return false;
-	}
-
-	private class OptionData {
-		public int screen_width;
-		public int screen_height;
-		public boolean auto_cook;
-		public int furthest_level;
-		public OptionData(int w, int h, boolean ac){
-			screen_width = w;
-			screen_height = h;
-			auto_cook = ac;
-			furthest_level = save.getInt("furthest_level",0);
-		}
-		public OptionData(int w, int h, boolean ac, int fl){
-			this(w,h,ac);
-			furthest_level = fl;
-
-		}
-		public OptionData(OptionData o, int fl){
-			this(o.screen_width, o.screen_height, o.auto_cook,fl);
-		}
 	}
 }

@@ -2,8 +2,10 @@ package code.game.display;
 
 import code.assets.AssetDirectory;
 import code.audio.SoundBuffer;
+import code.game.controllers.GameController;
 import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
+import code.game.models.Save;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.ScreenListener;
@@ -13,12 +15,14 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
@@ -147,8 +151,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /**The total number of levels we have. Should be equal to length of levelList. */
     private int numLevels;
 
-    /** Json for the game save */
-    private JsonValue save;
+    /** game save */
+    private Save save;
 
     /** The first knife on the screen, i.e. left-most knife in level select */
     private int leftIndex;
@@ -188,6 +192,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         infoFont.setColor(Color.BLACK);
         //TODO probably want to share some font assets
         levels = assets.getEntry("levels", JsonValue.class );
+        save = new Save(assets.getEntry("save", JsonValue.class));
+
 
         this.bounds = new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT);
         this.vscale = new Vector2(1,1);
@@ -249,6 +255,20 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         return leftIndex + highlightedIndex + 1 < numLevels;
     }
 
+    public void advanceSave(){
+        FileHandle file = Gdx.files.local(Save.file);
+        Json json = new Json();
+        if(leftIndex+highlightedIndex+1==save.furthest_level) {
+            save.furthest_level++;
+        }
+        String jstring = json.toJson(save);
+        file.writeString(jstring, false);
+    }
+
+    public void updateSave(Save s){
+        save = s;
+    }
+
     /**
      * Returns the JSON value of levelSelected to the given name, specified in levelselect.json
      *
@@ -283,7 +303,14 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @return  whether or not pressed a knife
      */
     private boolean validLevelSelected(){
-        if(pressState == 2){ return true; }
+        int x = highlightedIndex;
+        int y = leftIndex;
+        int z = save.furthest_level;
+        if(pressState == 2) {
+            if (highlightedIndex + leftIndex < save.furthest_level) {
+                return true;
+            } else pressState = -1;
+        }
         return false;
     }
 
@@ -330,7 +357,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 break;
             case "ENTERED":
                 pressState = 2;
-                if (highlightedIndex != -1) {
+                if (highlightedIndex != -1 && leftIndex + highlightedIndex < save.furthest_level) {
                     levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]);
                 } else { pressState = 8; }
                 break;
@@ -481,7 +508,10 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         GlyphLayout layout = new GlyphLayout();
         for (int i = 0; i < 3; i++) {
             // Draw the knife
-            if (i == highlightedIndex) {
+            if(leftIndex+i >= save.furthest_level){
+                canvas.draw(knifeTexture, Color.SLATE, knifeTexture.getWidth() / 2, knifeTexture.getHeight() / 2,
+                        knifeCenterX + DIST * i, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+            } else if (i == highlightedIndex) {
                 canvas.draw(knifeTexture, Color.BLACK, knifeTexture.getWidth()/2, knifeTexture.getHeight()/2,
                         knifeCenterX+DIST*highlightedIndex-SHADOW_OFFSET-HOVER_OFFSET, knifeCenterY-SHADOW_OFFSET-HOVER_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
                 Color color = pressState == 1 ? Color.SLATE : Color.WHITE;
