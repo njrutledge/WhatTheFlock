@@ -468,14 +468,14 @@ public class Trap extends GameObject implements TrapInterface {
         isReady = bool;
     }
     /** Return the given increment to the frame based on the current anim_delay and the delay specified*/
-    private int incrWithDelay(int delay){
+    private int incrWithDelay(int frame, int delay){
         if(anim_delay == 0){
             anim_delay = delay;
-            return 1;
+            return frame ++;
         }
         else{
             anim_delay --;
-            return 0;
+            return frame;
         }
     }
     /**
@@ -497,15 +497,15 @@ public class Trap extends GameObject implements TrapInterface {
                 if(isReady) {
                     frame = 0;
                 }
-                else if(animation.getFrame() < 7){
+                else if(frame < 7){
                     if(anim_delay == 0){
                         anim_delay = FRAME_DELAY;
+                        frame ++;
                     }
                     else{
                         anim_delay --;
                         break;
                     }
-                    frame ++;
                 }
                 break;
             case BREAD_LURE:
@@ -571,7 +571,7 @@ public class Trap extends GameObject implements TrapInterface {
                 //frame 16, reset to 0 and wait
                else if (frame == 16){
                    //stay iced
-                   c = Color.BLUE.cpy();
+                   c = Color.LIGHT_GRAY.cpy();
                    break;
 
                }

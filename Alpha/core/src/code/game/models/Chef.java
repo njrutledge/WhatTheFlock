@@ -99,7 +99,7 @@ public class Chef extends GameObject implements ChefInterface {
 	/** Time until invulnerability after getting hit wears off */
 	private final float INVULN_TIME = 0.5f;
 	/** Chef base damage */
-	private final float BASE_DAMAGE = 1;
+	private float base_damage;
 	/** Flag for double damage */
 	private boolean doubleDamage = false;
 	/** Timer for double damage */
@@ -162,6 +162,7 @@ public class Chef extends GameObject implements ChefInterface {
 		setFriction(data.getFloat("friction", 0));  /// HE WILL STICK TO WALLS IF YOU FORGET
 		setFixedRotation(true);
 
+		base_damage = data.getFloat(("base_dmg"), 0);
 		maxspeed = data.getFloat("maxspeed", 0);
 		damping = data.getFloat("damping", 0);
 		force = data.getFloat("force", 0);
@@ -459,7 +460,7 @@ public class Chef extends GameObject implements ChefInterface {
 	 *
 	 * @return the base damage value for the chef
 	 */
-	public float getDamage(){ return doubleDamage ? BASE_DAMAGE * 2 : BASE_DAMAGE;}
+	public float getDamage(){ return doubleDamage ? base_damage * 2 : base_damage;}
 
 	/**
 	 * sets the double damage flag for the chef, and init the counter

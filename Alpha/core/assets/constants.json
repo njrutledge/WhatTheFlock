@@ -21,7 +21,8 @@
 		"sensor": {
 			"shrink" : 0.9,
 			"height" : 0.4
-		}
+		},
+		"base_dmg" : 1
 	},
 	"chicken" : {
 		"force": 20.0,
@@ -35,8 +36,8 @@
 		"hScale": 1.5,
 		"wScale": 1.5,
 		"density": 0.1,
-		"maxspeed": 7.0,
-		"chasespeed": 6.0,
+		"maxspeed": 6.0,
+		"chasespeed": 5.0,
 		"knockback": 30.0,
 		"maxhealth": 2,
 		"num_anim_frames": 8,
@@ -56,7 +57,7 @@
 		"maxspeed": 5.0,
 		"chasespeed": 4,
 		"knockback": 20.0,
-		"maxhealth": 10,
+		"maxhealth": 15,
 		"num_anim_frames": 11,
 		"animation_speed": 0.15,
 		"sensor_radius": 1.5,
@@ -72,7 +73,7 @@
 		"maxspeed": 6.0,
 		"chasespeed": 5,
 		"knockback": 30.0,
-		"maxhealth":4,
+		"maxhealth": 5,
 		"sensor": {
 			"shrink" : 0.6,
 			"height" : 0.1
@@ -85,7 +86,7 @@
 		"maxspeed": 5.0,
 		"chasespeed": 3.0,
 		"knockback": 20.0,
-		"maxhealth": 8,
+		"maxhealth": 5,
 		"sensor": {
 			"shrink" : 0.6,
 			"height" : 0.1

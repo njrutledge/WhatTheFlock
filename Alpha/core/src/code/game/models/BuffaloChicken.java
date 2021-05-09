@@ -167,6 +167,7 @@ public class BuffaloChicken extends Chicken {
             hurt_animator.setFrame((int)(animeframe));
             canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
+        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 20, displayScale.x*wScale*effect, displayScale.y*hScale);
     }
 
     /**

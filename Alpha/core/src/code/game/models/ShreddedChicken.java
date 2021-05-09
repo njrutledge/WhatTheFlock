@@ -169,6 +169,7 @@ public class ShreddedChicken extends Chicken {
         if (!isInvisible) {
             canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
+        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x*wScale*effect, displayScale.y*hScale);
     }
 
     /**

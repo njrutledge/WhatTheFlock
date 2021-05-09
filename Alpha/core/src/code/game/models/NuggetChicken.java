@@ -157,6 +157,7 @@ public class NuggetChicken extends Chicken {
                 canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*0.1f * effect * wScale, displayScale.y*0.1f * hScale);
             }
         }
+        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x*0.1f * effect * wScale, displayScale.y*0.1f * hScale);
         canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
     }
 

@@ -3,5 +3,8 @@
   "More Nuggets": "levels/progression/tomatoMeetsNug.json",
   "Hot Sauce": "levels/progression/spicySauce.json",
   "Dinosaur Nuggets are Cute": "levels/progression/chrispratt.json",
-  "Nugget Combo Meal": "levels/progression/nuggetcombo.json"
+  "Nugget Combo Meal": "levels/progression/nuggetcombo.json",
+  "One Stove at a Time": "levels/progression/gasproblems.json",
+  "BuffaloBuffaloBuffalo": "levels/progression/buffalobills.json",
+  "Freeze Dance": "levels/progression/9_freeze_intro.json"
 }

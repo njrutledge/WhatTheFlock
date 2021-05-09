@@ -127,6 +127,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     protected float status_timer = -1.0f;
     /** Texture for chicken healthbar */
     private TextureRegion healthBar;
+    /** Texture overlay for chicken frozen*/
+    private TextureRegion frozen;
 
     /** Radius of the chicken's sensor. If the chicken's target comes into
      * contact with the sensor, the chicken will attempt to initiate
@@ -403,6 +405,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * Start an attack
      */
     public void startAttack() {
+        if (type == ChickenType.Buffalo){
+            Filter filter = getFilterData();
+            filter.maskBits = 0x0001 | 0x0004;
+            setFilterData(filter);
+        }
         setIsAttacking(true);
         animeframe = 0;
         if (!isRunning()) {
@@ -416,6 +423,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     }
 
     public void stopAttack() {
+        if (type == ChickenType.Buffalo){
+            Filter filter = getFilterData();
+            filter.maskBits = 0x0001 | 0x0002 | 0x0004;
+            setFilterData(filter);
+        }
         animeframe = 0;
         setIsAttacking(false);
         if (!isRunning() && doneAttack) {
@@ -519,6 +531,13 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
         healthBar = texture;
     }
 
+    public void setSlowTexture(TextureRegion texture) { frozen = texture; }
+    /** draws if chicken has been slowed */
+    public void drawSlow(GameCanvas canvas, float x, float y, float sx, float sy){
+        if (inSlow) {
+            canvas.draw(frozen,new Color(1, 1, 1, 0.7f), origin.x, origin.y, x, y, getAngle(), sx, sy);
+    }
+    }
     /**
      * Draws the physics object.
      *

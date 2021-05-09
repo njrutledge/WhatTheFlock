@@ -175,7 +175,9 @@ public class CollisionController implements CollisionControllerInterface {
     private void chefCollision(Chef c1, FixtureType fd1, Fixture fix1, GameObject bd2, FixtureType fd2, Fixture fix2) {
         switch (bd2.getObjectType()) {
             case STOVE:
-                handleStoveChef((Stove) bd2, c1);
+                if (fd2 != null && fd2.equals(FixtureType.STOVE_SENSOR)) {
+                    handleStoveChef((Stove) bd2, c1);
+                }
                 break;
             case CHICKEN:
                 handleChefChicken(c1, fd1, (Chicken) bd2, fd2);
@@ -192,7 +194,9 @@ public class CollisionController implements CollisionControllerInterface {
         private void stoveCollision(Stove s1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
             switch (bd2.getObjectType()) {
                 case CHEF:
-                    handleStoveChef(s1, (Chef) bd2);
+                    if (fd1 != null && fd1.equals(FixtureType.STOVE_SENSOR)) {
+                        handleStoveChef(s1, (Chef) bd2);
+                    }
                     break;
                 case ATTACK:
                     handleObstacleChickenAttack(s1, fd1, (ChickenAttack) bd2, fd2);
@@ -238,7 +242,8 @@ public class CollisionController implements CollisionControllerInterface {
      * @param chef  a chef
      */
     private void handleStoveChef(Stove stove, Chef chef) {
-        chef.setCooking(true, stove);
+        chef.setCooking(true && !chef.isStunned(), stove);
+        chef.setInCookingRange(true);
         chef.setMovement(0);
         chef.setVertMovement(0);
         //stove.setLit(true);
@@ -312,7 +317,7 @@ public class CollisionController implements CollisionControllerInterface {
      * Handles an interaction between a non-chef obstacle and a chicken attack
      */
     private void handleChickenChickenAttack(Chicken chicken, Object fd1, ChickenAttack attack, Object fd2){
-        attack.collideObject(chicken);
+        //attack.collideObject(chicken);
         if (attack.isReflected() && !attack.isBreaking()){
             chicken.takeDamage(dmg);
             attack.collideObject();
@@ -452,7 +457,9 @@ public class CollisionController implements CollisionControllerInterface {
     private void endChefCollision(Chef chef, FixtureType fd1, GameObject bd2, FixtureType fd2) {
         switch (bd2.getObjectType()) {
             case STOVE:
-                endStoveChef((Stove) bd2, fd2, chef, fd1);
+                if (fd2 != null && fd2.equals(FixtureType.STOVE_SENSOR)) {
+                    endStoveChef((Stove) bd2, fd2, chef, fd1);
+                }
                 break;
             case CHICKEN:
                 endChickenChef((Chicken) bd2, fd2, chef, fd1);
@@ -463,7 +470,9 @@ public class CollisionController implements CollisionControllerInterface {
     private void endStoveCollision(Stove s1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
         switch (bd2.getObjectType()) {
             case CHEF:
-                endStoveChef(s1, fd1, (Chef) bd2, fd2);
+                if (fd1 != null && fd1.equals(FixtureType.STOVE_SENSOR)) {
+                    endStoveChef(s1, fd1, (Chef) bd2, fd2);
+                }
                 break;
         }
     }
