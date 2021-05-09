@@ -33,7 +33,7 @@ public class ShreddedChicken extends Chicken {
 
     /** How fast we change frames */
     private static final float ANIMATION_SPEED_WALK = 0.2f;
-    private static final float ANIMATION_SPEED_ATTACK = 0.2f;
+    private static final float ANIMATION_SPEED_ATTACK = 0.275f;
     /** The number of animation frames in our filmstrip */
     private static final int NUM_ANIM_FRAMES_WALK = 8;
     private static final int NUM_ANIM_FRAMES_ATTACK = 16;
@@ -176,8 +176,8 @@ public class ShreddedChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? -1.0f : 1.0f;
-        float wScale = 0.8f;
-        float hScale = 0.7f;
+        float wScale = 0.4f;
+        float hScale = 0.35f;
         if (isAttacking && attack_animator != null && !isLured()) {
             attack_animator.setFrame((int) animeframe);
             canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
