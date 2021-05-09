@@ -111,7 +111,7 @@ public class Trap extends GameObject implements TrapInterface {
     /**
      * max durability of lure
      */
-    private final float MAX_LURE_AMMOUNT = 6;
+    private final float MAX_LURE_AMMOUNT = 3;
     /**
      * Slow effect strength
      */
@@ -208,7 +208,7 @@ public class Trap extends GameObject implements TrapInterface {
     public Trap(JsonValue data, float x, float y, float width, float height, type t) {
         super(x, y,
                 width * data.get("shrink").getFloat(0),
-                height * data.get("shrink").getFloat(1), ObjectType.TRAP);
+                height * data.get("shrink").getFloat(1), t == type.HOT_SAUCE || t == type.TOASTER ? ObjectType.TABLETRAP : ObjectType.FLOORTRAP);
         //setBodyType(BodyDef.BodyType.StaticBody);
         setFixedRotation(true);
         this.data = data;

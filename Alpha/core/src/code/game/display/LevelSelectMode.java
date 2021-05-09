@@ -146,6 +146,9 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /**The total number of levels we have. Should be equal to length of levelList. */
     private int numLevels;
 
+    /** Json for the game save */
+    private JsonValue save;
+
     /** The first knife on the screen, i.e. left-most knife in level select */
     private int leftIndex;
 
@@ -498,7 +501,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 String string = "";
                 for (String word: text.split(" ")) {
                     layout.setText(infoFont, string + word);
-                    if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale) {
+                    if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale && !string.equals("")) {
                         layout.setText(infoFont, string.substring(0, string.length()-1));
                         canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
                         row -= 1;
@@ -590,7 +593,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
         BLADE_WIDTH = knifeTexture.getWidth()*0.75f;
         BLADE_HEIGHT = knifeTexture.getHeight()*0.7f;
-        dist = (width/3 - BLADE_WIDTH);
+        dist =  (width/3 - BLADE_WIDTH); //(width - (knifeTexture.getWidth() * 3))/4;
         textCenterY = knifeCenterY;
         heightY = height;
     }

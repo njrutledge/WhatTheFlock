@@ -22,6 +22,7 @@ import code.util.ScreenListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.utils.*;
 import com.badlogic.gdx.graphics.*;
@@ -260,8 +261,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
-	/** Holds all level file locations for the game */
-	private JsonValue levels;
+	/** Holds save game data */
+	private JsonValue save;
 	/** Reference to the character chef */
 	private Chef chef;
 	/** array of chicken spawn points */
@@ -303,8 +304,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected PooledList<Obstacle> addQueue = new PooledList<Obstacle>();
 	/** All walls and stoves in the world. */
 	protected PooledList<Obstacle> walls = new PooledList<Obstacle>();
-	/** All traps in the world. */
-	protected PooledList<Obstacle> traps = new PooledList<Obstacle>();
+	/** All floortraps in the world. */
+	protected PooledList<Obstacle> floorTraps = new PooledList<Obstacle>();
+	/** All tabletraps in the world. */
+	protected PooledList<Obstacle> tableTraps = new PooledList<Obstacle>();
 	/** All traps effects in the world. */
 	protected PooledList<Obstacle> trapEffects = new PooledList<Obstacle>();
 	/** All enemies in the world. */
@@ -372,6 +375,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	// the total pool of enemies for this level
 	private ArrayList<Integer> enemyPool = new ArrayList<>(); // the enemies in the pool but not on the board
 	private ArrayList<Integer> enemyBoard = new ArrayList<>(); // the enemies on the board
+
+	private boolean[] progress;
 
 
 	/**
@@ -519,7 +524,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
-		levels = directory.getEntry("levels", JsonValue.class );
+		save = directory.getEntry("save", JsonValue.class);
 		//set assets
 		collisionController.setConstants(constants);
 		collisionController.gatherAssets(directory);
@@ -546,7 +551,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		addQueue.clear();
 		walls.clear();
 		trapEffects.clear();
-		traps.clear();
+		floorTraps.clear();
+		tableTraps.clear();
 		others.clear();
 		chickens.clear();
 		ActiveStove = null;
@@ -590,6 +596,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		temp.setUseCooldown(cooldown);
 
 		doNewPopulate(level);
+		progress = new boolean[Stoves.size()];
 		//add chef here!
 		addObject(chef, GameObject.ObjectType.NULL);
 		//set the chef in the collision controller now that it exists
@@ -862,6 +869,26 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//TODO: Detect if collision is with an enemy and give appropriate interaction (if any needed)
 		collisionController.endContact(contact, sensorFixtures);
 	}
+
+	public void setOptions(OptionData o){
+		o.screen_width = Math.max(o.screen_width, 1280);
+		o.screen_height = Math.max(o.screen_height,720);
+		if(canvas.getWidth()!=o.screen_width || canvas.getHeight()!=o.screen_height) {
+			canvas.setSize(o.screen_width, o.screen_height);
+			canvas.resetCamera();
+			canvas.resize();
+			resize(o.screen_width, o.screen_height);
+		}
+		autoCook = o.auto_cook;
+		saveOptions(o);
+	}
+
+	private void saveOptions(OptionData o){
+		Json json = new Json();
+		String jstring = json.toJson(new OptionData(o,save.getInt("furthest_level")));
+		FileHandle file = Gdx.files.local("save.json");
+		file.writeString(jstring, false);
+	}
 	/*******************************************************************************************
 	 * UPDATING LOGIC
 	 ******************************************************************************************/
@@ -1018,14 +1045,20 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 
 		// Stove updating mechanics
-		if (Stoves.size() > 1 && gameTime > stoveTimer + STOVE_RESET) {
-			stoveTimer = gameTime;
+		float tempProgress = temp.getPercentCooked();
+		int progressIndex = (int)(tempProgress/(1.0f/Stoves.size()));
+		if (Stoves.size() > 1 && !progress[progressIndex]) {
+			progress[progressIndex] = true;
+			//stoveTimer = gameTime;
 			ActiveStove.setInactive();
-			int ind = nonActiveStoves.remove(MathUtils.floor(MathUtils.random(0, nonActiveStoves.size() - 1)));
-			nonActiveStoves.add(lastStove);
-			ActiveStove = Stoves.get(ind);
-			lastStove = ind;
+			int ind = Stoves.indexOf(ActiveStove);
+			ActiveStove = Stoves.get((ind + 1) % Stoves.size());
 			ActiveStove.setActive();
+			//int ind = nonActiveStoves.remove(MathUtils.floor(MathUtils.random(0, nonActiveStoves.size() - 1)));
+			//nonActiveStoves.add(lastStove);
+			//ActiveStove = Stoves.get(ind);
+			//lastStove = ind;
+			//ActiveStove.setActive();
 		}
 
 		// Wave spawning logic
@@ -1311,7 +1344,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					break;
 				case Projectile:
 					attack.setEggAnimators(eggSpinTexture, eggSplatTexture);
-					sound.playShredAttack();
+					sound.playHotAttack();
 					break;
 				case Charge:
 					if (chicken.getType() == Chicken.ChickenType.Buffalo) {
@@ -1341,19 +1374,23 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	public void trapHelper(float x, float y, Trap.type t){
 		Texture trapTexture = trapDefaultTexture;
+		GameObject.ObjectType type = GameObject.ObjectType.TABLETRAP;
 		FilmStrip anim = null;
 		switch (t){
 			case COOLER:
 				trapTexture = trapCoolerTexture;
 				anim = new FilmStrip(trapCoolerActivate, 1, COOLER_NUM_FRAMES);
+				type = GameObject.ObjectType.FLOORTRAP;
 				break;
 			case TOASTER:
 				trapTexture = trapToasterTexture;
 				anim = new FilmStrip(trapToasterActivate, 1, TOASTER_NUM_FRAMES);
+				type = GameObject.ObjectType.TABLETRAP;
 				break;
 			case HOT_SAUCE:
 				trapTexture = trapHotSauceTexture;
 				anim = new FilmStrip(trapHotSauceActivate, 1, HOTSAUCE_NUM_FRAMES);
+				type = GameObject.ObjectType.TABLETRAP;
 				break;
 		}
 		float twidth = trapTexture.getWidth()/scale.x*displayScale.x;
@@ -1366,14 +1403,21 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		trap.setDisplayScale(displayScale);
 		trap.setTexture(trapTexture);
 		trap.setIndicatorTexture(indicatorTexture);
-		addObject(trap, GameObject.ObjectType.TRAP);
+		addObject(trap, type);
 	}
 
 
 	//TODO modify to make it easier starting out
 	public float damageCalc(){
 		//return (temp.getTemperature() <= 0) ? 0 : chef.getDamage() + 2 * chef.getDamage()*temp.getPercentCooked();
-		return chef.getDamage() + 2 * chef.getDamage() * temp.getPercentCooked();
+		//return chef.getDamage() + 2 * chef.getDamage() * temp.getPercentCooked();
+		if (temp.getPercentCooked() < 0.22){
+			return chef.getDamage();
+		} else if (temp.getPercentCooked() < 0.6) {
+			return chef.getDamage()*2;
+		} else {
+			return chef.getDamage()*4;
+		}
 	}
 
 
@@ -1408,14 +1452,18 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			case TRAP_EFFECT:
 				trapEffects.add(obj);
 				break;
-			case TRAP:
-				traps.add(obj);
+			case FLOORTRAP:
+				floorTraps.add(obj);
+				break;
+			case TABLETRAP:
+				tableTraps.add(obj);
 				break;
 			case CHICKEN:
 				chickens.add(obj);
 				break;
 			case NULL:
 				others.add(obj);
+				break;
 		}
 
 	}
@@ -1473,7 +1521,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// This is O(n) without copying.
 		iterateThrough(walls.entryIterator(), dt);
 		iterateThrough(trapEffects.entryIterator(),dt);
-		iterateThrough(traps.entryIterator(),dt);
+		iterateThrough(floorTraps.entryIterator(),dt);
+		iterateThrough(tableTraps.entryIterator(),dt);
 		iterateThrough(chickens.entryIterator(),dt);
 		iterateThrough(others.entryIterator(),dt);
 	}
@@ -1507,7 +1556,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		canvas.begin();
 		canvas.draw(background,Color.WHITE,0,0,background.getRegionWidth()*displayScale.x,background.getRegionHeight()*displayScale.y);
 
-		//priority: Walls < trap effects < traps < chickens < other < chef
+		//priority: Walls < trap effects < floortraps < chickens < other < chef < tabletraps
 
 		for(Obstacle wall : walls){
 			wall.draw(canvas);
@@ -1520,7 +1569,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for (Obstacle trapE : trapEffects){
 			trapE.draw(canvas);
 		}
-		for (Obstacle trap : traps){
+		for (Obstacle trap : floorTraps){
 			trap.draw(canvas);
 		}
 		for (Obstacle c : chickens){
@@ -1530,8 +1579,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			other.draw(canvas);
 		}
 
-		//draw chef last
+		//draw chef second to last
 		chef.draw(canvas);
+
+		for (Obstacle trap : tableTraps){
+			trap.draw(canvas);
+		}
 
 		canvas.end();
 
@@ -1543,7 +1596,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			for (Obstacle trapE : trapEffects){
 				trapE.drawDebug(canvas);
 			}
-			for (Obstacle trap : traps){
+			for (Obstacle trap : floorTraps){
 				trap.drawDebug(canvas);
 			}
 			for (Obstacle c : chickens){
@@ -1551,6 +1604,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			}
 			for (Obstacle other : others){
 				other.drawDebug(canvas);
+			}
+			chef.drawDebug(canvas);
+			for (Obstacle trap : floorTraps){
+				trap.drawDebug(canvas);
 			}
 			if (grid_toggle) {
 				grid.drawDebug(canvas);
@@ -1684,6 +1741,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//canvas.setSize(1920, 1080);
 		//canvas.resize();
 		//canvas.resetCamera();
+		com.badlogic.gdx.Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
+		float scalex = (float)Gdx.graphics.getDisplayMode().width/canvas.getWidth();
+		float scaley = (float)Gdx.graphics.getDisplayMode().height/canvas.getHeight();
 		this.scale.x = x/bounds.getWidth();
 		this.scale.y = y/bounds.getHeight();
 		//everything based off 1080p
@@ -1707,10 +1767,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
-		this.scale.x = width/bounds.getWidth();
-		this.scale.y = height/bounds.getHeight();
-		this.displayScale.x = width/1920f;
-		this.displayScale.y = height/1080f;
+		this.scale.x = width/bounds.getWidth();///1.2f;
+		this.scale.y = height/bounds.getHeight();///1.2f;
+		this.displayScale.x = width/1920f;///1.2f;
+		this.displayScale.y = height/1080f;///1.2f;
 		for(Obstacle obj : walls){
 			obj.setDrawScale(scale);
 			obj.setDisplayScale(displayScale);
@@ -1719,7 +1779,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			trapE.setDrawScale(scale);
 			trapE.setDisplayScale(displayScale);
 		}
-		for (Obstacle trap : traps){
+		for (Obstacle trap : floorTraps){
 			trap.setDrawScale(scale);
 			trap.setDisplayScale(displayScale);
 		}
@@ -1740,6 +1800,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}
 		if(grid!=null){
 			grid.resize(width,height,scale);
+		}
+		if(canvas!=null) {
+			OptionData od = new OptionData(width, height, true);
+			setOptions(od);
 		}
 	}
 
@@ -1863,5 +1927,26 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	@Override
 	public boolean scrolled(float amountX, float amountY) {
 		return false;
+	}
+
+	private class OptionData {
+		public int screen_width;
+		public int screen_height;
+		public boolean auto_cook;
+		public int furthest_level;
+		public OptionData(int w, int h, boolean ac){
+			screen_width = w;
+			screen_height = h;
+			auto_cook = ac;
+			furthest_level = save.getInt("furthest_level",0);
+		}
+		public OptionData(int w, int h, boolean ac, int fl){
+			this(w,h,ac);
+			furthest_level = fl;
+
+		}
+		public OptionData(OptionData o, int fl){
+			this(o.screen_width, o.screen_height, o.auto_cook,fl);
+		}
 	}
 }

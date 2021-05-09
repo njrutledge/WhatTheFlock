@@ -22,7 +22,7 @@
 			"shrink" : 0.9,
 			"height" : 0.4
 		},
-		"base_dmg" : 2
+		"base_dmg" : 1
 	},
 	"chicken" : {
 		"force": 20.0,

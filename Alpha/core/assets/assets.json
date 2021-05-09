@@ -132,7 +132,8 @@
     },
     "jsons"  : {
         "constants": "constants.json",
-        "levels": "levels.json"
+        "levels": "levels.json",
+        "save": "save.json"
     },
     "sounds" : {
         "sound:menu:selecting" : "sounds/ui/menu_ui_selecting.ogg",
@@ -143,27 +144,30 @@
         "sound:chef:oof": "sounds/chef/chef_hurt_2.ogg",
         "sound:chef:slap" : "sounds/chef/slap_1.ogg",
 
-        "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt_1.ogg",
-        "sound:chick:nugget:attack" : "sounds/chicken/nug_attack_1.ogg",
+        "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt.ogg",
+        "sound:chick:nugget:attack" : "sounds/chicken/nug_attack.ogg",
 
         "sound:chick:buffalo:charge" : "sounds/chicken/buffalo_charge.ogg",
         "sound:chick:buffalo:attack" : "sounds/chicken/buffalo_attack.ogg",
 
-        "sound:chick:shredded:attack" : "sounds/chicken/shredded_attack.ogg",
-        "sound:chick:shredded:hurt" : "sounds/chicken/shredded_hurt.ogg",
+        "sound:chick:hot:charge" : "sounds/chicken/hot_charge.ogg",
+        "sound:chick:hot:attack" : "sounds/chicken/hot_attack.ogg",
+        "sound:chick:hot:hurt" : "sounds/chicken/hot_hurt.ogg",
+
+        "sound:chick:shredded:attack" : "sounds/chicken/shred_attack.ogg",
+        "sound:chick:shredded:hurt" : "sounds/chicken/shred_hurt.ogg",
+
         "sound:chick:eggsplosion" : "sounds/chicken/eggsplosion.ogg",
-
-
-        "sound:chick:fire" : "sounds/chicken/set_ablaze_cluck.ogg",
 
         "sound:trap:fireLinger" : "sounds/trap/fire_linger_1.ogg",
         "sound:trap:fireTrig" : "sounds/trap/fire_trigger_2.ogg",
-        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg",
+        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg"
 
 
     },
   "music" : {
-    "music:theme1" : "sounds/music/WTF_main_theme_draft3.ogg",
+    "music:theme1" : "sounds/music/WTF_level_1.ogg",
+    "music:theme2" : "sounds/music/WTF_level_2.ogg",
     "music:levelSel" : "sounds/music/WTF_Menu.ogg"
   },
     "fonts": {
