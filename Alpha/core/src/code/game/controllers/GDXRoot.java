@@ -222,6 +222,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			switch (exitCode){
 				case GameController.EXIT_WIN:
 					gamemenu.setLevelAvailable(levelselect.levelAvailable());
+					levelselect.advanceSave();
 					gamemenu.setMode(GameMenuMode.Mode.WIN);
 					setScreen(gamemenu);
 					break;
@@ -242,6 +243,8 @@ public class GDXRoot extends Game implements ScreenListener {
 						case PAUSE:
 							gamemenu.reset();
 							controller.resume();
+							levelselect.updateSave(gamemenu.getSave());
+							controller.updateSave(gamemenu.getSave());
 							setScreen(controller);
 							break;
 						case WIN:

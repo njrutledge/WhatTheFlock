@@ -3,6 +3,7 @@ package code.game.display;
 import code.assets.AssetDirectory;
 import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
+import code.game.models.Save;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.FilmStrip;
@@ -14,10 +15,13 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.ControllerMapping;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 
 public class GameMenuMode implements Screen, InputProcessor, ControllerListener {
     // There are TWO asset managers.  One to load the loading screen.  The other to load the assets
@@ -190,6 +194,8 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
 
     /** Reference to the SoundController created in GDXRoot */
     private SoundController sound;
+    /** game save */
+    private Save save;
 
     /**
      * Creates a MainMenuMode with the default size and position.
@@ -243,6 +249,7 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
         grayDrawn = false;
         grayTexture = internal.getEntry("background:gray", Texture.class);
         pressState = 0;
+        save = new Save(internal.getEntry("save", JsonValue.class));
 
         // Let ANY connected controller start the game.
         for (XBoxController controller : Controllers.get().getXBoxControllers()) {
@@ -282,6 +289,17 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
 
     /** Get the type of menu that is being displayed */
     public Mode getMode() { return mode; }
+
+    /** get the game save */
+    public Save getSave(){return save;}
+
+    public void updateSave(int width, int height, boolean autoCook){
+        FileHandle file = Gdx.files.local(Save.file);
+        Json json = new Json();
+        save = new Save(width, height, autoCook, save.furthest_level);
+        String saveString = json.toJson(save);
+        file.writeString(saveString, false);
+    }
 
     /** Set whether the next level is available */
     public void setLevelAvailable(boolean bool) { levelAvailable = bool; }

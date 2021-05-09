@@ -433,7 +433,7 @@ public class AIController {
         for(int row = neighbor.getRow()-1; row <= neighbor.getRow()+1;row++){
             for (int col = neighbor.getCol()-1; col <= neighbor.getCol()+1;col++){
                 if(grid.isObstacleTile(row,col)){
-                    hcost+=15;
+                    hcost+=1;
                 }
             }
         }
