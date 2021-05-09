@@ -313,7 +313,7 @@ public class CollisionController implements CollisionControllerInterface {
      * Handles an interaction between a non-chef obstacle and a chicken attack
      */
     private void handleChickenChickenAttack(Chicken chicken, Object fd1, ChickenAttack attack, Object fd2){
-        attack.collideObject(chicken);
+        //attack.collideObject(chicken);
         if (attack.isReflected() && !attack.isBreaking()){
             chicken.takeDamage(dmg);
             attack.collideObject();

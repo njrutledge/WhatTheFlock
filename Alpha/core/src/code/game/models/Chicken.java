@@ -403,6 +403,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * Start an attack
      */
     public void startAttack() {
+        if (type == ChickenType.Buffalo){
+            Filter filter = getFilterData();
+            filter.maskBits = 0x0001 | 0x0004;
+            setFilterData(filter);
+        }
         setIsAttacking(true);
         animeframe = 0;
         if (!isRunning()) {
@@ -416,6 +421,11 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     }
 
     public void stopAttack() {
+        if (type == ChickenType.Buffalo){
+            Filter filter = getFilterData();
+            filter.maskBits = 0x0001 | 0x0002 | 0x0004;
+            setFilterData(filter);
+        }
         animeframe = 0;
         setIsAttacking(false);
         if (!isRunning() && doneAttack) {
