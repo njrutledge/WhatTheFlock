@@ -149,10 +149,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private TextureRegion tempEmpty;
 	/**Texture asset for yellow temp bar */
 	private TextureRegion tempYellow;
+	/**Texture asset for yellow temp bar with no bar */
+	private TextureRegion tempYellowNB;
 	/**Texture asset for orange temp bar */
 	private TextureRegion tempOrange;
+	/**Texture asset for orange temp bar with no bar */
+	private TextureRegion tempOrangeNB;
 	/**Texture asset for red temp bar */
 	private TextureRegion tempRed;
+	/**Texture asset for red temp bar with no bar */
+	private TextureRegion tempRedNB;
 
 	/**Texture asset for medium flames */
 	private TextureRegion tempMedFlame;
@@ -513,8 +519,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//ui
 		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
 		tempYellow = directory.getEntry("ui:tempBar.yellow", TextureRegion.class);
+		tempYellowNB = directory.getEntry("ui:noBar.yellow", TextureRegion.class);
 		tempOrange = directory.getEntry("ui:tempBar.orange", TextureRegion.class);
+		tempOrangeNB = directory.getEntry("ui:noBar.orange", TextureRegion.class);
 		tempRed = directory.getEntry("ui:tempBar.red", TextureRegion.class);
+		tempRedNB = directory.getEntry("ui:noBar.red", TextureRegion.class);
 		tempMedFlame = directory.getEntry("ui:tempBarMedFlame.flame", TextureRegion.class);
 		tempLrgFlame = directory.getEntry("ui:tempBarLargeFlame.flame", TextureRegion.class);
 		heartTexture = directory.getEntry("ui:healthUnit.full", TextureRegion.class);
@@ -594,7 +603,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		//TODO: Populate level similar to our board designs, and also change the win condition (may require work outside this method)\
 		reset();
 		//world.setGravity( new Vector2(0,0) );
-		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame, level.get("temp").asInt());
+		temp = new TemperatureBar(tempEmpty, tempYellow, tempOrange, tempRed, tempMedFlame, tempLrgFlame,
+				tempYellowNB, tempOrangeNB, tempRedNB, level.get("temp").asInt());
 		temp_reduction = level.get("temp_reduction").asFloat();
 		temp.setUseCooldown(cooldown);
 

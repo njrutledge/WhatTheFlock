@@ -111,6 +111,14 @@
             "red" : [746, 58, 829, 598]
           }
         },
+      "ui:noBar": {
+        "file":      "ui/tempbar_nobar.png",
+        "atlas":     {
+          "yellow" : [285, 60, 369, 600],
+          "orange" : [522, 61, 605, 601],
+          "red" : [746, 58, 829, 598]
+        }
+      },
       "ui:tempBarMedFlame": {
         "file":      "ui/HUD_2tempbar_flame.png",
         "atlas":     {

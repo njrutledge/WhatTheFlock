@@ -11,6 +11,8 @@ public class TemperatureBar {
     private int maxTemperature;
     /**Current temperature of the chicken */
     private float temperature;
+    /**Current temperature of the decay bar */
+    private float dtemperature;
 
     ///**Animated progress bar for temperature*/
     //private ProgressBar tempBar;
@@ -21,10 +23,16 @@ public class TemperatureBar {
     private TextureRegion tempEmpty;
     /** Yellow temperature bar */
     private TextureRegion tempYellow;
+    /** Yellow temperature no bar */
+    private TextureRegion tempYellowNB;
     /** Orange temperature bar */
     private TextureRegion tempOrange;
+    /** Orange temperature no bar */
+    private TextureRegion tempOrangeNB;
     /** Red temperature bar */
     private TextureRegion tempRed;
+    /** Red temperature no bar */
+    private TextureRegion tempRedNB;
     /** Med temperature bar flame */
     private TextureRegion medFlame;
     /** Large temperature bar flame */
@@ -53,6 +61,12 @@ public class TemperatureBar {
     /**The amount of heat the stove gives the player for standing by it (per second) */
     private int stoveHeat = 2;
     private final float COOLDOWN_RATE = 0.01f;
+    /** Time to wait before beginning decay */
+    private final float DECAY_TIME = 1f;
+    /** Time passed since beginning decay */
+    private float decay_timer;
+    /**Rate in which decay bar decays */
+    private final float DECAY_RATE = 0.1f;
 
 
     /**The font*/
@@ -61,15 +75,22 @@ public class TemperatureBar {
     /**Create a new temperature bar with temperature range 0 thru max*/
     public TemperatureBar(TextureRegion empty, TextureRegion yellow, TextureRegion orange,
                           TextureRegion red, TextureRegion medFlame, TextureRegion lrgFlame,
-                          int max){
+                          TextureRegion yellowNB, TextureRegion orangeNB,
+                          TextureRegion redNB, int max){
         maxTemperature = max;
         temperature = 0;
+        dtemperature = temperature;
+
+        decay_timer = 0f;
 
         // Setting assets
         tempEmpty = empty;
         tempYellow = yellow;
+        tempYellowNB = yellowNB;
         tempOrange = orange;
+        tempOrangeNB = orangeNB;
         tempRed = red;
+        tempRedNB = redNB;
         this.medFlame = medFlame;
         this.lrgFlame = lrgFlame;
     }
@@ -113,6 +134,7 @@ public class TemperatureBar {
 
         if (incr) {
             cooldownCounter = 0;
+            if (temperature >= dtemperature) { dtemperature = temperature + temperatureCounter*stoveHeat; }
             temperature += temperatureCounter*stoveHeat;
         } else {
             if (cooldownCounter > COOL_DOWN_TIMER && useCooldown) {
@@ -126,6 +148,7 @@ public class TemperatureBar {
      * @param amt - the amount to decrease by
      */
     public void reduceTemp(float amt) {
+        if (temperature >= dtemperature) { dtemperature = temperature; }
         temperature -= Math.max(0,amt);
     }
 
@@ -139,6 +162,14 @@ public class TemperatureBar {
     public void update(float dt){
         temperatureCounter = MathUtils.clamp(temperatureCounter += dt, 0f, TEMPERATURE_TIMER);
         cooldownCounter += dt;
+        if (temperature >= dtemperature) { dtemperature = temperature; decay_timer = 0; }
+        else {
+            if (decay_timer >= DECAY_TIME) {
+                dtemperature -= DECAY_RATE;
+            } else {
+                decay_timer += dt;
+            }
+        }
         //update progress bar
         //tempBar.setValue(temperature);
     }
@@ -150,6 +181,7 @@ public class TemperatureBar {
         //0.04 bottom, 0.94 top
 
         TextureRegion bar;
+        TextureRegion nb;
         TextureRegion flame;
         if (cx_temp == 0) { cx_temp = 25 + tempEmpty.getRegionHeight()*scale/2; }
         if (cy_temp == 0) { cy_temp = canvas.getHeight() - 90; }
@@ -158,12 +190,15 @@ public class TemperatureBar {
         // Draw the empty temperature bar
         if (temperature/maxTemperature <= 0.22) {
             bar = tempYellow;
+            nb = tempYellowNB;
         } else if (temperature/maxTemperature <= 0.6) {
             bar = tempOrange;
+            nb = tempOrangeNB;
             canvas.draw(medFlame, Color.WHITE, medFlame.getRegionWidth()/2, medFlame.getRegionHeight()/2,
                     cx_temp+180,  cy_temp-3, angle, fscale, fscale);
         } else {
             bar = tempRed;
+            nb = tempRedNB;
             canvas.draw(lrgFlame, Color.WHITE, lrgFlame.getRegionWidth()/2, lrgFlame.getRegionHeight()/2,
                     cx_temp+200,  cy_temp-6, angle, fscale, fscale);
         }
@@ -171,6 +206,12 @@ public class TemperatureBar {
         canvas.draw(tempEmpty, 1, 270, Color.WHITE, tempEmpty.getRegionWidth()*scale/2,
                 tempEmpty.getRegionHeight()/2, ex_temp-1,  ey_temp+1.5f, tempEmpty.getRegionWidth()*scale,
                 tempEmpty.getRegionHeight()*scale);
+        if (temperature < dtemperature) {
+            canvas.draw(nb, 0.04f + ((dtemperature * 0.91f) / maxTemperature),
+                    270, Color.GRAY, bar.getRegionWidth() * scale / 2,
+                    tempYellow.getRegionHeight() / 2, ex_temp, ey_temp,
+                    bar.getRegionWidth() * scale, bar.getRegionHeight() * scale);
+        }
         canvas.draw(bar, 0.04f+((temperature*0.91f)/maxTemperature),
                 270, Color.WHITE, bar.getRegionWidth()*scale/2,
                 tempYellow.getRegionHeight()/2, ex_temp, ey_temp,
