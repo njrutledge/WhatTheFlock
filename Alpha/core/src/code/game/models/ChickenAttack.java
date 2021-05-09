@@ -46,9 +46,9 @@ public class ChickenAttack extends GameObject {
     /** The height of chicken attacks */
     private static final float HEIGHT = 0.1f;
     /** The width of chicken knockback attacks */
-    private static final float KNOCKWIDTH = 5.0f;
+    private static final float KNOCKWIDTH = 160.0f;
     /** The height of chicken knockback attacks */
-    private static final float KNOCKHEIGHT = 1.0f;
+    private static final float KNOCKHEIGHT = 50.0f;
     /** The width of an explosion */
     private final float EXP_RADIUS = 2.0f;
 
@@ -147,6 +147,7 @@ public class ChickenAttack extends GameObject {
                 //float angle =(MathUtils.atan2(chicken.getY()-chef.getY(),chicken.getX()-chef.getX()));
                 //setAngle(angle);
                 setSensor(true);
+                this.origin = new Vector2(0,0);//new Vector2(width/2.0f,height/2.0f);
                 //setX(x-25*width*MathUtils.cos(angle));
                 //setY(y-25*width*MathUtils.sin(angle));
                 destination = getPosition();
