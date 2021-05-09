@@ -1763,7 +1763,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
-		Vector2 scaleOLD = scale;
+		Vector2 scaleOLD = scale.cpy();
 		this.scale.x = width/bounds.getWidth();///1.2f;
 		this.scale.y = height/bounds.getHeight();///1.2f;
 		this.displayScale.x = width/1920f;///1.2f;
