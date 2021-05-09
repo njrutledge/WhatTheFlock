@@ -50,7 +50,7 @@ public class Slap extends GameObject {
 
         Filter SlapFilter = new Filter();
         SlapFilter.groupIndex = -1;
-        SlapFilter.categoryBits = 0x0002;
+        //SlapFilter.categoryBits = 0x0002;
         setFilterData(SlapFilter);
         setBullet(true);
         setGravityScale(0);
