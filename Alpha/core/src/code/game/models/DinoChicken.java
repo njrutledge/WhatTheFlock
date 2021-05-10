@@ -26,7 +26,7 @@ public class DinoChicken extends NuggetChicken{
      * drawing to work properly, you MUST set the drawScale. The drawScale
      * converts the physics units to pixels.
      *
-     * @param data  	The physics constants for all chickens
+     * @param Jdata  	The physics constants for all chickens
      * @param unique    The unique physics constants for nuggets
      * @param x         The x axis location of this chicken
      * @param y         The y axis location of this chicken
@@ -38,6 +38,7 @@ public class DinoChicken extends NuggetChicken{
     public DinoChicken(JsonValue Jdata, JsonValue unique, float x, float y, float width, float height, Chef player, int mh) {
         // The shrink factors fit the image to a tighter hitbox
         super(Jdata, unique, x, y, width, height, player, mh);
+
         data = Jdata;
         smashTime = 0;
     }
@@ -111,16 +112,16 @@ public class DinoChicken extends NuggetChicken{
 
             if (isAttacking && attack_animator != null && !isLured()) {
                 attack_animator.setFrame((int) animeframe);
-                canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+                canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), 0.1f * effect * wScale * displayScale.x, 0.1f * hScale * displayScale.y);
             } else if (!isStunned) {
                 animator.setFrame((int) animeframe);
-                canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+                canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), 0.1f * effect * wScale * displayScale.x, 0.1f * hScale * displayScale.y);
             } else if (isStunned) {
                 hurt_animator.setFrame((int) (animeframe));
-                canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), 0.1f * effect * wScale, 0.1f * hScale);
+                canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), 0.1f * effect * wScale * displayScale.x, 0.1f * hScale * displayScale.y);
             }
         }
-        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, 0.1f * effect * wScale, 0.1f * hScale);
+        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, 0.1f * effect * wScale * displayScale.x, 0.1f * hScale * displayScale.y);
         canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
     }
 

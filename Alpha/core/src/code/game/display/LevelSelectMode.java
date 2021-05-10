@@ -46,9 +46,9 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private Texture backTexture;
 
     /** Standard window size (for scaling) */
-    private static int STANDARD_WIDTH  = 800;
+    private static int STANDARD_WIDTH  = 1920;
     /** Standard window height (for scaling) */
-    private static int STANDARD_HEIGHT = 700;
+    private static int STANDARD_HEIGHT = 1080;
 
     /** Width of the game world in Box2d units */
     protected static final float DEFAULT_WIDTH  = 48.0f;
@@ -66,7 +66,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Ratio of the knife to the screen */
     private static float KNIFE_RATIO = 1.0f;
     /** Background scale*/
-    private static float BACKGROUND_SCALE = 0.65f;
+    private static float BACKGROUND_SCALE = 1f;
     /** Scale of arrows*/
     private static float ARROW_SCALE = 0.5f;
     /** Scale of back button */
