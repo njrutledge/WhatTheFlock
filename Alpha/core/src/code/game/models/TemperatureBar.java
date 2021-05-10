@@ -185,8 +185,9 @@ public class TemperatureBar {
         TextureRegion flame;
         if (cx_temp == 0) { cx_temp = 25 + tempEmpty.getRegionHeight()*scale/2; }
         if (cy_temp == 0) { cy_temp = canvas.getHeight() - 90; }
-        if (ex_temp == 0) { ex_temp = 268; }
+        if (ex_temp == 0) { ex_temp = 266; }
         if (ey_temp == 0) { ey_temp = canvas.getHeight()/2 + 4; }
+        ey_temp = 613;
         // Draw the empty temperature bar
         if (temperature/maxTemperature <= 0.22) {
             bar = tempYellow;
@@ -203,6 +204,7 @@ public class TemperatureBar {
                     cx_temp+200,  cy_temp-6, angle, fscale, fscale);
         }
 
+        // -1 +1.5
         canvas.draw(tempEmpty, 1, 270, Color.WHITE, tempEmpty.getRegionWidth()*scale/2,
                 tempEmpty.getRegionHeight()/2, ex_temp-1,  ey_temp+1.5f, tempEmpty.getRegionWidth()*scale,
                 tempEmpty.getRegionHeight()*scale);
@@ -212,6 +214,7 @@ public class TemperatureBar {
                     tempYellow.getRegionHeight() / 2, ex_temp, ey_temp,
                     bar.getRegionWidth() * scale, bar.getRegionHeight() * scale);
         }
+
         canvas.draw(bar, 0.04f+((temperature*0.91f)/maxTemperature),
                 270, Color.WHITE, bar.getRegionWidth()*scale/2,
                 tempYellow.getRegionHeight()/2, ex_temp, ey_temp,
