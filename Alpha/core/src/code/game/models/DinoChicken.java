@@ -40,6 +40,7 @@ public class DinoChicken extends NuggetChicken{
         super(Jdata, unique, x, y, width, height, player, mh);
 
         data = Jdata;
+        setChickenType(ChickenType.DinoNugget);
         smashTime = 0;
     }
 

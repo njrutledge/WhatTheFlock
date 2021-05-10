@@ -1349,7 +1349,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			addQueuedObject(attack);
 			switch (type) {
 				case Basic:
-					sound.playNugAttack();
+					if (chicken.getType() == Chicken.ChickenType.Nugget) {
+						sound.playNugAttack();
+					} else {
+						sound.playDinoAttack();
+					}
 					break;
 				case Projectile:
 					attack.setEggAnimators(eggSpinTexture, eggSplatTexture);
