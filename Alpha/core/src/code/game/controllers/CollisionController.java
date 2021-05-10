@@ -306,7 +306,7 @@ public class CollisionController implements CollisionControllerInterface {
         }
         if(attack.getType().equals(ChickenAttack.AttackType.Knockback)){
             sound.playShredAttack();
-            float max_speed = 300.0f;
+            float max_speed = 200.0f;
             float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
             chef.markSetVelocity(max_speed, angle);
         }
