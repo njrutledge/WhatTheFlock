@@ -39,6 +39,7 @@ public class DinoChicken extends NuggetChicken{
         // The shrink factors fit the image to a tighter hitbox
         super(Jdata, unique, x, y, width, height, player, mh);
         data = Jdata;
+        setChickenType(ChickenType.DinoNugget);
         smashTime = 0;
     }
 
