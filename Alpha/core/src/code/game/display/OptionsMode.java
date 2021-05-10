@@ -90,7 +90,9 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     private float sfxHandleCenterX;
     /** The center of display options */
     private float windowCenterX;
+    private float windowBoxCenterX;
     private float fullscreenCenterX;
+    private float fullscreenBoxCenterX;
     private float displayCenterY;
     private final float WINDOW_WIDTH = 323;
     private final float FULLSCREEN_WIDTH = 350;
@@ -103,6 +105,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     private float MSOffCenterX;
     private float MSCenterY;
     /** Constants for onTexture and off buttons */
+    private float onCenterX;
+    private float offCenterX;
     private final float ON_WIDTH = 123;
     private final float OFF_WIDTH = 147;
     /** The center and constants of ok option */
@@ -158,6 +162,20 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
      * 5 = ok
      */
     private int selected = 0;
+
+    /**
+     * The current state of the play button
+     * 0 for nothing,
+     * 1 for windowed pressed down,
+     * 2 for fullscreen pressed down,
+     * 3 for auto cook on pressed down,
+     * 4 for auto cook off pressed down,
+     * 5 for mouse slap on pressed down
+     * 6 for mouse slap off pressed down
+     * 7 for back pressed down
+     * */
+    private int   pressState;
+
     /** Which selection within the option are we currently hovering over?
      * -1 = none
      * 0 = first option
@@ -238,6 +256,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
         selected = 0;
         editing = -1;
+        pressState = 0;
 
         // Let ANY connected controller start the game.
         for (XBoxController controller : Controllers.get().getXBoxControllers()) {
@@ -317,7 +336,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
     /** Resets this screen */
     public void reset(){
-        selected = 0; editing = -1; back = false;
+        selected = 0; editing = -1; back = false; pressState = 0;
     }
 
     /**
@@ -618,10 +637,10 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         bkgCenterX = width/2;
         bkgCenterY = height/2;
 
-        musicCenterX = width*0.65f;
+        musicCenterX = width*0.59f;
         musicCenterY = height*0.65f;
 
-        sfxCenterX = width*0.65f;
+        sfxCenterX = width*0.59f;
         sfxCenterY = height*0.58f;
 
         float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
@@ -630,16 +649,20 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
 
         windowCenterX = width*0.45f;
-        fullscreenCenterX = width*0.67f;
+        windowBoxCenterX = (float)(windowCenterX-0.29*windowed.getRegionWidth());
+        fullscreenCenterX = width*0.6f;
+        fullscreenBoxCenterX = (float)(fullscreenCenterX-0.29*fullscreen.getRegionWidth());
         displayCenterY = height*0.505f;
-        ACOnCenterX = width*0.62f;
-        ACOffCenterX = width*0.78f;
+        ACOnCenterX = width*0.53f;
+        ACOffCenterX = width*0.62f;
         ACCenterY = height*0.431f;
 
-        MSOnCenterX = width*0.62f;
-        MSOffCenterX = width*0.78f;
+        MSOnCenterX = width*0.53f;
+        MSOffCenterX = width*0.62f;
         MSCenterY = height*0.325f;
 
+        onCenterX = (float)(ACOnCenterX-0.238*on.getRegionWidth());
+        offCenterX = (float)(ACOffCenterX-0.25*off.getRegionWidth());
         okCenterY = height*0.235f;
 
         heightY = height;
@@ -737,6 +760,20 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
             adjustMusic = true;
         } else if (overButton(VOLUME_HANDLE_WIDTH, VOLUME_HANDLE_HEIGHT, screenX, screenY, sfxHandleCenterX, sfxCenterY)) {
             adjustSFX = true;
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, windowBoxCenterX, displayCenterY)) {
+            pressState = 1;
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, fullscreenBoxCenterX, displayCenterY)) {
+            pressState = 2;
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, onCenterX, ACCenterY)) {
+            pressState = 3;
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, offCenterX, ACCenterY)) {
+            pressState = 4;
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, onCenterX, MSCenterY)) {
+            pressState = 5;
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, offCenterX, MSCenterY)) {
+            pressState = 6;
+        } else if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY)) {
+            pressState = 7;
         }
 
         return false;
@@ -756,6 +793,15 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
         adjustMusic = false;
         adjustSFX = false;
+        if (pressState > 0) {
+            if (pressState == 1) { isFullscreen = false; }
+            else if (pressState == 2) { isFullscreen = true; }
+            else if (pressState == 3) { isAutoCook = true; }
+            else if (pressState == 4) { isAutoCook = false; }
+            else if (pressState == 5) { isMouseSlap = true; }
+            else if (pressState == 6) { isMouseSlap = false; }
+            else if (pressState == 7) { back = true; return false; }
+        }
         return true;
     }
 
