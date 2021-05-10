@@ -611,11 +611,14 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
         musicCenterX = width*0.65f;
         musicCenterY = height*0.65f;
-        musicHandleCenterX = musicCenterX+(volume.getRegionWidth()/2*VOLUME_SCALE*scale);
 
         sfxCenterX = width*0.65f;
         sfxCenterY = height*0.58f;
-        sfxHandleCenterX = sfxCenterX+(volume.getRegionWidth()/2*VOLUME_SCALE*scale);
+
+        float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        musicHandleCenterX  = (music_vol*(rbound-lbound))/100 + lbound;
+        sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
 
         windowCenterX = width*0.45f;
         fullscreenCenterX = width*0.67f;
