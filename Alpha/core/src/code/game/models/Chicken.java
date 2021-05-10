@@ -535,7 +535,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** draws if chicken has been slowed */
     public void drawSlow(GameCanvas canvas, float x, float y, float sx, float sy){
         if (inSlow) {
-            canvas.draw(frozen,new Color(1, 1, 1, 0.7f), origin.x, origin.y, x, y, getAngle(), sx, sy);
+            float alpha = ((slow > 0.7) ? 0.7f: slow);
+            alpha = 0.7f - alpha;
+            canvas.draw(frozen,new Color(1, 1, 1, alpha), origin.x, origin.y, x, y, getAngle(), sx, sy);
     }
     }
     /**
