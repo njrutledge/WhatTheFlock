@@ -258,7 +258,15 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
     }
 
     /** Set the type of menu that is being displayed. */
-    public void setMode(Mode mode) { this.mode = mode; setSelected(); }
+    public void setMode(Mode mode) {
+        this.mode = mode;
+        if (mode == Mode.WIN) {
+            sound.playVictory();
+        } else if (mode == Mode.LOSE) {
+            sound.playFailure();
+        }
+        setSelected();
+    }
 
     /**
      * Sets the save object
@@ -444,7 +452,17 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
      * @param delta Number of seconds since last animation frame
      */
     private void update(float delta) {
-        sound.playMusic(SoundController.CurrentScreen.PAUSE, delta);
+        switch (mode){
+            case PAUSE:
+                sound.playMusic(SoundController.CurrentScreen.PAUSE, delta);
+                break;
+            case WIN:
+                sound.playMusic(SoundController.CurrentScreen.WIN, delta);
+                break;
+            case LOSE:
+                sound.playMusic(SoundController.CurrentScreen.LOSE, delta);
+                break;
+        }
     }
 
     /**
