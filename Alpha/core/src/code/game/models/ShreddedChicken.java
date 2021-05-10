@@ -31,6 +31,13 @@ public class ShreddedChicken extends Chicken {
 
     private JsonValue data;
 
+    /** How fast we change frames */
+    private static final float ANIMATION_SPEED_WALK = 0.2f;
+    private static final float ANIMATION_SPEED_ATTACK = 0.275f;
+    /** The number of animation frames in our filmstrip */
+    private static final int NUM_ANIM_FRAMES_WALK = 8;
+    private static final int NUM_ANIM_FRAMES_ATTACK = 16;
+
     /**
      * Creates a new chicken avatar with the given physics data
      *
@@ -104,8 +111,13 @@ public class ShreddedChicken extends Chicken {
      * @param texture  the object texture for drawing purposes.
      */
     public void setTexture(Texture texture) {
-        animator = new FilmStrip(texture, 1, 1);
+        animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES_WALK);
         origin = new Vector2(animator.getRegionWidth()/2.0f, animator.getRegionHeight()/2.0f);
+    }
+
+    @Override
+    public void setAttackTexture(Texture texture){
+        attack_animator = new FilmStrip(texture, 1, NUM_ANIM_FRAMES_ATTACK);
     }
 
     /** Get the egg texture
@@ -164,12 +176,21 @@ public class ShreddedChicken extends Chicken {
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
         float effect = faceRight ? -1.0f : 1.0f;
-        float wScale = 0.8f;
-        float hScale = 0.7f;
-        if (!isInvisible) {
+        float wScale = 0.4f;
+        float hScale = 0.35f;
+        if (isAttacking && attack_animator != null && !isLured()) {
+            attack_animator.setFrame((int) animeframe);
+            canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
+        }
+        else if (!isStunned) {
+            animator.setFrame((int) animeframe);
             canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
-        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x*wScale*effect, displayScale.y*hScale);
+        else if (isStunned){
+            animator.setFrame((int) animeframe);
+            canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
+        }
+        //drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x*wScale*effect, displayScale.y*hScale);
     }
 
     /**
@@ -183,4 +204,34 @@ public class ShreddedChicken extends Chicken {
         super.drawDebug(canvas);
     }
 
+
+    /**
+     * Updates the object's game state (NOT GAME LOGIC).
+     *
+     * We use this method to reset cooldowns, and control animations
+     *
+     * @param dt	Number of seconds since last animation frame
+     */
+    @Override
+    public void update(float dt) {
+
+        if (isStunned) {
+            //animeframe += animation_speed*4;
+            //if (animeframe >= 5) {
+            //    animeframe -= 5;
+            //}
+        } else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
+            animeframe += ANIMATION_SPEED_WALK;
+            if (animeframe >= NUM_ANIM_FRAMES_WALK) {
+                animeframe -= NUM_ANIM_FRAMES_WALK;
+            }
+        } else if (isAttacking && attack_animator != null && !isLured()){
+            animeframe += ANIMATION_SPEED_ATTACK;
+            if (animeframe >= NUM_ANIM_FRAMES_ATTACK) {
+                animeframe -= NUM_ANIM_FRAMES_ATTACK;
+            }
+        }
+
+        super.update(dt);
+    }
 }
