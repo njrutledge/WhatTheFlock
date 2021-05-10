@@ -3,6 +3,7 @@ package code.game.display;
 import code.assets.AssetDirectory;
 import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
+import code.game.models.Save;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.FilmStrip;
@@ -191,6 +192,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     public static final int MAINMAIN = 0;
     /** The exit code representing returning to main menu */
     public static final int GAMEMNEU = 1;
+    /** the game save */
+    private Save save;
 
     /**
      * Creates a LevelSelectMode with the default size and position.
@@ -242,6 +245,18 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         }
 
         active = true;
+    }
+    /**
+     * Sets the save object
+     * @param s the save object
+     */
+    public void setSave(Save s){
+        save = s;
+        isAutoCook = save.auto_cook;
+        isFullscreen = save.fullscreen;
+        music_vol = save.music_vol;
+        sfx_vol = save.sfx_vol;
+        isMouseSlap = save.mouse_slap;
     }
 
     /**
@@ -335,8 +350,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
     /** Scrolls to the next panel */
     private void scroll() {
-        float lbound = sfxCenterX-volume.getRegionWidth()/2*VOLUME_SCALE*scale;
-        float rbound = sfxCenterX+volume.getRegionWidth()/2*VOLUME_SCALE*scale;
+        float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
         if (scrollDirection == 1) {
             if (selected == 0) {
                 music_vol = music_vol + 1 > 100 ? music_vol:music_vol+1;
@@ -355,6 +370,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
                 sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
             }
         }
+        save.sfx_vol = sfx_vol;
+        save.music_vol = music_vol;
     }
 
     /** Handles the case in which the enter button is pressed. */
@@ -374,6 +391,9 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         } else if (selected == 5){
             back = true;
         } else { editing = 0; }
+        save.fullscreen = isFullscreen;
+        save.auto_cook = isAutoCook;
+        save.mouse_slap = isMouseSlap;
     }
 
     /**

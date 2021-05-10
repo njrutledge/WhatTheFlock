@@ -34,11 +34,12 @@ public class DesktopLauncher {
 	 */
 	public static void main (String[] arg) {
 		GDXAppSettings config = new GDXAppSettings();
-		config.width  = 1920;
-		config.height = 1080;
+		config.width  = 1280;
+		config.height = 720;
 		config.x = 0;
 		config.y = 0;
 		config.resizable = true;
+		//config.fullscreen = true;
 		config.title = "WhatTheFlock!";
 		new GDXApp(new GDXRoot(), config);
 	}

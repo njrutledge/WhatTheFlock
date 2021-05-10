@@ -249,7 +249,6 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
         grayDrawn = false;
         grayTexture = internal.getEntry("background:gray", Texture.class);
         pressState = 0;
-        save = new Save(internal.getEntry("save", JsonValue.class));
 
         // Let ANY connected controller start the game.
         for (XBoxController controller : Controllers.get().getXBoxControllers()) {
@@ -261,6 +260,13 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
     /** Set the type of menu that is being displayed. */
     public void setMode(Mode mode) { this.mode = mode; setSelected(); }
 
+    /**
+     * Sets the save object
+     * @param s the save object
+     */
+    public void setSave(Save s){
+        save = s;
+    }
     /** Set the field "selected" to the appropriate value depending on the type of menu.
      *
      * This method also activates the selected frame.
@@ -292,14 +298,6 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
 
     /** get the game save */
     public Save getSave(){return save;}
-
-    public void updateSave(int width, int height, boolean autoCook){
-        FileHandle file = Gdx.files.local(Save.file);
-        Json json = new Json();
-        save = new Save(width, height, autoCook, save.furthest_level);
-        String saveString = json.toJson(save);
-        file.writeString(saveString, false);
-    }
 
     /** Set whether the next level is available */
     public void setLevelAvailable(boolean bool) { levelAvailable = bool; }

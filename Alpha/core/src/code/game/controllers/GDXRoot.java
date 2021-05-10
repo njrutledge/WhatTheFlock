@@ -15,6 +15,7 @@
 
 import code.assets.AssetDirectory;
 import code.game.display.*;
+import code.game.models.Save;
 import code.game.views.GameCanvas;
 import code.util.ScreenListener;
 import com.badlogic.gdx.*;
@@ -181,6 +182,10 @@ public class GDXRoot extends Game implements ScreenListener {
 			loading = null;
 
 			//menu.activateInputProcessor(true);
+			Save save = controller.getSave();
+			levelselect.setSave(save);
+			gamemenu.setSave(save);
+			options.setSave(save);
 			setScreen(menu);
 			//setScreen(levelselect);
 		}
@@ -226,6 +231,7 @@ public class GDXRoot extends Game implements ScreenListener {
 				case GameController.EXIT_WIN:
 					gamemenu.setLevelAvailable(levelselect.levelAvailable());
 					levelselect.advanceSave();
+					controller.writeSave();
 					gamemenu.setMode(GameMenuMode.Mode.WIN);
 					setScreen(gamemenu);
 					break;
@@ -246,8 +252,9 @@ public class GDXRoot extends Game implements ScreenListener {
 						case PAUSE:
 							gamemenu.reset();
 							controller.resume();
-							levelselect.updateSave(gamemenu.getSave());
-							controller.updateSave(gamemenu.getSave());
+							//levelselect.updateSave(gamemenu.getSave());
+							//controller.updateSave(gamemenu.getSave());
+							controller.writeSave();
 							setScreen(controller);
 							break;
 						case WIN:
@@ -277,6 +284,7 @@ public class GDXRoot extends Game implements ScreenListener {
 					break;
 			}
 		} else if (screen == options){
+			controller.writeSave();
 			switch(exitCode){
 				case OptionsMode.MAINMAIN:
 					menu.reset();
