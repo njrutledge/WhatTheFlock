@@ -1381,7 +1381,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			case TOASTER:
 				trapTexture = trapToasterTexture;
 				anim = new FilmStrip(trapToasterActivate, 1, TOASTER_NUM_FRAMES);
-				type = GameObject.ObjectType.TABLETRAP;
+				type = GameObject.ObjectType.FLOORTRAP;
 				break;
 			case HOT_SAUCE:
 				trapTexture = trapHotSauceTexture;
