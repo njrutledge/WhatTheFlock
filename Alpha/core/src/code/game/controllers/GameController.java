@@ -886,17 +886,17 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		collisionController.endContact(contact, sensorFixtures);
 	}
 
-	public void setOptions(Save o){
-		o.screen_width = Math.max(o.screen_width, 1280);
-		o.screen_height = Math.max(o.screen_height,720);
-		if(canvas.getWidth()!=o.screen_width || canvas.getHeight()!=o.screen_height) {
-			canvas.setSize(o.screen_width, o.screen_height);
+	public void setOptions(){
+		save.screen_width = Math.max(save.screen_width, 1280);
+		save.screen_height = Math.max(save.screen_height,720);
+		if(canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) {
+			canvas.setSize(save.screen_width, save.screen_height);
 			canvas.resetCamera();
 			canvas.resize();
-			resize(o.screen_width, o.screen_height);
+			resize(save.screen_width, save.screen_height);
 		}
-		autoCook = o.auto_cook;
-		saveOptions(o);
+		autoCook = save.auto_cook;
+		saveOptions(save);
 	}
 
 	private void saveOptions(Save o){
@@ -1746,15 +1746,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param canvas the canvas associated with this controller
 	 */
 	public void setCanvas(GameCanvas canvas) {
+		//first, set Canvas size from saved value
+		canvas.setSize(save.screen_width, save.screen_height);
+		canvas.resetCamera();
+		canvas.resize();
 		this.canvas = canvas;
 		float y = canvas.getHeight();
 		float x = canvas.getWidth();
-		//canvas.setSize(1920, 1080);
-		//canvas.resize();
-		//canvas.resetCamera();
-		com.badlogic.gdx.Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
-		float scalex = (float)Gdx.graphics.getDisplayMode().width/canvas.getWidth();
-		float scaley = (float)Gdx.graphics.getDisplayMode().height/canvas.getHeight();
+		//com.badlogic.gdx.Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
+		//float scalex = (float)Gdx.graphics.getDisplayMode().width/canvas.getWidth();
+		//float scaley = (float)Gdx.graphics.getDisplayMode().height/canvas.getHeight();
 		this.scale.x = x/bounds.getWidth();
 		this.scale.y = y/bounds.getHeight();
 		//everything based off 1080p
@@ -1778,6 +1779,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
+		if(canvas!=null){
+			save.screen_width = width;
+			save.screen_height = height;
+		}
 		Vector2 scaleOLD = scale.cpy();
 		this.scale.x = width/bounds.getWidth();///1.2f;
 		this.scale.y = height/bounds.getHeight();///1.2f;
@@ -1815,14 +1820,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				grid.resize(width, height, scale);
 			}
 			if (canvas != null) {
-				save.screen_width = width;
-				save.screen_height = height;
+				setOptions();
 			}
 		}
-	}
-	public void updateSave(Save s){
-		setOptions(s);
-		save = s;
 	}
 
 	/**
@@ -1879,6 +1879,39 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			}
 			draw(delta);
 		}
+	}
+
+	/** Gets the game save */
+	public Save getSave(){ return save;}
+
+	/**
+	 * Load the save game from file. This should only be called after the canvas has been set.
+	 */
+	public Save loadSave(){
+		FileHandle file = Gdx.files.local(Save.file);
+		String filestring = file.readString();
+		Json json = new Json();
+		save = json.fromJson(Save.class, filestring);
+		canvas.setSize(save.screen_width,save.screen_height);
+		canvas.resetCamera();
+		canvas.resize();
+		resize(save.screen_width,save.screen_height);
+		return save;
+	}
+
+	/**
+	 * Write the save game to disk
+	 */
+	public void writeSave(){
+		FileHandle file = Gdx.files.local(Save.file);
+		Json json = new Json();
+		String savestring = json.toJson(save);
+		try {
+			file.writeString(savestring, false);
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
 	}
 
 	/**
