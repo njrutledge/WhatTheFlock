@@ -58,7 +58,7 @@ public class SoundController {
     /** Sound for when ice-cream trap triggers */
     private SoundBuffer iceTrigger;
     /** Sound for when chicken treads on ice-cream trap */
-    private SoundBuffer iceTread;
+    private SoundBuffer iceFreeze;
 
     //Chickens
     /** Sound for shredded attack */
@@ -136,9 +136,14 @@ public class SoundController {
         //Traps
         fireTrigger = directory.getEntry("sound:trap:fireTrig", SoundBuffer.class);
 
-        breadTrigger = directory.getEntry("sound:trap:lureCrumb", SoundBuffer.class);
+        breadTrigger = directory.getEntry("sound:trap:toaster", SoundBuffer.class);
+        breadEat = directory.getEntry("sound:trap:lureCrumb", SoundBuffer.class);
 
-        sounds.add(fireTrigger, breadTrigger);
+        iceTrigger = directory.getEntry("sound:trap:iceChick", SoundBuffer.class);
+        iceFreeze = directory.getEntry("sound:trap:chickFreeze", SoundBuffer.class);
+
+        sounds.add(fireTrigger, breadTrigger, breadEat);
+        sounds.add(iceFreeze, iceTrigger);
 
         //Chickens
         shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
@@ -146,6 +151,7 @@ public class SoundController {
 
         buffaloAttack = directory.getEntry("sound:chick:buffalo:attack", SoundBuffer.class);
         buffaloCharge = directory.getEntry("sound:chick:buffalo:charge", SoundBuffer.class);
+        buffaloHurt = directory.getEntry("sound:chick:buffalo:hurt", SoundBuffer.class);
 
         hotAttack = directory.getEntry("sound:chick:hot:attack", SoundBuffer.class);
         hotCharge = directory.getEntry("sound:chick:hot:charge", SoundBuffer.class);
@@ -156,7 +162,7 @@ public class SoundController {
         nuggetHurt = directory.getEntry("sound:chick:nugget:hurt", SoundBuffer.class);
 
         sounds.add(shreddedAttack, shreddedHurt, eggsplosion);
-        sounds.add(buffaloAttack, buffaloCharge);
+        sounds.add(buffaloAttack, buffaloCharge, buffaloHurt);
         sounds.add(hotAttack, hotCharge, hotHurt);
         sounds.add(nuggetAttack, nuggetHurt);
 
@@ -276,13 +282,13 @@ public class SoundController {
     //Traps
     public void playFireTrap() {playInstant(fireTrigger, LOUD);}
 
-    //public void playBreadTrig() {playInstant(breadTrigger, MED);}
+    public void playBreadTrig() {playInstant(breadTrigger, MED);}
 
     public void playBreadEat() {playInstant(breadEat, MED);}
 
-    //public void playIceTrig() {playInstant(iceTrigger, LOUD);}
+    public void playIceTrig() {playInstant(iceTrigger, LOUD);}
 
-    //public void playIceFreeze() {playInstant(iceTread, MED);}
+    public void playIceFreeze() {playInstant(iceFreeze, MED);}
 
 
     //Chickens
@@ -296,7 +302,9 @@ public class SoundController {
 
     public void playBuffAttack() {playInstant(buffaloAttack, LOUD);}
 
-    //public void playBuffHurt() {playInstant(buffaloHurt, LOUD);}
+    public void playShredWhiff() {playInstant(emptySlap, LOUD);}
+
+    public void playBuffHurt() {playInstant(buffaloHurt, LOUD);}
 
     public void playHotCharge() {playInstant(hotCharge, LOUD);}
 
