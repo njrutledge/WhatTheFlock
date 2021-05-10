@@ -83,10 +83,11 @@
         "ui:menu:options": "ui/loading/mainmenu_options.png",
         "ui:menu:quit": "ui/loading/mainmenu_quit.png",
 
-        "ui:knife": "ui/levelselect/cleaver_placeholder_empty.png",
+        "ui:knife": "ui/levelselect/cleaver.png",
+        "ui:knifeShadow": "ui/levelselect/cleaver_shadow.png",
         "ui:arrowRight": "ui/levelselect/arrowRight.png",
         "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
-        "ui:back": "ui/levelselect/back_placeholder.png",
+        "ui:back": "ui/levelselect/back.png",
 
         "ui:pause:continue": "ui/gamemenu/pausemenu_continue.png",
         "ui:pause:restart": "ui/gamemenu/pausemenu_restart.png",
