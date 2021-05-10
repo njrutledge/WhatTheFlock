@@ -13,7 +13,7 @@ public class BuffaloChicken extends Chicken {
     ///////// altered or removed, but should provide a good base to start with.
 
     /** Radius of chicken's sensor */
-    private final float SENSOR_RADIUS = 10f;
+    private final float SENSOR_RADIUS = 7f;
     /** Time it takes for the chicken to begin their attack after colliding with their target */
     private final float CHARGE_DUR = 1f;
     /** Time it takes for the chicken to recover from attacking */
