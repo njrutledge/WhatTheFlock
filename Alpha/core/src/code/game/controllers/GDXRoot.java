@@ -182,10 +182,13 @@ public class GDXRoot extends Game implements ScreenListener {
 			loading = null;
 
 			//menu.activateInputProcessor(true);
+			//Load save
 			Save save = controller.getSave();
 			levelselect.setSave(save);
 			gamemenu.setSave(save);
 			options.setSave(save);
+			controller.setOptions();
+
 			setScreen(menu);
 			//setScreen(levelselect);
 		}
@@ -284,7 +287,9 @@ public class GDXRoot extends Game implements ScreenListener {
 					break;
 			}
 		} else if (screen == options){
-			controller.writeSave();
+			//controller.writeSave();
+			controller.setOptions();
+			//controller.updateSaveValues();
 			switch(exitCode){
 				case OptionsMode.MAINMAIN:
 					menu.reset();

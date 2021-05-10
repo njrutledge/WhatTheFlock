@@ -889,22 +889,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void setOptions(){
 		save.screen_width = Math.max(save.screen_width, 1280);
 		save.screen_height = Math.max(save.screen_height,720);
-		if(canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) {
+		if(save.fullscreen){
+			canvas.setFullscreen(true, true);
+		}else if(canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) {
+			canvas.setFullscreen(false,false);
 			canvas.setSize(save.screen_width, save.screen_height);
 			canvas.resetCamera();
 			canvas.resize();
 			resize(save.screen_width, save.screen_height);
 		}
 		autoCook = save.auto_cook;
-		saveOptions(save);
+		writeSave();
 	}
 
-	private void saveOptions(Save o){
-		Json json = new Json();
-		String jstring = json.toJson(new Save(o,save.furthest_level));
-		FileHandle file = Gdx.files.local("save.json");
-		file.writeString(jstring, false);
-	}
 	/*******************************************************************************************
 	 * UPDATING LOGIC
 	 ******************************************************************************************/
@@ -1746,10 +1743,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param canvas the canvas associated with this controller
 	 */
 	public void setCanvas(GameCanvas canvas) {
-		//first, set Canvas size from saved value
-		canvas.setSize(save.screen_width, save.screen_height);
-		canvas.resetCamera();
-		canvas.resize();
 		this.canvas = canvas;
 		float y = canvas.getHeight();
 		float x = canvas.getWidth();
@@ -1779,7 +1772,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
-		if(canvas!=null){
+		if(canvas!=null && !save.fullscreen){
 			save.screen_width = width;
 			save.screen_height = height;
 		}
@@ -1911,7 +1904,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		}catch (Exception e){
 			e.printStackTrace();
 		}
+	}
 
+	public void updateSaveValues(){
+		autoCook = save.auto_cook;
+		//todo: add mouse stuff here when its done
 	}
 
 	/**
