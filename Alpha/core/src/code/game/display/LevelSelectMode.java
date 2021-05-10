@@ -50,9 +50,9 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private FilmStrip back;
 
     /** Standard window size (for scaling) */
-    private static int STANDARD_WIDTH  = 800;
+    private static int STANDARD_WIDTH  = 1920;
     /** Standard window height (for scaling) */
-    private static int STANDARD_HEIGHT = 700;
+    private static int STANDARD_HEIGHT = 1080;
 
     /** Width of the game world in Box2d units */
     protected static final float DEFAULT_WIDTH  = 48.0f;
@@ -70,7 +70,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Ratio of the knife to the screen */
     private static float KNIFE_RATIO = 0.68f;
     /** Background scale*/
-    private static float BACKGROUND_SCALE = 0.65f;
+    private static float BACKGROUND_SCALE = 1f;
     /** Scale of arrows*/
     private static float ARROW_SCALE = 0.6f;
     /** Scale of back button */
@@ -538,7 +538,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                     layout.setText(infoFont, string + word);
                     if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale && !string.equals("")) {
                         layout.setText(infoFont, string.substring(0, string.length()-1));
-                        canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
+                        canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY+INFO_HEIGHT*row+(i==highlightedIndex ? HOVER_Y_OFFSET : 0));
                         row -= 1;
                         string = "";
                     }
@@ -546,14 +546,14 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 }
                 if (string != "") {
                     layout.setText(infoFont, string.substring(0, string.length()-1));
-                    canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
+                    canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY+INFO_HEIGHT*row+(i==highlightedIndex ? HOVER_Y_OFFSET : 0));
                 }
             }
-            else { canvas.drawText(text, infoFont, bladeCenterX + i* dist -layout.width/2, bladeCenterY+30+INFO_HEIGHT/2); }
+            else { canvas.drawText(text, infoFont, bladeCenterX + i* dist -layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY+INFO_HEIGHT/2+(i==highlightedIndex ? HOVER_Y_OFFSET : 0)); }
 
             // Draw level number
             layout.setText(displayFont, ""+(leftIndex+i+1));
-            canvas.drawText(""+(leftIndex+i+1), displayFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY-20);
+            canvas.drawText(""+(leftIndex+i+1), displayFont, bladeCenterX + dist * i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY-100 + (i==highlightedIndex ? HOVER_Y_OFFSET : 0));
         }
         //canvas.drawText("|", infoFont, bladeCenterX, bladeCenterY);
         //arrow
@@ -698,8 +698,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         float height = KNIFE_RATIO * scale * BLADE_HEIGHT;
         int i;
         float xBound, yBound;
-        System.out.println(screenX);
-        System.out.println(centerX);
+        //System.out.println(screenX);
+        //System.out.println(centerX);
         if (screenX <= centerX + width/2) { i = 0; xBound = centerX - width/2; }
         else if (screenX <= centerX + width/2 + dist) { i = 1; xBound = centerX + dist - width/2; }
         else { i = 2; xBound = centerX + dist * 2 - width/2; }
