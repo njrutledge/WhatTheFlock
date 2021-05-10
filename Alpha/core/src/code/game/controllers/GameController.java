@@ -1330,7 +1330,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		attack.setDrawScale(scale);
 		attack.setDisplayScale(displayScale);
 		addQueuedObject(attack);
-		sound.playShredAttack();
+		sound.playShredWhiff();
 	}
 
 	/** Adds a chickenAttack to the world */
