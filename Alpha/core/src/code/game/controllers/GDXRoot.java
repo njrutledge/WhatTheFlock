@@ -14,10 +14,7 @@
  package code.game.controllers;
 
 import code.assets.AssetDirectory;
-import code.game.display.LevelSelectMode;
-import code.game.display.LoadingMode;
-import code.game.display.MainMenuMode;
-import code.game.display.GameMenuMode;
+import code.game.display.*;
 import code.game.views.GameCanvas;
 import code.util.ScreenListener;
 import com.badlogic.gdx.*;
@@ -46,6 +43,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private LevelSelectMode levelselect;
 	/** Player mode for the gamemenu screen (CONTROLLER CLASS)*/
 	private GameMenuMode gamemenu;
+	/** Player mode for the options menu (CONTROLLER CLASS)*/
+	private OptionsMode options;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	/** List of all WorldControllers */
@@ -169,12 +168,14 @@ public class GDXRoot extends Game implements ScreenListener {
 			menu = new MainMenuMode(directory, canvas, sound);
 			levelselect = new LevelSelectMode(directory, canvas, sound);
 			gamemenu = new GameMenuMode(directory, canvas, sound);
+			options = new OptionsMode(directory, canvas, sound);
 
 			//set listeners
 			controller.setScreenListener(this);
 			menu.setScreenListener(this);
 			levelselect.setScreenListener(this);
 			gamemenu.setScreenListener(this);
+			options.setScreenListener(this);
 
 			loading.dispose();
 			loading = null;
@@ -186,16 +187,18 @@ public class GDXRoot extends Game implements ScreenListener {
 		else if (screen == menu){
 			//menu.activateInputProcessor(false);
 			switch (exitCode){
-				case MainMenuMode.START: //TODO go to level select
+				case MainMenuMode.START:
 					levelselect.reset();
 					levelselect.setHighlightedIndex(menu.didMouseEnter());
 					setScreen(levelselect);
 					break;
 				case MainMenuMode.GUIDE: //TODO go to guide
 					break;
-				case MainMenuMode.OPTIONS: //TODO go to options
+				case MainMenuMode.OPTIONS:
+					options.setExitCode(0);
+					setScreen(options);
 					break;
-				case MainMenuMode.QUIT: //TODO go to quit
+				case MainMenuMode.QUIT:
 					// We quit the main application
 					dispose();
 					Gdx.app.exit();
@@ -260,12 +263,27 @@ public class GDXRoot extends Game implements ScreenListener {
 					setScreen(controller);
 					break;
 				case GameMenuMode.OPTIONS:
+					options.setExitCode(1);
+					setScreen(options);
 					break;
 				case GameMenuMode.QUIT:
 					gamemenu.reset();
 					controller.resume();
 					controller.reset();
 					setScreen(levelselect);
+					break;
+			}
+		} else if (screen == options){
+			switch(exitCode){
+				case OptionsMode.MAINMAIN:
+					menu.reset();
+					setScreen(menu);
+					options.reset();
+					break;
+				case OptionsMode.GAMEMNEU:
+					gamemenu.reset();
+					setScreen(gamemenu);
+					options.reset();
 					break;
 			}
 		}

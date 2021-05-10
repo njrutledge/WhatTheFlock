@@ -292,7 +292,7 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
      * @return if the player is ready to do something
      * */
     private boolean somethingSelected() {
-        return pressState == CONT + 10 || pressState == QUIT + 10 || pressState == RESTART+10;
+        return pressState == CONT + 10 || pressState == QUIT + 10 || pressState == RESTART+10 || pressState == OPTIONS+10;
     }
 
     /**

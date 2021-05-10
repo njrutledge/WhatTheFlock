@@ -100,6 +100,16 @@
         "ui:lose:retry": "ui/gamemenu/losemenu_retry.png",
         "ui:lose:quit": "ui/gamemenu/losemenu_quit.png",
 
+        "ui:options:menu": "ui/options/options_menu.png",
+        "ui:options:volume": "ui/options/options_volume.png",
+        "ui:options:volume_handle": "ui/options/options_volume_handle.png",
+        "ui:options:on": "ui/options/options_on.png",
+        "ui:options:off": "ui/options/options_off.png",
+        "ui:options:ok": "ui/options/options_ok.png",
+        "ui:options:selected": "ui/options/options_selected.png",
+        "ui:options:windowed": "ui/options/options_windowed.png",
+        "ui:options:fullscreen": "ui/options/options_fullscreen.png",
+
         "ui:att_off": "ui/attbuff_off.png",
         "ui:att_on": "ui/attbuff_on.png",
         "ui:tempBar": {

@@ -62,7 +62,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Ratio of the knife to the screen */
     private static float KNIFE_RATIO = 1.0f;
     /** Background scale*/
-    private static float BACKGROUND_SCALE = 1.35f;
+    private static float BACKGROUND_SCALE = 0.65f;
     /** Scale of arrows*/
     private static float ARROW_SCALE = 0.5f;
     /** Scale of back button */
@@ -82,7 +82,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Time to wait before we begin scrolling */
     private final float SCROLL_WAIT_TIME = 0.6f;
     /** Rate of scroll */
-    private final float SCROLL_RATE = 0.25f;
+    private final float SCROLL_RATE = 0.13f;
 
     /** Time since a button was held down */
     private float pressDownTime = 0f;
@@ -471,7 +471,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      */
     private void draw() {
         canvas.begin();
-        canvas.draw(background, Color.WHITE, background.getWidth()/2 - 10, background.getHeight()/2,
+        canvas.draw(background, Color.WHITE, background.getWidth()/2, background.getHeight()/2,
                 bkgCenterX, bkgCenterY, 0, BACKGROUND_SCALE * scale, BACKGROUND_SCALE * scale);
         //draw knife and two arrows
         Color leftTint = (leftHighlighted ? Color.RED: Color.GRAY);
