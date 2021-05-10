@@ -260,6 +260,7 @@ public class CollisionController implements CollisionControllerInterface {
                 case TOASTER:
                     t1.markReady(false);
                     trapCache.addAll(trapController.createLures(t1));
+                    sound.playBreadTrig();
                     break;
                 case COOLER:
                     t1.markReady(false);
@@ -349,7 +350,7 @@ public class CollisionController implements CollisionControllerInterface {
         switch (c1.getType()){
             case Nugget:
             case Buffalo:
-                sound.playNugHurt();
+                sound.playBuffHurt();
                 break;
             case Shredded:
                 sound.playShredHurt();
@@ -375,9 +376,13 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
         if(fd1 != null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
             trapController.applyTrap(t2, c1);
+            if (t2.getTrapType() == Trap.type.SLOW){
+                sound.playIceTrig();
+            }
         }
         if(t2.getTrapType().equals(Trap.type.BREAD_LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)){
             t2.markHit();
+            sound.playBreadEat();
         }
     }
 
