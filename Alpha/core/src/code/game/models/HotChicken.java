@@ -133,7 +133,7 @@ public class HotChicken extends Chicken {
             animator.setFrame((int) animeframe);
             canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
         }
-        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x*wscale*effect, displayScale.y*hscale);
+        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x*wscale*effect * 0.9f, displayScale.y*hscale * 0.6f);
     }
 
     /**

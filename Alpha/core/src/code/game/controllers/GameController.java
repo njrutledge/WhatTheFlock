@@ -887,8 +887,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	public void setOptions(){
-		save.screen_width = Math.max(save.screen_width, 1280);
 		save.screen_height = Math.max(save.screen_height,720);
+		save.screen_width = save.screen_height*16/9;
+		save.screen_width = Math.max(save.screen_width, 1280);
 		if(save.fullscreen){
 			canvas.setFullscreen(true, true);
 		}else if(canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) {
@@ -1348,7 +1349,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			addQueuedObject(attack);
 			switch (type) {
 				case Basic:
-					sound.playNugAttack();
+					if (chicken.getType() == Chicken.ChickenType.Nugget) {
+						sound.playNugAttack();
+					} else {
+						sound.playDinoAttack();
+					}
 					break;
 				case Projectile:
 					attack.setEggAnimators(eggSpinTexture, eggSplatTexture);
@@ -1785,6 +1790,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			for (Obstacle obj : walls) {
 				obj.setDrawScale(scale);
 				obj.setDisplayScale(displayScale);
+			}
+			for (Obstacle trap : tableTraps){
+				trap.setDrawScale(scale);
+				trap.setDisplayScale(displayScale);
+			}
+			for (Obstacle trap : floorTraps){
+				trap.setDrawScale(scale);
+				trap.setDisplayScale(displayScale);
 			}
 			for (Obstacle trapE : trapEffects) {
 				trapE.setDrawScale(scale);
