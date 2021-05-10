@@ -101,7 +101,7 @@ public class TrapController implements TrapControllerInterface {
         /** trap to return if applyTrap is true */
         PooledList<Trap> trapCache = new PooledList<Trap>();
         for(int i = 0; i < LURE_NUM; i++){
-            float angle = rollFloat(72*i, 72*(i+1));
+            float angle = rollFloat(0,360);
             Trap trap = createLure(breadBomb);
             float speed = 16.0f;
             float vx = speed * MathUtils.cosDeg(angle);

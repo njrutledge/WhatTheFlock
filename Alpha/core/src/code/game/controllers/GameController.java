@@ -134,6 +134,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture buffaloChargingTexture;
 	/** Texture asset for the shredded chicken */
 	private Texture shreddedTexture;
+	/** Texture asset for the shredded chicken atacking */
+	private Texture shreddedAttack;
 	/** Texture asset for the hot chick */
 	private Texture hotTexture;
 	/** Texture asset for the hot chick's attack*/
@@ -269,8 +271,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	// Physics objects for the game
 	/** Physics constants for initialization */
 	private JsonValue constants;
-	/** Holds save game data */
-	private JsonValue save;
+	/** game save */
+	private Save save;
 	/** Reference to the character chef */
 	private Chef chef;
 	/** array of chicken spawn points */
@@ -503,6 +505,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		buffaloChargeStartTexture = directory.getEntry("char:buffaloStart", Texture.class);
 		buffaloChargingTexture = directory.getEntry("char:buffaloCharge", Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
+		shreddedAttack = directory.getEntry("char:shreddedAttack", Texture.class);
 		hotTexture = directory.getEntry("char:hot", Texture.class);
 		hotAttackTexture = directory.getEntry("char:hotAttack", Texture.class);
 		dinoTexture = directory.getEntry("char:dino", Texture.class);
@@ -536,7 +539,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		//constants
 		constants = directory.getEntry( "constants", JsonValue.class );
-		save = directory.getEntry("save", JsonValue.class);
+		save = new Save(directory.getEntry("save", JsonValue.class));
 		//set assets
 		collisionController.setConstants(constants);
 		collisionController.gatherAssets(directory);
@@ -883,7 +886,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		collisionController.endContact(contact, sensorFixtures);
 	}
 
-	public void setOptions(OptionData o){
+	public void setOptions(Save o){
 		o.screen_width = Math.max(o.screen_width, 1280);
 		o.screen_height = Math.max(o.screen_height,720);
 		if(canvas.getWidth()!=o.screen_width || canvas.getHeight()!=o.screen_height) {
@@ -896,9 +899,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		saveOptions(o);
 	}
 
-	private void saveOptions(OptionData o){
+	private void saveOptions(Save o){
 		Json json = new Json();
-		String jstring = json.toJson(new OptionData(o,save.getInt("furthest_level")));
+		String jstring = json.toJson(new Save(o,save.furthest_level));
 		FileHandle file = Gdx.files.local("save.json");
 		file.writeString(jstring, false);
 	}
@@ -985,14 +988,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Toggle grid
 		if (input.didGridToggle()) {
 			grid_toggle = !grid_toggle;
-		}
-
-
-		if(input.didAdvance()) {
-			chef.decrementHealth();
-		}
-		if(input.didRetreat()) {
-			killChickens();
 		}
 
 		// Now it is time to maybe switch screens.
@@ -1228,6 +1223,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		} else if (type == Chicken.ChickenType.Shredded){
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(shreddedTexture);
+			enemy.setAttackTexture(shreddedAttack);
+			enemy.setHurtTexture(shreddedTexture);
 		} else if (type == Chicken.ChickenType.Hot){
 			enemy = new HotChicken(constants.get("chicken"), constants.get("hot"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(hotTexture);
@@ -1327,10 +1324,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	private void createKnockbackAttack(ShreddedChicken shredded){
-
-		ChickenAttack attack = new ChickenAttack(shredded.getX()-ChickenAttack.getKNOCKWIDTH()/2.0f*MathUtils.cos(shredded.getAttackAngle()),
-				shredded.getY()-ChickenAttack.getKNOCKHEIGHT()/2.0f*MathUtils.sin(shredded.getAttackAngle()),
-				ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x, ChickenAttack.getKNOCKHEIGHT()/scale.y*displayScale.y, chef, shredded, ChickenAttack.AttackType.Knockback);
+		float x = shredded.getX()-ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x/2.0f*MathUtils.cos(shredded.getAttackAngle());
+		float y = shredded.getY()-ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x/2.0f*MathUtils.sin(shredded.getAttackAngle());
+		ChickenAttack attack = new ChickenAttack(x, y, ChickenAttack.getKNOCKWIDTH()/scale.x*displayScale.x,
+				ChickenAttack.getKNOCKHEIGHT()/scale.y*displayScale.y, chef, shredded, ChickenAttack.AttackType.Knockback);
 		shredded.setChickenAttack(attack);
 		attack.setAngle(shredded.getAttackAngle());
 		attack.setDrawScale(scale);
@@ -1399,7 +1396,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			case TOASTER:
 				trapTexture = trapToasterTexture;
 				anim = new FilmStrip(trapToasterActivate, 1, TOASTER_NUM_FRAMES);
-				type = GameObject.ObjectType.TABLETRAP;
+				type = GameObject.ObjectType.FLOORTRAP;
 				break;
 			case HOT_SAUCE:
 				trapTexture = trapHotSauceTexture;
@@ -1781,44 +1778,51 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * @param height The new height in pixels
 	 */
 	public void resize(int width, int height) {
+		Vector2 scaleOLD = scale.cpy();
 		this.scale.x = width/bounds.getWidth();///1.2f;
 		this.scale.y = height/bounds.getHeight();///1.2f;
 		this.displayScale.x = width/1920f;///1.2f;
 		this.displayScale.y = height/1080f;///1.2f;
-		for(Obstacle obj : walls){
-			obj.setDrawScale(scale);
-			obj.setDisplayScale(displayScale);
+		if(!scaleOLD.equals(scale)) {
+			for (Obstacle obj : walls) {
+				obj.setDrawScale(scale);
+				obj.setDisplayScale(displayScale);
+			}
+			for (Obstacle trapE : trapEffects) {
+				trapE.setDrawScale(scale);
+				trapE.setDisplayScale(displayScale);
+			}
+			for (Obstacle trap : floorTraps) {
+				trap.setDrawScale(scale);
+				trap.setDisplayScale(displayScale);
+			}
+			for (Obstacle c : chickens) {
+				c.setDrawScale(scale);
+				c.setDisplayScale(displayScale);
+				float cwidth = chickenTexture.getRegionWidth() / scale.x * displayScale.x;
+				float cheight = chickenTexture.getRegionHeight() / scale.y * displayScale.y;
+				((Chicken) c).resize(cwidth, cheight);
+			}
+			for (Obstacle other : others) {
+				other.setDrawScale(scale);
+				other.setDisplayScale(displayScale);
+			}
+			if (chef != null) {
+				chef.setDrawScale(scale);
+				chef.setDisplayScale(displayScale);
+			}
+			if (grid != null) {
+				grid.resize(width, height, scale);
+			}
+			if (canvas != null) {
+				save.screen_width = width;
+				save.screen_height = height;
+			}
 		}
-		for (Obstacle trapE : trapEffects){
-			trapE.setDrawScale(scale);
-			trapE.setDisplayScale(displayScale);
-		}
-		for (Obstacle trap : floorTraps){
-			trap.setDrawScale(scale);
-			trap.setDisplayScale(displayScale);
-		}
-		for (Obstacle c : chickens){
-			c.setDrawScale(scale);
-			c.setDisplayScale(displayScale);
-			float cwidth = chickenTexture.getRegionWidth()/scale.x*displayScale.x;
-			float cheight = chickenTexture.getRegionHeight()/scale.y*displayScale.y;
-			((Chicken) c).resize(cwidth,cheight);
-		}
-		for (Obstacle other : others){
-			other.setDrawScale(scale);
-			other.setDisplayScale(displayScale);
-		}
-		if(chef!= null) {
-			chef.setDrawScale(scale);
-			chef.setDisplayScale(displayScale);
-		}
-		if(grid!=null){
-			grid.resize(width,height,scale);
-		}
-		if(canvas!=null) {
-			OptionData od = new OptionData(width, height, true);
-			setOptions(od);
-		}
+	}
+	public void updateSave(Save s){
+		setOptions(s);
+		save = s;
 	}
 
 	/**
@@ -1836,10 +1840,23 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			obj.deactivatePhysics(world);
 		}
 		objects.clear();
+		walls.clear();
+		tableTraps.clear();
+		floorTraps.clear();
+		trapEffects.clear();
+		others.clear();
+		chickens.clear();
 		addQueue.clear();
 		world.dispose();
 		objects = null;
+		walls = null;
+		tableTraps = null;
+		floorTraps = null;
+		trapEffects = null;
+		others = null;
+		chickens = null;
 		addQueue = null;
+		chef = null;
 		bounds = null;
 		scale  = null;
 		world  = null;
@@ -1941,26 +1958,5 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	@Override
 	public boolean scrolled(float amountX, float amountY) {
 		return false;
-	}
-
-	private class OptionData {
-		public int screen_width;
-		public int screen_height;
-		public boolean auto_cook;
-		public int furthest_level;
-		public OptionData(int w, int h, boolean ac){
-			screen_width = w;
-			screen_height = h;
-			auto_cook = ac;
-			furthest_level = save.getInt("furthest_level",0);
-		}
-		public OptionData(int w, int h, boolean ac, int fl){
-			this(w,h,ac);
-			furthest_level = fl;
-
-		}
-		public OptionData(OptionData o, int fl){
-			this(o.screen_width, o.screen_height, o.auto_cook,fl);
-		}
 	}
 }
