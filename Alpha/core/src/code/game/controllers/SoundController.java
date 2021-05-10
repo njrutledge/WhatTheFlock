@@ -138,6 +138,7 @@ public class SoundController {
         menuEnter = directory.getEntry("sound:menu:select", SoundBuffer.class);
         victory = directory.getEntry("sound:menu:victory", SoundBuffer.class);
         failure = directory.getEntry("sound:menu:failure", SoundBuffer.class);
+        sounds.add(victory, failure);
         sounds.add(menuEnter,menuSelecting);
 
         //Chef
