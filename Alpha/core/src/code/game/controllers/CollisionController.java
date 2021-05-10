@@ -349,6 +349,8 @@ public class CollisionController implements CollisionControllerInterface {
         sound.playHitSlap();
         switch (c1.getType()){
             case Nugget:
+                sound.playNugHurt();
+                break;
             case Buffalo:
                 sound.playBuffHurt();
                 break;
