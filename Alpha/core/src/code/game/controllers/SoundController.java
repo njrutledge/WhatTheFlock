@@ -23,7 +23,9 @@ public class SoundController {
     public enum CurrentScreen {
         MENU,
         LEVEL,
-        PAUSE
+        PAUSE,
+        WIN,
+        LOSE
     }
     private CurrentScreen screen;
 
@@ -35,6 +37,10 @@ public class SoundController {
     private SoundBuffer menuEnter;
     /** Sound for choosing an item in the menus */
     private SoundBuffer menuSelecting;
+    /** Sound for winning */
+    private SoundBuffer victory;
+    /** Sound for losing */
+    private SoundBuffer failure;
 
 
     //Chef
@@ -130,6 +136,8 @@ public class SoundController {
         //UI
         menuSelecting = directory.getEntry("sound:menu:selecting", SoundBuffer.class);
         menuEnter = directory.getEntry("sound:menu:select", SoundBuffer.class);
+        victory = directory.getEntry("sound:menu:victory", SoundBuffer.class);
+        failure = directory.getEntry("sound:menu:failure", SoundBuffer.class);
         sounds.add(menuEnter,menuSelecting);
 
         //Chef
@@ -265,6 +273,10 @@ public class SoundController {
                 levelTheme2.setVolume(volume * LOUD * PAUSE_VOL);
                 //levelTheme3.setVolume(volume * LOUD * PAUSE_VOL);
                 break;
+            case WIN:
+            case LOSE:
+                stopAllMusic();
+                break;
 
         }
 
@@ -279,6 +291,10 @@ public class SoundController {
     public void playMenuEnter() {playInstant(menuEnter, LOUD);}
 
     public void playMenuSelecting() {playInstant(menuSelecting, LOUD);}
+
+    public void playVictory() {playInstant(victory, LOUD);}
+
+    public void playFailure() {playInstant(failure, LOUD);}
 
     //Chef
     public void playChefHurt() {playInstant(chefHurt, LOUD);}
