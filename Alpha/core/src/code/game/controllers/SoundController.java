@@ -196,10 +196,8 @@ public class SoundController {
         sound.play(volume * multiplier);
     }
 
-    private void playMusicInstant(MusicBuffer sound, float multiplier) {
+    private void playMusicInstant(MusicBuffer sound) {
         sound.play();
-        sound.setVolume(multiplier * volume);
-
     }
 
     private void mute() {
@@ -215,27 +213,22 @@ public class SoundController {
         int choose = MathUtils.random(1); //should be in range 2, but only 2 themes for now
         switch (choose) {
             case 0:
-                playMusicInstant(levelTheme1, MED);
+                playMusicInstant(levelTheme1);
                 timer = LEVEL_T_1;
                 break;
             case 1:
-                playMusicInstant(levelTheme2, MED);
+                playMusicInstant(levelTheme2);
                 timer = LEVEL_T_2;
                 break;
             case 2:
-                playMusicInstant(levelTheme3, MED);
+                playMusicInstant(levelTheme3);
                 timer = LEVEL_T_3;
                 break;
         }
     }
 
     private boolean musicPlaying() {
-        if (levelTheme1.isPlaying()) {
-            return true;
-        } else if (levelTheme2.isPlaying()) {
-            return true;
-        }
-        return false;
+        return levelTheme1.isPlaying() || levelTheme2.isPlaying();
     }
 
     public void stopAllMusic() {
@@ -256,7 +249,8 @@ public class SoundController {
 
         switch (screen){
             case MENU:
-                playMusicInstant(menuTheme, LOUD);
+                playMusicInstant(menuTheme);
+                menuTheme.setVolume(volume * LOUD);
                 break;
             case LEVEL:
                 if (!musicPlaying()) {
