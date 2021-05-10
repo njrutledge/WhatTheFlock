@@ -111,6 +111,12 @@
         "ui:options:windowed": "ui/options/options_windowed.png",
         "ui:options:fullscreen": "ui/options/options_fullscreen.png",
 
+        "ui:guide:1" : "ui/guide/howtoplay1.png",
+        "ui:guide:2" : "ui/guide/howtoplay2.png",
+        "ui:guide:3" : "ui/guide/howtoplay2.1.png",
+        "ui:guide:4" : "ui/guide/howtoplay3.png",
+        "ui:guide:5" : "ui/guide/howtoplay4.png",
+
         "ui:att_off": "ui/attbuff_off.png",
         "ui:att_on": "ui/attbuff_on.png",
         "ui:tempBar": {
