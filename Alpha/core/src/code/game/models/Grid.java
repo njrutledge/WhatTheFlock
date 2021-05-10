@@ -30,8 +30,8 @@ public class Grid {
      * @param height    the height of the canvas
      */
     public Grid(float width, float height, Vector2 scale) {
-        cell_width  = width/scale.x/COLS;
-        cell_height = height/scale.y/ROWS;
+        cell_width  = width/scale.x/(float)COLS;
+        cell_height = height/scale.y/(float)ROWS;
 
         canvas_width  = width;
         canvas_height = height;
@@ -48,8 +48,8 @@ public class Grid {
     }
 
     public void resize(float width, float height, Vector2 scale){
-        cell_width  = width/scale.x/COLS;
-        cell_height = height/scale.y/ROWS;
+        cell_width  = width/scale.x/(float)COLS;
+        cell_height = height/scale.y/(float)ROWS;
 
         canvas_width  = width;
         canvas_height = height;
@@ -192,9 +192,9 @@ public class Grid {
      */
     public void drawDebug(GameCanvas canvas) {
         // canvas cell width (unscaled)
-        float ccw = canvas_width/COLS;
+        float ccw = canvas_width/(float)COLS;
         // canvas cell height (unscaled)
-        float cch = canvas_height/ROWS;
+        float cch = canvas_height/(float)ROWS;
         for (int i = 1; i < ROWS; i++) {
             canvas.drawLine(new Vector2(0,cch*i), new Vector2(ccw*COLS,cch*i));
         }
