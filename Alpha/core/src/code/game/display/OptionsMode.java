@@ -258,6 +258,13 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         sfx_vol = save.sfx_vol;
         isMouseSlap = save.mouse_slap;
     }
+    private void updateSave(){
+        save.auto_cook = isAutoCook;
+        save.fullscreen = isFullscreen;
+        save.music_vol = music_vol;
+        save.sfx_vol = sfx_vol;
+        save.mouse_slap = isMouseSlap;
+    }
 
     /**
      * Activates or deactivates the input processor; called when screen is shown or hidden
@@ -277,6 +284,12 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
      * @return music volume
      */
     public int getMusic_vol() { return music_vol; }
+
+    /** Returns the music volume
+     *
+     * @return music volume
+     */
+    public int getSavedMusic_vol() { return save.music_vol; }
 
     /** Returns the sfx volume
      *
@@ -370,8 +383,6 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
                 sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
             }
         }
-        save.sfx_vol = sfx_vol;
-        save.music_vol = music_vol;
     }
 
     /** Handles the case in which the enter button is pressed. */
@@ -391,9 +402,6 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         } else if (selected == 5){
             back = true;
         } else { editing = 0; }
-        save.fullscreen = isFullscreen;
-        save.auto_cook = isAutoCook;
-        save.mouse_slap = isMouseSlap;
     }
 
     /**
@@ -586,6 +594,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
             draw();
             if (back && listener != null){
                 canvas.clear();
+                updateSave();
                 listener.exitScreen(this, exitCode);
             }
         }
@@ -611,11 +620,14 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
         musicCenterX = width*0.65f;
         musicCenterY = height*0.65f;
-        musicHandleCenterX = musicCenterX+(volume.getRegionWidth()/2*VOLUME_SCALE*scale);
 
         sfxCenterX = width*0.65f;
         sfxCenterY = height*0.58f;
-        sfxHandleCenterX = sfxCenterX+(volume.getRegionWidth()/2*VOLUME_SCALE*scale);
+
+        float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        musicHandleCenterX  = (music_vol*(rbound-lbound))/100 + lbound;
+        sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
 
         windowCenterX = width*0.45f;
         fullscreenCenterX = width*0.67f;

@@ -580,7 +580,7 @@ public class Trap extends GameObject implements TrapInterface {
             case TOASTER:
                 c = Color.WHITE.cpy();
                 frame = animation.getFrame();
-                if(animation.getFrame() < 5){
+                if(animation.getFrame() < 6){
                     if(anim_delay == 0){
                         anim_delay = FRAME_DELAY;
                         frame ++;
@@ -590,13 +590,16 @@ public class Trap extends GameObject implements TrapInterface {
                     }
                     //frame = animation.getFrame() + 1;
                 }
+                else if(!isReady && frame == animation.getSize() -1){
+                    frame = 0;
+                }
                 else if (!isReady){
                     //switch between frames 6 and 7 for smoke
                     c = Color.LIGHT_GRAY.cpy();
                     //frame = animation.getFrame();
                     if(anim_delay == 0){
                         anim_delay = SMOKE_FRAMES_DELAY; //add delay time to be less frenetic
-                        frame = (animation.getFrame() == 5 ? 6:5);
+                        frame = (animation.getFrame() == 6 ? 7:6);
                     }else {
                         anim_delay --;
                     }
@@ -607,6 +610,7 @@ public class Trap extends GameObject implements TrapInterface {
                     if(animation.getFrame() < animation.getSize() - 1){
                         frame++;
                     }
+
                 }
                 break;
 
