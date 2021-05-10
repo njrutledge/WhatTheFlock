@@ -514,7 +514,7 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case SLOW:
                 c = slowColor.cpy();
-                scale = .3f;
+                scale = 1.0f;//.3f;
                 c.a = Math.max(0, activeTimer / SLOW_ACTIVE_TIME);
                 break;
             case COOLER:
