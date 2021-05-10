@@ -191,8 +191,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         infoFont.setColor(Color.BLACK);
         //TODO probably want to share some font assets
         levels = assets.getEntry("levels", JsonValue.class );
-        save = new Save(assets.getEntry("save", JsonValue.class));
-
 
         this.bounds = new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT);
         this.vscale = new Vector2(1,1);
@@ -217,6 +215,14 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         }
         highlightedIndex = 1;
         active = true;
+    }
+
+    /**
+     * Sets the save object
+     * @param s the save object
+     */
+    public void setSave(Save s){
+        save = s;
     }
 
     /**
@@ -254,14 +260,11 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         return leftIndex + highlightedIndex + 1 < numLevels;
     }
 
-    public void advanceSave(){
-        FileHandle file = Gdx.files.local(Save.file);
-        Json json = new Json();
+    public Save advanceSave(){
         if(leftIndex+highlightedIndex+1==save.furthest_level) {
             save.furthest_level++;
         }
-        String jstring = json.toJson(save);
-        file.writeString(jstring, false);
+        return save;
     }
 
     public void updateSave(Save s){

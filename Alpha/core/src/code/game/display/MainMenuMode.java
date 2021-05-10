@@ -14,6 +14,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.ControllerMapping;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -121,7 +122,6 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     private int quitCenterY;
     private int startCenterY;
 
-    private JsonValue save;
     /**
      * Returns true if the user has selected an option from the menu
      *
@@ -158,13 +158,6 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         options = new FilmStrip(optionsTexture, 1, 2);
         quitTexture = internal.getEntry("ui:menu:quit", Texture.class);
         quit = new FilmStrip(quitTexture, 1, 2);
-        save = internal.getEntry("save", JsonValue.class);
-        //load save:
-        canvas.setSize(save.getInt("screen_width"),save.getInt("screen_height"));
-        //canvas.setFullscreen(save.getBoolean("fullscreen"),true);
-        canvas.resetCamera();
-        canvas.resize();
-
         this.bounds = new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT);
         this.vscale = new Vector2(1,1);
 
@@ -214,6 +207,8 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         sound.playMenuEnter();
         return mouseEnter;
     }
+
+
 
     /** Processes a keyboard input and produces the appropriate response.
      *

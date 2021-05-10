@@ -3,6 +3,7 @@ package code.game.display;
 import code.assets.AssetDirectory;
 import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
+import code.game.models.Save;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.FilmStrip;
@@ -191,6 +192,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     public static final int MAINMAIN = 0;
     /** The exit code representing returning to main menu */
     public static final int GAMEMNEU = 1;
+    /** the game save */
+    private Save save;
 
     /**
      * Creates a LevelSelectMode with the default size and position.
@@ -243,6 +246,25 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
         active = true;
     }
+    /**
+     * Sets the save object
+     * @param s the save object
+     */
+    public void setSave(Save s){
+        save = s;
+        isAutoCook = save.auto_cook;
+        isFullscreen = save.fullscreen;
+        music_vol = save.music_vol;
+        sfx_vol = save.sfx_vol;
+        isMouseSlap = save.mouse_slap;
+    }
+    private void updateSave(){
+        save.auto_cook = isAutoCook;
+        save.fullscreen = isFullscreen;
+        save.music_vol = music_vol;
+        save.sfx_vol = sfx_vol;
+        save.mouse_slap = isMouseSlap;
+    }
 
     /**
      * Activates or deactivates the input processor; called when screen is shown or hidden
@@ -262,6 +284,12 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
      * @return music volume
      */
     public int getMusic_vol() { return music_vol; }
+
+    /** Returns the music volume
+     *
+     * @return music volume
+     */
+    public int getSavedMusic_vol() { return save.music_vol; }
 
     /** Returns the sfx volume
      *
@@ -335,8 +363,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
     /** Scrolls to the next panel */
     private void scroll() {
-        float lbound = sfxCenterX-volume.getRegionWidth()/2*VOLUME_SCALE*scale;
-        float rbound = sfxCenterX+volume.getRegionWidth()/2*VOLUME_SCALE*scale;
+        float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
         if (scrollDirection == 1) {
             if (selected == 0) {
                 music_vol = music_vol + 1 > 100 ? music_vol:music_vol+1;
@@ -566,6 +594,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
             draw();
             if (back && listener != null){
                 canvas.clear();
+                updateSave();
                 listener.exitScreen(this, exitCode);
             }
         }
@@ -591,11 +620,14 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
         musicCenterX = width*0.65f;
         musicCenterY = height*0.65f;
-        musicHandleCenterX = musicCenterX+(volume.getRegionWidth()/2*VOLUME_SCALE*scale);
 
         sfxCenterX = width*0.65f;
         sfxCenterY = height*0.58f;
-        sfxHandleCenterX = sfxCenterX+(volume.getRegionWidth()/2*VOLUME_SCALE*scale);
+
+        float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        musicHandleCenterX  = (music_vol*(rbound-lbound))/100 + lbound;
+        sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
 
         windowCenterX = width*0.45f;
         fullscreenCenterX = width*0.67f;
