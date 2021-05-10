@@ -39,7 +39,7 @@
         "enviro:trap:coolerActivate": "enviro/cooler_activate.png",
         "enviro:trap:slow": "enviro/slow.png",
         "enviro:trap:icecube": "enviro/ice_cube.png",
-        "enviro:background": "enviro/background_2.png",
+        "enviro:background": "enviro/floor2.png",
         "enviro:spawn": "enviro/fridge.png",
         "enviro:indicator" : "enviro/slap_indicator.png",
 
@@ -158,6 +158,8 @@
     "sounds" : {
         "sound:menu:selecting" : "sounds/ui/menu_ui_selecting.ogg",
         "sound:menu:select" : "sounds/ui/menu_ui_select.ogg",
+        "sound:menu:victory": "sounds/ui/victory.ogg",
+        "sound:menu:failure": "sounds/ui/failure.ogg",
 
         "sound:chef:emptySlap" : "sounds/chef/empty_slap_2.ogg",
         "sound:chef:squelch": "sounds/chef/squelch.ogg",
@@ -169,6 +171,7 @@
 
         "sound:chick:buffalo:charge" : "sounds/chicken/buffalo_charge.ogg",
         "sound:chick:buffalo:attack" : "sounds/chicken/buffalo_attack.ogg",
+        "sound:chick:buffalo:hurt" : "sounds/chicken/buffalo_hurt.ogg",
 
         "sound:chick:hot:charge" : "sounds/chicken/hot_charge.ogg",
         "sound:chick:hot:attack" : "sounds/chicken/hot_attack.ogg",
@@ -181,7 +184,10 @@
 
         "sound:trap:fireLinger" : "sounds/trap/fire_linger_1.ogg",
         "sound:trap:fireTrig" : "sounds/trap/fire_trigger_2.ogg",
-        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg"
+        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg",
+        "sound:trap:iceChick" : "sounds/trap/chick_ice_trigger.ogg",
+        "sound:trap:chickFreeze" : "sounds/trap/chick_freeze.ogg",
+        "sound:trap:toaster" : "sounds/trap/toaster.ogg"
 
 
     },

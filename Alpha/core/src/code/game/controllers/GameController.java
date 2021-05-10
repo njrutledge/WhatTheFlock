@@ -101,7 +101,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** The texture for animating the Toaster*/
 	private Texture trapToasterActivate;
 	/** Number of frames in Toaster texture*/
-	private final int TOASTER_NUM_FRAMES = 12;
+	private final int TOASTER_NUM_FRAMES = 15;
 	/** Texture asset for hot sauce trap */
 	private Texture trapHotSauceTexture;
 	/** Texture for animating Hot Sauce Trap*/
