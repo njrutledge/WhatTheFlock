@@ -3,7 +3,6 @@ package code.game.display;
 import code.assets.AssetDirectory;
 import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
-import code.game.models.Save;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.FilmStrip;
@@ -123,7 +122,6 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     private int quitCenterY;
     private int startCenterY;
 
-    private Save save;
     /**
      * Returns true if the user has selected an option from the menu
      *
