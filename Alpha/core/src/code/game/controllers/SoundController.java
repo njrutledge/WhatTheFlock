@@ -87,6 +87,11 @@ public class SoundController {
     /** Sound for nugget hurt */
     private SoundBuffer nuggetHurt;
 
+    /** Sound for Dino attack */
+    private SoundBuffer dinoAttack;
+    /** Sound for Dino hurt */
+    private SoundBuffer dinoHurt;
+
 
     //Music
     /** Interval timer for music */
@@ -161,10 +166,14 @@ public class SoundController {
         nuggetAttack = directory.getEntry("sound:chick:nugget:attack", SoundBuffer.class);
         nuggetHurt = directory.getEntry("sound:chick:nugget:hurt", SoundBuffer.class);
 
+        dinoAttack = directory.getEntry("sound:chick:dino:attack", SoundBuffer.class);
+        dinoHurt = directory.getEntry("sound:chick:dino:hurt", SoundBuffer.class);
+
         sounds.add(shreddedAttack, shreddedHurt, eggsplosion);
         sounds.add(buffaloAttack, buffaloCharge, buffaloHurt);
         sounds.add(hotAttack, hotCharge, hotHurt);
         sounds.add(nuggetAttack, nuggetHurt);
+        sounds.add(dinoAttack, dinoHurt);
 
         //Music
         menuTheme = directory.getEntry("music:levelSel", MusicBuffer.class);
@@ -282,9 +291,9 @@ public class SoundController {
     //Traps
     public void playFireTrap() {playInstant(fireTrigger, LOUD);}
 
-    public void playBreadTrig() {playInstant(breadTrigger, MED);}
+    public void playBreadTrig() {playInstant(breadTrigger, LOUD);}
 
-    public void playBreadEat() {playInstant(breadEat, MED);}
+    public void playBreadEat() {playInstant(breadEat, LOUD);}
 
     public void playIceTrig() {playInstant(iceTrigger, LOUD);}
 
@@ -315,6 +324,10 @@ public class SoundController {
     public void playNugAttack() {playInstant(nuggetAttack, LOUD);}
 
     public void playNugHurt() {playInstant(nuggetHurt, MED);}
+
+    public void playDinoHurt() {playInstant(dinoHurt, LOUD);}
+
+    public void playDinoAttack() {playInstant(dinoAttack, LOUD);}
 
 
     public void dispose() {

@@ -360,6 +360,9 @@ public class CollisionController implements CollisionControllerInterface {
             case Hot:
                 sound.playHotHurt();
                 break;
+            case DinoNugget:
+                sound.playDinoHurt();
+                break;
         }
 
         if (!c1.isAlive()) {
