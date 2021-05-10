@@ -169,6 +169,9 @@
         "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt.ogg",
         "sound:chick:nugget:attack" : "sounds/chicken/nug_attack.ogg",
 
+        "sound:chick:dino:hurt" : "sounds/chicken/dino_hurt.ogg",
+        "sound:chick:dino:attack" : "sounds/chicken/dino_attack.ogg",
+
         "sound:chick:buffalo:charge" : "sounds/chicken/buffalo_charge.ogg",
         "sound:chick:buffalo:attack" : "sounds/chicken/buffalo_attack.ogg",
         "sound:chick:buffalo:hurt" : "sounds/chicken/buffalo_hurt.ogg",
