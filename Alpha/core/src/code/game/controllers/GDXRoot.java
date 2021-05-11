@@ -312,8 +312,12 @@ public class GDXRoot extends Game implements ScreenListener {
 			}
 		}
 		else if(screen == guide){
-			menu.reset();
-			setScreen(menu);
+			switch(exitCode) {
+				case GuideMode.MAINMAIN:
+					menu.reset();
+					setScreen(menu);
+					break;
+			}
 		}
 	}
 

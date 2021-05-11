@@ -73,6 +73,17 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     private final float WINDOW_WIDTH = 323;
     private final float FULLSCREEN_WIDTH = 350;
 
+    /** Constants for arrow drawing */
+    private float leftArrowCenterX = 150;
+    private float rightArrowCenterX = 1750;
+    private float arrowCenterY = 500;
+    private final float arrowWidth = 50;
+    private final float arrowHeight = 50;
+    private final float ARROW_SCALE = 0.5f;
+
+    private boolean leftSelected = false;
+    private boolean rightSelected = true;
+
     /** The constants for the selection box */
     private final float SELECT_WIDTH = 1031;
     private final float OK_HEIGHT = 46;
@@ -125,6 +136,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
      * 1 = second option
      */
     private int editing = -1;
+    private int pressState = 0;
 
     /** Whether back was selected */
     private boolean back = false;
@@ -151,8 +163,6 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
 
     /** The exit code representing returning to main menu */
     public static final int MAINMAIN = 0;
-    /** The exit code representing returning to main menu */
-    public static final int GAMEMNEU = 1;
     /** the game save */
     private Save save;
     /** list of possible background */
@@ -183,7 +193,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
 
         arrowRightTexture = assets.getEntry("ui:arrowRight", Texture.class);
         arrowRight = new FilmStrip(arrowRightTexture, 1, 1);
-        arrowLeftTexture = assets.getEntry("ui:arrowRight", Texture.class);
+        arrowLeftTexture = assets.getEntry("ui:arrowLeft", Texture.class);
         arrowLeft = new FilmStrip(arrowLeftTexture, 1, 1);
         this.bounds = new Rectangle(0,0,DEFAULT_WIDTH,DEFAULT_HEIGHT);
         this.vscale = new Vector2(1,1);
@@ -446,6 +456,10 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
         canvas.clear();
         canvas.begin();
         float selectCenterY = 0;
+        ok.setFrame(0);
+        if (selected == 5) {
+            ok.setFrame(1);
+        }
         canvas.draw(background, Color.WHITE, background.getWidth()/2, background.getHeight()/2,
                 bkgCenterX, bkgCenterY, 0, BACKGROUND_SCALE * scale, BACKGROUND_SCALE * scale);
 
@@ -453,6 +467,16 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
         canvas.draw(ok, Color.WHITE, ok.getRegionWidth()/2, ok.getRegionHeight()/2, bkgCenterX, okCenterY,
                 0, BUTTON_SCALE * scale, BUTTON_SCALE * scale);
 
+        int index = backgrounds.indexOf(background);
+
+        if(index > 0) {
+            canvas.draw(arrowLeft, leftSelected ? Color.GRAY : Color.WHITE, arrowLeft.getRegionWidth() / 2, arrowLeft.getRegionHeight() / 2, leftArrowCenterX,
+                    arrowCenterY, 0, ARROW_SCALE * scale, ARROW_SCALE * scale);
+        }
+        if(index < 4) {
+            canvas.draw(arrowRight, rightSelected ? Color.GRAY : Color.WHITE, arrowRight.getRegionWidth() / 2, arrowRight.getRegionHeight() / 2, rightArrowCenterX,
+                    arrowCenterY, 0, ARROW_SCALE * scale, ARROW_SCALE * scale);
+        }
         canvas.end();
     }
 
@@ -471,8 +495,8 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
             update(delta);
             draw();
             if (back && listener != null){
+                back = false;
                 canvas.clear();
-                updateSave();
                 listener.exitScreen(this, exitCode);
             }
         }
@@ -500,7 +524,12 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
         fullscreenCenterX = width*0.67f;
         displayCenterY = height*0.505f;
 
-        okCenterY = height*0.235f;
+        okCenterY = height*0.075f;
+
+        arrowCenterY = height * 0.5f;
+        leftArrowCenterX = width * 0.078125f;
+        rightArrowCenterX = width * 0.911458f;
+
 
         heightY = height;
     }
@@ -591,8 +620,16 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
      */
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         Gdx.input.setCursorCatched(false);
-        screenY = heightY-screenY;
 
+        if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, canvas.getHeight() - okCenterY)){
+            pressState = 1;
+        }
+        else if (overButton(arrowLeft.getRegionWidth(), arrowLeft.getRegionHeight(), screenX, screenY, leftArrowCenterX, arrowCenterY)){
+            pressState = 2;
+        }
+        else if (overButton(arrowRight.getRegionWidth(), arrowRight.getRegionHeight(), screenX, screenY, rightArrowCenterX, arrowCenterY)){
+            pressState = 3;
+        }
         return false;
     }
 
@@ -608,6 +645,22 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
      * @return whether to hand the event to other listeners.
      */
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if(pressState == 1){
+            back = true;
+            return false;
+        }
+        else if (pressState == 2){
+            int index = backgrounds.indexOf(background);
+            if (index != 0){
+                background = backgrounds.get(index-1);
+            }
+        }
+        else if (pressState == 3){
+            int index = backgrounds.indexOf(background);
+            if (index != 4){
+                background = backgrounds.get(index+1);
+            }
+        }
         return true;
     }
 
@@ -683,7 +736,13 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
         Gdx.input.setCursorCatched(false);
         screenY = heightY-screenY;
 
-        if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY)) { selected = 5; }
+        if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY)) {
+            selected = 5;
+        }
+        else { selected = 0; }
+
+        leftSelected = overButton(arrowLeft.getRegionWidth(), arrowLeft.getRegionHeight(), screenX, screenY, leftArrowCenterX, arrowCenterY);
+        rightSelected = overButton(arrowRight.getRegionWidth(), arrowRight.getRegionHeight(), screenX, screenY, rightArrowCenterX, arrowCenterY);
         return true;
     }
 
