@@ -137,8 +137,9 @@ public class GDXRoot extends Game implements ScreenListener {
 	 */
 	public void resize(int width, int height) {
 		canvas.clear();
+		height = Math.max(height,720);
 		width = height*16/9;
-		canvas.setSize(Math.max(width,1280),Math.max(height,720));
+		canvas.setSize(width,height);
 		canvas.resetCamera();
 		canvas.resize();
 		if(controller != null) controller.resize(width, height);
@@ -287,7 +288,7 @@ public class GDXRoot extends Game implements ScreenListener {
 					break;
 			}
 		} else if (screen == options){
-			//controller.writeSave();
+			controller.writeSave();
 			controller.setOptions();
 			//controller.updateSaveValues();
 			switch(exitCode){
