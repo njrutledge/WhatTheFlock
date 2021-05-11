@@ -65,6 +65,8 @@ public class SoundController {
     private SoundBuffer iceTrigger;
     /** Sound for when chicken treads on ice-cream trap */
     private SoundBuffer iceFreeze;
+    /** Sound for when the cooler trap is opened */
+    private SoundBuffer cooler;
 
     //Chickens
     /** Sound for shredded attack */
@@ -155,9 +157,10 @@ public class SoundController {
 
         iceTrigger = directory.getEntry("sound:trap:iceChick", SoundBuffer.class);
         iceFreeze = directory.getEntry("sound:trap:chickFreeze", SoundBuffer.class);
+        cooler = directory.getEntry("sound:trap:cooler", SoundBuffer.class);
 
         sounds.add(fireTrigger, breadTrigger, breadEat);
-        sounds.add(iceFreeze, iceTrigger);
+        sounds.add(iceFreeze, iceTrigger, cooler);
 
         //Chickens
         shreddedAttack = directory.getEntry("sound:chick:shredded:attack", SoundBuffer.class);
@@ -306,9 +309,11 @@ public class SoundController {
 
     public void playBreadEat() {playInstant(breadEat, LOUD);}
 
-    public void playIceTrig() {playInstant(iceTrigger, LOUD);}
+    public void playIceTrig() {playInstant(iceFreeze, LOUD);}
 
     public void playIceFreeze() {playInstant(iceFreeze, MED);}
+
+    public void playCoolerOpen() {playInstant(cooler, LOUD);}
 
 
     //Chickens

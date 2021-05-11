@@ -265,6 +265,7 @@ public class CollisionController implements CollisionControllerInterface {
                 case COOLER:
                     t1.markReady(false);
                     trapCache.add(trapController.createSlow(t1));
+                    sound.playCoolerOpen();
                     break;
             }
         }
