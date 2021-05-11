@@ -187,10 +187,9 @@ public class GDXRoot extends Game implements ScreenListener {
 			levelselect.setSave(save);
 			gamemenu.setSave(save);
 			options.setSave(save);
-			controller.setOptions();
 
 			setScreen(menu);
-			//setScreen(levelselect);
+			controller.setOptions();
 		}
 		else if (screen == menu){
 			//menu.activateInputProcessor(false);

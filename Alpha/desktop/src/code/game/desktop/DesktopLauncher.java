@@ -34,6 +34,7 @@ public class DesktopLauncher {
 	 */
 	public static void main (String[] arg) {
 		GDXAppSettings config = new GDXAppSettings();
+
 		config.width  = 1280;
 		config.height = 720;
 		config.x = 0;
