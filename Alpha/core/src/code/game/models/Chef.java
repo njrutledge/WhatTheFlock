@@ -90,7 +90,7 @@ public class Chef extends GameObject implements ChefInterface {
 	/** X offset for health display */
 	private float X_HEALTH = 30;
 	/** Y offset for health display */
-	private int y_health;
+	private float y_health;
 	/** size of each heart */
 	private final int HEART_SIZE = 45;
 	/** The number of hearts, including both full and half hearts.
@@ -650,54 +650,55 @@ public class Chef extends GameObject implements ChefInterface {
 		float xScaleShift = 0.365f;
 		if (isStunned()) {
 			hurt_animator.setFrame((int) animeframe);
-			canvas.draw(hurt_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
+			canvas.draw(hurt_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
 		} else if (Math.abs(getMovement()) + Math.abs(getVertMovement()) == 0 && shootCooldown <= 0){
 			idle_animator.setFrame((int)animeframe);
-			canvas.draw(idle_animator,doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
+			canvas.draw(idle_animator,Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
 		} else if (shootCooldown <= 0 && (!isStunned() || ((int)(invuln_counter * 10)) % 2 == 0)) {
 			animator.setFrame((int)animeframe);
-			canvas.draw(animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
+			canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
 		} else if (shootCooldown > 0) {
 			if (slapFace == 1) {
 				slap_up_animator.setFrame((int) animeframe);
-				canvas.draw(slap_up_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
+				canvas.draw(slap_up_animator,Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
 			} else if (slapFace == 3) {
 				slap_down_animator.setFrame((int) animeframe);
-				canvas.draw(slap_down_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
+				canvas.draw(slap_down_animator,Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
 			} else if (slapFace == 2) {
 				slap_side_animator.setFrame((int) animeframe);
-				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(),displayScale.x*xScaleShift, displayScale.y*yScaleShift);
+				canvas.draw(slap_side_animator,Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(),displayScale.x*xScaleShift, displayScale.y*yScaleShift);
 			} else if (slapFace == 4){
 				slap_side_animator.setFrame((int) animeframe);
-				canvas.draw(slap_side_animator, doubleDamage ? Color.FIREBRICK : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*-1*xScaleShift, displayScale.y*yScaleShift);
+				canvas.draw(slap_side_animator,Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*-1*xScaleShift, displayScale.y*yScaleShift);
 			}
 		}
 		//canvas.draw(animator,Color.WHITE,origin.x,origin.y,getX()*drawScale.x,getY()*drawScale.y+20,getAngle(),effect/10,0.1f);
 		//canvas.drawText("Health: " + health, font, XOFFSET, YOFFSET);
 		//draw health
 
-		if (y_health == 0) { y_health = canvas.getHeight() - HEART_SIZE - 20; }
+		//canvas.getHeight() needs to remain unscaled!
+		y_health = canvas.getHeight() - HEART_SIZE*displayScale.y;
 		float x = X_HEALTH;
 		for (int i = 1; i <= full_hearts; i++){
 			if(i*2 <= health){
-				canvas.draw(heartTexture, Color.WHITE, x, y_health, HEART_SIZE, HEART_SIZE);
+				canvas.draw(heartTexture, Color.WHITE, x*displayScale.x, y_health, HEART_SIZE*displayScale.x, HEART_SIZE*displayScale.y);
 			}
 			else if (i*2-1 <= health){
-				canvas.draw(halfHeartTexture, Color.WHITE, x, y_health, HEART_SIZE, HEART_SIZE);
+				canvas.draw(halfHeartTexture, Color.WHITE, x*displayScale.x, y_health, HEART_SIZE*displayScale.x, HEART_SIZE*displayScale.y);
 				break;
 			} else {
 				break;
 			}
-			x += HEART_SIZE + HEART_SIZE/3;
+			x += (HEART_SIZE + HEART_SIZE/3);
 		}
 		if (doubleDamage) {
 			float clip_pixels = 53*(1-damageTimer/DAMAGE_TIME);
 			float clip_scale = (float)(1-0.36-(clip_pixels/194));
 			int add_height = 194-(int)(clip_scale*attOnTexture.getRegionHeight());
-			canvas.draw(attOffTexture, Color.WHITE, X_HEALTH-55, y_health - 180, attOffTexture.getWidth(), attOffTexture.getHeight());
+			canvas.draw(attOffTexture, Color.WHITE, (X_HEALTH-55)*displayScale.x, y_health - (180*displayScale.y), attOffTexture.getWidth()*displayScale.x, attOffTexture.getHeight()*displayScale.y);
 			canvas.draw(attOnTexture, clip_scale, 0, Color.WHITE,
-					attOnTexture.getRegionWidth()/2, attOnTexture.getRegionHeight()/2, X_HEALTH-55, y_health-180+add_height,
-					attOnTexture.getRegionWidth(), attOnTexture.getRegionHeight());
+					0, 0, (X_HEALTH-55)*displayScale.x, y_health-(180-add_height)*displayScale.y,
+					attOnTexture.getRegionWidth()*displayScale.x, attOnTexture.getRegionHeight()*displayScale.y);
 		}
 	}
 	

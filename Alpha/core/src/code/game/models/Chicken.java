@@ -199,6 +199,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Set the chicken attack belonging to this chicken */
     public void setChickenAttack(ChickenAttack attack) { chickenAttack = attack; }
 
+    /** Set the chicken type */
+    public void setChickenType(ChickenType t) { type = t; }
+
     /** Returns the chicken attack belonging to this chicken */
     public ChickenAttack getChickenAttack() { return chickenAttack; }
 
@@ -391,6 +394,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Returns whether or not the chicken's sensor is currently touching its target */
     public boolean isTouching() { return touching; }
+
+    /** Returns whether or not the chicken is frozen */
+    public boolean isFrozen() {return slow == 0f;}
 
     //TODO: comment
     public boolean getSoundCheck() {

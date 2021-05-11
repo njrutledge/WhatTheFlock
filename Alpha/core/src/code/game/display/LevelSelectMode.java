@@ -7,6 +7,7 @@ import code.game.controllers.SoundController;
 import code.game.models.Save;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
+import code.util.FilmStrip;
 import code.util.ScreenListener;
 import code.util.XBoxController;
 import com.badlogic.gdx.Gdx;
@@ -35,6 +36,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private Texture background;
     /** The texture for the knife*/
     private Texture knifeTexture;
+    /** The texture for the knife's shadow*/
+    private Texture knifeShadowTexture;
     /** The font for the text */
     private BitmapFont displayFont;
     /** The font for info text */
@@ -44,11 +47,12 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     private Texture arrowRightTexture;
     /** The texture for the back button */
     private Texture backTexture;
+    private FilmStrip back;
 
     /** Standard window size (for scaling) */
-    private static int STANDARD_WIDTH  = 800;
+    private static int STANDARD_WIDTH  = 1920;
     /** Standard window height (for scaling) */
-    private static int STANDARD_HEIGHT = 700;
+    private static int STANDARD_HEIGHT = 1080;
 
     /** Width of the game world in Box2d units */
     protected static final float DEFAULT_WIDTH  = 48.0f;
@@ -64,19 +68,20 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Height of the blade of the knife */
     private static float BLADE_HEIGHT;
     /** Ratio of the knife to the screen */
-    private static float KNIFE_RATIO = 1.0f;
+    private static float KNIFE_RATIO = 0.68f;
     /** Background scale*/
-    private static float BACKGROUND_SCALE = 0.65f;
+    private static float BACKGROUND_SCALE = 1f;
     /** Scale of arrows*/
-    private static float ARROW_SCALE = 0.5f;
+    private static float ARROW_SCALE = 0.6f;
     /** Scale of back button */
     private static float BACK_SCALE = 0.75f;
     /** The distance between each knife */
     private float dist;
-    /** Shadow offset */
-    private static float SHADOW_OFFSET = 35;
-    /** Entering offset (offset of knife when player is holding enter) */
-    private static float HOVER_OFFSET = 10;
+    /** Offset of the shadow of the knife */
+    private static float SHADOW_OFFSET = 20;
+    /** Offset of the selected knife */
+    private static float HOVER_Y_OFFSET = 40;
+    private static float HOVER_X_OFFSET = 20;
 
     /** Exit code signaling that a level has been selected */
     public static final int EXIT_LEVEL = 0;
@@ -120,7 +125,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** center for arrows*/
     private int arrowCenterY;
     private int leftArrowCenterX;
-    private int rightArrowCenterX;
+    private float rightArrowCenterX;
 
     /** center for back button */
     private int backCenterY;
@@ -182,9 +187,11 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         background.setFilter( Texture.TextureFilter.Linear, Texture.TextureFilter.Linear );
 
         knifeTexture = assets.getEntry("ui:knife", Texture.class );
+        knifeShadowTexture = assets.getEntry("ui:knifeShadow", Texture.class );
         arrowRightTexture = assets.getEntry("ui:arrowRight", Texture.class);
         arrowLeftTexture = assets.getEntry("ui:arrowLeft", Texture.class);
         backTexture = assets.getEntry("ui:back", Texture.class);
+        back = new FilmStrip(backTexture, 1, 2);
         displayFont = assets.getEntry("font:PTSans64", BitmapFont.class);
         infoFont = assets.getEntry("font:PTSans32", BitmapFont.class);
         displayFont.setColor(Color.BLACK);
@@ -501,26 +508,26 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         canvas.draw(background, Color.WHITE, background.getWidth()/2, background.getHeight()/2,
                 bkgCenterX, bkgCenterY, 0, BACKGROUND_SCALE * scale, BACKGROUND_SCALE * scale);
         //draw knife and two arrows
-        Color leftTint = (leftHighlighted ? Color.RED: Color.GRAY);
-        Color rightTint = (rightHighlighted ? Color.RED: Color.GRAY);
+        Color leftTint = (leftHighlighted ? Color.GRAY:Color.RED);
+        Color rightTint = (rightHighlighted ? Color.GRAY:Color.RED);
         String text;
         GlyphLayout layout = new GlyphLayout();
+        canvas.setBlendState(GameCanvas.BlendState.ALPHA_BLEND);
         for (int i = 0; i < 3; i++) {
             // Draw the knife
             if(leftIndex+i >= save.furthest_level){
                 canvas.draw(knifeTexture, Color.SLATE, knifeTexture.getWidth() / 2f, knifeTexture.getHeight() / 2f,
                         knifeCenterX + dist * i, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
             } else if (i == highlightedIndex) {
-                canvas.draw(knifeTexture, Color.BLACK, knifeTexture.getWidth()/2f, knifeTexture.getHeight()/2f,
-                        knifeCenterX + dist * highlightedIndex - SHADOW_OFFSET - HOVER_OFFSET, knifeCenterY-SHADOW_OFFSET-HOVER_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
-                Color color = pressState == 1 ? Color.SLATE : Color.WHITE;
-                canvas.draw(knifeTexture, color, knifeTexture.getWidth() / 2f, knifeTexture.getHeight() / 2f,
-                        knifeCenterX + dist * i-HOVER_OFFSET, knifeCenterY-HOVER_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+                canvas.draw(knifeShadowTexture, Color.BLACK, knifeTexture.getWidth()/2f, knifeTexture.getHeight()/2f,
+                        knifeCenterX + dist * highlightedIndex - SHADOW_OFFSET, knifeCenterY+SHADOW_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
+                canvas.draw(knifeTexture, Color.WHITE, knifeTexture.getWidth() / 2f, knifeTexture.getHeight() / 2f,
+                        knifeCenterX + dist * i+HOVER_X_OFFSET, knifeCenterY+HOVER_Y_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
             } else {
                 canvas.draw(knifeTexture, Color.WHITE, knifeTexture.getWidth() / 2f, knifeTexture.getHeight() / 2f,
                         knifeCenterX + dist * i, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
             }
-
+            canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
             // Draw level name
             text = getText(leftIndex+i);
             layout.setText(infoFont, text);
@@ -531,7 +538,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                     layout.setText(infoFont, string + word);
                     if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale && !string.equals("")) {
                         layout.setText(infoFont, string.substring(0, string.length()-1));
-                        canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
+                        canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY+INFO_HEIGHT*row+(i==highlightedIndex ? HOVER_Y_OFFSET : 0));
                         row -= 1;
                         string = "";
                     }
@@ -539,14 +546,14 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 }
                 if (string != "") {
                     layout.setText(infoFont, string.substring(0, string.length()-1));
-                    canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY+30+INFO_HEIGHT*row);
+                    canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY+INFO_HEIGHT*row+(i==highlightedIndex ? HOVER_Y_OFFSET : 0));
                 }
             }
-            else { canvas.drawText(text, infoFont, bladeCenterX + i* dist -layout.width/2, bladeCenterY+30+INFO_HEIGHT/2); }
+            else { canvas.drawText(text, infoFont, bladeCenterX + i* dist -layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY+INFO_HEIGHT/2+(i==highlightedIndex ? HOVER_Y_OFFSET : 0)); }
 
             // Draw level number
             layout.setText(displayFont, ""+(leftIndex+i+1));
-            canvas.drawText(""+(leftIndex+i+1), displayFont, bladeCenterX+ dist *i-layout.width/2, bladeCenterY-20);
+            canvas.drawText(""+(leftIndex+i+1), displayFont, bladeCenterX + dist * i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY-100 + (i==highlightedIndex ? HOVER_Y_OFFSET : 0));
         }
         //canvas.drawText("|", infoFont, bladeCenterX, bladeCenterY);
         //arrow
@@ -558,7 +565,9 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             canvas.draw(arrowRightTexture, rightTint, arrowRightTexture.getWidth() / 2, arrowRightTexture.getHeight() / 2,
                     rightArrowCenterX, arrowCenterY, 0, ARROW_SCALE * scale, ARROW_SCALE * scale);
         }
-        canvas.draw(backTexture, highlightedIndex == -1 ? Color.CORAL: Color.WHITE, backTexture.getWidth()/2, backTexture.getHeight()/2,
+        if (highlightedIndex == -1) { back.setFrame(0); }
+        else { back.setFrame(1); }
+        canvas.draw(back, Color.WHITE, backTexture.getWidth()/2, backTexture.getHeight()/2,
                 backCenterX, backCenterY, 0, BACK_SCALE*scale, BACK_SCALE*scale);
         canvas.end();
     }
@@ -604,24 +613,24 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         bkgCenterY = height/2;
 
         arrowCenterY = height/2;
-        leftArrowCenterX = width/10;
-        rightArrowCenterX = 9 * width/10;
+        leftArrowCenterX = width/15;
+        rightArrowCenterX = 9.4f * width/10;
 
-        backCenterX = width/15;
-        backCenterY = height/12;
+        backCenterX = width/6;
+        backCenterY = height/14;
 
 /*        knifeCenterX = width/2;
         knifeCenterY = height/3;*/
 
-        knifeCenterX = (float)(width / 5 + knifeTexture.getWidth()/2);
-        knifeCenterY = height/3;
+        knifeCenterX = (float)(width / 8 + knifeTexture.getWidth()/2);
+        knifeCenterY = height/2.7f;
 
-        bladeCenterX = (float)(knifeCenterX - 0.12 * knifeTexture.getWidth());
-        bladeCenterY = (float)(knifeCenterY + 0.15 * knifeTexture.getHeight());
+        bladeCenterX = (float)(knifeCenterX-0.1*knifeTexture.getWidth());
+        bladeCenterY = (float)(knifeCenterY+0.2*knifeTexture.getHeight());
 
-        BLADE_WIDTH = knifeTexture.getWidth()*0.75f;
-        BLADE_HEIGHT = knifeTexture.getHeight()*0.7f;
-        dist =  (width/3 - BLADE_WIDTH); //(width - (knifeTexture.getWidth() * 3))/4;
+        BLADE_WIDTH = knifeTexture.getWidth()*0.72f;
+        BLADE_HEIGHT = knifeTexture.getHeight()*0.65f;
+        dist =  width*0.25f;
         textCenterY = knifeCenterY;
         heightY = height;
     }
@@ -689,9 +698,11 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         float height = KNIFE_RATIO * scale * BLADE_HEIGHT;
         int i;
         float xBound, yBound;
+        //System.out.println(screenX);
+        //System.out.println(centerX);
         if (screenX <= centerX + width/2) { i = 0; xBound = centerX - width/2; }
         else if (screenX <= centerX + width/2 + dist) { i = 1; xBound = centerX + dist - width/2; }
-        else { i = 2; xBound = centerX + dist *2 - width/2; }
+        else { i = 2; xBound = centerX + dist * 2 - width/2; }
         yBound = centerY - height/2;
         if ((screenX >= xBound && screenX <= xBound + width) && (screenY >= yBound && screenY <= yBound + height)) {
             return i;
@@ -706,7 +717,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * @param centerY The y axis center location of the button
      * @param button The texture of the given button
      * */
-    private boolean overArrow(Texture button, int screenX, int screenY, int centerX, int centerY){
+    private boolean overArrow(Texture button, int screenX, int screenY, float centerX, float centerY){
         //TODO make it not a rectangular area
         float width = ARROW_SCALE * scale * button.getWidth();
         float height = ARROW_SCALE * scale * button.getHeight();

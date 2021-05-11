@@ -260,10 +260,12 @@ public class CollisionController implements CollisionControllerInterface {
                 case TOASTER:
                     t1.markReady(false);
                     trapCache.addAll(trapController.createLures(t1));
+                    sound.playBreadTrig();
                     break;
                 case COOLER:
                     t1.markReady(false);
                     trapCache.add(trapController.createSlow(t1));
+                    sound.playCoolerOpen();
                     break;
             }
         }
@@ -306,7 +308,7 @@ public class CollisionController implements CollisionControllerInterface {
         }
         if(attack.getType().equals(ChickenAttack.AttackType.Knockback)){
             sound.playShredAttack();
-            float max_speed = 300.0f;
+            float max_speed = 200.0f;
             float angle = MathUtils.atan2(chef.getY()-attack.getY(), chef.getX()-attack.getX());
             chef.markSetVelocity(max_speed, angle);
         }
@@ -348,14 +350,19 @@ public class CollisionController implements CollisionControllerInterface {
         sound.playHitSlap();
         switch (c1.getType()){
             case Nugget:
-            case Buffalo:
                 sound.playNugHurt();
+                break;
+            case Buffalo:
+                sound.playBuffHurt();
                 break;
             case Shredded:
                 sound.playShredHurt();
                 break;
             case Hot:
                 sound.playHotHurt();
+                break;
+            case DinoNugget:
+                sound.playDinoHurt();
                 break;
         }
 
@@ -375,9 +382,13 @@ public class CollisionController implements CollisionControllerInterface {
     private void handleChickenTrap(Chicken c1, FixtureType fd1, Trap t2, FixtureType fd2) {
         if(fd1 != null && fd1.equals(FixtureType.CHICKEN_HURTBOX)){
             trapController.applyTrap(t2, c1);
+            if (t2.getTrapType() == Trap.type.SLOW){
+                sound.playIceTrig();
+            }
         }
         if(t2.getTrapType().equals(Trap.type.BREAD_LURE) && fd2 != null && fd2.equals(FixtureType.LURE_HURT) && c1.chasingObject(t2)){
             t2.markHit();
+            sound.playBreadEat();
         }
     }
 

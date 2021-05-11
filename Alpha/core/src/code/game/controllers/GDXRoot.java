@@ -139,6 +139,7 @@ public class GDXRoot extends Game implements ScreenListener {
 	 */
 	public void resize(int width, int height) {
 		canvas.clear();
+		width = height*16/9;
 		canvas.setSize(Math.max(width,1280),Math.max(height,720));
 		canvas.resetCamera();
 		canvas.resize();
@@ -194,9 +195,8 @@ public class GDXRoot extends Game implements ScreenListener {
 			guide.setSave(save);
 			controller.setOptions();
 
-
 			setScreen(menu);
-			//setScreen(levelselect);
+			controller.setOptions();
 		}
 		else if (screen == menu){
 			//menu.activateInputProcessor(false);

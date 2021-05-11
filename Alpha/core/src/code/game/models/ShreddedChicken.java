@@ -37,7 +37,8 @@ public class ShreddedChicken extends Chicken {
     /** The number of animation frames in our filmstrip */
     private static final int NUM_ANIM_FRAMES_WALK = 8;
     private static final int NUM_ANIM_FRAMES_ATTACK = 16;
-
+    /** frame for attack */
+    private float attack_animeframe;
     /**
      * Creates a new chicken avatar with the given physics data
      *
@@ -59,6 +60,7 @@ public class ShreddedChicken extends Chicken {
         super(data, unique, x, y, width, height, player, mh, ChickenType.Shredded);
         this.data = data;
         sensorRadius = SENSOR_RADIUS;
+        attack_animeframe = 0;
     }
 
     /**
@@ -178,8 +180,14 @@ public class ShreddedChicken extends Chicken {
         float effect = faceRight ? -1.0f : 1.0f;
         float wScale = 0.4f;
         float hScale = 0.35f;
+        //complete attack
         if (isAttacking && attack_animator != null && !isLured()) {
-            attack_animator.setFrame((int) animeframe);
+            attack_animator.setFrame((int) attack_animeframe);//animeframe);
+            canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
+        }
+        else if(attack_animator != null && attack_animeframe > 0
+                && attack_animator.getFrame() < attack_animator.getSize() - 1){
+            attack_animator.setFrame((int) attack_animeframe);//animeframe);
             canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
         else if (!isStunned) {
@@ -190,7 +198,7 @@ public class ShreddedChicken extends Chicken {
             animator.setFrame((int) animeframe);
             canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
-        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x*wScale*effect * 0.2f, displayScale.y*hScale * 0.2f);
+        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x*wScale*effect * 0.8f, displayScale.y*hScale * 1.0f);
     }
 
     /**
@@ -215,20 +223,32 @@ public class ShreddedChicken extends Chicken {
     @Override
     public void update(float dt) {
 
+
         if (isStunned) {
             //animeframe += animation_speed*4;
             //if (animeframe >= 5) {
             //    animeframe -= 5;
             //}
-        } else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
+        } else if (attack_animator != null && attack_animeframe > 0
+                && attack_animator.getFrame() < attack_animator.getSize() - 1){
+            attack_animeframe += ANIMATION_SPEED_ATTACK;
+            if (attack_animeframe >= NUM_ANIM_FRAMES_ATTACK) {
+                attack_animeframe -= NUM_ANIM_FRAMES_ATTACK;
+            }
+        }
+        else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
             animeframe += ANIMATION_SPEED_WALK;
             if (animeframe >= NUM_ANIM_FRAMES_WALK) {
                 animeframe -= NUM_ANIM_FRAMES_WALK;
             }
         } else if (isAttacking && attack_animator != null && !isLured()){
-            animeframe += ANIMATION_SPEED_ATTACK;
+            /*animeframe += ANIMATION_SPEED_ATTACK;
             if (animeframe >= NUM_ANIM_FRAMES_ATTACK) {
                 animeframe -= NUM_ANIM_FRAMES_ATTACK;
+            }*/
+            attack_animeframe += ANIMATION_SPEED_ATTACK;
+            if (attack_animeframe >= NUM_ANIM_FRAMES_ATTACK) {
+                attack_animeframe -= NUM_ANIM_FRAMES_ATTACK;
             }
         }
 

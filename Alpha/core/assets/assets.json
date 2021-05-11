@@ -83,10 +83,11 @@
         "ui:menu:options": "ui/loading/mainmenu_options.png",
         "ui:menu:quit": "ui/loading/mainmenu_quit.png",
 
-        "ui:knife": "ui/levelselect/cleaver_placeholder_empty.png",
+        "ui:knife": "ui/levelselect/cleaver.png",
+        "ui:knifeShadow": "ui/levelselect/cleaver_shadow.png",
         "ui:arrowRight": "ui/levelselect/arrowRight.png",
         "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
-        "ui:back": "ui/levelselect/back_placeholder.png",
+        "ui:back": "ui/levelselect/back.png",
 
         "ui:pause:continue": "ui/gamemenu/pausemenu_continue.png",
         "ui:pause:restart": "ui/gamemenu/pausemenu_restart.png",
@@ -175,6 +176,9 @@
         "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt.ogg",
         "sound:chick:nugget:attack" : "sounds/chicken/nug_attack.ogg",
 
+        "sound:chick:dino:hurt" : "sounds/chicken/dino_hurt.ogg",
+        "sound:chick:dino:attack" : "sounds/chicken/dino_attack.ogg",
+
         "sound:chick:buffalo:charge" : "sounds/chicken/buffalo_charge.ogg",
         "sound:chick:buffalo:attack" : "sounds/chicken/buffalo_attack.ogg",
         "sound:chick:buffalo:hurt" : "sounds/chicken/buffalo_hurt.ogg",
@@ -193,7 +197,8 @@
         "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg",
         "sound:trap:iceChick" : "sounds/trap/chick_ice_trigger.ogg",
         "sound:trap:chickFreeze" : "sounds/trap/chick_freeze.ogg",
-        "sound:trap:toaster" : "sounds/trap/toaster.ogg"
+        "sound:trap:toaster" : "sounds/trap/toaster.ogg",
+        "sound:trap:cooler" : "sounds/trap/cooler_open.ogg"
 
 
     },

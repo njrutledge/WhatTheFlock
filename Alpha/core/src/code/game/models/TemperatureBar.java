@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import code.game.views.GameCanvas;
+import com.badlogic.gdx.math.Vector2;
 
 public class TemperatureBar {
     /**The max temperature the chicken can get to (when cooked) */
@@ -37,6 +38,8 @@ public class TemperatureBar {
     private TextureRegion medFlame;
     /** Large temperature bar flame */
     private TextureRegion lrgFlame;
+    /** The display scale */
+    private Vector2 displayScale;
 
     //private int WIDTH = 1;
     //private int HEIGHT = 300;
@@ -93,6 +96,7 @@ public class TemperatureBar {
         tempRedNB = redNB;
         this.medFlame = medFlame;
         this.lrgFlame = lrgFlame;
+        displayScale = new Vector2(1,1);
     }
 
     /** Returns the temperature of the chicken
@@ -173,6 +177,11 @@ public class TemperatureBar {
         //update progress bar
         //tempBar.setValue(temperature);
     }
+
+    public void setDisplayScale(Vector2 ds){
+        displayScale = ds;
+    }
+
     public void draw(GameCanvas canvas){
         //draw temperature
         float scale = 0.75f;
@@ -183,10 +192,11 @@ public class TemperatureBar {
         TextureRegion bar;
         TextureRegion nb;
         TextureRegion flame;
-        if (cx_temp == 0) { cx_temp = 25 + tempEmpty.getRegionHeight()*scale/2; }
-        if (cy_temp == 0) { cy_temp = canvas.getHeight() - 90; }
-        if (ex_temp == 0) { ex_temp = 268; }
-        if (ey_temp == 0) { ey_temp = canvas.getHeight()/2 + 4; }
+        cx_temp = 30 + tempEmpty.getRegionHeight()*scale/2;
+        //dont scale canvas.getHeight()
+        cy_temp = canvas.getHeight() - 70*displayScale.y;
+        ex_temp = 200;
+        ey_temp = canvas.getHeight() - 266*displayScale.y;
         // Draw the empty temperature bar
         if (temperature/maxTemperature <= 0.22) {
             bar = tempYellow;
@@ -194,27 +204,30 @@ public class TemperatureBar {
         } else if (temperature/maxTemperature <= 0.6) {
             bar = tempOrange;
             nb = tempOrangeNB;
-            canvas.draw(medFlame, Color.WHITE, medFlame.getRegionWidth()/2, medFlame.getRegionHeight()/2,
-                    cx_temp+180,  cy_temp-3, angle, fscale, fscale);
+            canvas.draw(medFlame, Color.WHITE, medFlame.getRegionWidth()/2f, medFlame.getRegionHeight()/2f,
+                    (cx_temp+180)*displayScale.x,  cy_temp, angle, fscale*displayScale.x, fscale*displayScale.y);
         } else {
             bar = tempRed;
             nb = tempRedNB;
-            canvas.draw(lrgFlame, Color.WHITE, lrgFlame.getRegionWidth()/2, lrgFlame.getRegionHeight()/2,
-                    cx_temp+200,  cy_temp-6, angle, fscale, fscale);
+            canvas.draw(lrgFlame, Color.WHITE, lrgFlame.getRegionWidth()/2f, lrgFlame.getRegionHeight()/2f,
+                    (cx_temp+200)*displayScale.x,  cy_temp-3*displayScale.y, angle, fscale*displayScale.x, fscale*displayScale.y);
         }
 
-        canvas.draw(tempEmpty, 1, 270, Color.WHITE, tempEmpty.getRegionWidth()*scale/2,
-                tempEmpty.getRegionHeight()/2, ex_temp-1,  ey_temp+1.5f, tempEmpty.getRegionWidth()*scale,
-                tempEmpty.getRegionHeight()*scale);
+        // -1 +1.5
+        canvas.draw(tempEmpty, 1, 270, Color.WHITE,
+                tempEmpty.getRegionWidth()*scale/2*displayScale.x, tempEmpty.getRegionHeight()*scale/2*displayScale.y,
+                (ex_temp-1)*displayScale.x,  ey_temp+1.5f*displayScale.y,
+                tempEmpty.getRegionWidth()*scale*displayScale.x, tempEmpty.getRegionHeight()*scale*displayScale.y);
         if (temperature < dtemperature) {
-            canvas.draw(nb, 0.04f + ((dtemperature * 0.91f) / maxTemperature),
-                    270, Color.GRAY, bar.getRegionWidth() * scale / 2,
-                    tempYellow.getRegionHeight() / 2, ex_temp, ey_temp,
-                    bar.getRegionWidth() * scale, bar.getRegionHeight() * scale);
+            canvas.draw(nb, 0.04f + ((dtemperature * 0.91f) / maxTemperature), 270, Color.GRAY,
+                    bar.getRegionWidth() * scale / 2*displayScale.x, tempYellow.getRegionHeight() *scale/ 2*displayScale.y,
+                    ex_temp*displayScale.x, ey_temp,//dont scale y
+                    bar.getRegionWidth() * scale*displayScale.x, bar.getRegionHeight() * scale*displayScale.y);
         }
-        canvas.draw(bar, 0.04f+((temperature*0.91f)/maxTemperature),
-                270, Color.WHITE, bar.getRegionWidth()*scale/2,
-                tempYellow.getRegionHeight()/2, ex_temp, ey_temp,
-                bar.getRegionWidth()*scale, bar.getRegionHeight()*scale);
+
+        canvas.draw(bar, 0.04f+((temperature*0.91f)/maxTemperature), 270, Color.WHITE,
+                bar.getRegionWidth()*scale/2*displayScale.x, tempYellow.getRegionHeight()*scale/2*displayScale.y,
+                ex_temp*displayScale.x, ey_temp,
+                bar.getRegionWidth()*scale*displayScale.x, bar.getRegionHeight()*scale*displayScale.y);
     }
 }

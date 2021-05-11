@@ -610,6 +610,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				tempYellowNB, tempOrangeNB, tempRedNB, level.get("temp").asInt());
 		temp_reduction = level.get("temp_reduction").asFloat();
 		temp.setUseCooldown(cooldown);
+		temp.setDisplayScale(displayScale);
 
 		doNewPopulate(level);
 		progress = new boolean[4];
@@ -887,16 +888,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	}
 
 	public void setOptions(){
-		save.screen_width = Math.max(save.screen_width, 1280);
 		save.screen_height = Math.max(save.screen_height,720);
+		save.screen_width = Math.max(save.screen_height*16/9,1280);
 		if(save.fullscreen){
 			canvas.setFullscreen(true, true);
-		}else if(canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) {
+		} /*if((canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) && !System.getProperty("os.name").contains("Mac")) {
 			canvas.setFullscreen(false,false);
 			canvas.setSize(save.screen_width, save.screen_height);
 			canvas.resetCamera();
 			canvas.resize();
 			resize(save.screen_width, save.screen_height);
+			*/
+		else{
+			canvas.setFullscreen(false, false);
 		}
 		autoCook = save.auto_cook;
 		writeSave();
@@ -1330,7 +1334,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		attack.setDrawScale(scale);
 		attack.setDisplayScale(displayScale);
 		addQueuedObject(attack);
-		sound.playShredAttack();
+		sound.playShredWhiff();
 	}
 
 	/** Adds a chickenAttack to the world */
@@ -1348,7 +1352,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			addQueuedObject(attack);
 			switch (type) {
 				case Basic:
-					sound.playNugAttack();
+					if (chicken.getType() == Chicken.ChickenType.Nugget) {
+						sound.playNugAttack();
+					} else {
+						sound.playDinoAttack();
+					}
 					break;
 				case Projectile:
 					attack.setEggAnimators(eggSpinTexture, eggSplatTexture);
@@ -1786,6 +1794,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				obj.setDrawScale(scale);
 				obj.setDisplayScale(displayScale);
 			}
+			for (Obstacle trap : tableTraps){
+				trap.setDrawScale(scale);
+				trap.setDisplayScale(displayScale);
+			}
+			for (Obstacle trap : floorTraps){
+				trap.setDrawScale(scale);
+				trap.setDisplayScale(displayScale);
+			}
 			for (Obstacle trapE : trapEffects) {
 				trapE.setDrawScale(scale);
 				trapE.setDisplayScale(displayScale);
@@ -1814,6 +1830,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			}
 			if (canvas != null) {
 				setOptions();
+			}
+			if(temp != null){
+				temp.setDisplayScale(displayScale);
 			}
 		}
 	}
@@ -1896,6 +1915,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * Write the save game to disk
 	 */
 	public void writeSave(){
+		String string = Gdx.files.getLocalStoragePath();
 		FileHandle file = Gdx.files.local(Save.file);
 		Json json = new Json();
 		String savestring = json.toJson(save);

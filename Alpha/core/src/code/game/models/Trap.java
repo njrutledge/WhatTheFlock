@@ -514,7 +514,7 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case SLOW:
                 c = slowColor.cpy();
-                scale = .3f;
+                scale = 1.0f;//.3f;
                 c.a = Math.max(0, activeTimer / SLOW_ACTIVE_TIME);
                 break;
             case COOLER:
@@ -621,7 +621,7 @@ public class Trap extends GameObject implements TrapInterface {
                     getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
             if (hasIndicator && isReady) {
                 canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y,
-                        getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), 0.5f, 0.5f);
+                        getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), displayScale.x*0.5f, displayScale.y*0.5f);
             }
         }
         else {
