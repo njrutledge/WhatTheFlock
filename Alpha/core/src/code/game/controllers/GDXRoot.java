@@ -46,6 +46,8 @@ public class GDXRoot extends Game implements ScreenListener {
 	private GameMenuMode gamemenu;
 	/** Player mode for the options menu (CONTROLLER CLASS)*/
 	private OptionsMode options;
+	/** Player mode for the guide (CONTROLLER CLASS) */
+	private GuideMode guide;
 	/** Player mode for the the game proper (CONTROLLER CLASS) */
 	private int current;
 	/** List of all WorldControllers */
@@ -172,6 +174,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			levelselect = new LevelSelectMode(directory, canvas, sound);
 			gamemenu = new GameMenuMode(directory, canvas, sound);
 			options = new OptionsMode(directory, canvas, sound);
+			guide = new GuideMode(directory, canvas, sound);
 
 			//set listeners
 			controller.setScreenListener(this);
@@ -179,6 +182,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			levelselect.setScreenListener(this);
 			gamemenu.setScreenListener(this);
 			options.setScreenListener(this);
+			guide.setScreenListener(this);
 
 			loading.dispose();
 			loading = null;
@@ -189,6 +193,8 @@ public class GDXRoot extends Game implements ScreenListener {
 			levelselect.setSave(save);
 			gamemenu.setSave(save);
 			options.setSave(save);
+			guide.setSave(save);
+			controller.setOptions();
 
 			setScreen(menu);
 			controller.setOptions();
@@ -202,6 +208,8 @@ public class GDXRoot extends Game implements ScreenListener {
 					setScreen(levelselect);
 					break;
 				case MainMenuMode.GUIDE: //TODO go to guide
+					guide.setExitCode(0);
+					setScreen(guide);
 					break;
 				case MainMenuMode.OPTIONS:
 					options.setExitCode(0);
@@ -301,6 +309,14 @@ public class GDXRoot extends Game implements ScreenListener {
 					gamemenu.reset();
 					setScreen(gamemenu);
 					options.reset();
+					break;
+			}
+		}
+		else if(screen == guide){
+			switch(exitCode) {
+				case GuideMode.MAINMAIN:
+					menu.reset();
+					setScreen(menu);
 					break;
 			}
 		}
