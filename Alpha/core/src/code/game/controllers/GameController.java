@@ -610,6 +610,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				tempYellowNB, tempOrangeNB, tempRedNB, level.get("temp").asInt());
 		temp_reduction = level.get("temp_reduction").asFloat();
 		temp.setUseCooldown(cooldown);
+		temp.setDisplayScale(displayScale);
 
 		doNewPopulate(level);
 		progress = new boolean[4];
@@ -1827,6 +1828,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			}
 			if (canvas != null) {
 				setOptions();
+			}
+			if(temp != null){
+				temp.setDisplayScale(displayScale);
 			}
 		}
 	}
