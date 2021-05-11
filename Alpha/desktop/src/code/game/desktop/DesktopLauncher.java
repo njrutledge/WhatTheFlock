@@ -38,12 +38,8 @@ public class DesktopLauncher {
 	 */
 	public static void main (String[] arg) {
 		GDXAppSettings config = new GDXAppSettings();
-		String string = Gdx.files.getLocalStoragePath();
-		FileHandle file = Gdx.files.local(Save.file);
-		Json json = new Json();
-		Save save = json.fromJson(Save.class, file);
-		config.width  = save.screen_width;
-		config.height = save.screen_height;
+		config.width  = 1280;
+		config.height = 720;
 		config.x = 0;
 		config.y = 0;
 		config.resizable = true;
