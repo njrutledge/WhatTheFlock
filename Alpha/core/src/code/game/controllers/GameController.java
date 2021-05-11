@@ -889,11 +889,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	public void setOptions(){
 		save.screen_height = Math.max(save.screen_height,720);
-		save.screen_width = save.screen_height*16/9;
-		save.screen_width = Math.max(save.screen_width, 1280);
+		save.screen_width = Math.max(save.screen_height*16/9,1280);
 		if(save.fullscreen){
 			canvas.setFullscreen(true, true);
-		}else if(canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) {
+		}else if((canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) && !System.getProperty("os.name").contains("Mac")) {
 			canvas.setFullscreen(false,false);
 			canvas.setSize(save.screen_width, save.screen_height);
 			canvas.resetCamera();
@@ -1913,6 +1912,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * Write the save game to disk
 	 */
 	public void writeSave(){
+		String string = Gdx.files.getLocalStoragePath();
 		FileHandle file = Gdx.files.local(Save.file);
 		Json json = new Json();
 		String savestring = json.toJson(save);
