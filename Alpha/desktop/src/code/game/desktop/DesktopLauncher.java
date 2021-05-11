@@ -15,6 +15,10 @@ package code.game.desktop;
 import code.backend.GDXApp;
 import code.backend.GDXAppSettings;
 import code.game.controllers.GDXRoot;
+import code.game.models.Save;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.utils.Json;
 
 /**
  * The main class of the game.
@@ -34,9 +38,12 @@ public class DesktopLauncher {
 	 */
 	public static void main (String[] arg) {
 		GDXAppSettings config = new GDXAppSettings();
-
-		config.width  = 1280;
-		config.height = 720;
+		String string = Gdx.files.getLocalStoragePath();
+		FileHandle file = Gdx.files.local(Save.file);
+		Json json = new Json();
+		Save save = json.fromJson(Save.class, file);
+		config.width  = save.screen_width;
+		config.height = save.screen_height;
 		config.x = 0;
 		config.y = 0;
 		config.resizable = true;

@@ -892,12 +892,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		save.screen_width = Math.max(save.screen_height*16/9,1280);
 		if(save.fullscreen){
 			canvas.setFullscreen(true, true);
-		}else if((canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) && !System.getProperty("os.name").contains("Mac")) {
+		} /*if((canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) && !System.getProperty("os.name").contains("Mac")) {
 			canvas.setFullscreen(false,false);
 			canvas.setSize(save.screen_width, save.screen_height);
 			canvas.resetCamera();
 			canvas.resize();
 			resize(save.screen_width, save.screen_height);
+			*/
+		else{
+			canvas.setFullscreen(false, false);
 		}
 		autoCook = save.auto_cook;
 		writeSave();
