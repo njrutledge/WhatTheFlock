@@ -19,7 +19,7 @@ public class ShreddedChicken extends Chicken {
     ///////// altered or removed, but should provide a good base to start with.
 
     /** Radius of sensor */
-    private final float SENSOR_RADIUS = 4f;
+    private final float SENSOR_RADIUS = 3f;
     /** Time it takes for the chicken to begin their attack after colliding with their target */
     private final float CHARGE_DUR = .5f;
     /** Time it takes for the chicken to recover from attacking */

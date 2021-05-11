@@ -46,11 +46,9 @@ public class ChickenAttack extends GameObject {
     /** The height of chicken attacks */
     private static final float HEIGHT = 0.1f;
     /** The width of chicken knockback attacks */
-    private static final float KNOCKWIDTH = 160.0f;
+    private static final float KNOCKWIDTH = 120.0f;
     /** The height of chicken knockback attacks */
-    private static final float KNOCKHEIGHT = 50.0f;
-    /** The width of an explosion */
-    private final float EXP_RADIUS = 2.0f;
+    private static final float KNOCKHEIGHT = 70.0f;
 
     /** The attack's destination */
     private Vector2 destination;
