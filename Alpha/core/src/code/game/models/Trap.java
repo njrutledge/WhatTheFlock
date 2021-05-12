@@ -78,7 +78,7 @@ public class Trap extends GameObject implements TrapInterface {
     /**
      * Radius which chickens get slowed near the trap
      */
-    private static final float SLOW_RADIUS = 3.5F;
+    private static final float SLOW_RADIUS = 3.6F;
     /**
      * Radius which chickens can trigger the fire trap
      */
@@ -487,12 +487,16 @@ public class Trap extends GameObject implements TrapInterface {
         Color c = Color.WHITE.cpy();
         float scale = .1f;
         int frame = 0;
+        float xoffset = 0;
+        float yoffset = 0;
 
         switch (trapType) {
             case HOT_SAUCE:
                 //c = Color.GRAY;//fireColor.cpy();
                 //play once
                 frame = animation.getFrame();
+                xoffset = .25f;
+                yoffset = 1.5f;
 
                 if(isReady) {
                     frame = 0;
@@ -514,13 +518,15 @@ public class Trap extends GameObject implements TrapInterface {
                 break;
             case SLOW:
                 c = slowColor.cpy();
-                scale = 1.0f;//.3f;
+                scale = .75f;
                 c.a = Math.max(0, activeTimer / SLOW_ACTIVE_TIME);
                 break;
             case COOLER:
                 c = Color.WHITE.cpy();//Color.BLUE.cpy();
                 scale = .2f;
                 frame = animation.getFrame();
+                xoffset = .4f;
+                yoffset = 1f;
                 // reset frame at beginning if ready
                if (isReady && frame > 4) {
                    frame = 0;
@@ -579,6 +585,8 @@ public class Trap extends GameObject implements TrapInterface {
                break;
             case TOASTER:
                 c = Color.WHITE.cpy();
+                xoffset = .45f;
+                yoffset = 1f;
                 frame = animation.getFrame();
                 if(animation.getFrame() < 6){
                     if(anim_delay == 0){
@@ -620,8 +628,10 @@ public class Trap extends GameObject implements TrapInterface {
             canvas.draw(animation, isReady ? Color.WHITE: c, origin.x, origin.y,
                     getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
             if (hasIndicator && isReady) {
-                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y,
-                        getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), displayScale.x*0.5f, displayScale.y*0.5f);
+                canvas.draw(slapIndicator, Color.WHITE, (getX()-xoffset) * drawScale.x, (getY() + yoffset)*drawScale.y, slapIndicator.getRegionWidth()*displayScale.x*0.5f, slapIndicator.getRegionHeight()*displayScale.y*0.5f);
+
+                //canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y,
+                //        getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), displayScale.x*0.5f, displayScale.y*0.5f);
             }
         }
         else {
@@ -630,7 +640,7 @@ public class Trap extends GameObject implements TrapInterface {
             }
             canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
             if (hasIndicator && isReady) {
-                canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y, getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), displayScale.x*0.5f, displayScale.y*0.5f);
+                canvas.draw(slapIndicator, Color.WHITE, (getX()-xoffset) * drawScale.x, (getY() + yoffset) * drawScale.y , slapIndicator.getRegionWidth()*displayScale.x*0.5f, slapIndicator.getRegionHeight()*displayScale.y*0.5f);
             }
         }
     }
@@ -652,7 +662,7 @@ public class Trap extends GameObject implements TrapInterface {
 
     public void setIndicatorTexture(TextureRegion texture){
         this.slapIndicator = texture;
-        indicatorOrigin.set(texture.getRegionWidth()/2, texture.getRegionHeight()/2);
+        indicatorOrigin.set(0,0);
         hasIndicator = true;
     }
 }

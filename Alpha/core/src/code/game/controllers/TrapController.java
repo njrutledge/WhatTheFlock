@@ -115,8 +115,8 @@ public class TrapController implements TrapControllerInterface {
     }
 
     public Trap createSlow(Trap fridge){
-        float twidth = trapSlowTexture.getWidth()/drawscale.x*displayScale.x;
-        float theight = trapSlowTexture.getHeight()/drawscale.y*displayScale.y;
+        float twidth = trapSlowTexture.getWidth()/drawscale.x;
+        float theight = trapSlowTexture.getHeight()/drawscale.y;
         Trap trap = new Trap(constants.get("trap"), fridge.getX(), fridge.getY(), twidth, theight, Trap.type.SLOW);
         trap.setDrawScale(fridge.getDrawScale());
         trap.setTexture(trapSlowTexture);

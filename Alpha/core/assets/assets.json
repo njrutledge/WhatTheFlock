@@ -43,7 +43,6 @@
         "enviro:spawn": "enviro/fridge.png",
         "enviro:indicator" : "enviro/slap_indicator.png",
 
-        "char:chicken": "characters/chicken.png",
         "char:chef":"characters/chef_animation_run.png",
         "char:bullet": "characters/bullet.png",
         "char:nugget": "characters/nugget_animation_walk.png",

@@ -75,8 +75,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Texture asset for the bullet */
 	private Texture bulletTexture;
 
-	/** Texture asset for the chicken */
-	private TextureRegion chickenTexture;
 	/** Texture asset for chicken health bar */
 	private TextureRegion enemyHealthBarTexture;
 
@@ -494,7 +492,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		indicatorTexture = new TextureRegion(directory.getEntry("enviro:indicator", Texture.class));
 			//characters
 		bulletTexture = directory.getEntry("char:bullet",Texture.class);
-		chickenTexture  = new TextureRegion(directory.getEntry("char:chicken",Texture.class));
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("char:nuggetBar", Texture.class));
 		chefTexture = directory.getEntry("char:chef", Texture.class);
 		nuggetTexture = directory.getEntry("char:nugget", Texture.class);
@@ -1183,28 +1180,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 * Spawn a chicken somewhere in the world, then increments the number of chickens
 	 */
 	private void spawnChicken(Chicken.ChickenType type){
-		float dwidth  = chickenTexture.getRegionWidth()/scale.x*displayScale.x;
-		float dheight = chickenTexture.getRegionHeight()/scale.y*displayScale.y;
+
+		float dwidth  = 27f/scale.x*displayScale.x;
+		float dheight = 33f/scale.y*displayScale.y;
 		int index = (int) (Math.random() * spawnPoints.size());
 		Spawn spawn = spawnPoints.get(index);
-		//float x = ((float)Math.random() * (spawn_xmax - spawn_xmin) + spawn_xmin);
-		//float y = ((float)Math.random() * (spawn_ymax - spawn_ymin) + spawn_ymin);
+
 		float rand = (float)Math.random();
 		float x = spawn.getX();
 		float y = spawn.getY();
-		// Spawn chicken at the border of the world
-		/*if (rand < 0.25){
-			x = spawn_xmin;
-		}
-		else if (rand < 0.5){
-			x = spawn_xmax;
-		}
-		else if (rand < 0.75){
-			y = spawn_ymin;
-		}
-		else{
-			y = spawn_ymax;
-		}*/
 
 		Chicken enemy;
 		Chicken enemy2;
@@ -1260,42 +1244,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		if (temp.getTemperature() > 0){
 			temp.reduceTemp(temp_reduction);
 		}
-		/*
-		float radius = 8*bulletTexture.getRegionWidth() / (2.0f * scale.x);
-		float offset = 1f;
-		float angvel = 6f;
-		float ofratio = 0.7f;
-		BoxObstacle slap;
-		if (direction == 2 || direction == 4) {
-			slap = new BoxObstacle(chef.getX(), chef.getY(), radius, 0.1f);
-			slap.setSensor(true);
-			offset *= (direction == 2 ? 1 : -1);
-			slap.setX(chef.getX() + offset);
-			slap.setY(chef.getY() - offset*ofratio);
-			slap.setAngle((float)(-1*Math.PI/24));
-			slap.setAngularVelocity(angvel);
-		} else {
-			slap = new BoxObstacle(chef.getX(), chef.getY(), 0.1f, radius);
-			slap.setSensor(true);
-			offset *= (direction == 1 ? 1 : -1);
-			slap.setY(chef.getY() + offset);
-			slap.setX(chef.getX() - offset*ofratio);
-			slap.setAngle((float)(1*Math.PI/24));
-			slap.setAngularVelocity(-1*angvel);
-		}
-
-
-	    slap.setName("bullet");
-		slap.setDensity(0);
-	    slap.setDrawScale(scale);
-	    slap.setTexture(bulletTexture);
-	    Filter bulletFilter = new Filter();
-	    bulletFilter.groupIndex = -1;
-	    bulletFilter.categoryBits = 0x0002;
-	    slap.setFilterData(bulletFilter);
-	    slap.setBullet(true);
-	    slap.setGravityScale(0);
-		*/
 
 		float radius = 8*bulletTexture.getWidth() / (2.0f * scale.x)*displayScale.y;
 		Slap slap;
@@ -1571,9 +1519,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		//priority: Walls < trap effects < floortraps < chickens < other < chef < tabletraps
 
-		for(Obstacle wall : walls){
-			wall.draw(canvas);
-		}
+
 
 //		for (Obstacle spawn : spawnPoints){
 //			spawn.draw(canvas);
@@ -1581,6 +1527,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		for (Obstacle trapE : trapEffects){
 			trapE.draw(canvas);
+		}
+		for(Obstacle wall : walls){
+			wall.draw(canvas);
 		}
 		for (Obstacle trap : floorTraps){
 			trap.draw(canvas);
@@ -1803,15 +1752,12 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				trapE.setDrawScale(scale);
 				trapE.setDisplayScale(displayScale);
 			}
-			for (Obstacle trap : floorTraps) {
-				trap.setDrawScale(scale);
-				trap.setDisplayScale(displayScale);
-			}
 			for (Obstacle c : chickens) {
 				c.setDrawScale(scale);
 				c.setDisplayScale(displayScale);
-				float cwidth = chickenTexture.getRegionWidth() / scale.x * displayScale.x;
-				float cheight = chickenTexture.getRegionHeight() / scale.y * displayScale.y;
+				Texture chickenTexture = ((Chicken) c).getTexture();
+				float cwidth  = 27f/scale.x*displayScale.x;
+				float cheight = 33f/scale.y*displayScale.y;
 				((Chicken) c).resize(cwidth, cheight);
 			}
 			for (Obstacle other : others) {

@@ -1,6 +1,7 @@
 package code.game.display;
 
 import code.assets.AssetDirectory;
+import code.game.controllers.GameController;
 import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
 import code.game.models.Save;
@@ -197,6 +198,8 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
     /** game save */
     private Save save;
 
+    private GameController controller;
+
     /**
      * Creates a MainMenuMode with the default size and position.
      *
@@ -267,7 +270,10 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
         }
         setSelected();
     }
-
+    /** set the GameController for drawing */
+    public void setController(GameController c){
+        controller = c;
+    }
     /**
      * Sets the save object
      * @param s the save object
@@ -473,6 +479,7 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
      * prefer this in lecture.
      */
     private void draw() {
+        controller.draw(0);
         if(!grayDrawn){
             canvas.begin();
             Color c = Color.GRAY.cpy();
