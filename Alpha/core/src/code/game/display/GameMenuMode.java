@@ -479,19 +479,10 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
      * prefer this in lecture.
      */
     private void draw() {
+        canvas.clear();
         controller.draw(0);
-        if(!grayDrawn){
-            canvas.begin();
-            Color c = Color.GRAY.cpy();
-            canvas.draw(grayTexture, new Color(1, 1, 1, 0.8f), grayTexture.getWidth()/2, grayTexture.getHeight()/2,
-                    bkgCenterX, bkgCenterY, 0, GRAY_BKG_SCALE* scale, GRAY_BKG_SCALE * scale);
-            //System.out.println("drew gray");
-            grayDrawn = true;
-            canvas.end();
-        }
-
-        canvas.begin();
         canvas.setIgnore(true);
+        canvas.begin();
         switch(mode) {
             case PAUSE:
                 canvas.draw(pauseMenu, Color.WHITE, pauseMenu.getWidth()/2, pauseMenu.getHeight()/2,

@@ -1,6 +1,7 @@
 package code.game.display;
 
 import code.assets.AssetDirectory;
+import code.game.controllers.GameController;
 import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
 import code.game.models.Save;
@@ -127,8 +128,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     private Vector2 vscale;
 
     /**Center the background*/
-    private int bkgCenterX;
-    private int bkgCenterY;
+    private float bkgCenterX;
+    private float bkgCenterY;
 
     /** Reference to GameCanvas created by the root */
     private GameCanvas canvas;
@@ -213,6 +214,12 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     /** the game save */
     private Save save;
 
+    private GameController controller;
+
+    private MainMenuMode mainMenu;
+
+    public boolean inMainMenu = true;
+
     /**
      * Creates a LevelSelectMode with the default size and position.
      * @param canvas 	The game canvas to draw to
@@ -264,6 +271,14 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         }
 
         active = true;
+    }
+
+    public void setController(GameController c){
+        controller = c;
+    }
+
+    public void setMenu(MainMenuMode mmm){
+        mainMenu = mmm;
     }
     /**
      * Sets the save object
@@ -522,6 +537,13 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
      */
     private void draw() {
         canvas.clear();
+        canvas.setTintGray(true);
+        if(inMainMenu){
+            mainMenu.draw();
+        }else{
+            controller.draw(0);
+        }
+        canvas.setIgnore(true);
         canvas.begin();
         float selectCenterY = 0;
         canvas.draw(background, Color.WHITE, background.getWidth()/2, background.getHeight()/2,
@@ -593,7 +615,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
                 0, VOLUME_SCALE * scale, VOLUME_SCALE * scale);
         canvas.draw(volumeHandle, sfxVolHandle, volumeHandle.getWidth()/2, volumeHandle.getHeight()/2, sfxHandleCenterX, sfxCenterY,
                 0, VOLUME_SCALE * scale, VOLUME_SCALE * scale);
-
+        canvas.setIgnore(false);
+        canvas.setTintGray(false);
         canvas.end();
     }
 
@@ -634,8 +657,9 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         float sy = ((float)height)/STANDARD_HEIGHT;
         scale = (sx < sy ? sx : sy);
         //TODO resize other things as needed
-        bkgCenterX = width/2;
+        bkgCenterX = width*.495f;
         bkgCenterY = height/2;
+
 
         musicCenterX = width*0.59f;
         musicCenterY = height*0.65f;

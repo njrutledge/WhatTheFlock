@@ -195,7 +195,11 @@ public class GDXRoot extends Game implements ScreenListener {
 			options.setSave(save);
 			guide.setSave(save);
 			controller.setOptions();
+
+			//set controller among other screens
 			gamemenu.setController(controller);
+			options.setController(controller);
+			options.setMenu(menu);
 
 			setScreen(menu);
 			controller.setOptions();
@@ -230,11 +234,13 @@ public class GDXRoot extends Game implements ScreenListener {
 				case LevelSelectMode.EXIT_LEVEL:
 					controller.populateLevel(levelselect.getLevelSelected());
 					levelselect.reset();
+					options.inMainMenu = false;
 					setScreen(controller);
 					break;
 				case LevelSelectMode.EXIT_MENU:
 					menu.reset();
 					levelselect.reset();
+					options.inMainMenu = true;
 					setScreen(menu);
 					break;
 			}
@@ -268,6 +274,7 @@ public class GDXRoot extends Game implements ScreenListener {
 							//levelselect.updateSave(gamemenu.getSave());
 							//controller.updateSave(gamemenu.getSave());
 							controller.writeSave();
+							options.inMainMenu = false;
 							setScreen(controller);
 							break;
 						case WIN:
@@ -275,6 +282,7 @@ public class GDXRoot extends Game implements ScreenListener {
 							controller.reset();
 							levelselect.setNextLevel();
 							controller.populateLevel(levelselect.getLevelSelected());
+							options.inMainMenu = false;
 							setScreen(controller);
 							break;
 					}
@@ -303,6 +311,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			switch(exitCode){
 				case OptionsMode.MAINMAIN:
 					menu.reset();
+					options.inMainMenu = true;
 					setScreen(menu);
 					options.reset();
 					break;
@@ -317,6 +326,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			switch(exitCode) {
 				case GuideMode.MAINMAIN:
 					menu.reset();
+					options.inMainMenu = true;
 					setScreen(menu);
 					break;
 			}
