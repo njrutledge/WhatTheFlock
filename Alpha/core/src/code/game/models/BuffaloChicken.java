@@ -154,7 +154,11 @@ public class BuffaloChicken extends Chicken {
         float wScale = 0.4f;
         float hScale = 0.4f;
 
-        if (isAttacking() && !doneCharging()) {
+        if (isStunned){
+            hurt_animator.setFrame((int)(animeframe));
+            canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
+        }
+        else if (isAttacking() && !doneCharging()) {
             charge_start_animator.setFrame((int) animeframe);
             canvas.draw(charge_start_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), displayScale.x*wScale* effect, displayScale.y*hScale);
         } else if (isAttacking() && doneCharging()){
@@ -163,9 +167,6 @@ public class BuffaloChicken extends Chicken {
         }else if (!isStunned) {
             animator.setFrame((int)animeframe);
             canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
-        } else if (isStunned){
-            hurt_animator.setFrame((int)(animeframe));
-            canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
         drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x*wScale*effect*0.5f, displayScale.y*hScale*0.5f);
     }
