@@ -39,11 +39,10 @@
         "enviro:trap:coolerActivate": "enviro/cooler_activate.png",
         "enviro:trap:slow": "enviro/slow.png",
         "enviro:trap:icecube": "enviro/ice_cube.png",
-        "enviro:background": "enviro/background_2.png",
+        "enviro:background": "enviro/floor2.png",
         "enviro:spawn": "enviro/fridge.png",
         "enviro:indicator" : "enviro/slap_indicator.png",
 
-        "char:chicken": "characters/chicken.png",
         "char:chef":"characters/chef_animation_run.png",
         "char:bullet": "characters/bullet.png",
         "char:nugget": "characters/nugget_animation_walk.png",
@@ -83,10 +82,11 @@
         "ui:menu:options": "ui/loading/mainmenu_options.png",
         "ui:menu:quit": "ui/loading/mainmenu_quit.png",
 
-        "ui:knife": "ui/levelselect/cleaver_placeholder_empty.png",
+        "ui:knife": "ui/levelselect/cleaver.png",
+        "ui:knifeShadow": "ui/levelselect/cleaver_shadow.png",
         "ui:arrowRight": "ui/levelselect/arrowRight.png",
         "ui:arrowLeft": "ui/levelselect/arrowLeft.png",
-        "ui:back": "ui/levelselect/back_placeholder.png",
+        "ui:back": "ui/levelselect/back.png",
 
         "ui:pause:continue": "ui/gamemenu/pausemenu_continue.png",
         "ui:pause:restart": "ui/gamemenu/pausemenu_restart.png",
@@ -101,6 +101,22 @@
         "ui:lose:retry": "ui/gamemenu/losemenu_retry.png",
         "ui:lose:quit": "ui/gamemenu/losemenu_quit.png",
 
+        "ui:options:menu": "ui/options/options_menu.png",
+        "ui:options:volume": "ui/options/options_volume.png",
+        "ui:options:volume_handle": "ui/options/options_volume_handle.png",
+        "ui:options:on": "ui/options/options_on.png",
+        "ui:options:off": "ui/options/options_off.png",
+        "ui:options:ok": "ui/options/options_ok.png",
+        "ui:options:selected": "ui/options/options_selected.png",
+        "ui:options:windowed": "ui/options/options_windowed.png",
+        "ui:options:fullscreen": "ui/options/options_fullscreen.png",
+
+        "ui:guide:1" : "ui/guide/howtoplay1.png",
+        "ui:guide:2" : "ui/guide/howtoplay2.png",
+        "ui:guide:3" : "ui/guide/howtoplay2.1.png",
+        "ui:guide:4" : "ui/guide/howtoplay3.png",
+        "ui:guide:5" : "ui/guide/howtoplay4.png",
+
         "ui:att_off": "ui/attbuff_off.png",
         "ui:att_on": "ui/attbuff_on.png",
         "ui:tempBar": {
@@ -112,6 +128,14 @@
             "red" : [746, 58, 829, 598]
           }
         },
+      "ui:noBar": {
+        "file":      "ui/tempbar_nobar.png",
+        "atlas":     {
+          "yellow" : [285, 60, 369, 600],
+          "orange" : [522, 61, 605, 601],
+          "red" : [746, 58, 829, 598]
+        }
+      },
       "ui:tempBarMedFlame": {
         "file":      "ui/HUD_2tempbar_flame.png",
         "atlas":     {
@@ -140,6 +164,8 @@
     "sounds" : {
         "sound:menu:selecting" : "sounds/ui/menu_ui_selecting.ogg",
         "sound:menu:select" : "sounds/ui/menu_ui_select.ogg",
+        "sound:menu:victory": "sounds/ui/victory.ogg",
+        "sound:menu:failure": "sounds/ui/failure.ogg",
 
         "sound:chef:emptySlap" : "sounds/chef/empty_slap_2.ogg",
         "sound:chef:squelch": "sounds/chef/squelch.ogg",
@@ -149,8 +175,12 @@
         "sound:chick:nugget:hurt" : "sounds/chicken/nug_hurt.ogg",
         "sound:chick:nugget:attack" : "sounds/chicken/nug_attack.ogg",
 
+        "sound:chick:dino:hurt" : "sounds/chicken/dino_hurt.ogg",
+        "sound:chick:dino:attack" : "sounds/chicken/dino_attack.ogg",
+
         "sound:chick:buffalo:charge" : "sounds/chicken/buffalo_charge.ogg",
         "sound:chick:buffalo:attack" : "sounds/chicken/buffalo_attack.ogg",
+        "sound:chick:buffalo:hurt" : "sounds/chicken/buffalo_hurt.ogg",
 
         "sound:chick:hot:charge" : "sounds/chicken/hot_charge.ogg",
         "sound:chick:hot:attack" : "sounds/chicken/hot_attack.ogg",
@@ -163,7 +193,11 @@
 
         "sound:trap:fireLinger" : "sounds/trap/fire_linger_1.ogg",
         "sound:trap:fireTrig" : "sounds/trap/fire_trigger_2.ogg",
-        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg"
+        "sound:trap:lureCrumb" : "sounds/trap/lure_damage.ogg",
+        "sound:trap:iceChick" : "sounds/trap/chick_ice_trigger.ogg",
+        "sound:trap:chickFreeze" : "sounds/trap/chick_freeze.ogg",
+        "sound:trap:toaster" : "sounds/trap/toaster.ogg",
+        "sound:trap:cooler" : "sounds/trap/cooler_open.ogg"
 
 
     },

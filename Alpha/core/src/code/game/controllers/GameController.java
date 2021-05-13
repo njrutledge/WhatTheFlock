@@ -679,9 +679,16 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		Filter spawn_filter = new Filter();
 		spawn_filter.groupIndex = -1;
 
+		int y = 27; int x = -1;
 		for(int ii = 0; ii < stuff.length; ii++){
-			int x = ii % grid.getColCount();
-			int y = (stuff.length - 1 - ii) / grid.getColCount();
+			if (x != 47){
+				x = x + 1;
+			} else {
+				x = 0;
+			}
+			if (x == 0){
+				y = Math.max(0, y - 1);
+			}
 			switch(stuff[ii]){
 				case LEVEL_WALL_CENTER:
 					//add center wall
