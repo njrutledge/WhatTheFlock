@@ -283,6 +283,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** Whether or not autoCooking is turned on */
 	private boolean autoCook = true;
+	/** Whether or not mouse shooting is active */
+	private boolean mouseActive = true;
 
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
@@ -1027,7 +1029,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getMaxspeed());
 
 		if (!(chef.isCooking() && (autoCook || InputController.getInstance().didCook()))) {
-			chef.setShooting(InputController.getInstance().didSecondary() && !chef.isStunned(), InputController.getInstance().getSlapDirection());
+			if (mouseActive){
+				chef.setShooting(InputController.getInstance().didTertiary(), InputController.getInstance().getSlapMouseDirection(chef.getX(),chef.getY()));
+			} else {
+				chef.setShooting(InputController.getInstance().didSecondary() && !chef.isStunned(), InputController.getInstance().getSlapDirection());
+			}
 		} else {
 			chef.setShooting(false, InputController.getInstance().getSlapDirection());
 		}
@@ -1871,6 +1877,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	public void updateSaveValues(){
 		autoCook = save.auto_cook;
+		// mouseActive
 		//todo: add mouse stuff here when its done
 	}
 
