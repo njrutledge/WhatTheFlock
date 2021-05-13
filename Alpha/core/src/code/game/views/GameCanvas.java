@@ -1243,7 +1243,7 @@ public class GameCanvas {
 		float w = shape.getRadius()*sx;
 		float h = shape.getRadius()*sy;
     	debugRender.setColor(color);
-    	debugRender.ellipse(x0-w, y0-h, 2*w, 2*h, 12);
+    	debugRender.ellipse(x0-w, y0-h, 2*w, 2*h, 24);
     }
 
     /*

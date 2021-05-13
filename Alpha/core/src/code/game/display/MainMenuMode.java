@@ -301,7 +301,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
      * of using the single render() method that LibGDX does.  We will talk about why we
      * prefer this in lecture.
      */
-    private void draw() {
+    public void draw() {
         //the canvas.clear stops the flashing
         canvas.clear();
         canvas.begin();
