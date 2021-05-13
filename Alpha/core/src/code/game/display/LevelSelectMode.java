@@ -68,11 +68,11 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Height of the blade of the knife */
     private static float BLADE_HEIGHT;
     /** Ratio of the knife to the screen */
-    private static float KNIFE_RATIO = 0.68f;
+    private static float KNIFE_RATIO = 0.95f;
     /** Background scale*/
     private static float BACKGROUND_SCALE = 1f;
     /** Scale of arrows*/
-    private static float ARROW_SCALE = 0.6f;
+    private static float ARROW_SCALE = 0.9f;
     /** Scale of back button */
     private static float BACK_SCALE = 0.75f;
     /** The distance between each knife */
