@@ -902,6 +902,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			resize(save.screen_width, save.screen_height);
 		}
 		autoCook = save.auto_cook;
+		mouseActive = save.mouse_slap;
 		writeSave();
 	}
 
@@ -1896,7 +1897,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	public void updateSaveValues(){
 		autoCook = save.auto_cook;
-		// mouseActive
+		mouseActive = save.mouse_slap;
 		//todo: add mouse stuff here when its done
 	}
 
