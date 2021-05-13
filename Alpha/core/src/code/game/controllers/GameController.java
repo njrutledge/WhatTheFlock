@@ -283,6 +283,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** Whether or not autoCooking is turned on */
 	private boolean autoCook = true;
+	/** Whether or not mouse shooting is active */
+	private boolean mouseActive = true;
 
 	/** maps chickens to their corresponding AI controllers*/
 	private HashMap<Chicken, AIController> ai = new HashMap<>();
@@ -318,6 +320,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected PooledList<Obstacle> tableTraps = new PooledList<Obstacle>();
 	/** All traps effects in the world. */
 	protected PooledList<Obstacle> trapEffects = new PooledList<Obstacle>();
+	/** All stoves in the world, to draw*/
+	protected PooledList<Obstacle> stovesDrawLst = new PooledList<Obstacle>();
 	/** All enemies in the world. */
 	protected PooledList<Obstacle> chickens = new PooledList<Obstacle>();
 	/** All other objects in the world. */
@@ -563,6 +567,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		addQueue.clear();
 		walls.clear();
 		trapEffects.clear();
+		stovesDrawLst.clear();
 		floorTraps.clear();
 		tableTraps.clear();
 		others.clear();
@@ -753,7 +758,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					stove.setActiveTexture(stoveActiveTexture);
 					stove.setInactiveTexture(stoveInactiveTexture);
 					stove.setFilterData(obstacle_filter);
-					addObject(stove, GameObject.ObjectType.WALL);
+					addObject(stove, GameObject.ObjectType.STOVE); //changed from WALL type to STOVE
 					grid.setObstacle(x,y);
 					grid.setObstacle(x-1,y);
 					grid.setObstacle(x,y-1);
@@ -1027,7 +1032,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chef.setVertMovement(InputController.getInstance().getVertical()* chef.getMaxspeed());
 
 		if (!(chef.isCooking() && (autoCook || InputController.getInstance().didCook()))) {
-			chef.setShooting(InputController.getInstance().didSecondary() && !chef.isStunned(), InputController.getInstance().getSlapDirection());
+			if (mouseActive){
+				chef.setShooting(InputController.getInstance().didTertiary(), InputController.getInstance().getSlapMouseDirection(chef.getX(),chef.getY()));
+			} else {
+				chef.setShooting(InputController.getInstance().didSecondary() && !chef.isStunned(), InputController.getInstance().getSlapDirection());
+			}
 		} else {
 			chef.setShooting(false, InputController.getInstance().getSlapDirection());
 		}
@@ -1422,6 +1431,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			case CHICKEN:
 				chickens.add(obj);
 				break;
+			case STOVE:
+				stovesDrawLst.add(obj);
+				break;
 			case NULL:
 				others.add(obj);
 				break;
@@ -1482,6 +1494,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// This is O(n) without copying.
 		iterateThrough(walls.entryIterator(), dt);
 		iterateThrough(trapEffects.entryIterator(),dt);
+		iterateThrough(stovesDrawLst.entryIterator(), dt);
 		iterateThrough(floorTraps.entryIterator(),dt);
 		iterateThrough(tableTraps.entryIterator(),dt);
 		iterateThrough(chickens.entryIterator(),dt);
@@ -1531,6 +1544,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for(Obstacle wall : walls){
 			wall.draw(canvas);
 		}
+		for (Obstacle s : stovesDrawLst){
+			s.draw(canvas);
+		}
 		for (Obstacle trap : floorTraps){
 			trap.draw(canvas);
 		}
@@ -1555,6 +1571,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			for(Obstacle obj : walls){
 				obj.drawDebug(canvas);
 			}
+			for (Obstacle s : stovesDrawLst){
+				s.drawDebug(canvas);
+			}
 			for (Obstacle trapE : trapEffects){
 				trapE.drawDebug(canvas);
 			}
@@ -1567,6 +1586,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			for (Obstacle other : others){
 				other.drawDebug(canvas);
 			}
+
 			chef.drawDebug(canvas);
 			for (Obstacle trap : floorTraps){
 				trap.drawDebug(canvas);
@@ -1740,6 +1760,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				obj.setDrawScale(scale);
 				obj.setDisplayScale(displayScale);
 			}
+			for (Obstacle stove : stovesDrawLst) {
+				stove.setDrawScale(scale);
+				stove.setDisplayScale(displayScale);
+			}
 			for (Obstacle trap : tableTraps){
 				trap.setDrawScale(scale);
 				trap.setDisplayScale(displayScale);
@@ -1808,6 +1832,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		tableTraps = null;
 		floorTraps = null;
 		trapEffects = null;
+		stovesDrawLst = null;
 		others = null;
 		chickens = null;
 		addQueue = null;
@@ -1871,6 +1896,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	public void updateSaveValues(){
 		autoCook = save.auto_cook;
+		// mouseActive
 		//todo: add mouse stuff here when its done
 	}
 
