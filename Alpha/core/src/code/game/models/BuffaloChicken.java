@@ -138,6 +138,9 @@ public class BuffaloChicken extends Chicken {
                 animeframe -= 11;
             }
         }
+        if(isLured() && chickenAttack!=null){
+            chickenAttack.collideObject();
+        }
         super.update(dt);
     }
 
@@ -154,14 +157,14 @@ public class BuffaloChicken extends Chicken {
         float wScale = 0.4f;
         float hScale = 0.4f;
 
-        if (isAttacking() && !doneCharging()) {
+        if (isAttacking() && !doneCharging() && getLinearVelocity().len2() == 0) {
             charge_start_animator.setFrame((int) animeframe);
             canvas.draw(charge_start_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), displayScale.x*wScale* effect, displayScale.y*hScale);
-        } else if (isAttacking() && doneCharging()){
+        } else if (running){
             charge_animator.setFrame((int) animeframe);
             canvas.draw(charge_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), displayScale.x*wScale* effect, displayScale.y*hScale);
         }else if (!isStunned) {
-            animator.setFrame((int)animeframe);
+            animator.setFrame(((int)animeframe) % 6);
             canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 20, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         } else if (isStunned){
             hurt_animator.setFrame((int)(animeframe));

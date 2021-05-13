@@ -143,7 +143,7 @@ public class AIController {
             case CHASE:
                 if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
-                } else if (stop_counter < STOP_DUR) {
+                } else if (stop_counter < STOP_DUR && !chicken.isLured()) {
                     state = FSM.STOP;
                 }
                 else if (!chicken.isLured() && chicken.isAttacking()) {
@@ -216,6 +216,9 @@ public class AIController {
             case STOP:
                 if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
+                }
+                else if (chicken.isLured()){
+                    state = FSM.CHASE;
                 }
                 else if (stop_counter >= STOP_DUR) {
                     if (!chicken.isLured() && chicken.isTouching() && (!chicken.getType().equals(Chicken.ChickenType.Buffalo) || canChargeChef())) {
@@ -561,7 +564,7 @@ public class AIController {
         temp2.set(target.getPosition()).sub(chicken.getPosition()).setLength(temp.dst(target.getPosition())/100f);
         //spaghetti
         int count = 0; // for safety to avoid infinite loop
-        while(current != goal && count < 100){
+        while(current != goal && count < 50){
             if (current.isObstacle()
                     || grid.isObstacleAt(temp3.x, temp3.y) || grid.isObstacleAt(temp4.x, temp4.y)
                     || grid.isObstacleAt(temp5.x, temp5.y) || grid.isObstacleAt(temp6.x, temp6.y) ){
