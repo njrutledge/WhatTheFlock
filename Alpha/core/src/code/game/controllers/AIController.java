@@ -218,7 +218,7 @@ public class AIController {
                     state = FSM.KNOCKBACK;
                 }
                 else if (stop_counter >= STOP_DUR) {
-                    if (!chicken.isLured() && chicken.isTouching()) {
+                    if (!chicken.isLured() && chicken.isTouching() && (!chicken.getType().equals(Chicken.ChickenType.Buffalo) || canChargeChef())) {
                         state = FSM.ATTACK; chicken.startAttack();
                     }
                     else { state = FSM.CHASE; }
@@ -228,8 +228,8 @@ public class AIController {
                 if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
-                else if ((chicken.isLured() || chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching()
-                        || (chicken.getType().equals(Chicken.ChickenType.Buffalo) && !canChargeChef()))) {
+                else if ((chicken.isLured() || chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())){
+                        //|| (chicken.getType().equals(Chicken.ChickenType.Buffalo) && !canChargeChef()))) {
                     state = FSM.CHASE;
                 }
                 else if (stop_counter < STOP_DUR) {
@@ -314,7 +314,8 @@ public class AIController {
                                 chicken.setRunning(true);
                                 temp.set(chicken.getChickenAttack().getLinearVelocity());
                             } else {
-                                chicken.setDestination(target.getPosition());
+                                Grid.Tile destTile = grid.getTile(chef.getX(), chef.getY());
+                                chicken.setDestination(grid.getPosition(destTile.getRow(), destTile.getCol()));
                                 temp.set(chicken.getChickenAttack().updateLinearVelocity());
                             }
                         }

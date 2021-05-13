@@ -334,7 +334,9 @@ public class CollisionController implements CollisionControllerInterface {
      * Handles an interaction between a non-chef obstacle and a chicken attack
      */
     private void handleObstacleChickenAttack(Obstacle obstacle, Object fd1, ChickenAttack attack, Object fd2){
-        attack.collideObject();
+        if (fd1!=null && !fd1.equals(FixtureType.STOVE_SENSOR)) {
+            attack.collideObject();
+        }
     }
 
     /**
