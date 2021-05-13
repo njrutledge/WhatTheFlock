@@ -235,6 +235,9 @@ public class AIController {
                 else if (stop_counter < STOP_DUR) {
                     state = FSM.STOP;
                 }
+                else if (chicken.getType().equals(Chicken.ChickenType.Buffalo) && !chicken.isRunning() && !canChargeChef()){
+                    state = FSM.STOP;
+                }
                 break;
             default: // This shouldn't happen
                 break;
