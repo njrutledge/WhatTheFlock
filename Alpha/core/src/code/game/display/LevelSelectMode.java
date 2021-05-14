@@ -60,7 +60,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     protected static final float DEFAULT_HEIGHT = 27.0f;
 
     /** Height of info text character */
-    private static float INFO_HEIGHT = 28;
+    private static float INFO_HEIGHT = 128;
     /** Width of info text character */
     private static float INFO_WIDTH = 15.5f;
     /** Width of the blade of the knife */
@@ -192,8 +192,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         arrowLeftTexture = assets.getEntry("ui:arrowLeft", Texture.class);
         backTexture = assets.getEntry("ui:back", Texture.class);
         back = new FilmStrip(backTexture, 1, 2);
-        displayFont = assets.getEntry("font:PTSans64", BitmapFont.class);
-        infoFont = assets.getEntry("font:PTSans32", BitmapFont.class);
+        displayFont = assets.getEntry("font:Knife", BitmapFont.class);//assets.getEntry("font:PTSans64", BitmapFont.class);
+        infoFont = assets.getEntry("font:Knife", BitmapFont.class); //assets.getEntry("font:PTSans32", BitmapFont.class);
         displayFont.setColor(Color.BLACK);
         infoFont.setColor(Color.BLACK);
         //TODO probably want to share some font assets
