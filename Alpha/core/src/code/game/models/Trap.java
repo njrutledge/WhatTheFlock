@@ -186,7 +186,7 @@ public class Trap extends GameObject implements TrapInterface {
     /** The current delay on the animation; counter */
     private int anim_delay = 0;
     /** Frame delay on the trap animation*/
-    private final int FRAME_DELAY = 4;
+    private final int FRAME_DELAY = 2;
     /** Frame delay on cooler*/
     private final int COOLER_FRAME_DELAY = 40;
     /** Delay on the smoke frame animations*/

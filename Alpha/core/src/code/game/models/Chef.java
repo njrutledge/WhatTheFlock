@@ -319,6 +319,9 @@ public class Chef extends GameObject implements ChefInterface {
 		isShooting = value;
 	}
 
+	/** Returns the slap direction of the chef*/
+	public int getSlapDir(){ return slapFace; }
+
 	/**
 	 * Animates the up slap
 	 * @param texture

@@ -226,6 +226,10 @@
       "font:PTSans32": {
         "file": "ui/fonts/PTSans.ttf",
         "size": 32
+      },
+      "font:Knife": {
+        "file": "ui/fonts/Handwriting-Regular.ttf",
+        "size": 64
       }
     }
 }
