@@ -60,7 +60,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     protected static final float DEFAULT_HEIGHT = 27.0f;
 
     /** Height of info text character */
-    private static float INFO_HEIGHT = 128;
+    private static float INFO_HEIGHT = 64;
     /** Width of info text character */
     private static float INFO_WIDTH = 15.5f;
     /** Width of the blade of the knife */
@@ -528,14 +528,31 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             // Draw level name
             text = getText(leftIndex+i);
             layout.setText(infoFont, text);
+            System.out.println(layout.toString());
             if (layout.width > BLADE_WIDTH * KNIFE_RATIO * scale) {
-                int row = (int)Math.ceil(layout.width / BLADE_WIDTH * KNIFE_RATIO * scale) - 1;
+                int row = -1;
+                String[] list = text.split(" ");
                 String string = "";
-                for (String word: text.split(" ")) {
+                for (int j = 0; j < list.length ; j++){
+                    String word = list[j];
+                    layout.setText(infoFont, string + word);
+                    System.out.println(layout.toString());
+                    if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale && !string.equals("")) {
+                        row += 1;
+                        string = "";
+                        System.out.println("Adding 1 to row, row is now " + row);
+                    }
+                    if (j == list.length - 1) { row += 1; }
+                    string += word + " ";
+                }
+                int offset = row % 2 == 0 ? row - 1 : 0;
+                string = "";
+                for (String word: list) {
                     layout.setText(infoFont, string + word);
                     if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale && !string.equals("")) {
                         layout.setText(infoFont, string.substring(0, string.length()-1));
-                        canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY+INFO_HEIGHT*row+(i==highlightedIndex ? HOVER_Y_OFFSET : 0));
+                        canvas.drawText(string, infoFont, bladeCenterX+dist*i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0),
+                                bladeCenterY+INFO_HEIGHT*row-INFO_HEIGHT/2*offset+(i==highlightedIndex ? HOVER_Y_OFFSET : 0));
                         row -= 1;
                         string = "";
                     }
@@ -543,7 +560,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 }
                 if (string != "") {
                     layout.setText(infoFont, string.substring(0, string.length()-1));
-                    canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY+INFO_HEIGHT*row+(i==highlightedIndex ? HOVER_Y_OFFSET : 0));
+                    canvas.drawText(string, infoFont, bladeCenterX+ dist *i-layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0),
+                            bladeCenterY+INFO_HEIGHT*row-INFO_HEIGHT/2*offset+(i==highlightedIndex ? HOVER_Y_OFFSET : 0));
                 }
             }
             else { canvas.drawText(text, infoFont, bladeCenterX + i* dist -layout.width/2+(i==highlightedIndex ? HOVER_X_OFFSET : 0), bladeCenterY+INFO_HEIGHT/2+(i==highlightedIndex ? HOVER_Y_OFFSET : 0)); }

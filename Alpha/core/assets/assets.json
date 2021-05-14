@@ -229,7 +229,7 @@
       },
       "font:Knife": {
         "file": "ui/fonts/Handwriting-Regular.ttf",
-        "size": 128
+        "size": 64
       }
     }
 }
