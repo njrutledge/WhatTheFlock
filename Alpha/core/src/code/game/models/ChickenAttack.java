@@ -39,6 +39,8 @@ public class ChickenAttack extends GameObject {
 
     /** The radius of the sensor of a basic attack */
     private final float BASIC_RADIUS = 0.5f;
+    /** The radius of the charge attack hitbox */
+    private final float CHARGE_HITBOX_RADIUS = 0.2f;
     /** The duration of a basic attack */
     private final float ATTACK_DUR = 0.2f;
     /** The width of chicken attacks */
@@ -365,7 +367,12 @@ public class ChickenAttack extends GameObject {
         FixtureDef sensorDef = new FixtureDef();
         sensorDef.isSensor = true;
         sensorShape = new CircleShape();
-        sensorShape.setRadius(BASIC_RADIUS);
+        if (type == AttackType.Charge) {
+            sensorShape.setRadius(CHARGE_HITBOX_RADIUS);
+        }
+        else{
+            sensorShape.setRadius(BASIC_RADIUS);
+        }
         sensorDef.shape = sensorShape;
 
         Fixture sensorFixture = body.createFixture(sensorDef);

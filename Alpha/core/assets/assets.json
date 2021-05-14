@@ -63,9 +63,9 @@
         "char:eggSpin" : "characters/egg_animation_spin.png",
         "char:eggSplat" : "characters/egg_animation_splat.png",
         "char:egg": "characters/egg.png",
-        "char:slapSide": "characters/chef_animation_attackSide.png",
-        "char:slapDown": "characters/chef_animation_attackDown_color.png",
-        "char:slapUp": "characters/chef_animation_attackUp.png",
+        "char:slapSide": "characters/chef_animation_attackside.png",
+        "char:slapDown": "characters/chef_animation_attackdown_color.png",
+        "char:slapUp": "characters/chef_animation_attackup.png",
         "char:chefHurt": "characters/chef_animation_hurt.png",
         "char:chefIdle": "characters/chef_animation_idle.png",
 

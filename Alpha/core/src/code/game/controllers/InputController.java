@@ -28,7 +28,6 @@ import com.badlogic.gdx.utils.Array;
  * a controller via the new XBox360Controller class.
  */
 public class InputController {
-	//TODO: Change the shooting input to follow the slapping controls that we want to use (i.e. arrow keys)
 
 	// Sensitivity for moving crosshair with gameplay
 	private static final float GP_ACCELERATE = 1.0f;
@@ -507,6 +506,28 @@ public class InputController {
 		crosshair.scl(1/scale.x,-1/scale.y);
 		crosshair.y += bounds.height;
 		clampPosition(bounds);
+	}
+
+	/**
+	 * Gets the slap direction based on the position of the mouse in relation to the chef
+	 *
+	 * @param chefX - chef's x position
+	 * @param chefY - chef's y position
+	 * @return the direction the slap is (1 - north, 2 - east, 3 - south, 4 - west)
+	 */
+	public int getSlapMouseDirection(float chefX, float chefY){
+		// line 1 -> y - chefY = x - chefX
+		// line 2 -> y - chefY = -x + chefX
+
+		if (crosshair.y > chefY + crosshair.x - chefX && crosshair.y > chefY - crosshair.x + chefX) { // Quadrant 1
+			return 1;
+		} else if (crosshair.x > crosshair.y - chefY + chefX && crosshair.x > -crosshair.y + chefY + chefX) { // Quadrant 2
+			return 2;
+		} else if (crosshair.y < chefY + crosshair.x - chefX && crosshair.y < chefY - crosshair.x + chefX) { // Quadrant 3
+			return 3;
+		} else { // Quadrant 4
+			return 4;
+		}
 	}
 	
 	/**

@@ -68,11 +68,11 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
     /** Height of the blade of the knife */
     private static float BLADE_HEIGHT;
     /** Ratio of the knife to the screen */
-    private static float KNIFE_RATIO = 0.68f;
+    private static float KNIFE_RATIO = 0.95f;
     /** Background scale*/
     private static float BACKGROUND_SCALE = 1f;
     /** Scale of arrows*/
-    private static float ARROW_SCALE = 0.6f;
+    private static float ARROW_SCALE = 0.9f;
     /** Scale of back button */
     private static float BACK_SCALE = 0.75f;
     /** The distance between each knife */
@@ -515,16 +515,13 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         canvas.setBlendState(GameCanvas.BlendState.ALPHA_BLEND);
         for (int i = 0; i < 3; i++) {
             // Draw the knife
-            if(leftIndex+i >= save.furthest_level){
-                canvas.draw(knifeTexture, Color.SLATE, knifeTexture.getWidth() / 2f, knifeTexture.getHeight() / 2f,
-                        knifeCenterX + dist * i, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
-            } else if (i == highlightedIndex) {
+            if (i == highlightedIndex) {
                 canvas.draw(knifeShadowTexture, Color.BLACK, knifeTexture.getWidth()/2f, knifeTexture.getHeight()/2f,
                         knifeCenterX + dist * highlightedIndex - SHADOW_OFFSET, knifeCenterY+SHADOW_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
-                canvas.draw(knifeTexture, Color.WHITE, knifeTexture.getWidth() / 2f, knifeTexture.getHeight() / 2f,
+                canvas.draw(knifeTexture, leftIndex+i >= save.furthest_level ? Color.SLATE : Color.WHITE, knifeTexture.getWidth() / 2f, knifeTexture.getHeight() / 2f,
                         knifeCenterX + dist * i+HOVER_X_OFFSET, knifeCenterY+HOVER_Y_OFFSET, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
             } else {
-                canvas.draw(knifeTexture, Color.WHITE, knifeTexture.getWidth() / 2f, knifeTexture.getHeight() / 2f,
+                canvas.draw(knifeTexture, leftIndex+i >= save.furthest_level? Color.SLATE : Color.WHITE, knifeTexture.getWidth() / 2f, knifeTexture.getHeight() / 2f,
                         knifeCenterX + dist * i, knifeCenterY, 0, KNIFE_RATIO * scale, KNIFE_RATIO * scale);
             }
             canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
@@ -622,7 +619,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 /*        knifeCenterX = width/2;
         knifeCenterY = height/3;*/
 
-        knifeCenterX = (float)(width / 8 + knifeTexture.getWidth()/2);
+        knifeCenterX = (float)(9*width / 32);
         knifeCenterY = height/2.7f;
 
         bladeCenterX = (float)(knifeCenterX-0.1*knifeTexture.getWidth());

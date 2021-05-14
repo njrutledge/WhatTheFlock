@@ -202,7 +202,6 @@ public class GDXRoot extends Game implements ScreenListener {
 			options.setMenu(menu);
 
 			setScreen(menu);
-			controller.setOptions();
 		}
 		else if (screen == menu){
 			//menu.activateInputProcessor(false);

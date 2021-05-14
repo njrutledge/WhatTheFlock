@@ -417,7 +417,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             setFilterData(filter);
         }
         setIsAttacking(true);
-        animeframe = 0;
+        if (!isLured) {
+            animeframe = 0;
+        }
         if (!isRunning()) {
             touching = true;
             doneAttack = false;
@@ -434,7 +436,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             filter.maskBits = 0x0001 | 0x0002 | 0x0004;
             setFilterData(filter);
         }
-        animeframe = 0;
+        if (!isLured) {
+            animeframe = 0;
+        }
         setIsAttacking(false);
         if (!isRunning() && doneAttack) {
             attack_timer = -1f;
