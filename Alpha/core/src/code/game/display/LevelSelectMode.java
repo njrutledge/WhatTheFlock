@@ -528,7 +528,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             // Draw level name
             text = getText(leftIndex+i);
             layout.setText(infoFont, text);
-            System.out.println(layout.toString());
             if (layout.width > BLADE_WIDTH * KNIFE_RATIO * scale) {
                 int row = -1;
                 String[] list = text.split(" ");
@@ -536,11 +535,9 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 for (int j = 0; j < list.length ; j++){
                     String word = list[j];
                     layout.setText(infoFont, string + word);
-                    System.out.println(layout.toString());
                     if (layout.width >= BLADE_WIDTH * KNIFE_RATIO * scale && !string.equals("")) {
                         row += 1;
                         string = "";
-                        System.out.println("Adding 1 to row, row is now " + row);
                     }
                     if (j == list.length - 1) { row += 1; }
                     string += word + " ";
