@@ -1056,7 +1056,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		
 		// Add a bullet if we fire
 		if (chef.isShooting()) {
-			createSlap(InputController.getInstance().getSlapDirection());
+			createSlap(chef.getSlapDir());
 		}
 
 		// Add a trap if trying to press
