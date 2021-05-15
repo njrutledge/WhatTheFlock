@@ -366,7 +366,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 if (highlightedIndex != -1) {
                     if (leftIndex + highlightedIndex < save.furthest_level) { pressState = 0; }
                     else { levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]); }
-                } else { pressState = 8; }
+                } else { pressState = -1; }
                 break;
             case "ESCAPE":
                 pressState = 8;
