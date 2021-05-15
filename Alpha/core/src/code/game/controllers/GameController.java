@@ -1089,7 +1089,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			startWaveSize = Math.min(maxWaveSize, startWaveSize + 1);
 		}
 
-		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0 && enemyPool.size() > 0){
+		if (gameTime > lastEnemySpawnTime + spreadability && enemiesLeft > 0){
+			if (enemyPool.isEmpty()){
+				enemyPool.addAll(enemyBoard);
+				enemyBoard.clear();
+			}
 			int r = (int)Math.floor((maxWaveSize - enemyBoard.size())*Math.random());
 			enemyBoard.add(enemyPool.get(r));
 			int chicken = enemyPool.remove(r);

@@ -35,6 +35,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.controllers.ControllerMapping;
+import com.badlogic.gdx.math.Vector2;
 
 /**
  * Class that provides a loading screen for the state of the game.
@@ -74,7 +75,22 @@ public class LoadingMode implements Screen {
 	/** Middle portion of the status forground (colored region) */
 	private TextureRegion statusFrgMiddle;
 	/** Right cap to the status forground (colored region) */
-	private TextureRegion statusFrgRight;	
+	private TextureRegion statusFrgRight;
+
+	/** Empty temperature bar */
+	private TextureRegion tempEmpty;
+	/** Yellow temperature bar */
+	private TextureRegion tempYellow;
+	/** Yellow temperature no bar */
+	private TextureRegion tempYellowNB;
+	/** Orange temperature bar */
+	private TextureRegion tempOrange;
+	/** Orange temperature no bar */
+	private TextureRegion tempOrangeNB;
+	/** Red temperature bar */
+	private TextureRegion tempRed;
+	/** Red temperature no bar */
+	private TextureRegion tempRedNB;
 
 	/** Default budget for asset loader (do nothing but load 60 fps) */
 	private static int DEFAULT_BUDGET = 15;
@@ -122,7 +138,16 @@ public class LoadingMode implements Screen {
 	private int bkgCenterX;
 	private int bkgCenterY;
 
+	/** The x position of the temperature bar (if drawing from center) */
+	private float cx_temp;
+	/** The y position of the temperature bar (if drawing from center) */
+	private float cy_temp;
+	/** The x position of the temperature bar (if drawing from edge) */
+	private float ex_temp;
+	/** The x position of the temperature bar (if drawing from edge) */
+	private float ey_temp;
 
+	private Vector2 displayScale = new Vector2(1, 1);
 	/**
 	 * Returns the budget for the asset loader.
 	 *
@@ -213,6 +238,14 @@ public class LoadingMode implements Screen {
 		statusFrgRight = internal.getEntry( "progress.foreright", TextureRegion.class );
 		statusFrgMiddle = internal.getEntry( "progress.foreground", TextureRegion.class );
 
+		tempEmpty = internal.getEntry("ui:tempBar.empty", TextureRegion.class);
+		tempYellow = internal.getEntry("ui:tempBar.yellow", TextureRegion.class);
+		tempYellowNB = internal.getEntry("ui:noBar.yellow", TextureRegion.class);
+		tempOrange = internal.getEntry("ui:tempBar.orange", TextureRegion.class);
+		tempOrangeNB = internal.getEntry("ui:noBar.orange", TextureRegion.class);
+		tempRed = internal.getEntry("ui:tempBar.red", TextureRegion.class);
+		tempRedNB = internal.getEntry("ui:noBar.red", TextureRegion.class);
+
 		// No progress so far.
 		progress = 0;
 		assetsLoaded = false;
@@ -277,8 +310,44 @@ public class LoadingMode implements Screen {
 	 *
 	 * @param canvas The drawing context
 	 */	
-	private void drawProgress(GameCanvas canvas) {	
-		canvas.draw(statusBkgLeft,   Color.WHITE, progCenterX -width/2, progCenterY,
+	private void drawProgress(GameCanvas canvas) {
+		//draw temperature
+		float scale = 0.75f;
+		float fscale = 0.65f;
+		float angle = (float)(3*Math.PI)/2;
+		//0.04 bottom, 0.94 top
+		displayScale.set(canvas.getWidth()/1280f, canvas.getHeight()/720f);
+		TextureRegion bar;
+		TextureRegion nb;
+		TextureRegion flame;
+		cx_temp = 30 + tempEmpty.getRegionHeight()*scale/2;
+		//dont scale canvas.getHeight()
+		cy_temp = canvas.getHeight() - 70*displayScale.y;
+		ex_temp = 640;
+		ey_temp = -150;
+		// Draw the empty temperature bar
+		if (progress <= 0.22) {
+			bar = tempYellow;
+			nb = tempYellowNB;
+		} else if (progress <= 0.6) {
+			bar = tempOrange;
+			nb = tempOrangeNB;
+		} else {
+			bar = tempRed;
+			nb = tempRedNB;
+		}
+
+		// -1 +1.5
+		canvas.draw(tempEmpty, 1, 270, Color.WHITE,
+				tempEmpty.getRegionWidth()*scale/2*displayScale.x, tempEmpty.getRegionHeight()*scale/2*displayScale.y,
+				(ex_temp-1)*displayScale.x,  ey_temp+1.5f*displayScale.y,
+				tempEmpty.getRegionWidth()*scale*displayScale.x, tempEmpty.getRegionHeight()*scale*displayScale.y);
+
+		canvas.draw(bar, 0.04f+((progress*0.91f)), 270, Color.WHITE,
+				bar.getRegionWidth()*scale/2*displayScale.x, tempYellow.getRegionHeight()*scale/2*displayScale.y,
+				ex_temp*displayScale.x, ey_temp,
+				bar.getRegionWidth()*scale*displayScale.x, bar.getRegionHeight()*scale*displayScale.y);
+/*		canvas.draw(statusBkgLeft,   Color.WHITE, progCenterX -width/2, progCenterY,
 				scale*statusBkgLeft.getRegionWidth(), scale*statusBkgLeft.getRegionHeight());
 		canvas.draw(statusBkgRight,  Color.WHITE, progCenterX +width/2-scale*statusBkgRight.getRegionWidth(), progCenterY,
 				scale*statusBkgRight.getRegionWidth(), scale*statusBkgRight.getRegionHeight());
@@ -296,7 +365,7 @@ public class LoadingMode implements Screen {
 		} else {
 			canvas.draw(statusFrgRight,  Color.WHITE, progCenterX -width/2+scale*statusFrgLeft.getRegionWidth(), progCenterY,
 					scale*statusFrgRight.getRegionWidth(), scale*statusFrgRight.getRegionHeight());
-		}
+		}*/
 	}
 
 	// ADDITIONAL SCREEN METHODS
