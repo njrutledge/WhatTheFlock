@@ -1,0 +1,80 @@
+{
+    "backgroundcolor":"#656667",
+    "height":4,
+    "layers":[{
+      "data":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,0,0,0,0
+      ],
+      "type": "tilelayer"
+    },
+    {
+      "objects":[{
+        "gid": 3,
+        "type": "Chef",
+        "x": 10,
+        "y": 10
+      },
+      {
+        "gid": 4,
+        "properties":{
+          "PID": 1,
+          "spawns": ["nugget", "dinonugget"],
+          "rates": [0.9, 0.1]
+        },
+        "type": "ChickenSpawner",
+        "x": 0,
+        "y": 100
+      },
+      {
+        "gid": 4, 
+        "properties":{
+          "PID": 1,
+          "spawns": ["nugget", "dinonugget"],
+          "rates": [0.7, 0.3]
+        },
+        "type": "ChickenSpawner",
+        "x": 100,
+        "y": 0
+      },
+      {
+        "gid":5,
+        "type": "Stove",
+        "x": 50,
+        "y": 50
+      }
+    ],
+    "type":"objectgroup"
+  }],
+    "nextobjectid":1,
+    "orientation":"orthogonal",
+    "properties":[
+      {
+        "name":"chickensToCook",
+        "type":"int",
+        "value":1
+      },
+      {
+        "name":"difficulty",
+        "type":"string",
+        "value":"easy"
+      },
+    {
+      "name":"trapsAvailable",
+      "type":"int",
+      "value": 2
+    }],
+    "renderorder":"right-down",
+    "tileheight":32,
+    "tilesets":[{
+      "firstgid":1,
+      "tiles": {
+        "3": {"image":"..\/assets\/characters\/chef.png"},
+        "4": {"image":"..\/assets\/models\/fridge.png"},
+        "5": {"image":"..\/assets\/models\/stove.png"}
+      }
+    }],
+    "tilewidth":32,
+    "version":1,
+    "tiledversion":"1.0.3",
+    "width":4
+}
