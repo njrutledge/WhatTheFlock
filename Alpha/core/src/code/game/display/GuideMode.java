@@ -59,7 +59,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     protected static final float DEFAULT_HEIGHT = 27.0f;
 
     /** Scale of the menu */
-    private final float BACKGROUND_SCALE = 0.5f;
+    private final float BACKGROUND_SCALE = .5f;
     /** Scale of the buttons */
     private final float BUTTON_SCALE = 0.5f;
 
@@ -74,7 +74,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     private final float FULLSCREEN_WIDTH = 350;
 
     /** Constants for arrow drawing */
-    private float leftArrowCenterX = 150;
+    private float leftArrowCenterX = 450;
     private float rightArrowCenterX = 1750;
     private float arrowCenterY = 500;
     private final float arrowWidth = 50;
@@ -120,6 +120,8 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     private int scrollDirection = 0;
     /** Whether scrolling has began */
     private boolean scrolling = false;
+
+    private MainMenuMode menu;
 
     /** Which option are we currently hovering over?
      * 0 = music
@@ -445,6 +447,9 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
         sound.playMusic(SoundController.CurrentScreen.MENU, delta);
     }
 
+    public void setMenu(MainMenuMode m){
+        menu = m;
+    }
     /**
      * Draw the status of this player mode.
      *
@@ -454,6 +459,9 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
      */
     private void draw() {
         canvas.clear();
+        canvas.setTintGray(true);
+        menu.draw();
+        canvas.setTintGray(false);
         canvas.begin();
         float selectCenterY = 0;
         ok.setFrame(0);
@@ -527,7 +535,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
         okCenterY = height*0.075f;
 
         arrowCenterY = height * 0.5f;
-        leftArrowCenterX = width * 0.078125f;
+        leftArrowCenterX = width * 0.088f;//0.078125f;
         rightArrowCenterX = width * 0.911458f;
 
 

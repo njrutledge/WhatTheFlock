@@ -201,6 +201,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			gamemenu.setController(controller);
 			options.setController(controller);
 			options.setMenu(menu);
+			guide.setMenu(menu);
 
 			setScreen(menu);
 		}
