@@ -194,6 +194,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			gamemenu.setSave(save);
 			options.setSave(save);
 			guide.setSave(save);
+			sound.setSave(save);
 			controller.setOptions();
 
 			//set controller among other screens
@@ -306,6 +307,7 @@ public class GDXRoot extends Game implements ScreenListener {
 		} else if (screen == options){
 			controller.writeSave();
 			controller.setOptions();
+			sound.updateVol();
 			//controller.updateSaveValues();
 			switch(exitCode){
 				case OptionsMode.MAINMAIN:

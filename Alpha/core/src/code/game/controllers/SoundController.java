@@ -2,6 +2,7 @@ package code.game.controllers;
 
 import code.assets.AssetDirectory;
 import code.audio.*;
+import code.game.models.Save;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
@@ -11,8 +12,10 @@ public class SoundController {
     //Misc
     /** Base volume for all sounds */
     private final float VOLUME = 0.5f;
-    /** Current volume */
-    private float volume = VOLUME;
+    /** Current music volume */
+    private float musicVol;
+    /** Current sfx volume */
+    private float sfxVol;
     /** Loud sound multiplier, used to lower volume of louder sounds */
     private final float LOUD = 0.2f;
     /** Medium sound multiplier, does nothing */
@@ -129,6 +132,8 @@ public class SoundController {
     /** Level music 3 duration */
     private final float LEVEL_T_3 = 0f;
 
+    private Save save;
+
 
     public SoundController() {
         screen = CurrentScreen.MENU;
@@ -194,9 +199,24 @@ public class SoundController {
 
     }
 
-    private void playInstant(SoundBuffer sound, float multiplier) {
+    private void playInstantSFX(SoundBuffer sound, float multiplier) {
         sound.stop();
-        sound.play(volume * multiplier);
+        sound.play(sfxVol * multiplier);
+    }
+
+    /** Set the game save */
+    public void setSave(Save s){
+        save = s;
+        musicVol = s.music_vol/100f;
+        sfxVol = s.sfx_vol/100f;
+    }
+
+    public void updateVol(){
+        musicVol = save.music_vol/100f;
+        sfxVol = save.sfx_vol/100f;
+        levelTheme1.setVolume(musicVol * LOUD);
+        levelTheme2.setVolume(musicVol * LOUD);
+        //levelTheme3.setVolume(musicVol * LOUD);
     }
 
     private void playMusicInstant(MusicBuffer sound) {
@@ -204,10 +224,12 @@ public class SoundController {
     }
 
     private void mute() {
-        if (volume == 0f) {
-            volume = VOLUME;
+        if (musicVol == 0f) {
+            musicVol = save.music_vol;
+            sfxVol = save.sfx_vol;
         } else {
-            volume = 0f;
+            musicVol = 0f;
+            sfxVol = 0f;
         }
     }
 
@@ -253,23 +275,23 @@ public class SoundController {
         switch (screen){
             case MENU:
                 playMusicInstant(menuTheme);
-                menuTheme.setVolume(volume * LOUD);
+                menuTheme.setVolume(musicVol * LOUD);
                 break;
             case LEVEL:
                 if (!musicPlaying()) {
                     playLevel();
                 }
-                levelTheme1.setVolume(volume * LOUD);
-                levelTheme2.setVolume(volume * LOUD);
-                //levelTheme3.setVolume(volume * LOUD);
+                levelTheme1.setVolume(musicVol * LOUD);
+                levelTheme2.setVolume(musicVol * LOUD);
+                //levelTheme3.setVolume(musicVol * LOUD);
                 break;
             case PAUSE:
                 if (!musicPlaying()) {
                     playLevel();
                 }
-                levelTheme1.setVolume(volume * LOUD * PAUSE_VOL);
-                levelTheme2.setVolume(volume * LOUD * PAUSE_VOL);
-                //levelTheme3.setVolume(volume * LOUD * PAUSE_VOL);
+                levelTheme1.setVolume(musicVol * LOUD * PAUSE_VOL);
+                levelTheme2.setVolume(musicVol * LOUD * PAUSE_VOL);
+                //levelTheme3.setVolume(musicVol * LOUD * PAUSE_VOL);
                 break;
             case WIN:
             case LOSE:
@@ -286,64 +308,91 @@ public class SoundController {
 
     //Commented out sounds have not yet been added
     //UI
-    public void playMenuEnter() {playInstant(menuEnter, LOUD);}
+    public void playMenuEnter() {
+        playInstantSFX(menuEnter, LOUD);}
 
-    public void playMenuSelecting() {playInstant(menuSelecting, LOUD);}
+    public void playMenuSelecting() {
+        playInstantSFX(menuSelecting, LOUD);}
 
-    public void playVictory() {playInstant(victory, LOUD);}
+    public void playVictory() {
+        playInstantSFX(victory, LOUD);}
 
-    public void playFailure() {playInstant(failure, LOUD);}
+    public void playFailure() {
+        playInstantSFX(failure, LOUD);}
 
     //Chef
-    public void playChefHurt() {playInstant(chefHurt, LOUD);}
+    public void playChefHurt() {
+        playInstantSFX(chefHurt, LOUD);}
 
-    public void playEmptySlap() {playInstant(emptySlap, LOUD);}
+    public void playEmptySlap() {
+        playInstantSFX(emptySlap, LOUD);}
 
-    public void playHitSlap() {playInstant(contactSlap, LOUD);}
+    public void playHitSlap() {
+        playInstantSFX(contactSlap, LOUD);}
 
 
     //Traps
-    public void playFireTrap() {playInstant(fireTrigger, LOUD);}
+    public void playFireTrap() {
+        playInstantSFX(fireTrigger, LOUD);}
 
-    public void playBreadTrig() {playInstant(breadTrigger, LOUD);}
+    public void playBreadTrig() {
+        playInstantSFX(breadTrigger, LOUD);}
 
-    public void playBreadEat() {playInstant(breadEat, LOUD);}
+    public void playBreadEat() {
+        playInstantSFX(breadEat, LOUD);}
 
-    public void playIceTrig() {playInstant(iceFreeze, LOUD);}
+    public void playIceTrig() {
+        playInstantSFX(iceFreeze, LOUD);}
 
-    public void playIceFreeze() {playInstant(iceFreeze, MED);}
+    public void playIceFreeze() {
+        playInstantSFX(iceFreeze, MED);}
 
-    public void playCoolerOpen() {playInstant(cooler, LOUD);}
+    public void playCoolerOpen() {
+        playInstantSFX(cooler, LOUD);}
 
 
     //Chickens
-    public void playShredAttack() {playInstant(shreddedAttack, MED);}
+    public void playShredAttack() {
+        playInstantSFX(shreddedAttack, MED);}
 
-    public void playShredHurt() {playInstant(shreddedHurt, LOUD);}
+    public void playShredHurt() {
+        playInstantSFX(shreddedHurt, LOUD);}
 
-    public void playEggsplosion() {playInstant(eggsplosion, LOUD);}
+    public void playEggsplosion() {
+        playInstantSFX(eggsplosion, LOUD);}
 
-    public void playBuffCharge() {playInstant(buffaloCharge, LOUD);}
+    public void playBuffCharge() {
+        playInstantSFX(buffaloCharge, LOUD);}
 
-    public void playBuffAttack() {playInstant(buffaloAttack, LOUD);}
+    public void playBuffAttack() {
+        playInstantSFX(buffaloAttack, LOUD);}
 
-    public void playShredWhiff() {playInstant(emptySlap, LOUD);}
+    public void playShredWhiff() {
+        playInstantSFX(emptySlap, LOUD);}
 
-    public void playBuffHurt() {playInstant(buffaloHurt, LOUD);}
+    public void playBuffHurt() {
+        playInstantSFX(buffaloHurt, LOUD);}
 
-    public void playHotCharge() {playInstant(hotCharge, LOUD);}
+    public void playHotCharge() {
+        playInstantSFX(hotCharge, LOUD);}
 
-    public void playHotAttack() {playInstant(hotAttack, LOUD);}
+    public void playHotAttack() {
+        playInstantSFX(hotAttack, LOUD);}
 
-    public void playHotHurt() {playInstant(hotHurt, LOUD);}
+    public void playHotHurt() {
+        playInstantSFX(hotHurt, LOUD);}
 
-    public void playNugAttack() {playInstant(nuggetAttack, LOUD);}
+    public void playNugAttack() {
+        playInstantSFX(nuggetAttack, LOUD);}
 
-    public void playNugHurt() {playInstant(nuggetHurt, MED);}
+    public void playNugHurt() {
+        playInstantSFX(nuggetHurt, MED);}
 
-    public void playDinoHurt() {playInstant(dinoHurt, LOUD);}
+    public void playDinoHurt() {
+        playInstantSFX(dinoHurt, LOUD);}
 
-    public void playDinoAttack() {playInstant(dinoAttack, LOUD);}
+    public void playDinoAttack() {
+        playInstantSFX(dinoAttack, LOUD);}
 
 
     public void dispose() {

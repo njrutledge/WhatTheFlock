@@ -702,6 +702,11 @@ public class Chef extends GameObject implements ChefInterface {
 			canvas.draw(attOnTexture, clip_scale, 0, Color.WHITE,
 					0, 0, (X_HEALTH-55)*displayScale.x, y_health-(180-add_height)*displayScale.y,
 					attOnTexture.getRegionWidth()*displayScale.x, attOnTexture.getRegionHeight()*displayScale.y);
+
+			canvas.draw(attOffTexture, Color.WHITE, getX()*drawScale.x, getY()*drawScale.y, attOffTexture.getWidth()*displayScale.x*.5f, attOffTexture.getHeight()*displayScale.y*.5f);
+			canvas.draw(attOnTexture, clip_scale, 0, Color.WHITE,
+					0, 0, getX()*drawScale.x, getY()*drawScale.y +add_height*.5f*displayScale.y,
+					attOnTexture.getRegionWidth()*displayScale.x*.5f, attOnTexture.getRegionHeight()*displayScale.y*.5f);
 		}
 	}
 	

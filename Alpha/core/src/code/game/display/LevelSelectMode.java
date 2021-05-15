@@ -362,7 +362,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 pressState = 1;
                 break;
             case "ENTERED":
-                System.out.println(levelSelected);
                 pressState = 2;
                 if (highlightedIndex != -1) {
                     if (leftIndex + highlightedIndex < save.furthest_level) { pressState = 0; }
