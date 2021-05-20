@@ -18,6 +18,23 @@
                 "foreleft"   : [0,   40,  16, 70],
                 "foreright"  : [384, 40, 400, 70]
             }
+        },
+        "ui:tempBar": {
+          "file":      "ui/HUD_tempbar_noflame.png",
+          "atlas":     {
+            "empty" : [55, 60, 140, 600],
+            "yellow" : [285, 60, 369, 600],
+            "orange" : [522, 61, 605, 601],
+            "red" : [746, 58, 829, 598]
+          }
+        },
+        "ui:noBar": {
+          "file":      "ui/tempbar_nobar.png",
+          "atlas":     {
+            "yellow" : [285, 60, 369, 600],
+            "orange" : [522, 61, 605, 601],
+            "red" : [746, 58, 829, 598]
+          }
         }
-	}
+    }
 }

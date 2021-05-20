@@ -104,11 +104,11 @@ public class Stove extends GameObject implements StoveInterface {
      */
     public void draw(GameCanvas canvas) {
         if (active && !lit) {
-            canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.19f, displayScale.y*.19f);
+            canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.2f, displayScale.y*.2f);
         }  else if (active && lit) {
-            canvas.draw(active_texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.19f, displayScale.y*.19f);
+            canvas.draw(active_texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.2f, displayScale.y*.2f);
         } else {
-            canvas.draw(inactive_texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.19f, displayScale.y*.19f);
+            canvas.draw(inactive_texture, Color.SLATE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.2f, displayScale.y*.2f);
         }
     }
 
