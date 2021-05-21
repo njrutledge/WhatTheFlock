@@ -106,16 +106,16 @@ public class Trap extends GameObject implements TrapInterface {
     /**
      * durability of lure
      */
-    private float lure_amount = 3;
+    private float lure_amount = 4;
 
     /**
      * max durability of lure
      */
-    private final float MAX_LURE_AMMOUNT = 3;
+    private final float MAX_LURE_AMMOUNT = 4;
     /**
      * Slow effect strength
      */
-    private float SLOW_EFFECT = 0.5f;
+    private float SLOW_EFFECT = 0.75f;
     /**
      * Fire duration effect
      */

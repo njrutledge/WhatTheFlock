@@ -901,6 +901,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		save.screen_width = Math.max(save.screen_height*16/9,1280);
 		if(save.fullscreen){
 			canvas.setFullscreen(true, true);
+			canvas.resetCamera();
 		}else if((canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) && !System.getProperty("os.name").contains("Mac")) {
 			canvas.setFullscreen(false, false);
 			canvas.setSize(save.screen_width, save.screen_height);
@@ -1498,7 +1499,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Turn the game engine crank.
 		world.step(WORLD_STEP,WORLD_VELOC,WORLD_POSIT);
 		if (temp.getTemperature() > 0 && chef.hitChicken()){
-			temp.reduceTemp(temp_reduction);
+			temp.reduceTemp(temp_reduction * .7f);
 			chef.setHitChicken(false);
 		}
 		// Garbage collect the deleted objects.
