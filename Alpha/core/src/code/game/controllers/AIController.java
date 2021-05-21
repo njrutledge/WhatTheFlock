@@ -517,7 +517,7 @@ public class AIController {
         float x = target.getX() + targetOffset.x;
         float y = target.getY() + targetOffset.y;
         if(!grid.inBounds(grid.getTile(x, y).getRow(), grid.getTile(x, y).getCol()) || grid.getTile(x, y).isObstacle()){
-            targetOffset = Vector2.Zero;
+            targetOffset = Vector2.Zero.cpy();
         }
 
         open.clear();
