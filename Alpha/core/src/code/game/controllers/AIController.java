@@ -206,7 +206,7 @@ public class AIController {
                 state = FSM.STUNNED;
                 break;
             case STUNNED:
-                chicken.setInvisible(((int)(invuln_counter * 10)) % 2 == 0);
+                //chicken.setInvisible(((int)(invuln_counter * 10)) % 2 == 0);
                 if (invuln_counter >= INVULN_TIME){
                     state = FSM.CHASE;
                     chicken.setStunned(false);

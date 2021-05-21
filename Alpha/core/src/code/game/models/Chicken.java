@@ -379,6 +379,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             } else {
                 faceRight = faceRight;
             }
+        } if (!this.isAlive() && !isStunned) {
+            this.markRemoved(true);
         }
         super.update(dt);
         applyForce();

@@ -323,9 +323,7 @@ public class CollisionController implements CollisionControllerInterface {
         if (attack.isReflected() && !attack.isBreaking()){
             chicken.takeDamage(dmg);
             attack.collideObject();
-            if (!chicken.isAlive()) {
-                chicken.markRemoved(true);
-            }
+
         }
     }
 
@@ -369,9 +367,6 @@ public class CollisionController implements CollisionControllerInterface {
                 break;
         }
 
-        if (!c1.isAlive()) {
-            c1.markRemoved(true);
-        }
     }
 
     /**
