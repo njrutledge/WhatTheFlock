@@ -276,10 +276,6 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         return save;
     }
 
-    public void updateSave(Save s){
-        save = s;
-    }
-
     /**
      * Returns the JSON value of levelSelected to the given name, specified in levelselect.json
      *
@@ -438,7 +434,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             if (!isMouseScrolling && !handleScrolling(dt, input)) return true;
             if (isMouseScrolling && !processScrolling(dt)) return true;
         }
-        if (input.didESC()) { Gdx.input.setCursorCatched(true); keyPressed("ESCAPE"); return false; }
+        if (input.didESC() || (input.didEnter() && highlightedIndex==-1)) { Gdx.input.setCursorCatched(true); keyPressed("ESCAPE"); return false; }
         else if (input.isMovementPressed()) {
             Gdx.input.setCursorCatched(true);
             if (input.getHorizontal() != 0) {
