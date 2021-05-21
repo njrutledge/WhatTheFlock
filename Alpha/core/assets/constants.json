@@ -57,7 +57,7 @@
 		"maxspeed": 5.0,
 		"chasespeed": 4,
 		"knockback": 20.0,
-		"maxhealth": 8,
+		"maxhealth": 6,
 		"num_anim_frames": 11,
 		"animation_speed": 0.15,
 		"sensor_radius": 1.5,
@@ -86,7 +86,7 @@
 		"maxspeed": 5.0,
 		"chasespeed": 3.0,
 		"knockback": 20.0,
-		"maxhealth": 6,
+		"maxhealth": 5,
 		"sensor": {
 			"shrink" : 0.6,
 			"height" : 0.1

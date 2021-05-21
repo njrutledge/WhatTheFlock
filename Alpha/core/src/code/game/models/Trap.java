@@ -115,7 +115,7 @@ public class Trap extends GameObject implements TrapInterface {
     /**
      * Slow effect strength
      */
-    private float SLOW_EFFECT = 0.75f;
+    private float SLOW_EFFECT = 1.2f;
     /**
      * Fire duration effect
      */
@@ -638,7 +638,9 @@ public class Trap extends GameObject implements TrapInterface {
             if (!isReady) {
                 int breaking = 1;
             }
-            canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
+            canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y,
+                    getX() * drawScale.x, getY() * drawScale.y, getAngle(),
+                    canvas.getWidth()/1920f*scale*.8f, canvas.getHeight()/1080f*scale*.8f);
             if (hasIndicator && isReady) {
                 canvas.draw(slapIndicator, Color.WHITE, (getX()-xoffset) * drawScale.x, (getY() + yoffset) * drawScale.y , slapIndicator.getRegionWidth()*displayScale.x*0.5f, slapIndicator.getRegionHeight()*displayScale.y*0.5f);
             }

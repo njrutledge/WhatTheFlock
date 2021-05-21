@@ -118,25 +118,22 @@ public class BuffaloChicken extends Chicken {
 
     public void update(float dt) {
         if (isStunned) {
-            animeframe += ANIMATION_SPEED * 4;
+            if(!isFrozen()) animeframe += ANIMATION_SPEED * 4;
             if (animeframe >= 5) {
                 animeframe -= 5;
             }
         } else if (!isRunning() && !isAttacking()) {
-            //don't animate frozen
-            animeframe += ANIMATION_SPEED;
+            if(!isFrozen()) animeframe += ANIMATION_SPEED;
             if (animeframe > NUM_ANIM_FRAMES) {
                 animeframe -= NUM_ANIM_FRAMES;
             }
         } else if (isAttacking() && doneCharging()) {
-            if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
-                animeframe += ANIMATION_SPEED;
-            }
+            if(!isFrozen()) animeframe += ANIMATION_SPEED;
             if (animeframe >= 6) {
                 animeframe -= 6;
             }
         } else if (isAttacking()) {
-            animeframe += ANIMATION_SPEED/1.25;
+            if(!isFrozen()) animeframe += ANIMATION_SPEED/1.25;
             if (animeframe >= 11) {
                 animeframe -= 11;
             }
