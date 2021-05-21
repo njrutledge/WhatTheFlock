@@ -459,7 +459,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
             scrolling = false;
             pressDownTime = 0;
         }
-        if (input.didESC()) { Gdx.input.setCursorCatched(true); selected = 5; editing = 0; return false; }
+        if (input.didESC()) { Gdx.input.setCursorCatched(true); selected = 5; editing = -1; return false; }
         else if (input.didMovementKey()) {
             Gdx.input.setCursorCatched(true);
             if (editing >= 0 && input.getHorizontal() != 0) {
