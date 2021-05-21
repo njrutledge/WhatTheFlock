@@ -434,7 +434,11 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             if (!isMouseScrolling && !handleScrolling(dt, input)) return true;
             if (isMouseScrolling && !processScrolling(dt)) return true;
         }
-        if (input.didESC() || (input.didEnter() && highlightedIndex==-1)) { Gdx.input.setCursorCatched(true); keyPressed("ESCAPE"); return false; }
+        if (input.didESC() || (input.didEnter() && highlightedIndex==-1)) {
+            Gdx.input.setCursorCatched(true);
+            keyPressed("ESCAPE");
+            sound.playMenuEnter();
+            return false; }
         else if (input.isMovementPressed()) {
             Gdx.input.setCursorCatched(true);
             if (input.getHorizontal() != 0) {
