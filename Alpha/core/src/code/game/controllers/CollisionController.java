@@ -149,7 +149,7 @@ public class CollisionController implements CollisionControllerInterface {
                 handleChefChicken((Chef) bd2, fd2, c1, fd1);
                 break;
             case SLAP:
-                handleChickenSlap(c1, fd1, bd2, fd2);
+                handleChickenSlap(c1, fd1, (Slap) bd2, fd2);
                 break;
             case FLOORTRAP:
             case TABLETRAP:
@@ -344,11 +344,12 @@ public class CollisionController implements CollisionControllerInterface {
      *
      * @param c1
      * @param fd1
-     * @param bd2
+     * @param s2
      * @param fd2
      */
-    private void handleChickenSlap(Chicken c1, FixtureType fd1, GameObject bd2, FixtureType fd2) {
+    private void handleChickenSlap(Chicken c1, FixtureType fd1, Slap s2, FixtureType fd2) {
         c1.takeDamage(dmg);
+        s2.hitChicken();
         sound.playHitSlap();
         switch (c1.getType()){
             case Nugget:

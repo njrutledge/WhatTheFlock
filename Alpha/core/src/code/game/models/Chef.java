@@ -138,6 +138,9 @@ public class Chef extends GameObject implements ChefInterface {
 	/** Reference to texture origin */
 	protected Vector2 origin;
 
+	/** Whether or not the chef has hit a chicken */
+	private boolean hitChicken = false;
+
 
 	/**
 	 * Creates a new chef avatar with the given game data
@@ -480,6 +483,10 @@ public class Chef extends GameObject implements ChefInterface {
 	public boolean isFacingRight() {
 		return faceRight;
 	}
+
+	public boolean hitChicken(){ return hitChicken; }
+
+	public void setHitChicken(boolean val){ hitChicken = val;}
 
 	/**
 	 * Sets textures for the chef, including heart textures and buff textures.

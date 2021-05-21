@@ -1262,16 +1262,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
-		if (temp.getTemperature() > 0){
-			temp.reduceTemp(temp_reduction);
-		}
 
 		float radius = 8*bulletTexture.getWidth() / (2.0f * scale.x)*displayScale.y;
 		Slap slap;
 		if(direction == 2 || direction == 4) {
-			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), radius, 0.1f, direction);
+			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), radius, 0.1f, direction, chef);
 		}else {
-			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), 0.1f, radius, direction);
+			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), 0.1f, radius, direction, chef);
 		}
 		slap.setTexture(bulletTexture);
 		slap.setDrawScale(scale);
@@ -1500,10 +1497,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		// Turn the game engine crank.
 		world.step(WORLD_STEP,WORLD_VELOC,WORLD_POSIT);
-
+		if (temp.getTemperature() > 0 && chef.hitChicken()){
+			temp.reduceTemp(temp_reduction);
+			chef.setHitChicken(false);
+		}
 		// Garbage collect the deleted objects.
 		// Note how we use the linked list nodes to delete O(1) in place.
 		// This is O(n) without copying.
+
 		iterateThrough(walls.entryIterator(), dt);
 		iterateThrough(trapEffects.entryIterator(),dt);
 		iterateThrough(stovesDrawLst.entryIterator(), dt);
