@@ -272,7 +272,9 @@ public class GameCanvas {
 			return;
 		}
 		if (value) {
-			Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+			if (!System.getProperty("os.name").contains("Mac")) {
+				Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+			}
 		} else {
 			Gdx.graphics.setWindowedMode(width, height);
 		}
