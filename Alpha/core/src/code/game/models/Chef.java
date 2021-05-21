@@ -705,11 +705,12 @@ public class Chef extends GameObject implements ChefInterface {
 			float clip_pixels = 53*(1-damageTimer/DAMAGE_TIME);
 			float clip_scale = (float)(1-0.36-(clip_pixels/194));
 			int add_height = 194-(int)(clip_scale*attOnTexture.getRegionHeight());
-			canvas.draw(attOffTexture, Color.WHITE, (X_HEALTH-55)*displayScale.x, y_health - (180*displayScale.y), attOffTexture.getWidth()*displayScale.x, attOffTexture.getHeight()*displayScale.y);
+			//OLD DRAW
+			/*canvas.draw(attOffTexture, Color.WHITE, (X_HEALTH-55)*displayScale.x, y_health - (180*displayScale.y), attOffTexture.getWidth()*displayScale.x, attOffTexture.getHeight()*displayScale.y);
 			canvas.draw(attOnTexture, clip_scale, 0, Color.WHITE,
 					0, 0, (X_HEALTH-55)*displayScale.x, y_health-(180-add_height)*displayScale.y,
 					attOnTexture.getRegionWidth()*displayScale.x, attOnTexture.getRegionHeight()*displayScale.y);
-
+			*/
 			canvas.draw(attOffTexture, Color.WHITE, getX()*drawScale.x, getY()*drawScale.y, attOffTexture.getWidth()*displayScale.x*.5f, attOffTexture.getHeight()*displayScale.y*.5f);
 			canvas.draw(attOnTexture, clip_scale, 0, Color.WHITE,
 					0, 0, getX()*drawScale.x, getY()*drawScale.y +add_height*.5f*displayScale.y,
