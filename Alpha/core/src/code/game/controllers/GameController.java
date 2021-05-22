@@ -1499,7 +1499,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		// Turn the game engine crank.
 		world.step(WORLD_STEP,WORLD_VELOC,WORLD_POSIT);
 		if (temp.getTemperature() > 0 && chef.hitChicken()){
-			temp.reduceTemp(temp_reduction * .3f);
+			temp.reduceTemp(temp_reduction);
 			chef.setHitChicken(false);
 		}
 		// Garbage collect the deleted objects.
