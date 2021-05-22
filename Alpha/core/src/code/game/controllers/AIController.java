@@ -141,11 +141,7 @@ public class AIController {
     private void changeState(){
         switch(state){
             case CHASE:
-                if(chicken.isFrozen()){
-                    chicken.stopAttack();
-                    state = FSM.CHASE;
-                }
-                else if (chicken.getHit()){
+                if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 } else if (stop_counter < STOP_DUR && !chicken.isLured()) {
                     state = FSM.STOP;
