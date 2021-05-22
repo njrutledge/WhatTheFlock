@@ -740,4 +740,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @return attack range
      */
     public float getAttackRange(){return sensorRadius;}
+
+    public boolean isStunned() {return isStunned;}
 }
