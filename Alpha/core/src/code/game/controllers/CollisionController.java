@@ -346,26 +346,30 @@ public class CollisionController implements CollisionControllerInterface {
      * @param fd2
      */
     private void handleChickenSlap(Chicken c1, FixtureType fd1, Slap s2, FixtureType fd2) {
+        if (!c1.isStunned()) {
+            sound.playHitSlap();
+            switch (c1.getType()){
+                case Nugget:
+                    sound.playNugHurt();
+                    break;
+                case Buffalo:
+                    sound.playBuffHurt();
+                    break;
+                case Shredded:
+                    sound.playShredHurt();
+                    break;
+                case Hot:
+                    sound.playHotHurt();
+                    break;
+                case DinoNugget:
+                    sound.playDinoHurt();
+                    break;
+            }
+        }
         c1.takeDamage(dmg);
         s2.hitChicken();
-        sound.playHitSlap();
-        switch (c1.getType()){
-            case Nugget:
-                sound.playNugHurt();
-                break;
-            case Buffalo:
-                sound.playBuffHurt();
-                break;
-            case Shredded:
-                sound.playShredHurt();
-                break;
-            case Hot:
-                sound.playHotHurt();
-                break;
-            case DinoNugget:
-                sound.playDinoHurt();
-                break;
-        }
+
+
 
     }
 
