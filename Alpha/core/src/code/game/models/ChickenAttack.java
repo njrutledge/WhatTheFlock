@@ -164,6 +164,11 @@ public class ChickenAttack extends GameObject {
      *
      */
     public Vector2 updateLinearVelocity() {
+        if(chicken.isFrozen()){
+            remove = true;
+        }else{
+            chicken.getSlow();
+        }
         speed *= CHARGE_RATE;
         target = chicken.getDestination();
         charge_radius = distance(origin_vector.x, origin_vector.y, chicken.getX(), chicken.getY());

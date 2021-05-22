@@ -141,12 +141,16 @@ public class AIController {
     private void changeState(){
         switch(state){
             case CHASE:
-                if (chicken.getHit()){
+                if(chicken.isFrozen()){
+                    chicken.stopAttack();
+                    state = FSM.CHASE;
+                }
+                else if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 } else if (stop_counter < STOP_DUR && !chicken.isLured()) {
                     state = FSM.STOP;
                 }
-                else if (!chicken.isLured() && chicken.isAttacking() && !chicken.isFrozen()) {
+                else if (!chicken.isLured() && chicken.isAttacking()) {
                     if (!chicken.getType().equals(Chicken.ChickenType.Buffalo) || canChargeChef() ) {
                         state = FSM.ATTACK;
                     }
@@ -214,7 +218,7 @@ public class AIController {
                 }
                 break;
             case STOP:
-                if (chicken.getHit()){
+               if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
                 else if (chicken.isLured()){
@@ -260,6 +264,11 @@ public class AIController {
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_DUR);
         changeState();
+        if(chicken.isFrozen()){
+            if (chicken.getChickenAttack()!=null) chicken.getChickenAttack().markRemoved(true);
+            chicken.stopAttack();
+            chicken.setRunning(false);
+        }
         //state = FSM.STOP;
         setForceCache();
         if (state == FSM.ATTACK && target.isActive()) {

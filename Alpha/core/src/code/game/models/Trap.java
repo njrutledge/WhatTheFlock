@@ -115,7 +115,7 @@ public class Trap extends GameObject implements TrapInterface {
     /**
      * Slow effect strength
      */
-    private float SLOW_EFFECT = 1.2f;
+    private float SLOW_EFFECT = 1.5f;
     /**
      * Fire duration effect
      */

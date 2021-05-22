@@ -401,6 +401,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Returns whether or not the chicken is frozen */
     public boolean isFrozen() {return slow == 0f;}
 
+
     //TODO: comment
     public boolean getSoundCheck() {
         if (soundCheck) {
