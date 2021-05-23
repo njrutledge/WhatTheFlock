@@ -26,6 +26,7 @@ public abstract class GameObject extends BoxObstacle {
         PLACE,
         ATTACK,
         WALL,
+        TUTORIAL,
         NULL
     }
     /**

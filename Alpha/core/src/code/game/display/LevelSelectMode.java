@@ -165,6 +165,8 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
 
     /** The level info of the selected level, to pass onto GameController*/
     private JsonValue levelSelected;
+    /** The level number of the selected level, to pass onto GameController */
+    private int levelSelectedNum;
     /** Whether or not this player mode is still active */
     private boolean active;
     /** The index of the highlighted knife */
@@ -262,6 +264,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         if (highlightedIndex == 2) { leftIndex += 1; }
         else { highlightedIndex += 1; }
         levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]);
+        levelSelectedNum = leftIndex + highlightedIndex;
     }
 
     /** Returns true if there is a level available after the current one */
@@ -304,7 +307,14 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         return levelSelected;
     }
 
-    /** Gets the
+    /**
+     * Gets the level number of the level this mode selected
+     */
+    public int getLevelSelectedNum(){
+        return levelSelectedNum;
+    }
+
+
     /**
      * Checks if pressState pressed level
      * @return  whether or not pressed a knife
@@ -363,7 +373,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                 pressState = 2;
                 if (highlightedIndex != -1) {
                     if (leftIndex + highlightedIndex > save.furthest_level) { pressState = -1; }
-                    else { levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]); }
+                    else { levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]); levelSelectedNum = leftIndex + highlightedIndex; }
                 } else { pressState = -1; }
                 break;
             case "ESCAPE":
@@ -811,6 +821,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         if (pressState == 1){
             pressState = 2;
             levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]);
+            levelSelectedNum = leftIndex + highlightedIndex;
             return false;
         }else if (pressState == 3){
             pressState = 4;

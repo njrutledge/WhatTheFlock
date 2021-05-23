@@ -233,6 +233,7 @@ public class GDXRoot extends Game implements ScreenListener {
 			//levelselect.activateInputProcessor(false);
 			switch(exitCode) {
 				case LevelSelectMode.EXIT_LEVEL:
+					controller.setCurrLevel(levelselect.getLevelSelectedNum());
 					controller.populateLevel(levelselect.getLevelSelected());
 					levelselect.reset();
 					options.inMainMenu = false;
@@ -282,6 +283,7 @@ public class GDXRoot extends Game implements ScreenListener {
 							gamemenu.reset();
 							controller.reset();
 							levelselect.setNextLevel();
+							controller.setCurrLevel(levelselect.getLevelSelectedNum());
 							controller.populateLevel(levelselect.getLevelSelected());
 							options.inMainMenu = false;
 							setScreen(controller);

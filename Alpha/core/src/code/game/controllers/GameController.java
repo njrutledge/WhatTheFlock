@@ -181,6 +181,21 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture chefHurtTexture;
 	private Texture chefIdleTexture;
 
+	/** Cook tutorial texture */
+	private Texture cookTutorialTexture;
+	/** Temp tutorial texture */
+	private Texture tempTutorialTexture;
+	/** Sauce tutorial texture */
+	private Texture sauceTutorialTexture;
+	/** Cooler tutorial texture */
+	private Texture coolerTutorialTexture;
+	/** Toaster tutorial texture */
+	private Texture toasterTutorialTexture;
+	/** Slap tutorial texture */
+	private Texture slapTutorialTexture;
+	/** Run tutorial texture */
+	private Texture runTutorialTexture;
+
 	/** Egg animation strips */
 	private Texture eggSpinTexture;
 	private Texture eggSplatTexture;
@@ -203,6 +218,17 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public static final int EXIT_LOSE = 1;
 	/** Exit code for pausing the game */
 	public static final int EXIT_PAUSE = 2;
+
+	/** Level number of the basic tutorials (cooking, slapping, running) */
+	private final int BASIC_TUTORIAL = 0;
+	/** Level number of the heat mechanic tutorial */
+	private final int HEAT_TUTORIAL = 1;
+	/** Level number of the hot sauce tutorial */
+	private final int SAUCE_TUTORIAL = 2;
+	/** Level number of the cooler tutorial */
+	private final int COOLER_TUTORIAL = 7;
+	/** Level number of the toaster tutorial */
+	private final int TOASTER_TUTORIAL = 11;
 
 	///** Exit code for starting in Easy */
 	//public static final int EASY = 0;
@@ -262,6 +288,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected static final String LEVEL_FIRE = "fire";
 	/** Name of chef in level files */
 	protected static final String LEVEL_CHEF = "chef";
+	/** Name of tutorial */
+	protected static final String LEVEL_TUTORIAL = "tutorial";
 /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 	///** Whether or not the player is cooking, true is they are and false otherwise*/
 	//private boolean cooking;
@@ -324,6 +352,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	protected PooledList<Obstacle> stovesDrawLst = new PooledList<Obstacle>();
 	/** All enemies in the world. */
 	protected PooledList<Obstacle> chickens = new PooledList<Obstacle>();
+	/** All tutorials in the world. */
+	protected PooledList<Obstacle> tutorials = new PooledList<Obstacle>();
 	/** All other objects in the world. */
 	protected PooledList<Obstacle> others = new PooledList<Obstacle>();
 	/** Listener that will update the player mode when we are done */
@@ -371,6 +401,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** How much time has passed in the game */
 	private float gameTime;
+
+	/** The level number of the current level */
+	private int currLevel = 0;
 
 	/** Whether the cursor was in a cached state right before this menu was set as screen */
 	private boolean cached;
@@ -535,6 +568,15 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		attOffTexture = directory.getEntry("ui:att_off", Texture.class);
 		attOnTexture = directory.getEntry("ui:att_on", Texture.class);
 
+		// tutorial
+		cookTutorialTexture = directory.getEntry("ui:tutorial:cook", Texture.class);
+		runTutorialTexture = directory.getEntry("ui:tutorial:run", Texture.class);
+		slapTutorialTexture = directory.getEntry("ui:tutorial:slap", Texture.class);
+		tempTutorialTexture = directory.getEntry("ui:tutorial:temp", Texture.class);
+		sauceTutorialTexture = directory.getEntry("ui:tutorial:sauce", Texture.class);
+		coolerTutorialTexture = directory.getEntry("ui:tutorial:cooler", Texture.class);
+		toasterTutorialTexture = directory.getEntry("ui:tutorial:toaster", Texture.class);
+
 		//fonts
 		displayFont = directory.getEntry( "font:retro" ,BitmapFont.class);
 
@@ -570,6 +612,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		stovesDrawLst.clear();
 		floorTraps.clear();
 		tableTraps.clear();
+		tutorials.clear();
 		others.clear();
 		chickens.clear();
 		ActiveStove = null;
@@ -599,6 +642,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	public void initHard(){
 		parameterList = new int []{3, 100, 2, 100, 4, 6, 30, 10, 5, 5, 5, 5, 0};
 		cooldown = true;
+	}
+
+	/** Set currLevel to the value num
+	 *
+	 * @param num the number of the current level
+	 */
+	public void setCurrLevel(int num){
+		currLevel = num;
 	}
 
 	/**
@@ -678,6 +729,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		Filter spawn_filter = new Filter();
 		spawn_filter.groupIndex = -1;
+
+		Filter tutorial_filter = new Filter();
+		tutorial_filter.groupIndex = -1;
 
 		int y = 27; int x = -1;
 		for(int ii = 0; ii < stuff.length; ii++){
@@ -778,6 +832,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					} else if (nonActiveStoves.size() < Stoves.size() - 1){
 						nonActiveStoves.add(nonActiveStoves.size() + 1);
 					}
+					if (currLevel == BASIC_TUTORIAL) {
+						createTutorial(cookTutorialTexture, tutorial_filter, x+1, y-3.3f);
+					} else if (currLevel == HEAT_TUTORIAL) {
+						createTutorial(tempTutorialTexture, tutorial_filter, x+1, y-9.5f);
+					}
 					break;
 				case LEVEL_CHEF:
 					// Create chef
@@ -795,6 +854,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef.setIdleTexture(chefIdleTexture);
 					chef.setFilterData(player_filter);
 
+					if (currLevel == BASIC_TUTORIAL) {
+						createTutorial(runTutorialTexture, tutorial_filter, x-2.5f, y-7.5f);
+						createTutorial(slapTutorialTexture, tutorial_filter, x+5.5f, y-7.5f);
+					}
 					//don't add chef here! add it later so its on top easier
 					break;
 				case LEVEL_SPAWN:
@@ -810,12 +873,21 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					break;
 				case LEVEL_SLOW:
 					trapHelper(x, y, Trap.type.COOLER);
+					if (x < 20 && currLevel == COOLER_TUTORIAL) {
+						createTutorial(coolerTutorialTexture, tutorial_filter, x+3.3f, y-1.5f);
+					}
 					break;
 				case LEVEL_LURE:
 					trapHelper(x, y, Trap.type.TOASTER);
+					if (currLevel == TOASTER_TUTORIAL) {
+						createTutorial(toasterTutorialTexture, tutorial_filter, x-0.3f, y+2.2f);
+					}
 					break;
 				case LEVEL_FIRE:
 					trapHelper(x, y, Trap.type.HOT_SAUCE);
+					if (currLevel == SAUCE_TUTORIAL) {
+						createTutorial(sauceTutorialTexture, tutorial_filter, x-0.7f, y+2.5f);
+					}
 					break;
 			}
 		}
@@ -853,6 +925,19 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		addObject(obj, GameObject.ObjectType.WALL);
 		grid.setObstacle(x,y);
 	}
+
+	private void createTutorial(Texture texture, Filter filter, float x, float y){
+		BoxObstacle obj = new BoxObstacle(x+.5f,y+.5f,1,1);
+		obj.setSensor(true);
+		obj.setBodyType(BodyDef.BodyType.StaticBody);
+		obj.setDrawScale(scale);
+		obj.setDisplayScale(displayScale);
+		obj.setTexture(texture);
+		obj.setFilterData(filter);
+		obj.setName(LEVEL_TUTORIAL);
+		addObject(obj, GameObject.ObjectType.TUTORIAL);
+	}
+
 
 	/*******************************************************************************************
 	 * COLLISIONS
@@ -1213,11 +1298,6 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		Chicken enemy;
 		Chicken enemy2;
-/*			if (type == Chicken.Type.Nugget) {
-			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
-		} else {
-			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
-		}*/
 		if (type == Chicken.ChickenType.Nugget) {
 			enemy = new NuggetChicken(constants.get("chicken"), constants.get("nugget"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(nuggetTexture);
@@ -1446,6 +1526,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			case STOVE:
 				stovesDrawLst.add(obj);
 				break;
+			case TUTORIAL:
+				tutorials.add(obj);
+				break;
 			case NULL:
 				others.add(obj);
 				break;
@@ -1510,6 +1593,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		iterateThrough(floorTraps.entryIterator(),dt);
 		iterateThrough(tableTraps.entryIterator(),dt);
 		iterateThrough(chickens.entryIterator(),dt);
+		iterateThrough(tutorials.entryIterator(),dt);
 		iterateThrough(others.entryIterator(),dt);
 	}
 
@@ -1562,6 +1646,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		for (Obstacle trap : floorTraps){
 			trap.draw(canvas);
 		}
+		for (Obstacle tutorial : tutorials){
+			tutorial.draw(canvas);
+		}
 		for (Obstacle c : chickens){
 			c.draw(canvas);
 		}
@@ -1594,6 +1681,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			}
 			for (Obstacle c : chickens){
 				c.drawDebug(canvas);
+			}
+			for (Obstacle tutorial : tutorials){
+				tutorial.drawDebug(canvas);
 			}
 			for (Obstacle other : others){
 				other.drawDebug(canvas);
@@ -1796,6 +1886,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 				float cheight = 33f/scale.y*displayScale.y;
 				((Chicken) c).resize(cwidth, cheight);
 			}
+			for (Obstacle tutorial : tutorials) {
+				tutorial.setDrawScale(scale);
+				tutorial.setDisplayScale(displayScale);
+			}
 			for (Obstacle other : others) {
 				other.setDrawScale(scale);
 				other.setDisplayScale(displayScale);
@@ -1835,6 +1929,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		tableTraps.clear();
 		floorTraps.clear();
 		trapEffects.clear();
+		tutorials.clear();
 		others.clear();
 		chickens.clear();
 		addQueue.clear();
@@ -1845,6 +1940,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		floorTraps = null;
 		trapEffects = null;
 		stovesDrawLst = null;
+		tutorials = null;
 		others = null;
 		chickens = null;
 		addQueue = null;

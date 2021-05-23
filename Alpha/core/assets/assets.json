@@ -119,8 +119,11 @@
 
         "ui:tutorial:cook": "ui/tutorial/tutorial_cook.png",
         "ui:tutorial:cooler": "ui/tutorial/tutorial_cooler.png",
-        "ui:tutorial:hotsauce": "ui/tutorial/tutorial_hotsauce.png",
-        "ui:tutorial:temperature": "ui/tutorial/tutorial_temperature.png",
+        "ui:tutorial:sauce": "ui/tutorial/tutorial_hotsauce.png",
+        "ui:tutorial:temp": "ui/tutorial/tutorial_temperature.png",
+        "ui:tutorial:run": "ui/tutorial/tutorial_run.png",
+        "ui:tutorial:slap": "ui/tutorial/tutorial_slap.png",
+        "ui:tutorial:toaster": "ui/tutorial/tutorial_toaster.png",
         "ui:att_off": "ui/attbuff_off.png",
         "ui:att_on": "ui/attbuff_on.png",
         "ui:tempBar": {
