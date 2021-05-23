@@ -143,7 +143,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Whether the chicken is invisible due to hitstun*/
     protected boolean isInvisible = false;
     /** Whether the chicken is being slowed */
-    private boolean inSlow = false;
+    protected boolean inSlow = false;
     /** Ammount to increase or decrease the slow modifier */
     private float SLOW_EFFECT = 0.5f;
     /** Whether the chicken is being lured */

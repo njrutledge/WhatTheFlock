@@ -138,7 +138,7 @@ public class BuffaloChicken extends Chicken {
                 animeframe -= 11;
             }
         }
-        if(isLured() && chickenAttack!=null){
+        if((isLured() || inSlow) && chickenAttack!=null){
             chickenAttack.collideObject();
         }
         super.update(dt);
