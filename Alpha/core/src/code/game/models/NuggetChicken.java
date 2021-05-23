@@ -107,17 +107,17 @@ public class NuggetChicken extends Chicken {
     public void update(float dt) {
 
         if (isStunned) {
-            animeframe += animation_speed*4;
+            if(!isFrozen()) animeframe += animation_speed*4;
             if (animeframe >= 5) {
                 animeframe -= 5;
             }
         } else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
-            animeframe += animation_speed;
+            if (!isFrozen()) animeframe += animation_speed;
             if (animeframe >= num_anim_frames) {
                 animeframe -= num_anim_frames;
             }
         } else if (isAttacking && attack_animator != null && !isLured()){
-            animeframe += animation_speed;
+            if(!isFrozen()) animeframe += animation_speed;
             if (animeframe >= 9) {
                 animeframe -= 9;
             }
@@ -133,31 +133,21 @@ public class NuggetChicken extends Chicken {
      */
     public void draw(GameCanvas canvas) {
         super.draw(canvas);
-        float effect = faceRight ? 1.0f:-1.0f;
+        float effect = faceRight ? 1.0f : -1.0f;
         Color c = null;
         //GameCanvas.BlendState state = canvas.getBlendState();
-        for(int ii=1; ii<=1;ii++) {
-            if(ii==0){
-                canvas.setBlendState(GameCanvas.BlendState.ALPHA_BLEND);
-                c = getColor();
-            }else{
-                canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
-                c = Color.WHITE.cpy();
-                //c.a = .75f;
-            }
-
-            if (isAttacking && attack_animator != null && !isLured()) {
-                attack_animator.setFrame((int) animeframe);
-                canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*0.1f * effect * wScale, displayScale.y*0.1f * hScale);
-            } else if (!isStunned) {
-                animator.setFrame((int) animeframe);
-                canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*0.1f * effect * wScale, displayScale.y*0.1f * hScale);
-            } else if (isStunned) {
-                hurt_animator.setFrame((int) (animeframe));
-                canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*0.1f * effect * wScale, displayScale.y*0.1f * hScale);
-            }
+        c = Color.WHITE.cpy();
+        if (isAttacking && attack_animator != null && !isLured()) {
+            attack_animator.setFrame((int) animeframe);
+            canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
+        } else if (!isStunned) {
+            animator.setFrame((int) animeframe);
+            canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
+        } else if (isStunned) {
+            hurt_animator.setFrame((int) (animeframe));
+            canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
         }
-        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x*0.1f * effect * wScale, displayScale.y*0.1f * hScale);
+        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
         canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
     }
 

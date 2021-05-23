@@ -986,6 +986,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		save.screen_width = Math.max(save.screen_height*16/9,1280);
 		if(save.fullscreen){
 			canvas.setFullscreen(true, true);
+			canvas.resetCamera();
 		}else if((canvas.getWidth()!=save.screen_width || canvas.getHeight()!=save.screen_height) && !System.getProperty("os.name").contains("Mac")) {
 			canvas.setFullscreen(false, false);
 			canvas.setSize(save.screen_width, save.screen_height);
@@ -1342,16 +1343,13 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	 */
 	private void createSlap(int direction) {
 		//TODO: Slap needs to go through multiple enemies, specific arc still needs to be tweaked, probably best if in-game changing of variables is added
-		if (temp.getTemperature() > 0){
-			temp.reduceTemp(temp_reduction);
-		}
 
 		float radius = 8*bulletTexture.getWidth() / (2.0f * scale.x)*displayScale.y;
 		Slap slap;
 		if(direction == 2 || direction == 4) {
-			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), radius, 0.1f, direction);
+			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), radius, 0.1f, direction, chef);
 		}else {
-			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), 0.1f, radius, direction);
+			slap = new Slap(constants.get("slap"), chef.getX(), chef.getY(), 0.1f, radius, direction, chef);
 		}
 		slap.setTexture(bulletTexture);
 		slap.setDrawScale(scale);
@@ -1583,10 +1581,14 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		// Turn the game engine crank.
 		world.step(WORLD_STEP,WORLD_VELOC,WORLD_POSIT);
-
+		if (temp.getTemperature() > 0 && chef.hitChicken()){
+			temp.reduceTemp(temp_reduction);
+			chef.setHitChicken(false);
+		}
 		// Garbage collect the deleted objects.
 		// Note how we use the linked list nodes to delete O(1) in place.
 		// This is O(n) without copying.
+
 		iterateThrough(walls.entryIterator(), dt);
 		iterateThrough(trapEffects.entryIterator(),dt);
 		iterateThrough(stovesDrawLst.entryIterator(), dt);
@@ -1853,10 +1855,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			save.screen_height = height;
 		}
 		Vector2 scaleOLD = scale.cpy();
-		this.scale.x = width/bounds.getWidth();///1.2f;
-		this.scale.y = height/bounds.getHeight();///1.2f;
-		this.displayScale.x = width/1920f;///1.2f;
-		this.displayScale.y = height/1080f;///1.2f;
+		this.scale.x = width/bounds.getWidth();
+		this.scale.y = height/bounds.getHeight();
+		this.displayScale.x = width/1920f;
+		this.displayScale.y = height/1080f;
 		if(!scaleOLD.equals(scale)) {
 			for (Obstacle obj : walls) {
 				obj.setDrawScale(scale);

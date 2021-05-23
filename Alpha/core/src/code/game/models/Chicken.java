@@ -143,7 +143,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Whether the chicken is invisible due to hitstun*/
     protected boolean isInvisible = false;
     /** Whether the chicken is being slowed */
-    private boolean inSlow = false;
+    protected boolean inSlow = false;
     /** Ammount to increase or decrease the slow modifier */
     private float SLOW_EFFECT = 0.5f;
     /** Whether the chicken is being lured */
@@ -380,6 +380,9 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
                 faceRight = faceRight;
             }
         }
+        if (!this.isAlive() && !isStunned) {
+            this.markRemoved(true);
+        }
         super.update(dt);
         applyForce();
         if(inSlow){
@@ -397,6 +400,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
 
     /** Returns whether or not the chicken is frozen */
     public boolean isFrozen() {return slow == 0f;}
+
 
     //TODO: comment
     public boolean getSoundCheck() {
@@ -737,4 +741,6 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
      * @return attack range
      */
     public float getAttackRange(){return sensorRadius;}
+
+    public boolean isStunned() {return isStunned;}
 }

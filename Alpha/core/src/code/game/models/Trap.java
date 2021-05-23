@@ -106,16 +106,16 @@ public class Trap extends GameObject implements TrapInterface {
     /**
      * durability of lure
      */
-    private float lure_amount = 3;
+    private float lure_amount = 4;
 
     /**
      * max durability of lure
      */
-    private final float MAX_LURE_AMMOUNT = 3;
+    private final float MAX_LURE_AMMOUNT = 4;
     /**
      * Slow effect strength
      */
-    private float SLOW_EFFECT = 0.5f;
+    private float SLOW_EFFECT = 1.5f;
     /**
      * Fire duration effect
      */
@@ -638,7 +638,9 @@ public class Trap extends GameObject implements TrapInterface {
             if (!isReady) {
                 int breaking = 1;
             }
-            canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
+            canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y,
+                    getX() * drawScale.x, getY() * drawScale.y, getAngle(),
+                    canvas.getWidth()/1920f*scale*.8f, canvas.getHeight()/1080f*scale*.8f);
             if (hasIndicator && isReady) {
                 canvas.draw(slapIndicator, Color.WHITE, (getX()-xoffset) * drawScale.x, (getY() + yoffset) * drawScale.y , slapIndicator.getRegionWidth()*displayScale.x*0.5f, slapIndicator.getRegionHeight()*displayScale.y*0.5f);
             }

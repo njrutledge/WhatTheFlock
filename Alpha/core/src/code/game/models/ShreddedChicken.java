@@ -231,13 +231,13 @@ public class ShreddedChicken extends Chicken {
             //}
         } else if (attack_animator != null && attack_animeframe > 0
                 && attack_animator.getFrame() < attack_animator.getSize() - 1){
-            attack_animeframe += ANIMATION_SPEED_ATTACK;
+            if(!isFrozen()) attack_animeframe += ANIMATION_SPEED_ATTACK;
             if (attack_animeframe >= NUM_ANIM_FRAMES_ATTACK) {
                 attack_animeframe -= NUM_ANIM_FRAMES_ATTACK;
             }
         }
         else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
-            animeframe += ANIMATION_SPEED_WALK;
+            if(!isFrozen()) animeframe += ANIMATION_SPEED_WALK;
             if (animeframe >= NUM_ANIM_FRAMES_WALK) {
                 animeframe -= NUM_ANIM_FRAMES_WALK;
             }
@@ -246,7 +246,7 @@ public class ShreddedChicken extends Chicken {
             if (animeframe >= NUM_ANIM_FRAMES_ATTACK) {
                 animeframe -= NUM_ANIM_FRAMES_ATTACK;
             }*/
-            attack_animeframe += ANIMATION_SPEED_ATTACK;
+            if(!isFrozen()) attack_animeframe += ANIMATION_SPEED_ATTACK;
             if (attack_animeframe >= NUM_ANIM_FRAMES_ATTACK) {
                 attack_animeframe -= NUM_ANIM_FRAMES_ATTACK;
             }

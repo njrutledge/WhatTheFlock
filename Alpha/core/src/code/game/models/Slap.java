@@ -16,12 +16,14 @@ public class Slap extends GameObject {
     private float ofratio;
     private float width;
     private float height;
-
+    private boolean hasHit = false;
+    private Chef chef;
     //TODO: add comment
-    public Slap(JsonValue jv, float x, float y, float width, float height, int direction) {
+    public Slap(JsonValue jv, float x, float y, float width, float height, int direction, Chef chef) {
         super(x, y, width, height, ObjectType.SLAP);
         setFixedRotation(true);
         data = jv;
+        this.chef = chef;
         setName("slap");
         //setSensorName("slapSensor");
         setSensor(true);
@@ -83,6 +85,13 @@ public class Slap extends GameObject {
 
          */
         return true;
+    }
+
+    public void hitChicken(){
+        if(!hasHit){
+            hasHit = true;
+            chef.setHitChicken(true);
+        }
     }
 
     /**

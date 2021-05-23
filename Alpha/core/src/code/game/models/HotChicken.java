@@ -200,17 +200,17 @@ public class HotChicken extends Chicken {
     public void update(float dt) {
         super.update(dt);
         if (isStunned) {
-            animeframe += animation_speed*4;
+            if(!isFrozen()) animeframe += animation_speed*4;
             if (animeframe >= 5) {
                 animeframe -= 5;
             }
         } else if(getLinearVelocity().x != 0 || getLinearVelocity().y != 0) {
-            animeframe += animation_speed;
+            if(!isFrozen()) animeframe += animation_speed;
             if (animeframe >= num_anime_frames) {
                 animeframe -= num_anime_frames;
             }
         } else if (isAttacking && attack_animator != null && !isLured()){
-            animeframe += animation_speed;
+            if(!isFrozen()) animeframe += animation_speed;
             if (animeframe >= 17) {
                 animeframe -= 17;
             }

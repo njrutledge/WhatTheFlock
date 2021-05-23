@@ -206,7 +206,7 @@ public class AIController {
                 state = FSM.STUNNED;
                 break;
             case STUNNED:
-                chicken.setInvisible(((int)(invuln_counter * 10)) % 2 == 0);
+                //chicken.setInvisible(((int)(invuln_counter * 10)) % 2 == 0);
                 if (invuln_counter >= INVULN_TIME){
                     state = FSM.CHASE;
                     chicken.setStunned(false);
@@ -214,7 +214,7 @@ public class AIController {
                 }
                 break;
             case STOP:
-                if (chicken.getHit()){
+               if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
                 else if (chicken.isLured()){
@@ -228,7 +228,10 @@ public class AIController {
                 }
                 break;
             case ATTACK:
-                if (chicken.getHit()){
+                if(chicken.isFrozen()){
+                    state = FSM.CHASE;
+                }
+                else if (chicken.getHit()){
                     state = FSM.KNOCKBACK;
                 }
                 else if ((chicken.isLured() || chicken.stopThisAttack() || !chicken.isAttacking() && !chicken.isTouching())){
@@ -257,6 +260,11 @@ public class AIController {
         invuln_counter   = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
         stop_counter = MathUtils.clamp(stop_counter+=dt,0f,STOP_DUR);
         changeState();
+        if(chicken.isFrozen()){
+            if (chicken.getChickenAttack()!=null) chicken.getChickenAttack().markRemoved(true);
+            chicken.stopAttack();
+            chicken.setRunning(false);
+        }
         //state = FSM.STOP;
         setForceCache();
         if (state == FSM.ATTACK && target.isActive()) {
