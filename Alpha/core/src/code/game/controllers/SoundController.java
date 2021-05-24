@@ -71,6 +71,9 @@ public class SoundController {
     /** Sound for when the cooler trap is opened */
     private SoundBuffer cooler;
 
+    /** Sound for when the stoves switch */
+    private SoundBuffer stoveSwitch;
+
     //Chickens
     /** Sound for shredded attack */
     private SoundBuffer shreddedAttack;
@@ -163,6 +166,8 @@ public class SoundController {
         iceTrigger = directory.getEntry("sound:trap:iceChick", SoundBuffer.class);
         iceFreeze = directory.getEntry("sound:trap:chickFreeze", SoundBuffer.class);
         cooler = directory.getEntry("sound:trap:cooler", SoundBuffer.class);
+
+        stoveSwitch = directory.getEntry("sound:trap:stove", SoundBuffer.class);
 
         sounds.add(fireTrigger, breadTrigger, breadEat);
         sounds.add(iceFreeze, iceTrigger, cooler);
@@ -349,6 +354,10 @@ public class SoundController {
 
     public void playCoolerOpen() {
         playInstantSFX(cooler, LOUD);}
+
+    public void playStoveSwitch() {
+        playInstantSFX(stoveSwitch, MED);
+    }
 
 
     //Chickens

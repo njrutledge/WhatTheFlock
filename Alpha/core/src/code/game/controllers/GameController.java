@@ -1165,6 +1165,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			ActiveStove = Stoves.get(ind);
 			lastStove = ind;
 			ActiveStove.setActive();
+			sound.playStoveSwitch();
 		}
 
 		// Wave spawning logic
