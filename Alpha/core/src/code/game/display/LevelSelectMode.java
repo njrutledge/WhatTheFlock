@@ -376,7 +376,7 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
                     else { levelSelected = getLevelJSON(levelList[leftIndex + highlightedIndex]); levelSelectedNum = leftIndex + highlightedIndex; }
                 } else { pressState = -1; }
                 break;
-            case "ESCAPE":
+            case "BACK":
                 pressState = 8;
                 break;
         }
@@ -453,11 +453,19 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             if (!isMouseScrolling && !handleScrolling(dt, input)) return true;
             if (isMouseScrolling && !processScrolling(dt)) return true;
         }
-        if (input.didESC() || (input.didEnter() && highlightedIndex==-1)) {
+        if ((input.didESC() || input.didEnter()) && highlightedIndex==-1) {
             Gdx.input.setCursorCatched(true);
-            keyPressed("ESCAPE");
+            keyPressed("BACK");
             sound.playMenuEnter();
-            return false; }
+            return false;
+        }
+        if (input.didESC()) {
+            prevHighlighted = highlightedIndex;
+            highlightedIndex = -1;
+            Gdx.input.setCursorCatched(true);
+            sound.playMenuSelecting();
+            return true;
+        }
         else if (input.isMovementPressed() || input.isArrowPressed()) {
             if (input.isMovementPressed() && input.isArrowPressed()) { return true; }
             Gdx.input.setCursorCatched(true);

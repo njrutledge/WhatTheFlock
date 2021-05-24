@@ -400,6 +400,10 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
     private boolean preUpdateHelper(float dt){
         InputController input = InputController.getInstance();
         input.readInput(bounds, vscale);
+        if (mode == Mode.PAUSE && input.didESC()) {
+            if (selected == 0) { pressState = 11; sound.playMenuEnter(); return false; }
+            else { selected = 0; sound.playMenuSelecting(); keyPressed("SELECTING"); return true; }
+        }
         if (input.didMovementKey() || input.didArrowKey()) {
             if ((input.getVertical() != 0 || input.getArrowVertical() != 0) && mode == Mode.PAUSE) {
                 Gdx.input.setCursorCatched(true);
@@ -565,9 +569,9 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
 
         pButtonsCenterX = width/2;
         pContCenterY = 3f*height/5;
-        pRestartCenterY = pContCenterY - height/20; //2f * BUTTON_HEIGHT * PBUTTON_SCALE;
-        pOptionsCenterY = pRestartCenterY - height/20; //2f * BUTTON_HEIGHT * PBUTTON_SCALE;
-        pQuitCenterY = pOptionsCenterY - height/20;//2f * BUTTON_HEIGHT * PBUTTON_SCALE;
+        pRestartCenterY = pContCenterY - height/17; //2f * BUTTON_HEIGHT * PBUTTON_SCALE;
+        pOptionsCenterY = pRestartCenterY - height/17; //2f * BUTTON_HEIGHT * PBUTTON_SCALE;
+        pQuitCenterY = pOptionsCenterY - height/17;//2f * BUTTON_HEIGHT * PBUTTON_SCALE;
 
         wButtonsCenterY = 1.25f*height/5;
         wNextCenterX = 4.2f*width/8;

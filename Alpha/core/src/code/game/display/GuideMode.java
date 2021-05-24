@@ -196,13 +196,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     private boolean preUpdateHelper(float dt){
         InputController input = InputController.getInstance();
         input.readInput(bounds, vscale);
-        if (input.didESC()) {
-            Gdx.input.setCursorCatched(true);
-            back = true;
-            sound.playMenuEnter();
-            return false;
-        }
-        else if (input.didMovementKey() || input.didArrowKey()) {
+        if (input.didMovementKey() || input.didArrowKey()) {
             Gdx.input.setCursorCatched(true);
                 // right
                 if (input.getHorizontal() > 0 || input.getArrowHorizontal() > 0) {
@@ -213,7 +207,8 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
                     if (selected != 0) { selected -= 1; }
                 }
                 background = backgrounds.get(selected);
-        } else if (input.didEnter()) {
+        } else if (input.didEnter() || input.didESC()) {
+            Gdx.input.setCursorCatched(true);
             sound.playMenuEnter();
             back = true;
             return false;
