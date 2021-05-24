@@ -56,7 +56,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     /** Height of the progress bar */
     private static float BUTTON_SCALE  = 0.75f;
     /** Background scale*/  
-    private static float BACKGROUND_SCALE = 1.3f;
+    private static float BACKGROUND_SCALE = 0.65f;
     /** Standard height of all buttons */
     private static int BUTTON_HEIGHT = 62;
     /** Standard width of Start Button */
@@ -370,10 +370,10 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         bkgCenterX = width/2;
         bkgCenterY = height/2;
         buttonsCenterX = width/2;
-        startCenterY = height/2;
-        howToCenterY = 4 * height/10;
-        optionsCenterY = 3 * height/10 - 3;
-        quitCenterY = 2 * height/10 - 1;
+        startCenterY = height/2-80;
+        howToCenterY = 4 * height/10-80;
+        optionsCenterY = 3 * height/10 - 83;
+        quitCenterY = 2 * height/10 - 81;
         heightY = height;
     }
 

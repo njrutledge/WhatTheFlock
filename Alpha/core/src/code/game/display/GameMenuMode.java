@@ -569,9 +569,9 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
 
         pButtonsCenterX = width/2;
         pContCenterY = 3f*height/5;
-        pRestartCenterY = pContCenterY - height/17; //2f * BUTTON_HEIGHT * PBUTTON_SCALE;
-        pOptionsCenterY = pRestartCenterY - height/17; //2f * BUTTON_HEIGHT * PBUTTON_SCALE;
-        pQuitCenterY = pOptionsCenterY - height/17;//2f * BUTTON_HEIGHT * PBUTTON_SCALE;
+        pRestartCenterY = pContCenterY - height/14; //2f * BUTTON_HEIGHT * PBUTTON_SCALE;
+        pOptionsCenterY = pRestartCenterY - height/14; //2f * BUTTON_HEIGHT * PBUTTON_SCALE;
+        pQuitCenterY = pOptionsCenterY - height/14;//2f * BUTTON_HEIGHT * PBUTTON_SCALE;
 
         wButtonsCenterY = 1.25f*height/5;
         wNextCenterX = 4.2f*width/8;

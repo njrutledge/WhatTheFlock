@@ -71,7 +71,7 @@
 
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",
-        "background:menu": "ui/loading/temp_menu_bkg.png",
+        "background:menu": "ui/loading/menu_bkg.png",
         "background:pause": "ui/gamemenu/pausemenu.png",
         "background:win": "ui/gamemenu/winmenu.png",
         "background:lose": "ui/gamemenu/losemenu.png",
