@@ -107,7 +107,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/** Number of frames in Hot Sauce texture*/
 	private final int HOTSAUCE_NUM_FRAMES = 8;
 	/** Texture asset for slap indicator above traps */
-	private TextureRegion indicatorTexture;
+	private Texture indicatorTexture;
 	/** Texture asset for the spawnpoint*/
 	private Texture spawnTexture;
 
@@ -526,7 +526,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		trapHotSauceTexture = directory.getEntry("enviro:trap:hotSauce", Texture.class);
 		trapHotSauceActivate = directory.getEntry("enviro:trap:hotSauceActivate", Texture.class);
 		spawnTexture = directory.getEntry("enviro:spawn", Texture.class);
-		indicatorTexture = new TextureRegion(directory.getEntry("enviro:indicator", Texture.class));
+		indicatorTexture = directory.getEntry("enviro:indicator", Texture.class);
 			//characters
 		bulletTexture = directory.getEntry("char:bullet",Texture.class);
 		enemyHealthBarTexture = new TextureRegion(directory.getEntry("char:nuggetBar", Texture.class));

@@ -175,10 +175,16 @@ public class Trap extends GameObject implements TrapInterface {
      * Fixture for hit box of active traps
      */
     private Fixture hitFixture;
-    /** texture for slap indicator above trap */
-    private TextureRegion slapIndicator;
+    /** Film strip for slap indicator above trap */
+    private FilmStrip slapIndicator;
     /** Origin for slapIndicator texture */
     private Vector2 indicatorOrigin;
+    /** Counter for indicator animation */
+    private float indicator_anime_frame = 0f;
+    /** number of animation frames for slap indicator */
+    private float NUM_INDICATOR_FRAMES = 11;
+    /** animation speed for indicator */
+    private float INDICATOR_ANIMATION_SPEED = 0.25f;
     /** Whether this trap has a slap indicator */
     private boolean hasIndicator = false;
     /** The animation corresponding to the trap*/
@@ -333,7 +339,8 @@ public class Trap extends GameObject implements TrapInterface {
                 this.markRemoved(true);
             }
         }*/
-
+        indicator_anime_frame += INDICATOR_ANIMATION_SPEED;
+        indicator_anime_frame %= NUM_INDICATOR_FRAMES;
         switch(trapType){
             case COOLER:
                 if(childTrap != null && childTrap.isRemoved()){
@@ -489,14 +496,16 @@ public class Trap extends GameObject implements TrapInterface {
         int frame = 0;
         float xoffset = 0;
         float yoffset = 0;
-
+        if (slapIndicator != null){
+            slapIndicator.setFrame((int) indicator_anime_frame);
+        }
         switch (trapType) {
             case HOT_SAUCE:
                 //c = Color.GRAY;//fireColor.cpy();
                 //play once
                 frame = animation.getFrame();
-                xoffset = .25f;
-                yoffset = 1.5f;
+                xoffset = 1.75f;
+                yoffset = 0.75f;
 
                 if(isReady) {
                     frame = 0;
@@ -525,8 +534,8 @@ public class Trap extends GameObject implements TrapInterface {
                 c = Color.WHITE.cpy();//Color.BLUE.cpy();
                 scale = .2f;
                 frame = animation.getFrame();
-                xoffset = .4f;
-                yoffset = 1f;
+                xoffset = 1.75f;
+                yoffset = 0.35f;
                 // reset frame at beginning if ready
                if (isReady && frame > 4) {
                    frame = 0;
@@ -585,8 +594,8 @@ public class Trap extends GameObject implements TrapInterface {
                break;
             case TOASTER:
                 c = Color.WHITE.cpy();
-                xoffset = .45f;
-                yoffset = 1f;
+                xoffset = 1.9f;
+                yoffset = 0.1f;
                 frame = animation.getFrame();
                 if(animation.getFrame() < 6){
                     if(anim_delay == 0){
@@ -628,7 +637,7 @@ public class Trap extends GameObject implements TrapInterface {
             canvas.draw(animation, isReady ? Color.WHITE: c, origin.x, origin.y,
                     getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*scale, displayScale.y*scale);
             if (hasIndicator && isReady) {
-                canvas.draw(slapIndicator, Color.WHITE, (getX()-xoffset) * drawScale.x, (getY() + yoffset)*drawScale.y, slapIndicator.getRegionWidth()*displayScale.x*0.5f, slapIndicator.getRegionHeight()*displayScale.y*0.5f);
+                canvas.draw(slapIndicator, Color.WHITE, (getX()-xoffset) * drawScale.x, (getY() + yoffset)*drawScale.y, slapIndicator.getRegionWidth()*displayScale.x*0.25f, slapIndicator.getRegionHeight()*displayScale.y*0.25f);
 
                 //canvas.draw(slapIndicator, Color.WHITE, indicatorOrigin.x, indicatorOrigin.y,
                 //        getX() * drawScale.x, getY() * drawScale.y + 50, getAngle(), displayScale.x*0.5f, displayScale.y*0.5f);
@@ -642,7 +651,7 @@ public class Trap extends GameObject implements TrapInterface {
                     getX() * drawScale.x, getY() * drawScale.y, getAngle(),
                     canvas.getWidth()/1920f*scale*.8f, canvas.getHeight()/1080f*scale*.8f);
             if (hasIndicator && isReady) {
-                canvas.draw(slapIndicator, Color.WHITE, (getX()-xoffset) * drawScale.x, (getY() + yoffset) * drawScale.y , slapIndicator.getRegionWidth()*displayScale.x*0.5f, slapIndicator.getRegionHeight()*displayScale.y*0.5f);
+                canvas.draw(slapIndicator, Color.WHITE, (getX()-xoffset) * drawScale.x, (getY() + yoffset) * drawScale.y , slapIndicator.getRegionWidth()*displayScale.x*0.25f, slapIndicator.getRegionHeight()*displayScale.y*0.25f);
             }
         }
     }
@@ -662,8 +671,8 @@ public class Trap extends GameObject implements TrapInterface {
         }
     }
 
-    public void setIndicatorTexture(TextureRegion texture){
-        this.slapIndicator = texture;
+    public void setIndicatorTexture(Texture texture){
+        this.slapIndicator = new FilmStrip(texture, 1, 11);
         indicatorOrigin.set(0,0);
         hasIndicator = true;
     }
