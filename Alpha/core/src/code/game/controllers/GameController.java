@@ -80,8 +80,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 	/** Texture asset for the stove */
 	private Texture stoveTexture;
-	/** Texture asset for active stove*/
+	/** Texture asset for active (in use) stove*/
 	private Texture stoveActiveTexture;
+	/** Texture asset for stove at start of use*/
+	private Texture stoveStartActiveTexture;
 	/** Texture asset for inactive stove*/
 	private Texture stoveInactiveTexture;
 	/** Texture asset for default trap (TEMP) */
@@ -514,6 +516,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		wallCeilingBottomTile = directory.getEntry("enviro:wall:ceiling:bottom", Texture.class);
 		stoveTexture = directory.getEntry("enviro:stove",Texture.class);
 		stoveActiveTexture = directory.getEntry("enviro:stoveActive", Texture.class);
+		stoveStartActiveTexture = directory.getEntry("enviro:stoveStart", Texture.class);
 		stoveInactiveTexture = directory.getEntry("enviro:stoveInactive", Texture.class);
 			//traps
 		trapDefaultTexture = directory.getEntry("enviro:trap:spike",Texture.class);
@@ -817,6 +820,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					stove.setDisplayScale(displayScale);
 					stove.setTexture(stoveTexture);
 					stove.setActiveTexture(stoveActiveTexture);
+					stove.setStartTexture(stoveStartActiveTexture);
 					stove.setInactiveTexture(stoveInactiveTexture);
 					stove.setFilterData(obstacle_filter);
 					addObject(stove, GameObject.ObjectType.STOVE); //changed from WALL type to STOVE
