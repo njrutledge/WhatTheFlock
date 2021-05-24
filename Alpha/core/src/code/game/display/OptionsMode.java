@@ -208,16 +208,16 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     private int exitCode;
 
     /** The exit code representing returning to main menu */
-    public static final int MAINMAIN = 0;
+    public static final int MAINMENU = 0;
     /** The exit code representing returning to main menu */
     public static final int GAMEMNEU = 1;
-    /** the game save */
+    /** The game save */
     private Save save;
-
+    /** The game controller */
     private GameController controller;
-
+    /** The main menu */
     private MainMenuMode mainMenu;
-
+    /** Whether we are in the main menu */
     public boolean inMainMenu = true;
 
     /**
@@ -807,6 +807,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, offCenterX, MSCenterY)) {
             pressState = 6;
         } else if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY)) {
+            sound.playMenuEnter();
             pressState = 7;
         }
 
@@ -910,12 +911,30 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     public boolean mouseMoved(int screenX, int screenY) {
         Gdx.input.setCursorCatched(false);
         screenY = heightY-screenY;
-        if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, musicCenterY)) { selected = 0; }
-        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, sfxCenterY)) { selected = 1; }
-        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, displayCenterY)) { selected = 2; }
-        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, ACCenterY)) { selected = 3; }
-        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, MSCenterY)) { selected = 4; }
-        else if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY)) { selected = 5; }
+        if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, musicCenterY)) {
+            if (selected != 0) { sound.playMenuSelecting(); }
+            selected = 0;
+        }
+        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, sfxCenterY)) {
+            if (selected != 1) { sound.playMenuSelecting(); }
+            selected = 1;
+        }
+        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, displayCenterY)) {
+            if (selected != 2) { sound.playMenuSelecting(); }
+            selected = 2;
+        }
+        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, ACCenterY)) {
+            if (selected != 3) { sound.playMenuSelecting(); }
+            selected = 3;
+        }
+        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, MSCenterY)) {
+            if (selected != 4) { sound.playMenuSelecting(); }
+            selected = 4;
+        }
+        else if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY)) {
+            if (selected != 5) { sound.playMenuSelecting(); }
+            selected = 5;
+        }
         return true;
     }
 

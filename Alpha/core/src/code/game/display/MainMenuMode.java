@@ -31,8 +31,8 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     /** Background texture for loading */
     private Texture background;
     /** How to play button*/
-    private Texture howToPlayTexture;
-    private FilmStrip howToPlay;
+    private Texture creditsTexture;
+    private FilmStrip credits;
     /** Options button*/
     private Texture optionsTexture;
     private FilmStrip options;
@@ -62,7 +62,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     /** Standard width of Start Button */
     private static int START_WIDTH = 222;
     /** Standard width of HTP Button */
-    private static int HTP_WIDTH = 474;
+    private static int CREDITS_WIDTH = 284;
     /** Standard width of Options Button */
     private static int OPTIONS_WIDTH = 292;
     /** Standard width of Quit Button */
@@ -87,14 +87,14 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
      * The current state of the play button
      * 0 for nothing,
      * 1 for start pressed down, 11 for start selected
-     * 2 for how to play pressed down, 12 for how to play selected
+     * 2 for credits pressed down, 12 for credits selected
      * 3 for options pressed down, 13 for options selected
      * 4 for quit pressed down,  14 for quit selected
      * */
     private int   pressState;
     /**Corresponding codes to pressState*/
     public static final int START = 1;
-    public static final int GUIDE  = 2;
+    public static final int CREDITS  = 2;
     public static final int OPTIONS = 3;
     public static final int QUIT = 4;
 
@@ -117,7 +117,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
 
     /**Center the various buttons*/
     private int buttonsCenterX;
-    private int howToCenterY;
+    private int creditsCenterY;
     private int optionsCenterY;
     private int quitCenterY;
     private int startCenterY;
@@ -152,8 +152,8 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         //button textures
         startTexture = internal.getEntry("ui:menu:start", Texture.class);
         start = new FilmStrip(startTexture, 1, 2);
-        howToPlayTexture = internal.getEntry("ui:menu:howtoplay", Texture.class);
-        howToPlay = new FilmStrip(howToPlayTexture, 1, 2);
+        creditsTexture = internal.getEntry("ui:menu:credits", Texture.class);
+        credits = new FilmStrip(creditsTexture, 1, 2);
         optionsTexture = internal.getEntry("ui:menu:options", Texture.class);
         options = new FilmStrip(optionsTexture, 1, 2);
         quitTexture = internal.getEntry("ui:menu:quit", Texture.class);
@@ -204,7 +204,6 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
 
     /** Returns whether the select screen was entered by mouse click */
     public boolean didMouseEnter() {
-        sound.playMenuEnter();
         return mouseEnter;
     }
 
@@ -218,7 +217,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         switch (action) {
             case "SELECTING":
                 if (selected == 0) { start.setFrame(1); }
-                else if (selected == 1) { howToPlay.setFrame(1); }
+                else if (selected == 1) { credits.setFrame(1); }
                 else if (selected == 2) { options.setFrame(1); }
                 else { quit.setFrame(1); }
                 resetButtons();
@@ -227,6 +226,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
                 pressState = selected + 1;
                 break;
             case "ENTERED":
+                sound.playMenuEnter();
                 pressState = selected + 11;
                 break;
         }
@@ -256,7 +256,6 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         } else if (input.didEnter()) {
             Gdx.input.setCursorCatched(true);
             keyPressed("ENTERED");
-            sound.playMenuEnter();
             return false;
         } else if (input.isEntering()) {
             Gdx.input.setCursorCatched(true);
@@ -320,8 +319,8 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
             canvas.draw(start, startTint, start.getRegionWidth()/2, start.getRegionHeight()/2,
                     buttonsCenterX, startCenterY, 0, BUTTON_SCALE * scale, BUTTON_SCALE * scale);
             //how to play
-            canvas.draw(howToPlay, howTint, howToPlay.getRegionWidth()/2, howToPlay.getRegionHeight()/2,
-                    buttonsCenterX, howToCenterY, 0, BUTTON_SCALE * scale, BUTTON_SCALE * scale);
+            canvas.draw(credits, howTint, credits.getRegionWidth()/2, credits.getRegionHeight()/2,
+                    buttonsCenterX, creditsCenterY, 0, BUTTON_SCALE * scale, BUTTON_SCALE * scale);
             //options
             canvas.draw(options, optTint, options.getRegionWidth()/2, options.getRegionHeight()/2,
                     buttonsCenterX, optionsCenterY, 0, BUTTON_SCALE * scale, BUTTON_SCALE * scale);
@@ -371,7 +370,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         bkgCenterY = height/2;
         buttonsCenterX = width/2;
         startCenterY = height/2-80;
-        howToCenterY = 4 * height/10-80;
+        creditsCenterY = 4 * height/10-80;
         optionsCenterY = 3 * height/10 - 83;
         quitCenterY = 2 * height/10 - 81;
         heightY = height;
@@ -460,12 +459,16 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         if(overButton(START_WIDTH, screenX, screenY, buttonsCenterX, startCenterY)){
             mouseEnter = true;
             pressState = 1;
-        }else if(overButton(HTP_WIDTH, screenX, screenY, buttonsCenterX, howToCenterY)){
+            sound.playMenuEnter();
+        }else if(overButton(CREDITS_WIDTH, screenX, screenY, buttonsCenterX, creditsCenterY)){
             pressState = 2;
+            sound.playMenuEnter();
         }else if(overButton(OPTIONS_WIDTH, screenX, screenY, buttonsCenterX, optionsCenterY)){
             pressState = 3;
+            sound.playMenuEnter();
         }else if(overButton(QUIT_WIDTH, screenX, screenY, buttonsCenterX, quitCenterY)) {
             pressState = 4;
+            sound.playMenuEnter();
         }
         return false;
     }
@@ -536,7 +539,7 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     /** Reset the default button animations */
     private void resetButtons(){
         if (selected != 0) { start.setFrame(0); }
-        if (selected != 1) { howToPlay.setFrame(0); }
+        if (selected != 1) { credits.setFrame(0); }
         if (selected != 2) { options.setFrame(0); }
         if (selected != 3) { quit.setFrame(0); }
     }
@@ -554,15 +557,19 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
         screenY = heightY-screenY;
         //switch animations
         if (overButton(START_WIDTH, screenX, screenY, buttonsCenterX, startCenterY)){
+            if (selected != 0) { sound.playMenuSelecting(); }
             selected = 0;
             start.setFrame(1);
-        } else if(overButton(HTP_WIDTH, screenX, screenY, buttonsCenterX, howToCenterY)){
+        } else if(overButton(CREDITS_WIDTH, screenX, screenY, buttonsCenterX, creditsCenterY)){
+            if (selected != 1) { sound.playMenuSelecting(); }
             selected = 1;
-            howToPlay.setFrame(1);
+            credits.setFrame(1);
         } else if(overButton(OPTIONS_WIDTH, screenX, screenY, buttonsCenterX, optionsCenterY)){
+            if (selected != 2) { sound.playMenuSelecting(); }
             selected = 2;
             options.setFrame(1);
         } else if(overButton(QUIT_WIDTH, screenX, screenY, buttonsCenterX, quitCenterY)){
+            if (selected != 3) { sound.playMenuSelecting(); }
             selected = 3;
             quit.setFrame(1);
         }

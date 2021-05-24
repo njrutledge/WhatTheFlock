@@ -78,7 +78,7 @@
         "background:gray": "ui/gray_background.png",
 
         "ui:menu:start": "ui/loading/mainmenu_start.png",
-        "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
+        "ui:menu:credits": "ui/loading/mainmenu_credits.png",
         "ui:menu:options": "ui/loading/mainmenu_options.png",
         "ui:menu:quit": "ui/loading/mainmenu_quit.png",
 
@@ -116,6 +116,8 @@
         "ui:guide:3" : "ui/guide/howtoplay2.1.png",
         "ui:guide:4" : "ui/guide/howtoplay3.png",
         "ui:guide:5" : "ui/guide/howtoplay4.png",
+
+        "ui:credits" : "ui/guide/credits.png",
 
         "ui:tutorial:cook": "ui/tutorial/tutorial_cook.png",
         "ui:tutorial:cooler": "ui/tutorial/tutorial_cooler.png",

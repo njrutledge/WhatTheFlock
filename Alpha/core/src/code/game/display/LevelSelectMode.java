@@ -933,12 +933,15 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
         Gdx.input.setCursorCatched(false);
         screenY = heightY-screenY;
         if (overBack(backTexture, screenX, screenY, backCenterX, backCenterY)) {
+            if (highlightedIndex != -1) { sound.playMenuSelecting(); }
             if (highlightedIndex != -1) {
                 prevHighlighted = highlightedIndex;
                 highlightedIndex = -1;
             }
         } else {
+            int temp = highlightedIndex;
             highlightedIndex = overKnife(knifeTexture, screenX, screenY, bladeCenterX, bladeCenterY, false);
+            if (temp != highlightedIndex) { sound.playMenuSelecting(); }
         }
         leftHighlighted = overArrow(arrowLeftTexture, screenX, screenY, leftArrowCenterX, arrowCenterY);
         rightHighlighted = overArrow(arrowRightTexture, screenX, screenY, rightArrowCenterX, arrowCenterY);

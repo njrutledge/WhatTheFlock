@@ -3,7 +3,6 @@ package code.game.display;
 import code.assets.AssetDirectory;
 import code.game.controllers.InputController;
 import code.game.controllers.SoundController;
-import code.game.models.Save;
 import code.game.views.GameCanvas;
 import code.util.Controllers;
 import code.util.FilmStrip;
@@ -18,13 +17,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.JsonValue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class GuideMode implements Screen, InputProcessor, ControllerListener {
+public class DisplayMenuMode implements Screen, InputProcessor, ControllerListener {
     /** The assets of the screen */
     private AssetDirectory assets;
 
@@ -32,8 +30,8 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     private Texture background;
 
     /** Texture for ok */
-    private Texture okTexture;
-    private FilmStrip ok;
+    private Texture backButtonTexture;
+    private FilmStrip backButton;
     /** Texture for arrow */
     private Texture arrowRightTexture;
     private FilmStrip arrowRight;
@@ -45,13 +43,21 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     /** Standard window height (for scaling) */
     private static int STANDARD_HEIGHT = 700;
 
+    public enum type {
+        GUIDE,
+        CREDITS
+    }
+
+    /** The type of the menu */
+    private DisplayMenuMode.type menuType;
+
     /** Width of the game world in Box2d units */
     protected static final float DEFAULT_WIDTH  = 48.0f;
     /** Height of the game world in Box2d units */
     protected static final float DEFAULT_HEIGHT = 27.0f;
 
     /** Scale of the menu */
-    private final float BACKGROUND_SCALE = .5f;
+    private final float BACKGROUND_SCALE = .65f;
     /** Scale of the buttons */
     private final float BUTTON_SCALE = 0.5f;
 
@@ -62,8 +68,8 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     private final float ARROW_SCALE = 0.5f;
 
     /** The constants for the selection box */
-    private final float OK_HEIGHT = 46;
-    private final float OK_WIDTH = 70;
+    private final float BACK_HEIGHT = 65;
+    private final float BACK_WIDTH = 187;
     /** The bounds for the game screen */
     private Rectangle bounds;
     /** The scale of the game */
@@ -72,6 +78,8 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     /**Center the background*/
     private int bkgCenterX;
     private int bkgCenterY;
+    /** Center the back button */
+    private float backCenterY;
 
     /** Reference to GameCanvas created by the root */
     private GameCanvas canvas;
@@ -84,7 +92,6 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     private int heightY;
     /** Scaling factor for when the student changes the resolution. */
     private float scale;
-    private float okCenterY;
 
     private MainMenuMode menu;
 
@@ -111,32 +118,34 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     private int exitCode;
 
     /** The exit code representing returning to main menu */
-    public static final int MAINMAIN = 0;
-    /** list of possible background */
-    private List<Texture> backgrounds = new ArrayList<>();
+    public static final int MAINMENU = 0;
+    /** The exit code representing returning to options menu */
+    public static final int OPTIONMENU = 0;
+    /** List of possible guide pages */
+    private List<Texture> guides = new ArrayList<>();
+    /** The credits page */
+    private Texture credits;
 
     /**
      * Creates a LevelSelectMode with the default size and position.
      * @param canvas 	The game canvas to draw to
      */
-    public GuideMode(AssetDirectory assets, GameCanvas canvas, SoundController sound) {
+    public DisplayMenuMode(AssetDirectory assets, GameCanvas canvas, SoundController sound) {
         this.canvas  = canvas;
         this.assets = assets;
         this.sound = sound;
 
-        okTexture = assets.getEntry("ui:options:ok", Texture.class);
-        ok =  new FilmStrip(okTexture, 1, 2);
+        backButtonTexture = assets.getEntry("ui:back", Texture.class);
+        backButton =  new FilmStrip(backButtonTexture, 1, 2);
 
-        backgrounds.add(assets.getEntry( "ui:guide:1", Texture.class ));
-        backgrounds.add(assets.getEntry( "ui:guide:2", Texture.class ));
-        backgrounds.add(assets.getEntry( "ui:guide:3", Texture.class ));
-        backgrounds.add(assets.getEntry( "ui:guide:4", Texture.class ));
-        backgrounds.add(assets.getEntry( "ui:guide:5", Texture.class ));
-        background = backgrounds.get(0);
+        guides.add(assets.getEntry( "ui:guide:1", Texture.class ));
+        guides.add(assets.getEntry( "ui:guide:2", Texture.class ));
+        guides.add(assets.getEntry( "ui:guide:3", Texture.class ));
+        guides.add(assets.getEntry( "ui:guide:4", Texture.class ));
+        guides.add(assets.getEntry( "ui:guide:5", Texture.class ));
+        background = guides.get(0);
+        credits = assets.getEntry( "ui:credits", Texture.class );
         //background.setFilter( Texture.TextureFilter.Linear, Texture.TextureFilter.Linear );
-
-        //background = assets.getEntry("ui:options:menu", Texture.class );
-        okTexture = assets.getEntry("ui:options:ok", Texture.class );
 
         arrowRightTexture = assets.getEntry("ui:arrowRight", Texture.class);
         arrowRight = new FilmStrip(arrowRightTexture, 1, 1);
@@ -152,8 +161,18 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
             controller.addListener(this);
         }
 
-        ok.setFrame(1);
+        backButton.setFrame(0);
         active = true;
+    }
+
+    /** Set the type of this menu
+     *
+     * @param type the type to set this menu to
+     */
+    public void setMenuType(DisplayMenuMode.type type) {
+        menuType = type;
+        if (menuType == DisplayMenuMode.type.CREDITS) { background = credits; }
+        else { background = guides.get(selected); }
     }
 
     /**
@@ -172,6 +191,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     /** Resets this screen */
     public void reset(){
         pressState = 0;
+        selected = 0;
     }
 
     /**
@@ -196,7 +216,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     private boolean preUpdateHelper(float dt){
         InputController input = InputController.getInstance();
         input.readInput(bounds, vscale);
-        if (input.didMovementKey() || input.didArrowKey()) {
+        if (menuType == type.GUIDE && (input.didMovementKey() || input.didArrowKey())) {
             Gdx.input.setCursorCatched(true);
                 // right
                 if (input.getHorizontal() > 0 || input.getArrowHorizontal() > 0) {
@@ -206,7 +226,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
                 else if (input.getHorizontal() < 0 || input.getArrowHorizontal() < 0) {
                     if (selected != 0) { selected -= 1; }
                 }
-                background = backgrounds.get(selected);
+                background = guides.get(selected);
         } else if (input.didEnter() || input.didESC()) {
             Gdx.input.setCursorCatched(true);
             sound.playMenuEnter();
@@ -244,9 +264,11 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
         sound.playMusic(SoundController.CurrentScreen.MENU, delta);
     }
 
+    /** Set the main menu controller */
     public void setMenu(MainMenuMode m){
         menu = m;
     }
+
     /**
      * Draw the status of this player mode.
      *
@@ -264,18 +286,19 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
         canvas.draw(background, Color.WHITE, background.getWidth()/2, background.getHeight()/2,
                 bkgCenterX, bkgCenterY, 0, BACKGROUND_SCALE * scale, BACKGROUND_SCALE * scale);
 
-        canvas.draw(ok, Color.WHITE, ok.getRegionWidth()/2, ok.getRegionHeight()/2, bkgCenterX, okCenterY,
+        canvas.draw(backButton, Color.WHITE, backButton.getRegionWidth()/2, backButton.getRegionHeight()/2, bkgCenterX, backCenterY,
                 0, BUTTON_SCALE * scale, BUTTON_SCALE * scale);
 
-        int index = backgrounds.indexOf(background);
-
-        if(index > 0) {
-            canvas.draw(arrowLeft, Color.WHITE, arrowLeft.getRegionWidth() / 2, arrowLeft.getRegionHeight() / 2, leftArrowCenterX,
-                    arrowCenterY, 0, ARROW_SCALE * scale, ARROW_SCALE * scale);
-        }
-        if(index < 4) {
-            canvas.draw(arrowRight, Color.WHITE, arrowRight.getRegionWidth() / 2, arrowRight.getRegionHeight() / 2, rightArrowCenterX,
-                    arrowCenterY, 0, ARROW_SCALE * scale, ARROW_SCALE * scale);
+        if (menuType == type.GUIDE) {
+            int index = guides.indexOf(background);
+            if (index > 0) {
+                canvas.draw(arrowLeft, Color.WHITE, arrowLeft.getRegionWidth() / 2, arrowLeft.getRegionHeight() / 2, leftArrowCenterX,
+                        arrowCenterY, 0, ARROW_SCALE * scale, ARROW_SCALE * scale);
+            }
+            if (index < 4) {
+                canvas.draw(arrowRight, Color.WHITE, arrowRight.getRegionWidth() / 2, arrowRight.getRegionHeight() / 2, rightArrowCenterX,
+                        arrowCenterY, 0, ARROW_SCALE * scale, ARROW_SCALE * scale);
+            }
         }
         canvas.end();
     }
@@ -320,7 +343,7 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
         bkgCenterX = width/2;
         bkgCenterY = height/2;
 
-        okCenterY = height*0.075f;
+        backCenterY = height*0.075f;
 
         arrowCenterY = height * 0.5f;
         leftArrowCenterX = width * 0.08f;//0.078125f;
@@ -416,7 +439,8 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         Gdx.input.setCursorCatched(false);
 
-        if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, canvas.getHeight() - okCenterY)){
+        if (overButton(BACK_WIDTH, BACK_HEIGHT, screenX, screenY, bkgCenterX, canvas.getHeight() - backCenterY)){
+            sound.playMenuEnter();
             pressState = 1;
         }
         else if (overButton(arrowLeft.getRegionWidth(), arrowLeft.getRegionHeight(), screenX, screenY, leftArrowCenterX, arrowCenterY)){
@@ -445,15 +469,15 @@ public class GuideMode implements Screen, InputProcessor, ControllerListener {
             return false;
         }
         else if (pressState == 2){
-            int index = backgrounds.indexOf(background);
+            int index = guides.indexOf(background);
             if (index != 0){
-                background = backgrounds.get(index-1);
+                background = guides.get(index-1);
             }
         }
         else if (pressState == 3){
-            int index = backgrounds.indexOf(background);
+            int index = guides.indexOf(background);
             if (index != 4){
-                background = backgrounds.get(index+1);
+                background = guides.get(index+1);
             }
         }
         return true;
