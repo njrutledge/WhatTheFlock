@@ -206,7 +206,8 @@
         "sound:trap:iceChick" : "sounds/trap/chick_ice_trigger.ogg",
         "sound:trap:chickFreeze" : "sounds/trap/chick_freeze.ogg",
         "sound:trap:toaster" : "sounds/trap/toaster.ogg",
-        "sound:trap:cooler" : "sounds/trap/cooler_open.ogg"
+        "sound:trap:cooler" : "sounds/trap/cooler_open.ogg",
+        "sound:trap:stove" : "sounds/trap/stove_switch.ogg"
 
 
     },
