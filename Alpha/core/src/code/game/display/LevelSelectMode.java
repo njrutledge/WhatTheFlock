@@ -407,11 +407,20 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
      * if the user has let go of the scrolling key.
      */
     private boolean handleScrolling(float dt, InputController input) {
+        if (input.didArrowKey() && input.didMovementKey()) {
+            scrollDirection = 0; scrolling = false; pressDownTime = 0; return true;
+        }
         if ((input.doneMovementKey() && input.getHorizontal() == 0)
            || (scrollDirection == 1 && input.getHorizontal() < 0)
            || (scrollDirection == -1 && input.getHorizontal() > 0)) {
             scrollDirection = 0; scrolling = false; pressDownTime = 0; return true;
          }
+        if ((input.doneArrowKey() && input.getArrowHorizontal() == 0)
+                || (scrollDirection == 1 && input.getArrowHorizontal() < 0)
+                || (scrollDirection == -1 && input.getArrowHorizontal() > 0)) {
+            scrollDirection = 0; scrolling = false; pressDownTime = 0; return true;
+        }
+
         return processScrolling(dt);
     }
 
@@ -449,24 +458,25 @@ public class LevelSelectMode implements Screen, InputProcessor, ControllerListen
             keyPressed("ESCAPE");
             sound.playMenuEnter();
             return false; }
-        else if (input.isMovementPressed()) {
+        else if (input.isMovementPressed() || input.isArrowPressed()) {
+            if (input.isMovementPressed() && input.isArrowPressed()) { return true; }
             Gdx.input.setCursorCatched(true);
-            if (input.getHorizontal() != 0) {
+            if (input.getHorizontal() != 0 || input.getArrowHorizontal() != 0) {
                 sound.playMenuSelecting();
-                if (scrollDirection == 0 && input.getHorizontal() > 0) {
+                if (scrollDirection == 0 && (input.getHorizontal() > 0 || input.getArrowHorizontal() > 0)) {
                     scrollDirection = 1;
                     scroll();
                 }
-                else if (scrollDirection == 0 && input.getHorizontal() < 0) {
+                else if (scrollDirection == 0 && (input.getHorizontal() < 0 || input.getArrowHorizontal() < 0)) {
                     scrollDirection = -1;
                     scroll();
                 }
             } else {
-                if (input.getVertical() < 0 && highlightedIndex != -1) {
+                if ((input.getVertical() < 0 || input.getArrowVertical() < 0) && highlightedIndex != -1) {
                     sound.playMenuSelecting();
                     prevHighlighted = highlightedIndex; highlightedIndex = -1;
                 }
-                else if (input.getVertical() > 0 && highlightedIndex == -1) {
+                else if ((input.getVertical() > 0 || input.getArrowVertical() > 0) && highlightedIndex == -1) {
                     sound.playMenuSelecting();
                     highlightedIndex = prevHighlighted;
                 }

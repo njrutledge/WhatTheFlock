@@ -193,7 +193,6 @@ public class GDXRoot extends Game implements ScreenListener {
 			levelselect.setSave(save);
 			gamemenu.setSave(save);
 			options.setSave(save);
-			guide.setSave(save);
 			sound.setSave(save);
 			controller.setOptions();
 

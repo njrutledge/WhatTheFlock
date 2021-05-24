@@ -67,6 +67,9 @@ public class InputController {
 	/** Whether a movement key was pressed*/
 	private boolean movementPressed;
 	private boolean movementPrevious;
+	/** Whether a arrow key was pressed */
+	private boolean arrowPressed;
+	private boolean arrowPrevious;
 	/** Whether the cook button was pressed */
 	private boolean cookPressed;
 
@@ -100,10 +103,14 @@ public class InputController {
 	private boolean gridToggled;
 	private boolean gridPrevious;
 
-	/** How much did we move horizontally? */
+	/** How much did we move horizontally (A or D key) ? */
 	private float horizontal;
-	/** How much did we move vertically? */
+	/** How much did we move vertically? (W or S key) */
 	private float vertical;
+	/** How much did we move horizontally (Left or Right arrow key) ? */
+	private float arrowHorizontal;
+	/** How much did we move vertically? (Up or Down arrow key) */
+	private float arrowVertical;
 	/** The crosshair position (for raddoll) */
 	private Vector2 crosshair;
 	/** The crosshair cache (for using as a return value) */
@@ -117,25 +124,47 @@ public class InputController {
 	XBoxController xbox;
 	
 	/**
-	 * Returns the amount of sideways movement. 
+	 * Returns the amount of sideways movement done by A or D key.
 	 *
 	 * -1 = left, 1 = right, 0 = still
 	 *
-	 * @return the amount of sideways movement. 
+	 * @return the amount of sideways movement done by A or D key.
 	 */
 	public float getHorizontal() {
 		return horizontal;
 	}
+
+	/**
+	 * Returns the amount of sideways movement done by left or right arrow key.
+	 *
+	 * -1 = left, 1 = right, 0 = still
+	 *
+	 * @return the amount of sideways movement done by left or right arrow key.
+	 */
+	public float getArrowHorizontal() {
+		return arrowHorizontal;
+	}
 	
 	/**
-	 * Returns the amount of vertical movement. 
+	 * Returns the amount of vertical movement done by S or W key.
 	 *
 	 * -1 = down, 1 = up, 0 = still
 	 *
-	 * @return the amount of vertical movement. 
+	 * @return the amount of vertical movement done by S or W key.
 	 */
 	public float getVertical() {
 		return vertical;
+	}
+
+	/**
+	 * Returns the amount of vertical movement done by down or up arrow key.
+	 *
+	 * -1 = down, 1 = up, 0 = still
+	 *
+	 * @return the amount of vertical movement done by down or up arrow key.
+	 */
+	public float getArrowVertical() {
+		return arrowVertical;
 	}
 
 	/**
@@ -201,12 +230,36 @@ public class InputController {
 	public boolean doneMovementKey() { return !movementPressed && movementPrevious; }
 
 	/**
+	 * Returns true if an arrow key was pressed
+	 *
+	 *
+	 * @return true if an arrow button was pressed.
+	 */
+	public boolean didArrowKey() { return arrowPressed && !arrowPrevious; }
+
+	/**
+	 * Returns true if a movement key is released
+	 *
+	 * @return true if a movement key has been released this frame
+	 */
+	public boolean doneArrowKey() { return !arrowPressed && arrowPrevious; }
+
+	/**
 	 * Returns true iff a movement key is currently being pressed
 	 * @return a movement key is being pressed
 	 */
 	public boolean isMovementPressed(){
 		return movementPressed;
 	}
+
+	/**
+	 * Returns true iff a movement key is currently being pressed
+	 * @return a movement key is being pressed
+	 */
+	public boolean isArrowPressed(){
+		return arrowPressed;
+	}
+
 	/**
 	 * Returns true if the tertiary action button was pressed.
 	 *
@@ -379,6 +432,7 @@ public class InputController {
 		enterPrevious = enterPressed;
 		gridPrevious = gridToggled;
 		movementPrevious = movementPressed;
+		arrowPrevious = arrowPressed;
 		
 		// Check to see if a GamePad is connected
 		if (xbox != null && xbox.isConnected()) {
@@ -446,6 +500,8 @@ public class InputController {
 /*		exitPressed  = (secondary && exitPressed) || (Gdx.input.isKeyPressed(Input.Keys.ESCAPE));*/
 		movementPressed = ((Gdx.input.isKeyPressed(Input.Keys.W)) || (Gdx.input.isKeyPressed(Input.Keys.A)) ||
 				(Gdx.input.isKeyPressed(Input.Keys.S)) || (Gdx.input.isKeyPressed(Input.Keys.D)));
+		arrowPressed = (Gdx.input.isKeyPressed(Input.Keys.DOWN)) || (Gdx.input.isKeyPressed(Input.Keys.UP)) ||
+				(Gdx.input.isKeyPressed(Input.Keys.LEFT)) || (Gdx.input.isKeyPressed(Input.Keys.RIGHT));
 		cookPressed = (Gdx.input.isKeyPressed(Input.Keys.SPACE));
 		paraToggled = (Gdx.input.isKeyPressed(Input.Keys.O));
 		paraDecPressed = (Gdx.input.isKeyPressed(Input.Keys.I));
@@ -464,11 +520,25 @@ public class InputController {
 			horizontal = 0;
 		}
 
+		if (arrowHorizontal > 0 && Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
+			arrowHorizontal = 0;
+		} else if (arrowHorizontal < 0 && Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+			arrowHorizontal = 0;
+		} else if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT)){
+			arrowHorizontal = 0;
+		}
+
 		if (Gdx.input.isKeyPressed(Input.Keys.D)) {
 			horizontal = 1f;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.A)) {
 			horizontal = -1f;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+			arrowHorizontal = 1f;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+			arrowHorizontal = -1f;
 		}
 
 		if (vertical > 0 && Gdx.input.isKeyPressed(Input.Keys.W)){
@@ -479,11 +549,26 @@ public class InputController {
 			vertical = 0;
 		}
 
+		if (arrowVertical > 0 && Gdx.input.isKeyPressed(Input.Keys.UP)){
+			arrowVertical = 0;
+		} else if (arrowVertical < 0 && Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+			arrowVertical = 0;
+		} else if (!Gdx.input.isKeyPressed(Input.Keys.UP) && !Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+			arrowVertical = 0;
+		}
+
 		if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 			vertical = 1f;
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.S)) {
 			vertical = -1f;
+		}
+
+		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+			arrowVertical = 1f;
+		}
+		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+			arrowVertical = -1f;
 		}
 
 		// Directional slap

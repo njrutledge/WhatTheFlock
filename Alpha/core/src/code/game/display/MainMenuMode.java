@@ -246,9 +246,10 @@ public class MainMenuMode implements Screen, InputProcessor, ControllerListener 
     private boolean preUpdateHelper(float dt){
         InputController input = InputController.getInstance();
         input.readInput(bounds, vscale);
-        if (input.didMovementKey() && input.getVertical() != 0) {
+        if ((input.didMovementKey() && input.getVertical() != 0) ||
+                (input.didArrowKey() && input.getArrowVertical() != 0)) {
             Gdx.input.setCursorCatched(true);
-            if (input.getVertical() < 0) { selected = (selected + 1) % 4; }
+            if (input.getVertical() < 0 || input.getArrowVertical() < 0) { selected = (selected + 1) % 4; }
             else { selected = selected == 0 ? 3 : selected-1; }
             keyPressed("SELECTING");
             sound.playMenuSelecting();

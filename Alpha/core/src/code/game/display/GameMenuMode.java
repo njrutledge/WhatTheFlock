@@ -400,17 +400,17 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
     private boolean preUpdateHelper(float dt){
         InputController input = InputController.getInstance();
         input.readInput(bounds, vscale);
-        if (input.didMovementKey()) {
-            if (input.getVertical() != 0 && mode == Mode.PAUSE) {
+        if (input.didMovementKey() || input.didArrowKey()) {
+            if ((input.getVertical() != 0 || input.getArrowVertical() != 0) && mode == Mode.PAUSE) {
                 Gdx.input.setCursorCatched(true);
-                if (input.getVertical() < 0) { selected = (selected + 1) % 4; }
+                if (input.getVertical() < 0 || input.getArrowVertical() < 0) { selected = (selected + 1) % 4; }
                 else { selected = selected == 0 ? 3 : selected - 1; }
                 keyPressed("SELECTING");
                 sound.playMenuSelecting();
-            } else if (input.getHorizontal() != 0) {
+            } else if (input.getHorizontal() != 0 || input.getArrowHorizontal() != 0) {
                 Gdx.input.setCursorCatched(true);
                 if (mode == Mode.WIN) {
-                    if (input.getHorizontal() < 0) {
+                    if (input.getHorizontal() < 0 || input.getArrowHorizontal() < 0) {
                         selected = selected - 1 == 2 ? 1 : selected - 1;
                         if (levelAvailable) selected = selected < 0 ? 3 : selected;
                         else selected = selected < 1 ? 3 : selected;
