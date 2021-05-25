@@ -1689,7 +1689,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 
 		canvas.end();
 
-		if (debug && false) {
+		if (debug) {
 			canvas.beginDebug();
 			for(Obstacle obj : walls){
 				obj.drawDebug(canvas);
