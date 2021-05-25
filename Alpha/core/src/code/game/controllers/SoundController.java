@@ -359,7 +359,7 @@ public class SoundController {
         playInstantSFX(cooler, LOUD);}
 
     public void playStoveSwitch() {
-        playInstantSFX(stoveSwitch, MED);
+        playInstantSFX(stoveSwitch, LOUD);
     }
 
     public void playStoveCook(boolean isCooking) {
