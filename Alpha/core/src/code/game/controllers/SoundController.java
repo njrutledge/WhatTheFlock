@@ -73,6 +73,8 @@ public class SoundController {
 
     /** Sound for when the stoves switch */
     private SoundBuffer stoveSwitch;
+    /** Sound used for cooking. It is a music buffer to allow easy looping */
+    private MusicBuffer cook;
 
     //Chickens
     /** Sound for shredded attack */
@@ -168,6 +170,7 @@ public class SoundController {
         cooler = directory.getEntry("sound:trap:cooler", SoundBuffer.class);
 
         stoveSwitch = directory.getEntry("sound:trap:stove", SoundBuffer.class);
+        cook = directory.getEntry("music:stove", MusicBuffer.class);
 
         sounds.add(fireTrigger, breadTrigger, breadEat);
         sounds.add(iceFreeze, iceTrigger, cooler);
@@ -359,6 +362,16 @@ public class SoundController {
         playInstantSFX(stoveSwitch, MED);
     }
 
+    public void playStoveCook(boolean isCooking) {
+        if (isCooking) {
+            playMusicInstant(cook);
+            cook.setVolume(sfxVol * LOUD);
+        } else {
+            cook.stop();
+        }
+
+    }
+
 
     //Chickens
     public void playShredAttack() {
@@ -411,6 +424,7 @@ public class SoundController {
         levelTheme1.dispose();
         levelTheme2.dispose();
         menuTheme.dispose();
+        cook.dispose();
 
 
     }
