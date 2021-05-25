@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.*;
 
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
+import org.w3c.dom.Text;
 
 /**
  * Player avatar for the plaform game.
@@ -135,13 +136,18 @@ public class Chef extends GameObject implements ChefInterface {
 	protected FilmStrip slap_side_animator;
 	protected FilmStrip hurt_animator;
 	protected FilmStrip idle_animator;
+	protected FilmStrip cook_animator;
+	protected FilmStrip cook_start_animator;
 	/** Reference to texture origin */
 	protected Vector2 origin;
 
 	/** Whether or not the chef has hit a chicken */
 	private boolean hitChicken = false;
 
-
+	/** True if the chef just started cooking, false otherwise*/
+	private boolean startCook;
+	/** True if the animation frame needs to be reset for cooking*/
+	private boolean zeroCook;
 	/**
 	 * Creates a new chef avatar with the given game data
 	 *
@@ -186,6 +192,8 @@ public class Chef extends GameObject implements ChefInterface {
 		isTrap = false;
 		isCooking = false;
 		animeframe = 0.0f;
+		startCook = true;
+		zeroCook = true;
 		Filter filter = new Filter();
 		//0x0001 = player
 		filter.categoryBits = 0x0001;
@@ -368,6 +376,14 @@ public class Chef extends GameObject implements ChefInterface {
 	public void setIdleTexture(Texture texture) {
 		idle_animator = new FilmStrip(texture, 1, 14);
 		origin = new Vector2(animator.getRegionWidth()/2.0f + 10, animator.getRegionHeight()/2.0f + 10);
+	}
+
+	/**
+	 * sets animations for chef cooking
+	 */
+	public void setCookTextures(Texture texture, Texture startTexture){
+		cook_animator = new FilmStrip(texture, 1, 13);
+		cook_start_animator = new FilmStrip(startTexture, 1, 6);
 	}
 
 	/**
@@ -613,7 +629,29 @@ public class Chef extends GameObject implements ChefInterface {
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 
-		if (isStunned()){
+		if (!isCooking) {
+			startCook = true;
+			zeroCook = true;
+		}
+
+		if (isCooking()){
+			if (zeroCook){
+				zeroCook = false;
+				animeframe = 0;
+			}
+			if (startCook){
+				animeframe += ANIMATION_SPEED/1.5;
+				if (animeframe >= 6){
+					animeframe -= 6;
+					startCook = false;
+				}
+			} else {
+				animeframe += ANIMATION_SPEED/1.5;
+				if (animeframe >= 13){
+					animeframe -= 13;
+				}
+			}
+		} else if (isStunned()){
 			animeframe += ANIMATION_SPEED;
 			if (animeframe >= 5) {
 				animeframe -= 5;
@@ -658,7 +696,15 @@ public class Chef extends GameObject implements ChefInterface {
 		float effect = faceRight ? 1.0f : -1.0f;
 		float yScaleShift = 0.365f;
 		float xScaleShift = 0.365f;
-		if (isStunned()) {
+		if (isCooking()){
+			if (startCook){
+				cook_start_animator.setFrame((int) animeframe);
+				canvas.draw(cook_start_animator,Color.WHITE, cook_start_animator.getRegionWidth()/2.0f + 10, cook_start_animator.getRegionHeight()/2.0f + 10, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
+			} else {
+				cook_animator.setFrame((int) animeframe);
+				canvas.draw(cook_animator,Color.WHITE, cook_animator.getRegionWidth()/2.0f + 10, cook_animator.getRegionHeight()/2.0f + 10, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
+			}
+	    } else if (isStunned()) {
 			hurt_animator.setFrame((int) animeframe);
 			canvas.draw(hurt_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
 		} else if (Math.abs(getMovement()) + Math.abs(getVertMovement()) == 0 && shootCooldown <= 0){

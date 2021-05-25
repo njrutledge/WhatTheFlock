@@ -1,9 +1,11 @@
 package code.game.models;
 
 import code.game.interfaces.StoveInterface;
+import code.util.FilmStrip;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 import com.badlogic.gdx.utils.JsonValue;
 import code.game.views.GameCanvas;
@@ -14,11 +16,19 @@ public class Stove extends GameObject implements StoveInterface {
 
     private CircleShape sensorShape;
 
-    private Texture active_texture;
+    private FilmStrip active_texture;
+
+    private FilmStrip start_texture;
 
     private Texture inactive_texture;
 
     private boolean active = false;
+
+    private float animeframe;
+    private float ANIMATION_SPEED = 0.25f;
+
+    /** True if the start cooking animation has been played, false otherwise */
+    private boolean playedStart;
 
     /** Whether or not the stove is lit */
     private boolean lit = false;
@@ -32,6 +42,8 @@ public class Stove extends GameObject implements StoveInterface {
         setFixedRotation(true);
         data = jv;
         setName("stove");
+        animeframe = 0;
+        playedStart = false;
         //setSensorName("cookRadius");
     }
 
@@ -79,7 +91,15 @@ public class Stove extends GameObject implements StoveInterface {
      * Sets the active texture for the stove
      */
     public void setActiveTexture(Texture texture){
-        active_texture = texture;
+        active_texture = new FilmStrip(texture, 1, 9);
+    }
+
+    /**
+     * Sets the start active texture for the stove
+     */
+
+    public void setStartTexture(Texture texture){
+        start_texture = new FilmStrip(texture, 1, 9);
     }
 
     /**
@@ -98,6 +118,35 @@ public class Stove extends GameObject implements StoveInterface {
     public boolean isActive() {return active;}
 
     /**
+     * Updates the object's game state (NOT GAME LOGIC).
+     *
+     * We use this method to reset cooldowns, and control animations
+     *
+     * @param dt	Number of seconds since last animation frame
+     */
+    @Override
+    public void update(float dt) {
+        if (!lit){
+            animeframe = 0;
+            playedStart = false;
+        } else if (!playedStart){
+            animeframe += ANIMATION_SPEED;
+            if (animeframe >= 9){
+                animeframe -= 9;
+                playedStart = true;
+            }
+        } else if (playedStart){
+            animeframe += ANIMATION_SPEED;
+            if (animeframe >= 9){
+                animeframe -= 9;
+            }
+        }
+
+
+        super.update(dt);
+    }
+
+    /**
      * Draws the stove
      *
      * @param canvas Drawing context
@@ -105,8 +154,12 @@ public class Stove extends GameObject implements StoveInterface {
     public void draw(GameCanvas canvas) {
         if (active && !lit) {
             canvas.draw(texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.2f, displayScale.y*.2f);
-        }  else if (active && lit) {
+        }  else if (active && playedStart) {
+            active_texture.setFrame((int)animeframe);
             canvas.draw(active_texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.2f, displayScale.y*.2f);
+        } else if (active && !playedStart) {
+            start_texture.setFrame((int) animeframe);
+            canvas.draw(start_texture, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.2f, displayScale.y*.2f);
         } else {
             canvas.draw(inactive_texture, Color.SLATE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x*.2f, displayScale.y*.2f);
         }

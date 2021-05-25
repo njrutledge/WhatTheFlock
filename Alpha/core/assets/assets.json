@@ -26,7 +26,8 @@
         "enviro:wall:ceiling": "enviro/ceiling.png",
         "enviro:wall:ceiling:bottom": "enviro/ceiling_b.png",
         "enviro:stove": "enviro/stove.png",
-        "enviro:stoveActive": "enviro/lit_stove.png",
+        "enviro:stoveActive": "enviro/cooking_animation_repeat.png",
+        "enviro:stoveStart": "enviro/cooking_animation_start.png",
         "enviro:stoveInactive": "enviro/inactive_stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
         "enviro:trap:hotSauce": "enviro/hotsauce.png",
@@ -68,6 +69,8 @@
         "char:slapUp": "characters/chef_animation_attackup.png",
         "char:chefHurt": "characters/chef_animation_hurt.png",
         "char:chefIdle": "characters/chef_animation_idle.png",
+        "char:chefcookIdle": "characters/chef_animation_cookidle.png",
+        "char:chefcookStart": "characters/chef_animation_cookstart.png",
 
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",
