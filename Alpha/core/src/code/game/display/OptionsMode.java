@@ -655,7 +655,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         scale = (sx < sy ? sx : sy);
         //TODO resize other things as needed
         bkgCenterX = width*.495f;
-        bkgCenterY = height/2;
+        bkgCenterY = height/2f;
 
         musicCenterX = width*0.625f;
         musicCenterY = height*0.59f;
@@ -665,16 +665,16 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
         left_column = width*0.35f;
         right_column = width*0.65f;
-
-        float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
-        float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        float displayScale = canvas.getWidth()/1920f;
+        float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale*displayScale;
+        float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale*displayScale;
         musicHandleCenterX  = (music_vol*(rbound-lbound))/100 + lbound;
         sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
 
         windowCenterX = width*0.255f;
-        windowBoxCenterX = (float)(windowCenterX-0.3*windowed.getRegionWidth());
+        windowBoxCenterX = (float)(windowCenterX-0.3*windowed.getRegionWidth()*displayScale);
         fullscreenCenterX = width*0.405f;
-        fullscreenBoxCenterX = (float)(fullscreenCenterX-0.3*fullscreen.getRegionWidth());
+        fullscreenBoxCenterX = (float)(fullscreenCenterX-0.3*fullscreen.getRegionWidth()*displayScale);
         displayCenterY = height*0.57f;
 
         ACOnCenterX = width*0.22f;
@@ -685,13 +685,16 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         MSOffCenterX = width*0.645f;
         MSCenterY = height*0.33f;
 
-        ACOnCheckCenterX = (float)(ACOnCenterX-0.238*on.getRegionWidth());
-        ACOffCheckCenterX = (float)(ACOffCenterX-0.265*off.getRegionWidth());
-        MSOnCheckCenterX = (float)(MSOnCenterX-0.238*on.getRegionWidth());
-        MSOffCheckCenterX = (float)(MSOffCenterX-0.265*off.getRegionWidth());
+        ACOnCheckCenterX = (float)(ACOnCenterX-0.238*on.getRegionWidth()*displayScale);
+        ACOffCheckCenterX = (float)(ACOffCenterX-0.265*off.getRegionWidth()*displayScale);
+        MSOnCheckCenterX = (float)(MSOnCenterX-0.238*on.getRegionWidth()*displayScale);
+        MSOffCheckCenterX = (float)(MSOffCenterX-0.265*off.getRegionWidth()*displayScale);
         okCenterY = height*0.2f;
 
         heightY = height;
+        if(inMainMenu && mainMenu!=null){
+            mainMenu.resize(width, height);
+        }
     }
 
     /**
