@@ -640,7 +640,7 @@ public class Chef extends GameObject implements ChefInterface {
 				animeframe = 0;
 			}
 			if (startCook){
-				animeframe += ANIMATION_SPEED/1.5;
+				animeframe += ANIMATION_SPEED/2;
 				if (animeframe >= 6){
 					animeframe -= 6;
 					startCook = false;
