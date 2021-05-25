@@ -181,12 +181,12 @@ public class ShreddedChicken extends Chicken {
         float wScale = 0.4f;
         float hScale = 0.35f;
         //complete attack
-        if (isAttacking && attack_animator != null && !isLured()) {
+        if (isAttacking && attack_animator != null && !isLured() && !isStunned) {
             attack_animator.setFrame((int) attack_animeframe);//animeframe);
             canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
         else if(attack_animator != null && attack_animeframe > 0
-                && attack_animator.getFrame() < attack_animator.getSize() - 1){
+                && attack_animator.getFrame() < attack_animator.getSize() - 1 && !isStunned){
             attack_animator.setFrame((int) attack_animeframe);//animeframe);
             canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
@@ -195,8 +195,9 @@ public class ShreddedChicken extends Chicken {
             canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
         else if (isStunned){
-            animator.setFrame((int) animeframe);
-            canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
+            effect*=-1;
+            hurt_animator.setFrame((int) animeframe);
+            canvas.draw(hurt_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
         drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x*wScale*effect * 0.8f, displayScale.y*hScale * 1.0f);
     }
@@ -225,10 +226,10 @@ public class ShreddedChicken extends Chicken {
 
 
         if (isStunned) {
-            //animeframe += animation_speed*4;
-            //if (animeframe >= 5) {
-            //    animeframe -= 5;
-            //}
+            animeframe += 0.15f;
+            if (animeframe >= 5) {
+                animeframe -= 5;
+            }
         } else if (attack_animator != null && attack_animeframe > 0
                 && attack_animator.getFrame() < attack_animator.getSize() - 1){
             if(!isFrozen()) attack_animeframe += ANIMATION_SPEED_ATTACK;
