@@ -69,6 +69,8 @@
         "char:slapUp": "characters/chef_animation_attackup.png",
         "char:chefHurt": "characters/chef_animation_hurt.png",
         "char:chefIdle": "characters/chef_animation_idle.png",
+        "char:chefcookIdle": "characters/chef_animation_cookidle.png",
+        "char:chefcookStart": "characters/chef_animation_cookstart.png",
 
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",

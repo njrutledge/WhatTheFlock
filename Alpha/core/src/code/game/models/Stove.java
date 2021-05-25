@@ -131,13 +131,13 @@ public class Stove extends GameObject implements StoveInterface {
             playedStart = false;
         } else if (!playedStart){
             animeframe += ANIMATION_SPEED;
-            if (animeframe > 9){
+            if (animeframe >= 9){
                 animeframe -= 9;
                 playedStart = true;
             }
         } else if (playedStart){
             animeframe += ANIMATION_SPEED;
-            if (animeframe > 9){
+            if (animeframe >= 9){
                 animeframe -= 9;
             }
         }

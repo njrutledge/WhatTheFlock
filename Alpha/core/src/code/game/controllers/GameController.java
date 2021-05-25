@@ -182,6 +182,9 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	/**Chef hurt and idle animation strips */
 	private Texture chefHurtTexture;
 	private Texture chefIdleTexture;
+	/**Chef start and idle cooking animation strips */
+	private Texture chefStartCookTexture;
+	private Texture chefCookTexture;
 
 	/** Cook tutorial texture */
 	private Texture cookTutorialTexture;
@@ -553,6 +556,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		slapUpTexture = directory.getEntry("char:slapUp", Texture.class);
 		chefHurtTexture = directory.getEntry("char:chefHurt", Texture.class);
 		chefIdleTexture = directory.getEntry("char:chefIdle", Texture.class);
+		chefCookTexture = directory.getEntry("char:chefcookIdle", Texture.class);
+		chefStartCookTexture = directory.getEntry("char:chefcookStart", Texture.class);
 		eggSpinTexture = directory.getEntry("char:eggSpin", Texture.class);
 		eggSplatTexture = directory.getEntry("char:eggSplat", Texture.class);
 
@@ -856,6 +861,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 					chef.setHurtTexture(chefHurtTexture);
 					chef.setSlapDownTexture(slapDownTexture);
 					chef.setIdleTexture(chefIdleTexture);
+					chef.setCookTextures(chefCookTexture, chefStartCookTexture);
 					chef.setFilterData(player_filter);
 
 					if (currLevel == BASIC_TUTORIAL) {
