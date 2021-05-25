@@ -60,6 +60,7 @@
         "char:shreddedAttack" : "characters/shredded_animation_attack.png",
         "char:hot" : "characters/hot_animation_strut.png",
         "char:hotAttack" : "characters/hot_animation_attack.png",
+        "char:hotHurt":  "characters/hot_hurt.png",
         "char:nuggetBar": "characters/nuggetBar.png",
         "char:eggSpin" : "characters/egg_animation_spin.png",
         "char:eggSplat" : "characters/egg_animation_splat.png",
