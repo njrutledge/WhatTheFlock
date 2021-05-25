@@ -136,6 +136,8 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture shreddedTexture;
 	/** Texture asset for the shredded chicken atacking */
 	private Texture shreddedAttack;
+	/** Texture asset for the shredded hurt animation */
+	private Texture shreddedHurt;
 	/** Texture asset for the hot chick */
 	private Texture hotTexture;
 	/** Texture asset for the hot chick's attack*/
@@ -548,6 +550,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		buffaloChargingTexture = directory.getEntry("char:buffaloCharge", Texture.class);
 		shreddedTexture = directory.getEntry("char:shredded",Texture.class);
 		shreddedAttack = directory.getEntry("char:shreddedAttack", Texture.class);
+		shreddedHurt = directory.getEntry("char:shreddedHurt", Texture.class);
 		hotTexture = directory.getEntry("char:hot", Texture.class);
 		hotAttackTexture = directory.getEntry("char:hotAttack", Texture.class);
 		hotHurtTexture = directory.getEntry("char:hotHurt", Texture.class);
@@ -1324,7 +1327,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			enemy = new ShreddedChicken(constants.get("chicken"), constants.get("shredded"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(shreddedTexture);
 			enemy.setAttackTexture(shreddedAttack);
-			enemy.setHurtTexture(shreddedTexture);
+			enemy.setHurtTexture(shreddedHurt);
 		} else if (type == Chicken.ChickenType.Hot){
 			enemy = new HotChicken(constants.get("chicken"), constants.get("hot"), x, y, dwidth, dheight, chef, parameterList[1]);
 			enemy.setTexture(hotTexture);

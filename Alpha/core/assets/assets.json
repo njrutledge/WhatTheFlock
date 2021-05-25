@@ -58,6 +58,7 @@
         "char:buffaloStart": "characters/buffalo_animation_chargeStart.png",
         "char:shredded": "characters/shredded_animation_walk.png",
         "char:shreddedAttack" : "characters/shredded_animation_attack.png",
+        "char:shreddedHurt" : "characters/shredded_hurt.png",
         "char:hot" : "characters/hot_animation_strut.png",
         "char:hotAttack" : "characters/hot_animation_attack.png",
         "char:hotHurt":  "characters/hot_hurt.png",
