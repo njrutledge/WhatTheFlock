@@ -123,6 +123,7 @@ public class DinoChicken extends NuggetChicken{
             }
         }
         drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, 0.05f * effect * wScale * displayScale.x, 0.05f * hScale * displayScale.y);
+        drawDeath(canvas, -20 + getX() * drawScale.x, getY() * drawScale.y + 40, 0.05f * wScale * displayScale.x, 0.05f * hScale * displayScale.y);
         canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
     }
 

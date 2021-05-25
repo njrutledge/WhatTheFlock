@@ -73,6 +73,10 @@
         "char:chefIdle": "characters/chef_animation_idle.png",
         "char:chefcookIdle": "characters/chef_animation_cookidle.png",
         "char:chefcookStart": "characters/chef_animation_cookstart.png",
+        "char:death1" : "characters/ow_death.png",
+        "char:death2" : "characters/ouch_death.png",
+        "char:death3" : "characters/bokbok_death.png",
+        "char:death4" : "characters/cluck_death.png",
 
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",

@@ -209,6 +209,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 	private Texture eggSpinTexture;
 	private Texture eggSplatTexture;
 
+	/** Texture for death pop up */
+	private Texture deathTexture1;
+	private Texture deathTexture2;
+	private Texture deathTexture3;
+	private Texture deathTexture4;
 	///** The current number of chickens */
 	//private int chickens;
 
@@ -566,6 +571,10 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		chefStartCookTexture = directory.getEntry("char:chefcookStart", Texture.class);
 		eggSpinTexture = directory.getEntry("char:eggSpin", Texture.class);
 		eggSplatTexture = directory.getEntry("char:eggSplat", Texture.class);
+		deathTexture1 = directory.getEntry("char:death1", Texture.class);
+		deathTexture2 = directory.getEntry("char:death2", Texture.class);
+		deathTexture3 = directory.getEntry("char:death3", Texture.class);
+		deathTexture4 = directory.getEntry("char:death4", Texture.class);
 
 		//ui
 		tempEmpty = directory.getEntry("ui:tempBar.empty", TextureRegion.class);
@@ -1355,6 +1364,20 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		enemy.setDisplayScale(displayScale);
 		enemy.setBarTexture(enemyHealthBarTexture);
 		enemy.setSlowTexture(trapFrozenTexture);
+		switch ((int)(4*Math.random())){
+			case 0:
+				enemy.setDeathTexture(deathTexture1);
+				break;
+			case 1:
+				enemy.setDeathTexture(deathTexture2);
+				break;
+			case 3:
+				enemy.setDeathTexture(deathTexture3);
+				break;
+			default:
+				enemy.setDeathTexture(deathTexture4);
+				break;
+		}
 		addObject(enemy, GameObject.ObjectType.CHICKEN);
 		ai.put(enemy, new AIController(enemy, chef, grid));
 	}

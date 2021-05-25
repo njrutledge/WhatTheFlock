@@ -129,6 +129,8 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     private TextureRegion healthBar;
     /** Texture overlay for chicken frozen*/
     private TextureRegion frozen;
+    /** Texture for death pop up */
+    private Texture death;
 
     /** Radius of the chicken's sensor. If the chicken's target comes into
      * contact with the sensor, the chicken will attempt to initiate
@@ -546,6 +548,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     }
 
     public void setSlowTexture(TextureRegion texture) { frozen = texture; }
+    public void setDeathTexture(Texture texture) { death = texture; }
     /** draws if chicken has been slowed */
     public void drawSlow(GameCanvas canvas, float x, float y, float sx, float sy){
         if (inSlow) {
@@ -554,6 +557,14 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
             canvas.draw(frozen,new Color(1, 1, 1, alpha), origin.x, origin.y, x, y, getAngle(), sx, sy);
     }
     }
+
+    /** draws if chicken has been slowed */
+    public void drawDeath(GameCanvas canvas, float x, float y, float sx, float sy){
+        if (!isAlive() && isStunned && death != null) {
+            canvas.draw(death, Color.WHITE, origin.x, origin.y, x, y + getHeight(), getAngle(), sx, sy);
+        }
+    }
+
     /**
      * Draws the physics object.
      *

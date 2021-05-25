@@ -138,6 +138,7 @@ public class HotChicken extends Chicken {
             canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
         }
         drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x*wscale*effect * 0.9f, displayScale.y*hscale * 0.6f);
+        drawDeath(canvas, -20 + getX() * drawScale.x, 40 + getY() * drawScale.y, displayScale.x*wscale* 0.9f, displayScale.y*hscale * 0.6f);
     }
 
     /**

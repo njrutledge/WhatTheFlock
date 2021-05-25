@@ -200,6 +200,7 @@ public class ShreddedChicken extends Chicken {
             canvas.draw(hurt_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
         }
         drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x*wScale*effect * 0.8f, displayScale.y*hScale * 1.0f);
+        drawDeath(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x*wScale * 0.8f, displayScale.y*hScale * 1.0f);
     }
 
     /**
