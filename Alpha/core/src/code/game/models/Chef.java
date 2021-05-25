@@ -148,6 +148,8 @@ public class Chef extends GameObject implements ChefInterface {
 	private boolean startCook;
 	/** True if the animation frame needs to be reset for cooking*/
 	private boolean zeroCook;
+	private boolean cookAni;
+
 	/**
 	 * Creates a new chef avatar with the given game data
 	 *
@@ -191,6 +193,7 @@ public class Chef extends GameObject implements ChefInterface {
 		setName("chef");
 		isTrap = false;
 		isCooking = false;
+		cookAni = false;
 		animeframe = 0.0f;
 		startCook = true;
 		zeroCook = true;
@@ -223,6 +226,11 @@ public class Chef extends GameObject implements ChefInterface {
 	public boolean isCooking() {
 		return (isCooking && stove != null && stove.isActive());
 	}
+
+
+	/**Getter and setter for cooking animation */
+	public void setCookingAni(boolean b) { cookAni = b; }
+	public boolean isCookingAni() {return cookAni; }
 
 	public Stove getStove(){
 		return stove;
@@ -629,12 +637,12 @@ public class Chef extends GameObject implements ChefInterface {
 	public void update(float dt) {
 		invuln_counter = MathUtils.clamp(invuln_counter+=dt,0f,INVULN_TIME);
 
-		if (!isCooking) {
+		if (!cookAni) {
 			startCook = true;
 			zeroCook = true;
 		}
 
-		if (isCooking()){
+		if (cookAni){
 			if (zeroCook){
 				zeroCook = false;
 				animeframe = 0;
@@ -696,7 +704,7 @@ public class Chef extends GameObject implements ChefInterface {
 		float effect = faceRight ? 1.0f : -1.0f;
 		float yScaleShift = 0.365f;
 		float xScaleShift = 0.365f;
-		if (isCooking()){
+		if (cookAni){
 			if (startCook){
 				cook_start_animator.setFrame((int) animeframe);
 				canvas.draw(cook_start_animator,Color.WHITE, cook_start_animator.getRegionWidth()/2.0f + 10, cook_start_animator.getRegionHeight()/2.0f + 10, getX() * drawScale.x, getY() * drawScale.y + 25, getAngle(), displayScale.x*effect*xScaleShift, displayScale.y*yScaleShift);
