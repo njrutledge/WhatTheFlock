@@ -137,18 +137,20 @@ public class NuggetChicken extends Chicken {
         Color c = null;
         //GameCanvas.BlendState state = canvas.getBlendState();
         c = Color.WHITE.cpy();
-        if (isAttacking && attack_animator != null && !isLured()) {
-            attack_animator.setFrame((int) animeframe);
-            canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
-        } else if (!isStunned) {
-            animator.setFrame((int) animeframe);
-            canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
-        } else if (isStunned) {
-            hurt_animator.setFrame((int) (animeframe));
-            canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
+        if (isAlive()) {
+            if (isAttacking && attack_animator != null && !isLured()) {
+                attack_animator.setFrame((int) animeframe);
+                canvas.draw(attack_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
+            } else if (!isStunned) {
+                animator.setFrame((int) animeframe);
+                canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
+            } else if (isStunned) {
+                hurt_animator.setFrame((int) (animeframe));
+                canvas.draw(hurt_animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y, getAngle(), displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
+            }
+            drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
         }
-        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x * 0.1f * effect * wScale, displayScale.y * 0.1f * hScale);
-        drawDeath(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x * 0.1f * wScale, displayScale.y * 0.1f * hScale);
+        drawDeath(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x * 0.15f * wScale, displayScale.y * 0.15f * hScale);
         canvas.setBlendState(GameCanvas.BlendState.NO_PREMULT);
     }
 

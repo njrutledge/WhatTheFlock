@@ -151,6 +151,7 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** Whether the chicken is being lured */
     private boolean isLured = false;
 
+    private Vector2 popupLocation;
 
 
     /**
@@ -561,7 +562,10 @@ public abstract class Chicken extends GameObject implements ChickenInterface {
     /** draws if chicken has been slowed */
     public void drawDeath(GameCanvas canvas, float x, float y, float sx, float sy){
         if (!isAlive() && isStunned && death != null) {
-            canvas.draw(death, Color.WHITE, origin.x, origin.y, x, y + getHeight(), getAngle(), sx, sy);
+            if (popupLocation == null){
+                popupLocation = new Vector2(x, y);
+            }
+            canvas.draw(death, Color.WHITE, origin.x, origin.y, popupLocation.x, popupLocation.y, getAngle(), sx, sy);
         }
     }
 

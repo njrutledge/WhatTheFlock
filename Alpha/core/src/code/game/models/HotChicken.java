@@ -125,20 +125,20 @@ public class HotChicken extends Chicken {
         super.draw(canvas);
         float effect = faceRight ? -1.0f : 1.0f;
         Color c = Color.WHITE;
-        if (isAttacking && attack_animator != null && !isLured() && !isStunned) {
-            attack_animator.setFrame((int) animeframe);
-            canvas.draw(attack_animator,c, attack_animator.getRegionWidth()/2.0f, attack_animator.getRegionHeight()/2.0f, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
+        if (isAlive()) {
+            if (isAttacking && attack_animator != null && !isLured() && !isStunned) {
+                attack_animator.setFrame((int) animeframe);
+                canvas.draw(attack_animator, c, attack_animator.getRegionWidth() / 2.0f, attack_animator.getRegionHeight() / 2.0f, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), displayScale.x * wscale * effect, displayScale.y * hscale);
+            } else if (isStunned) {
+                hurt_animator.setFrame((int) animeframe);
+                canvas.draw(hurt_animator, c, hurt_animator.getRegionWidth() / 2.0f, hurt_animator.getRegionHeight() / 2.0f, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), displayScale.x * wscale * effect, displayScale.y * hscale);
+            } else if (!isStunned) {
+                animator.setFrame((int) animeframe);
+                canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x * wscale * effect, displayScale.y * hscale);
+            }
+            drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x * wscale * effect * 0.9f, displayScale.y * hscale * 0.6f);
         }
-        else if (isStunned){
-            hurt_animator.setFrame((int)animeframe);
-            canvas.draw(hurt_animator, c, hurt_animator.getRegionWidth()/2.0f, hurt_animator.getRegionHeight()/2.0f, getX() * drawScale.x, getY() * drawScale.y + 60, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
-        }
-        else if (!isStunned) {
-            animator.setFrame((int) animeframe);
-            canvas.draw(animator, c, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wscale*effect, displayScale.y*hscale);
-        }
-        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y, displayScale.x*wscale*effect * 0.9f, displayScale.y*hscale * 0.6f);
-        drawDeath(canvas, -20 + getX() * drawScale.x, 40 + getY() * drawScale.y, displayScale.x*wscale* 0.9f, displayScale.y*hscale * 0.6f);
+        drawDeath(canvas, -20 + getX() * drawScale.x, 40 + getY() * drawScale.y, displayScale.x*wscale* 1f, displayScale.y*hscale * 1f);
     }
 
     /**

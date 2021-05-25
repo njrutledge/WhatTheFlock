@@ -181,25 +181,24 @@ public class ShreddedChicken extends Chicken {
         float wScale = 0.4f;
         float hScale = 0.35f;
         //complete attack
-        if (isAttacking && attack_animator != null && !isLured() && !isStunned) {
-            attack_animator.setFrame((int) attack_animeframe);//animeframe);
-            canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
+        if (isAlive()) {
+            if (isAttacking && attack_animator != null && !isLured() && !isStunned) {
+                attack_animator.setFrame((int) attack_animeframe);//animeframe);
+                canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x * wScale * effect, displayScale.y * hScale);
+            } else if (attack_animator != null && attack_animeframe > 0
+                    && attack_animator.getFrame() < attack_animator.getSize() - 1 && !isStunned) {
+                attack_animator.setFrame((int) attack_animeframe);//animeframe);
+                canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x * wScale * effect, displayScale.y * hScale);
+            } else if (!isStunned) {
+                animator.setFrame((int) animeframe);
+                canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x * wScale * effect, displayScale.y * hScale);
+            } else if (isStunned) {
+                effect *= -1;
+                hurt_animator.setFrame((int) animeframe);
+                canvas.draw(hurt_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x * wScale * effect, displayScale.y * hScale);
+            }
+            drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x * wScale * effect * 0.8f, displayScale.y * hScale * 1.0f);
         }
-        else if(attack_animator != null && attack_animeframe > 0
-                && attack_animator.getFrame() < attack_animator.getSize() - 1 && !isStunned){
-            attack_animator.setFrame((int) attack_animeframe);//animeframe);
-            canvas.draw(attack_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
-        }
-        else if (!isStunned) {
-            animator.setFrame((int) animeframe);
-            canvas.draw(animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
-        }
-        else if (isStunned){
-            effect*=-1;
-            hurt_animator.setFrame((int) animeframe);
-            canvas.draw(hurt_animator, Color.WHITE, origin.x, origin.y, getX() * drawScale.x, getY() * drawScale.y + 40, getAngle(), displayScale.x*wScale*effect, displayScale.y*hScale);
-        }
-        drawSlow(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x*wScale*effect * 0.8f, displayScale.y*hScale * 1.0f);
         drawDeath(canvas, getX() * drawScale.x, getY() * drawScale.y + 40, displayScale.x*wScale * 0.8f, displayScale.y*hScale * 1.0f);
     }
 
