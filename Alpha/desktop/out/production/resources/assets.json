@@ -26,7 +26,8 @@
         "enviro:wall:ceiling": "enviro/ceiling.png",
         "enviro:wall:ceiling:bottom": "enviro/ceiling_b.png",
         "enviro:stove": "enviro/stove.png",
-        "enviro:stoveActive": "enviro/lit_stove.png",
+        "enviro:stoveActive": "enviro/cooking_animation_repeat.png",
+        "enviro:stoveStart": "enviro/cooking_animation_start.png",
         "enviro:stoveInactive": "enviro/inactive_stove.png",
         "enviro:trap:spike": "enviro/spiketrap.png",
         "enviro:trap:hotSauce": "enviro/hotsauce.png",
@@ -57,8 +58,10 @@
         "char:buffaloStart": "characters/buffalo_animation_chargeStart.png",
         "char:shredded": "characters/shredded_animation_walk.png",
         "char:shreddedAttack" : "characters/shredded_animation_attack.png",
+        "char:shreddedHurt" : "characters/shredded_hurt.png",
         "char:hot" : "characters/hot_animation_strut.png",
         "char:hotAttack" : "characters/hot_animation_attack.png",
+        "char:hotHurt":  "characters/hot_hurt.png",
         "char:nuggetBar": "characters/nuggetBar.png",
         "char:eggSpin" : "characters/egg_animation_spin.png",
         "char:eggSplat" : "characters/egg_animation_splat.png",
@@ -68,17 +71,23 @@
         "char:slapUp": "characters/chef_animation_attackup.png",
         "char:chefHurt": "characters/chef_animation_hurt.png",
         "char:chefIdle": "characters/chef_animation_idle.png",
+        "char:chefcookIdle": "characters/chef_animation_cookidle.png",
+        "char:chefcookStart": "characters/chef_animation_cookstart.png",
+        "char:death1" : "characters/ow_death.png",
+        "char:death2" : "characters/ouch_death.png",
+        "char:death3" : "characters/bokbok_death.png",
+        "char:death4" : "characters/cluck_death.png",
 
 
         "background:levelselect": "ui/levelselect/cuttingboard.png",
-        "background:menu": "ui/loading/temp_menu_bkg.png",
+        "background:menu": "ui/loading/menu_bkg.png",
         "background:pause": "ui/gamemenu/pausemenu.png",
         "background:win": "ui/gamemenu/winmenu.png",
         "background:lose": "ui/gamemenu/losemenu.png",
         "background:gray": "ui/gray_background.png",
 
         "ui:menu:start": "ui/loading/mainmenu_start.png",
-        "ui:menu:howtoplay": "ui/loading/mainmenu_howtoplay.png",
+        "ui:menu:credits": "ui/loading/mainmenu_credits.png",
         "ui:menu:options": "ui/loading/mainmenu_options.png",
         "ui:menu:quit": "ui/loading/mainmenu_quit.png",
 
@@ -117,10 +126,15 @@
         "ui:guide:4" : "ui/guide/howtoplay3.png",
         "ui:guide:5" : "ui/guide/howtoplay4.png",
 
+        "ui:credits" : "ui/guide/credits.png",
+
         "ui:tutorial:cook": "ui/tutorial/tutorial_cook.png",
         "ui:tutorial:cooler": "ui/tutorial/tutorial_cooler.png",
-        "ui:tutorial:hotsauce": "ui/tutorial/tutorial_hotsauce.png",
-        "ui:tutorial:temperature": "ui/tutorial/tutorial_temperature.png",
+        "ui:tutorial:sauce": "ui/tutorial/tutorial_hotsauce.png",
+        "ui:tutorial:temp": "ui/tutorial/tutorial_temperature.png",
+        "ui:tutorial:run": "ui/tutorial/tutorial_run.png",
+        "ui:tutorial:slap": "ui/tutorial/tutorial_slap.png",
+        "ui:tutorial:toaster": "ui/tutorial/tutorial_toaster.png",
         "ui:att_off": "ui/attbuff_off.png",
         "ui:att_on": "ui/attbuff_on.png",
         "ui:tempBar": {
@@ -201,14 +215,16 @@
         "sound:trap:iceChick" : "sounds/trap/chick_ice_trigger.ogg",
         "sound:trap:chickFreeze" : "sounds/trap/chick_freeze.ogg",
         "sound:trap:toaster" : "sounds/trap/toaster.ogg",
-        "sound:trap:cooler" : "sounds/trap/cooler_open.ogg"
+        "sound:trap:cooler" : "sounds/trap/cooler_open.ogg",
+        "sound:trap:stove" : "sounds/trap/stove_switch.ogg"
 
 
     },
   "music" : {
     "music:theme1" : "sounds/music/WTF_level_1.ogg",
     "music:theme2" : "sounds/music/WTF_level_2.ogg",
-    "music:levelSel" : "sounds/music/WTF_Menu.ogg"
+    "music:levelSel" : "sounds/music/WTF_Menu.ogg",
+    "music:stove" : "sounds/trap/fire_linger_1.ogg"
   },
     "fonts": {
         "font:retro": {
