@@ -1166,7 +1166,7 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 			createTrap();
 		}
 
-		sound.playStoveCook(chef.isCooking());
+		sound.playStoveCook(chef.isCookingAni());
 
 		// Stove updating mechanics
 		float tempProgress = temp.getPercentCooked();
