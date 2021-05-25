@@ -647,9 +647,16 @@ public class Trap extends GameObject implements TrapInterface {
             if (!isReady) {
                 int breaking = 1;
             }
-            canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y,
-                    getX() * drawScale.x, getY() * drawScale.y, getAngle(),
-                    canvas.getWidth()/1920f*scale*.8f, canvas.getHeight()/1080f*scale*.8f);
+            if (trapType == type.SLOW){
+                canvas.draw(texture, Color.WHITE, origin.x, origin.y,
+                        getX() * drawScale.x, getY() * drawScale.y, getAngle(),
+                        canvas.getWidth()/1920f*scale*.525f, canvas.getHeight()/1080f*scale*.95f);
+            }
+            else {
+                canvas.draw(texture, isReady ? c : Color.WHITE, origin.x, origin.y,
+                        getX() * drawScale.x, getY() * drawScale.y, getAngle(),
+                        canvas.getWidth() / 1920f * scale * .8f, canvas.getHeight() / 1080f * scale * .8f);
+            }
             if (hasIndicator && isReady) {
                 canvas.draw(slapIndicator, Color.WHITE, (getX()-xoffset) * drawScale.x, (getY() + yoffset) * drawScale.y , slapIndicator.getRegionWidth()*displayScale.x*0.25f, slapIndicator.getRegionHeight()*displayScale.y*0.25f);
             }
