@@ -65,22 +65,28 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     /** Scale of the menu */
     private final float BACKGROUND_SCALE = 0.5f;
     /** Scale of the volume bar */
-    private final float VOLUME_SCALE = 0.45f;
+    private final float VOLUME_SCALE = 0.55f;
     /** Scale of the buttons */
-    private final float BUTTON_SCALE = 0.5f;
+    private final float BUTTON_SCALE = 0.45f;
     /** Scale of selection box */
-    private final float SELECT_SCALE = 0.5f;
+    private final float SELECT_SCALE = 0.4f;
+    /** Scale of the OK button */
+    private final float OK_SCALE = 0.7f;
 
     /** The width of the checkbox */
-    private final float CHECKBOX_WIDTH = 36;
+    private final float CHECKBOX_WIDTH = 100;
 
+    /** The constants for selection box position */
+    private float left_column;
+    private float right_column;
     /** The constants for volume option */
     private final float VOLUME_WIDTH = 439;
     private final float VOLUME_HEIGHT = 18;
     private final float VOLUME_HANDLE_WIDTH = 31;
-    private final float VOLUME_HANDLE_HEIGHT = 58;
+    private final float VOLUME_HANDLE_HEIGHT = 125;
     /** The constants for other options */
     private final float BUTTON_HEIGHT = 37;
+    private final float SELECT_HEIGHT = 200;
     /** The center of music volume option */
     private float musicCenterX;
     private float musicCenterY;
@@ -106,17 +112,18 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     private float MSOffCenterX;
     private float MSCenterY;
     /** Constants for onTexture and off buttons */
-    private float onCenterX;
-    private float offCenterX;
+    private float ACOnCheckCenterX;
+    private float ACOffCheckCenterX;
+    private float MSOnCheckCenterX;
+    private float MSOffCheckCenterX;
     private final float ON_WIDTH = 123;
     private final float OFF_WIDTH = 147;
     /** The center and constants of ok option */
-    private float okCenterX;
     private float okCenterY;
-    private final float OK_HEIGHT = 46;
-    private final float OK_WIDTH = 70;
+    private final float OK_HEIGHT = 120;
+    private final float OK_WIDTH = 220;
     /** The constants for the selection box */
-    private final float SELECT_WIDTH = 1031;
+    private final float SELECT_WIDTH = 2500;
 
     /** Whether the user is adjusting volume */
     private boolean adjustMusic = false;
@@ -155,10 +162,10 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     private boolean scrolling = false;
 
     /** Which option are we currently hovering over?
-     * 0 = music
-     * 1 = sfx
-     * 2 = display
-     * 3 = toggle auto-cook
+     * 0 = display
+     * 1 = oggle auto-cook
+     * 2 = music
+     * 3 = sfx
      * 4 = toggle mouse-slap
      * 5 = ok
      */
@@ -313,42 +320,6 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         }
     }
 
-    /** Returns the music volume
-     *
-     * @return music volume
-     */
-    public int getMusic_vol() { return music_vol; }
-
-    /** Returns the music volume
-     *
-     * @return music volume
-     */
-    public int getSavedMusic_vol() { return save.music_vol; }
-
-    /** Returns the sfx volume
-     *
-     * @return sfx volume
-     */
-    public int getSfx_vol() { return sfx_vol; }
-
-    /** Returns whether the game is in fullscreen
-     *
-     * @return isFullscreen
-     */
-    public boolean isFullscreen() { return isFullscreen; }
-
-    /** Returns whether auto-cook is enabled
-     *
-     * @return isAutoCook
-     */
-    public boolean isAutoCook() { return isAutoCook; }
-
-    /** Returns whether mouse-slap is enabled
-     *
-     * @return isMouseSlap
-     */
-    public boolean isMouseSlap() { return isMouseSlap; }
-
     /** Resets this screen */
     public void reset(){
         selected = 0; editing = -1; back = false; pressState = 0;
@@ -408,19 +379,19 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
         float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
         if (scrollDirection == 1) {
-            if (selected == 0) {
+            if (selected == 2) {
                 music_vol = music_vol + 1 > 100 ? music_vol:music_vol+1;
                 musicHandleCenterX  = (music_vol*(rbound-lbound))/100 + lbound;
-            } else if (selected == 1) {
+            } else if (selected == 3) {
                 sfx_vol = sfx_vol + 1 > 100 ? sfx_vol:sfx_vol+1;
                 sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
             }
         } else {
-            if (selected == 0) {
+            if (selected == 2) {
                 music_vol = music_vol - 1 < 0 ? music_vol:music_vol-1;
                 musicHandleCenterX  = (music_vol*(rbound-lbound))/100 + lbound;
             }
-            else if (selected == 1) {
+            else if (selected == 3) {
                 sfx_vol = sfx_vol - 1 < 0 ? sfx_vol:sfx_vol-1;
                 sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
             }
@@ -431,10 +402,10 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     public void handleEnter() {
         if (editing >= 0) {
             switch(selected){
-                case 2:
+                case 0:
                     if (editing == 0) { isFullscreen = false; } else { isFullscreen = true; }
                     break;
-                case 3:
+                case 1:
                     if (editing == 0) { isAutoCook = true; } else {isAutoCook = false; }
                     break;
                 case 4:
@@ -460,7 +431,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     private boolean preUpdateHelper(float dt){
         InputController input = InputController.getInstance();
         input.readInput(bounds, vscale);
-        if ((selected == 1 || selected == 0) && scrollDirection != 0) {
+        if ((selected == 2 || selected == 3) && scrollDirection != 0) {
             handleScrolling(dt, input);
         } else {
             scrollDirection = 0;
@@ -479,26 +450,41 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         }
         else if (input.didMovementKey() || input.didArrowKey()) {
             Gdx.input.setCursorCatched(true);
-            if (editing >= 0 && (input.getHorizontal() != 0 || input.getArrowHorizontal() != 0)) {
-                sound.playMenuSelecting();
+            if (input.getHorizontal() != 0 || input.getArrowHorizontal() != 0) {
                 // right
                 if (input.getHorizontal() > 0 || input.getArrowHorizontal() > 0) {
-                    if (selected == 0 || selected == 1) { scrollDirection = 1; scroll(); }
-                    else if (selected != 5) { editing = editing + 1 > 1 ? 0:editing+1; }
+                    if (editing >= 0) {
+                        if (selected == 2 || selected == 3) { scrollDirection = 1; scroll(); }
+                        else if (selected != 5) { editing = editing + 1 > 1 ? 0 : editing + 1; }
+                    } else {
+                        sound.playMenuSelecting();
+                        if (selected == 0) { selected = 2; }
+                        else if (selected == 1) { selected = 4; }
+                    }
                 }
                 // left
                 else if (input.getHorizontal() < 0 || input.getArrowHorizontal() < 0) {
-                    if (selected == 0 || selected  == 1) { scrollDirection = -1; scroll(); }
-                    else if (selected != 5) { editing = editing - 1 < 0 ? 1:editing-1; }
+                    if (editing >= 0) {
+                        if (selected == 2 || selected == 3) { scrollDirection = -1; scroll(); }
+                        else if (selected != 5) { editing = editing - 1 < 0 ? 1 : editing - 1; }
+                    } else {
+                        sound.playMenuSelecting();
+                        if (selected == 2 || selected == 3) { selected = 0; }
+                        else if (selected == 4) { selected = 1; }
+                    }
                 }
             } else {
+                // down
                 if (input.getVertical() < 0 || input.getArrowVertical() < 0) {
                     sound.playMenuSelecting();
-                    selected = selected == 5 ? 0 : selected + 1;
+                    if (selected == 1 || selected == 4) { selected = 5; }
+                    else if (selected != 5) { selected += 1; }
                 }
+                // up
                 else if (input.getVertical() > 0 || input.getArrowVertical() > 0) {
                     sound.playMenuSelecting();
-                    selected = selected == 0 ? 5 : selected - 1;
+                    if (selected == 5) { selected = 4; }
+                    else if (selected != 2 && selected != 0) { selected -= 1; }
                 }
                 editing = -1;
             }
@@ -556,38 +542,39 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         canvas.setIgnore(true);
         canvas.begin();
         float selectCenterY = 0;
+        float selectCenterX = 0;
         canvas.draw(background, Color.WHITE, background.getWidth()/2, background.getHeight()/2,
                 bkgCenterX, bkgCenterY, 0, BACKGROUND_SCALE * scale, BACKGROUND_SCALE * scale);
         switch(selected){
-            case 0: selectCenterY = musicCenterY; break;
-            case 1: selectCenterY = sfxCenterY; break;
-            case 2: selectCenterY = displayCenterY; break;
-            case 3: selectCenterY = ACCenterY; break;
-            case 4: selectCenterY = MSCenterY; break;
+            case 0: selectCenterY = displayCenterY; selectCenterX = left_column; break;
+            case 1: selectCenterY = ACCenterY; selectCenterX = left_column; break;
+            case 2: selectCenterY = musicCenterY; selectCenterX = right_column; break;
+            case 3: selectCenterY = sfxCenterY; selectCenterX = right_column; break;
+            case 4: selectCenterY = MSCenterY; selectCenterX = right_column; break;
         }
         if (selected != 5) {
-            canvas.draw(selectBox, Color.WHITE, selectBox.getWidth()/2, selectBox.getHeight()/2, bkgCenterX, selectCenterY,
+            canvas.draw(selectBox, Color.WHITE, selectBox.getWidth()/2, selectBox.getHeight()/2, selectCenterX, selectCenterY,
                     0, SELECT_SCALE * scale, SELECT_SCALE * scale);
             ok.setFrame(0);
         } else {
             ok.setFrame(1);
         }
         canvas.draw(ok, Color.WHITE, ok.getRegionWidth()/2, ok.getRegionHeight()/2, bkgCenterX, okCenterY,
-                0, BUTTON_SCALE * scale, BUTTON_SCALE * scale);
+                0, OK_SCALE * scale, OK_SCALE * scale);
 
         Color mVolHandle, sfxVolHandle, dWin, dFull, aOn, aOff, mOn, mOff;
-        if (selected == 0) {
+        if (selected == 2) {
             if (editing == 0) { mVolHandle = Color.RED; } else {mVolHandle = Color.WHITE; }
         } else { mVolHandle = Color.WHITE; }
-        if (selected == 1) {
+        if (selected == 3) {
             if (editing == 0) { sfxVolHandle = Color.RED; } else {sfxVolHandle = Color.WHITE; }
         } else {sfxVolHandle = Color.WHITE; }
-        if (selected == 2) {
+        if (selected == 0) {
             if (editing == 0) { dWin = Color.CYAN; dFull = Color.WHITE; }
             else if (editing == 1) { dWin = Color.WHITE; dFull = Color.CYAN; }
             else { dWin = Color.WHITE; dFull = Color.WHITE; }
         } else { dWin = Color.WHITE; dFull = Color.WHITE; }
-        if (selected == 3) {
+        if (selected == 1) {
             if (editing == 0) { aOn = Color.CYAN; aOff = Color.WHITE; }
             else if (editing == 1) { aOn = Color.WHITE; aOff = Color.CYAN; }
             else { aOn = Color.WHITE; aOff = Color.WHITE; }
@@ -670,34 +657,39 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         bkgCenterX = width*.495f;
         bkgCenterY = height/2;
 
+        musicCenterX = width*0.625f;
+        musicCenterY = height*0.59f;
 
-        musicCenterX = width*0.59f;
-        musicCenterY = height*0.65f;
+        sfxCenterX = width*0.625f;
+        sfxCenterY = height*0.48f;
 
-        sfxCenterX = width*0.59f;
-        sfxCenterY = height*0.58f;
+        left_column = width*0.35f;
+        right_column = width*0.65f;
 
         float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
         float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
         musicHandleCenterX  = (music_vol*(rbound-lbound))/100 + lbound;
         sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
 
-        windowCenterX = width*0.45f;
-        windowBoxCenterX = (float)(windowCenterX-0.29*windowed.getRegionWidth());
-        fullscreenCenterX = width*0.6f;
-        fullscreenBoxCenterX = (float)(fullscreenCenterX-0.29*fullscreen.getRegionWidth());
-        displayCenterY = height*0.505f;
-        ACOnCenterX = width*0.53f;
-        ACOffCenterX = width*0.62f;
-        ACCenterY = height*0.431f;
+        windowCenterX = width*0.255f;
+        windowBoxCenterX = (float)(windowCenterX-0.3*windowed.getRegionWidth());
+        fullscreenCenterX = width*0.405f;
+        fullscreenBoxCenterX = (float)(fullscreenCenterX-0.3*fullscreen.getRegionWidth());
+        displayCenterY = height*0.57f;
 
-        MSOnCenterX = width*0.53f;
-        MSOffCenterX = width*0.62f;
-        MSCenterY = height*0.325f;
+        ACOnCenterX = width*0.22f;
+        ACOffCenterX = width*0.33f;
+        ACCenterY = height*0.33f;
 
-        onCenterX = (float)(ACOnCenterX-0.238*on.getRegionWidth());
-        offCenterX = (float)(ACOffCenterX-0.25*off.getRegionWidth());
-        okCenterY = height*0.235f;
+        MSOnCenterX = width*0.555f;
+        MSOffCenterX = width*0.645f;
+        MSCenterY = height*0.33f;
+
+        ACOnCheckCenterX = (float)(ACOnCenterX-0.238*on.getRegionWidth());
+        ACOffCheckCenterX = (float)(ACOffCenterX-0.265*off.getRegionWidth());
+        MSOnCheckCenterX = (float)(MSOnCenterX-0.238*on.getRegionWidth());
+        MSOffCheckCenterX = (float)(MSOffCenterX-0.265*off.getRegionWidth());
+        okCenterY = height*0.2f;
 
         heightY = height;
     }
@@ -765,10 +757,11 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
      * @param centerY The y axis center location of the button
      * @param bwidth The width of the button
      * @param bheight The height of the button
+     * @param scale The scale of the asset
      * */
-    private boolean overButton(float bwidth, float bheight, float screenX, float screenY, float centerX, float centerY){
-        float width = BUTTON_SCALE * scale * bwidth;
-        float height = BUTTON_SCALE * scale * bheight;
+    private boolean overButton(float bwidth, float bheight, float screenX, float screenY, float centerX, float centerY, float scale){
+        float width = scale * scale * bwidth;
+        float height = scale * scale * bheight;
         float xBound = centerX - width/2; //lower x bound
         float yBound = centerY - height/2;
         return ((screenX >= xBound && screenX <= xBound + width) && (screenY >= yBound && screenY <= yBound + height));
@@ -790,23 +783,24 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         Gdx.input.setCursorCatched(false);
         screenY = heightY-screenY;
 
-        if(overButton(VOLUME_HANDLE_WIDTH, VOLUME_HANDLE_HEIGHT, screenX, screenY, musicHandleCenterX, musicCenterY)){
+        if(overButton(VOLUME_HANDLE_WIDTH, VOLUME_HANDLE_HEIGHT, screenX, screenY, musicHandleCenterX, musicCenterY, VOLUME_SCALE)){
+            System.out.println("Over music handle");
             adjustMusic = true;
-        } else if (overButton(VOLUME_HANDLE_WIDTH, VOLUME_HANDLE_HEIGHT, screenX, screenY, sfxHandleCenterX, sfxCenterY)) {
+        } else if (overButton(VOLUME_HANDLE_WIDTH, VOLUME_HANDLE_HEIGHT, screenX, screenY, sfxHandleCenterX, sfxCenterY, VOLUME_SCALE)) {
             adjustSFX = true;
-        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, windowBoxCenterX, displayCenterY)) {
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, windowBoxCenterX, displayCenterY, BUTTON_SCALE)) {
             pressState = 1;
-        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, fullscreenBoxCenterX, displayCenterY)) {
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, fullscreenBoxCenterX, displayCenterY, BUTTON_SCALE)) {
             pressState = 2;
-        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, onCenterX, ACCenterY)) {
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, ACOnCheckCenterX, ACCenterY, BUTTON_SCALE)) {
             pressState = 3;
-        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, offCenterX, ACCenterY)) {
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, ACOffCheckCenterX, ACCenterY, BUTTON_SCALE)) {
             pressState = 4;
-        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, onCenterX, MSCenterY)) {
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, MSOnCheckCenterX, MSCenterY, BUTTON_SCALE)) {
             pressState = 5;
-        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, offCenterX, MSCenterY)) {
+        } else if (overButton(CHECKBOX_WIDTH, CHECKBOX_WIDTH, screenX, screenY, MSOffCheckCenterX, MSCenterY, BUTTON_SCALE)) {
             pressState = 6;
-        } else if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY)) {
+        } else if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY, OK_SCALE)) {
             sound.playMenuEnter();
             pressState = 7;
         }
@@ -911,27 +905,27 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     public boolean mouseMoved(int screenX, int screenY) {
         Gdx.input.setCursorCatched(false);
         screenY = heightY-screenY;
-        if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, musicCenterY)) {
+        if (overButton(SELECT_WIDTH, SELECT_HEIGHT, screenX, screenY, left_column, displayCenterY, BUTTON_SCALE)) {
             if (selected != 0) { sound.playMenuSelecting(); }
             selected = 0;
         }
-        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, sfxCenterY)) {
+        else if (overButton(SELECT_WIDTH, SELECT_HEIGHT, screenX, screenY, left_column, ACCenterY, BUTTON_SCALE)) {
             if (selected != 1) { sound.playMenuSelecting(); }
             selected = 1;
         }
-        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, displayCenterY)) {
+        else if (overButton(SELECT_WIDTH, SELECT_HEIGHT, screenX, screenY, right_column, musicCenterY, BUTTON_SCALE)) {
             if (selected != 2) { sound.playMenuSelecting(); }
             selected = 2;
         }
-        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, ACCenterY)) {
+        else if (overButton(SELECT_WIDTH, SELECT_HEIGHT, screenX, screenY, right_column, sfxCenterY, BUTTON_SCALE)) {
             if (selected != 3) { sound.playMenuSelecting(); }
             selected = 3;
         }
-        else if (overButton(SELECT_WIDTH, BUTTON_HEIGHT, screenX, screenY, bkgCenterX, MSCenterY)) {
+        else if (overButton(SELECT_WIDTH, SELECT_HEIGHT, screenX, screenY, right_column, MSCenterY, BUTTON_SCALE)) {
             if (selected != 4) { sound.playMenuSelecting(); }
             selected = 4;
         }
-        else if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY)) {
+        else if (overButton(OK_WIDTH, OK_HEIGHT, screenX, screenY, bkgCenterX, okCenterY, OK_SCALE)) {
             if (selected != 5) { sound.playMenuSelecting(); }
             selected = 5;
         }
