@@ -82,7 +82,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     /** The constants for volume option */
     private final float VOLUME_WIDTH = 439;
     private final float VOLUME_HEIGHT = 18;
-    private final float VOLUME_HANDLE_WIDTH = 31;
+    private final float VOLUME_HANDLE_WIDTH = 35;
     private final float VOLUME_HANDLE_HEIGHT = 125;
     /** The constants for other options */
     private final float BUTTON_HEIGHT = 37;
@@ -137,6 +137,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     /**Center the background*/
     private float bkgCenterX;
     private float bkgCenterY;
+    private float lbound;
+    private float rbound;
 
     /** Reference to GameCanvas created by the root */
     private GameCanvas canvas;
@@ -376,8 +378,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
 
     /** Scrolls to the next panel */
     private void scroll() {
-        float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
-        float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
+        //float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale*canvas.getWidth()/1920f;
+        //float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale*canvas.getWidth()/1920f;
         if (scrollDirection == 1) {
             if (selected == 2) {
                 music_vol = music_vol + 1 > 100 ? music_vol:music_vol+1;
@@ -666,8 +668,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         left_column = width*0.35f;
         right_column = width*0.65f;
         float displayScale = canvas.getWidth()/1920f;
-        float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale*displayScale;
-        float rbound = sfxCenterX+volume.getRegionWidth()/2f*VOLUME_SCALE*scale*displayScale;
+        lbound = sfxCenterX-.85f*volume.getRegionWidth()/2f*displayScale;
+        rbound = sfxCenterX+.85f*volume.getRegionWidth()/2f*displayScale;
         musicHandleCenterX  = (music_vol*(rbound-lbound))/100 + lbound;
         sfxHandleCenterX  = (sfx_vol*(rbound-lbound))/100 + lbound;
 
@@ -956,8 +958,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
      * @return whether to hand the event to other listeners.
      */
     public boolean touchDragged(int screenX, int screenY, int pointer) {
-        float lbound = sfxCenterX-volume.getRegionWidth()/2*VOLUME_SCALE*scale;
-        float rbound = sfxCenterX+volume.getRegionWidth()/2*VOLUME_SCALE*scale;
+        //float lbound = sfxCenterX-volume.getRegionWidth()/2*VOLUME_SCALE*scale*canvas.getWidth()/1920f;
+        //float rbound = sfxCenterX+volume.getRegionWidth()/2*VOLUME_SCALE*scale*canvas.getWidth()/1920f;
         if (adjustSFX) {
             if (screenX <= sfxCenterX+volume.getRegionWidth()/2*VOLUME_SCALE*scale && screenX >= sfxCenterX-volume.getRegionWidth()/2*VOLUME_SCALE*scale)
             { sfxHandleCenterX = screenX; }
