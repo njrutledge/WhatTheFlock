@@ -473,6 +473,7 @@ public class GameMenuMode implements Screen, InputProcessor, ControllerListener 
                 sound.playMusic(SoundController.CurrentScreen.LOSE, delta);
                 break;
         }
+        sound.playStoveCook(false);
     }
 
     /**

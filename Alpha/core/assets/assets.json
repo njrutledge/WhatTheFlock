@@ -218,7 +218,8 @@
   "music" : {
     "music:theme1" : "sounds/music/WTF_level_1.ogg",
     "music:theme2" : "sounds/music/WTF_level_2.ogg",
-    "music:levelSel" : "sounds/music/WTF_Menu.ogg"
+    "music:levelSel" : "sounds/music/WTF_Menu.ogg",
+    "music:stove" : "sounds/trap/fire_linger_1.ogg"
   },
     "fonts": {
         "font:retro": {
