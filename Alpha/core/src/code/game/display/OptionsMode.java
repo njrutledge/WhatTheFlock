@@ -123,7 +123,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     private final float OK_HEIGHT = 120;
     private final float OK_WIDTH = 220;
     /** The constants for the selection box */
-    private final float SELECT_WIDTH = 3000;
+    private final float SELECT_WIDTH = 2500;
 
     /** Whether the user is adjusting volume */
     private boolean adjustMusic = false;
@@ -663,7 +663,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         sfxCenterX = width*0.625f;
         sfxCenterY = height*0.48f;
 
-        left_column = width*0.33f;
+        left_column = width*0.35f;
         right_column = width*0.65f;
 
         float lbound = sfxCenterX-volume.getRegionWidth()/2f*VOLUME_SCALE*scale;
