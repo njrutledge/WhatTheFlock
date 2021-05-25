@@ -1260,9 +1260,11 @@ public class GameController implements ContactListener, Screen, InputProcessor {
 		Stove stove = chef.getStove();
 		if (chef.isCooking() && (autoCook || InputController.getInstance().didCook())) {
 			temp.cook(true);
+			chef.setCookingAni(true);
 			if (stove!=null) chef.getStove().setLit(true);
 		}else {
 			temp.cook(false);
+			chef.setCookingAni(false);
 			if (stove!=null) chef.getStove().setLit(false);
 		}
 
