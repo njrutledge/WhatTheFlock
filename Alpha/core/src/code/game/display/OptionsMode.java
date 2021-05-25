@@ -69,7 +69,7 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
     /** Scale of the buttons */
     private final float BUTTON_SCALE = 0.45f;
     /** Scale of selection box */
-    private final float SELECT_SCALE = 0.4f;
+    private final float SELECT_SCALE = 0.5f;
     /** Scale of the OK button */
     private final float OK_SCALE = 0.7f;
 
@@ -665,8 +665,8 @@ public class OptionsMode implements Screen, InputProcessor, ControllerListener {
         sfxCenterX = width*0.625f;
         sfxCenterY = height*0.48f;
 
-        left_column = width*0.35f;
-        right_column = width*0.65f;
+        left_column = width*0.335f;
+        right_column = width*0.655f;
         float displayScale = canvas.getWidth()/1920f;
         lbound = sfxCenterX-.85f*volume.getRegionWidth()/2f*displayScale;
         rbound = sfxCenterX+.85f*volume.getRegionWidth()/2f*displayScale;
